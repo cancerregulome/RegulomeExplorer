@@ -66,9 +66,9 @@ function showSVGDialog() {
 function export_svg() {
     var serializer = new XMLSerializer();
     var svg_tags;
-    var panel_dom = Ext.get('circle-panel').dom;
-    if (panel_dom.firstChild.id == ""){
-        svg_tags =serializer.serializeToString(panel_dom.firstChild);
+    var panel_dom = Ext.DomQuery.selectNode('div#circle-panel>svg');
+    if (panel_dom !== undefined){
+        svg_tags=serializer.serializeToString(panel_dom);
     }
     Ext.getCmp('export-textarea').setRawValue(svg_tags);
 }
