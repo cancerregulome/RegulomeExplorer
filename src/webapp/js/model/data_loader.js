@@ -96,9 +96,13 @@ function parseNetwork(responses) {
    var whole_net = responses['network'].map(function(row) {
         var node1 = row.alias1.split(':');
         var node2 = row.alias2.split(':');
+           var label_mod1 = node1.length >=8 ? node1[7] : '';
+           var label_mod2 = node2.length >=8 ? node2[7] : '';
            return {node1: {id : row.f1id, source : node1[1], label : node1[2], chr : node1[3].slice(3),
+               label_mod : label_mod1,
                start: parseInt(node1[4]), end:node1[5] != '' ? parseInt(node1[5]) : parseInt(node1[4]),genescore:row.f1genescore},
             node2: {id : row.f2id, source : node2[1], label : node2[2], chr : node2[3].slice(3),
+                label_mod : label_mod2,
                 start: parseInt(node2[4]), end:node2[5] != '' ? parseInt(node2[5]) : parseInt(node2[4]),genescore:row.f2genescore},
             pvalue : row.pvalue,importance : row.importance, correlation:row.correlation};
     }

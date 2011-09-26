@@ -224,11 +224,13 @@ function wedge_plot(parsed_data,div) {
             Target :  function(feature) { return feature.sourceNode.source + ' ' + feature.sourceNode.label +
                     (feature.sourceNode.chr ? ' Chr'+ feature.sourceNode.chr : '') +
                     (feature.sourceNode.start ? ' '+ feature.sourceNode.start : '') +
-                    (feature.sourceNode.end ? '-'+ feature.sourceNode.end : '');},
+                    (feature.sourceNode.end ? '-'+ feature.sourceNode.end : '')  + ' '+
+                     feature.sourceNode.label_mod;},
             Predictor :  function(feature) { return feature.targetNode.source + ' ' + feature.targetNode.label +
                     (feature.targetNode.chr ? ' Chr'+ feature.targetNode.chr : '') +
                     (feature.targetNode.start ? ' '+ feature.targetNode.start : '') +
-                    (feature.targetNode.end ? '-'+ feature.targetNode.end : '');}
+                    (feature.targetNode.end ? '-'+ feature.targetNode.end : '')  + ' ' +
+                   feature.targetNode.label_mod;}
         };
     var chrom_leng = vq.utils.VisUtils.clone(chrome_length);
 
@@ -269,7 +271,7 @@ function wedge_plot(parsed_data,div) {
                 stroke_style :stroke_style,
                 fill_style : function(tick) {return node_colors(tick.source); },
                 tooltip_items : {Tick : function(node) { return node.label+ ' ' + node.source + ' Chr' + node.chr + ' ' + node.start +
-                    '-' + node.end;}},
+                    '-' + node.end + ' ' + node.label_mod;}},
                 tooltip_links : {
                     'UCSC Genome Browser' :  function(feature){
                         return  ucsc_genome_url + '?position=chr' + feature.chr + ':' +  feature.start +'-'+ feature.end;  },
@@ -353,7 +355,7 @@ function wedge_plot(parsed_data,div) {
                     return link_sources_colors([link.sourceNode.source,link.targetNode.source]);},
                 constant_link_alpha : 0.7,
                 node_tooltip_items :  {Node : function(node) { return node.label+ ' ' + node.source + ' Chr' + node.chr + ' ' + node.start +
-                            '-' + node.end;}},
+                            '-' + node.end + ' ' + node.label_mod;}},
                  node_tooltip_links : {
                     'UCSC Genome Browser' :  function(feature){
                         return  ucsc_genome_url + '?position=chr' + feature.chr + ':' +  feature.start +'-'+ feature.end;  },
@@ -362,10 +364,10 @@ function wedge_plot(parsed_data,div) {
                 },
                 link_tooltip_items :  {
                     'Target' : function(link) { return link.sourceNode.label+ ' ' + link.sourceNode.source + ' Chr' + link.sourceNode.chr + ' ' + link.sourceNode.start +
-                            '-' + link.sourceNode.end;},
+                            '-' + link.sourceNode.end + ' ' +link.sourceNode.label_mod;},
 
                     'Predictor' : function(link) { return link.targetNode.label+ ' ' + link.targetNode.source + ' Chr' + link.targetNode.chr + ' ' + link.targetNode.start +
-                            '-' + link.targetNode.end;},
+                            '-' + link.targetNode.end + ' ' + link.targetNode.label_mod;},
                     'Importance' : 'importance',
                     Correlation : 'correlation',
                     pvalue : 'pvalue'
@@ -420,15 +422,15 @@ function linear_plot(obj) {
         located_tooltip_items = {
             Feature : function(tie) {
             return tie.label + ' ' + tie.source + ' Chr' +tie.chr + ' ' +
-                    mbpToBp(tie.start) + (tie.end != null ? '-'+mbpToBp(tie.end) : '');}
+                    mbpToBp(tie.start) + (tie.end != null ? '-'+mbpToBp(tie.end) : '')  + ' '+ tie.label_mod;}
         },
         inter_tooltip_items = {
             Target : function(tie) {
             return tie.sourceNode.label + ' ' + tie.sourceNode.source + ' Chr' +tie.sourceNode.chr + ' ' +tie.sourceNode.start +'-'+
-                    tie.sourceNode.end;},
+                    tie.sourceNode.end + ' ' + tie.sourceNode.label_mod;},
         Predictor : function(tie) {
           return tie.targetNode.label + ' ' + tie.targetNode.source +
-                  ' Chr' + tie.targetNode.chr+ ' ' +tie.targetNode.start +'-'+tie.targetNode.end;},
+                  ' Chr' + tie.targetNode.chr+ ' ' +tie.targetNode.start +'-'+tie.targetNode.end + ' ' + tie.targetNode.label_mod;},
          'Importance' : 'importance',
          Correlation : 'correlation',
             pvalue : 'pvalue'
