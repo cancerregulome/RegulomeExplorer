@@ -765,6 +765,12 @@ function scatterplot_draw(params) {
     var tooltip = {};
     tooltip[data.f1alias] = f1,tooltip[data.f2alias] = f2,tooltip['Sample'] = 'patient_id';
 
+    if(discretize_x && f1label != 'B') {
+    var f1hist = pv.histogram(f1values).frequencies(true).bins();
+    }
+    if(discretize_y && f2label != 'B') {
+    var f2hist = pv.histogram(f2values).frequencies(true).bins();
+    }
     f1label = (discretize_x ? 'B' : f1label[0]) + f1label.slice(1);
     f2label = (discretize_y ? 'B' : f2label[0]) + f2label.slice(1);
     var violin = (isNonLinear(f1label[0]) ^ isNonLinear(f2label[0])); //one is nonlinear, one is not

@@ -252,25 +252,34 @@ function buildGQLQuery(args) {
         where += (where.length > whst.length ? ' and ' : ' ');
         where += 'pvalue <= ' +args['pvalue'];
     }
-     if (args['correlation'] != '') {
-        where += (where.length > whst.length ? ' and ' : ' ');
-        var corr_fn = args['correlation_fn'];
-    if (corr_fn == 'Btw'){
-        where += '(correlation >= -' +args['correlation'] + ' and correlation <= ' + args['correlation'] +')';
-    }else if (corr_fn == '<='){
-        where += '(correlation <= ' + args['correlation'] +')';
-    }else if (corr_fn == '>='){
-        where += '(correlation >= ' +args['correlation'] +')';
-    }else{
-            where += '(correlation >= ' +args['correlation'] + ' or correlation <= -' + args['correlation'] +')';
-    }
-   }
+    var corr_clause = flex_field_query('correlation',args['correlation'],args['correlation_fn']);
+    where += ((where.length > whst.length && corr_clause.length > 0) ? ' and ' : ' ') + corr_clause;
+
 
     query += (where.length > whst.length ? where : '');
     query += ' order by '+args['order'] + (args['order'] == 'pvalue' ? ' ASC' : ' DESC');
     query += ' limit '+args['limit'] + ' label `feature1id` \'f1id\', `feature2id` \'f2id\'';
 
     return query;
+}
+
+function flex_field_query(label, value, fn) {
+      var where = '';
+        if (value != '') {
+            if (fn == 'Btw'){
+                where += '(' + label + ' >= -' +value + ' and '+ label + ' <= ' + value +')';
+            }else if (fn == '<='){
+                where += '('+ label + ' <= ' + value +')';
+            }else if (fn == '>='){
+                where += '('+ label + ' >= ' +value +')';
+            }else{
+                            if (parseFloat(value) != '0' ) {
+                    where += '('+ label + ' >= ' +value + ' or '+ label + ' <= -' + value +')';
+                            }
+            }
+       }
+    return where;
+
 }
 
 function parseLabelList(field_id,labellist) {

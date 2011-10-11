@@ -973,7 +973,7 @@ Ext.onReady(function() {
                                             tabIndex : 1,
                                             validateOnBlur : true,
                                             fieldLabel : 'Range(Corr)',
-                                            value : 0.1,
+                                            value : 0,
                                             listeners: {
                                             render: function(c) {
                                                 Ext.QuickTips.register({
