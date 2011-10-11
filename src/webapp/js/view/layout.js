@@ -21,7 +21,10 @@ function registerLayoutListeners() {
         details_window_mask.hide();
     });
     d.addListener('data_ready','annotations',function(obj){
-                Ext.getCmp('dataset_grid').getSelectionModel().selectFirstRow();
+                //Ext.getCmp('dataset_grid').getSelectionModel().selectFirstRow();
+        var index = Ext.getCmp('dataset_grid').getStore().find('label','gbm_1006_mask');
+        var record = Ext.getCmp('dataset_grid').getStore().getAt(index);
+        Ext.getCmp('dataset_grid').getSelectionModel().selectRecords([record]);
                 loadSelectedDataset();
      });
     d.addListener('render_complete','circvis',function(circvis_plot){
@@ -215,7 +218,7 @@ function resetFormPanel() {
 }
 
 function loadDataTableStore(data) {
-    var mapped_data = pv.blend(data['network'],data['unlocated']).map(function(row) {
+    var mapped_data = pv.blend([data['network'],data['unlocated']]).map(function(row) {
   return {target_id: row.node1.id, target_source: row.node1.source,target_label: row.node1.label,target_chr: row.node1.chr,
       target_start: row.node1.start,target_stop:row.node1.stop,
       source_id: row.node2.id, source_source :row.node2.source,source_label: row.node2.label,source_chr: row.node2.chr,
@@ -472,11 +475,16 @@ Ext.onReady(function() {
                     title : 'Network',
                     monitorResize : true,
                     autoScroll : false,
-                    forceLayout : true,
                     layout : 'absolute',
                     height: 800,
                     width:1050,
                     collapsible : false,
+                    listeners: {
+                                    activate: function() {
+                                          var e = new vq.events.Event('frame_ready','graph',{});
+                                          e.dispatch();
+                                    }
+                    },
                     items : [
                         { xtype : 'panel',
                             border : false,
@@ -551,6 +559,8 @@ Ext.onReady(function() {
                                     var link = {};link.sourceNode = {};link.targetNode = {};
                                     link.sourceNode.id = record.get('target_id');
                                     link.targetNode.id = record.get('source_id');
+                                    link.sourceNode.label = record.get('target_label');
+                                    link.targetNode.label = record.get('source_label');
                                      //initiateDetailsPopup(link);
                                     vq.events.Dispatcher.dispatch(new vq.events.Event('click_association','associations_table',link));
                                 }
@@ -903,11 +913,12 @@ Ext.onReady(function() {
                                             decimalPrecision : 8,
                                             emptyText : 'Input value...',
                                             invalidText:'This value is not valid.',
-                                            minValue:0,
+                                            maxValue:-0.1,
+                                            minValue:-1100,
                                             tabIndex : 1,
                                             validateOnBlur : true,
-                                            fieldLabel : 'pvalue <=',
-                                            value : 0.5
+                                            fieldLabel : 'log10(p) <=',
+                                            value : -10
                                         },
                                         {
                         xtype : 'compositefield',
@@ -1063,26 +1074,77 @@ Ext.onReady(function() {
                             text:'Display',
                         labelStyle: 'font-weight:bold;',
                         menu:[{
-                            text:'Color By:',
-                            menu:[{
-                                xtype:'menucheckitem',
-                                 handler: colorHandler,
-                                checked:true,
-                                id:'feature_check',
-                                group:'color_group',
-                                text:'Feature Type'
-                                },
-                                {
-                                    xtype:'menucheckitem',
-                                    handler: colorHandler,
-                                    group:'color_group',
-                                    id:'inter_check',
-                                    text:'Interestingness'
+//                            text:'Color By:',
+//                            menu:[{
+//                                xtype:'menucheckitem',
+//                                 handler: colorHandler,
+//                                checked:true,
+//                                id:'feature_check',
+//                                group:'color_group',
+//                                text:'Feature Type'
 //                                },
 //                                {
-//                                    text:'Association'
+//                                    xtype:'menucheckitem',
+//                                    handler: colorHandler,
+//                                    group:'color_group',
+//                                    id:'inter_check',
+//                                    text:'Interestingness'
+////                                },
+////                                {
+////                                    text:'Association'
+                            id:'networkMenu',
+                            text:'Network',
+                            labelStyle: 'font-weight:bold;',
+                            menu:[{
+                                checked:true,
+                                text:'Force Directed',
+                                xtype:'menucheckitem',
+                                handler:networkLayoutHandler,
+                                group:'networklayout_group'
+                                    },
+                                { text:'Radial',
+                                 xtype:'menucheckitem',
+                                handler:networkLayoutHandler,
+                                checked: false,
+                                group:'networklayout_group'},
+                                { text:'Tree',
+                                 xtype:'menucheckitem',
+                                handler:networkLayoutHandler,
+                                checked: false,
+                                group:'networklayout_group'}
+                            ]
                                 }]
-
+                    },{
+                        id:'modalMenu',
+                        text:'Mode',
+                        labelStyle: 'font-weight:bold;',
+                        menu:[{
+                            text:'Circular Plot',
+                            menu:[{
+                                xtype:'menucheckitem',
+                                handler: modeHandler,
+                                checked:true,
+                                id:'explore_check',
+                                group:'mode_group',
+                                text:'Explore',
+                                value: 'explore'
+                            },
+                                {
+                                    xtype:'menucheckitem',
+                                    handler: modeHandler,
+                                    group:'mode_group',
+                                    id:'nav_check',
+                                    text:'Navigate',
+                                    value: 'navigate'
+                                }, {
+                                    xtype:'menucheckitem',
+                                    handler: modeHandler,
+                                    group:'mode_group',
+                                    disabled:true,
+                                    id:'select_check',
+                                    text:'Select',
+                                    value: 'Select'
+                                }]
                         }]
                     }]
         },
@@ -1111,6 +1173,33 @@ Ext.onReady(function() {
             default:
                 setStrokeStyleAttribute('white'); renderCircleData();
         }
+    }
+
+        function modeHandler(item){
+        switch(item.getId()) {
+            case('nav_check'):
+                vq.events.Dispatcher.dispatch(new vq.events.Event('modify_circvis','main_menu',{pan_enable:true,zoom_enable:true}));
+                break;
+            case('explore_check'):
+            default:
+                vq.events.Dispatcher.dispatch(new vq.events.Event('modify_circvis','main_menu',{pan_enable:false,zoom_enable:false}));
+        }
+    }
+
+    function networkLayoutHandler(item) {
+        switch(item.text) {
+            case('Radial'):
+                gbm.display_options.cytoscape.layout = 'radial';
+                break;
+            case('Tree'):
+                gbm.display_options.cytoscape.layout = 'tree';
+                break;
+            case('Force Directed') :
+                default:
+                gbm.display_options.cytoscape.layout = 'force_directed';
+                break;
+        }
+        vq.events.Dispatcher.dispatch(new vq.events.Event('layout_network','main_menu',{}));
     }
 
 export_window = new Ext.Window( {
@@ -1378,9 +1467,8 @@ details_window =
                         items:[  {
                             id:'dataDocument-panel',
                             name : 'dataDocument-panel',
-                            layout : 'fit',
-                            height: 425,
-                            width:600,
+                            layout : 'anchor',
+                            anchor: '100% 100%',
                             collapsible : false,
                             items : [
                                     {
@@ -1389,8 +1477,9 @@ details_window =
                                     name : 'dataDocument_grid',
                                     autoScroll:true,
                                     autoWidth : true,
-                                    height: 425,
+//                                    height: 425,
                                     loadMask: true,
+                                    anchor: '100% 100%',
                                     store: medlineStore,
                                     viewConfig: {
                                         forceFit : true,
