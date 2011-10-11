@@ -206,11 +206,13 @@ function buildGQLQuery(args) {
     }
     if (args['f1_label'] != '' && args['f1_label'] != '*') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += '`f1label` ' + parseLabel(args['f1_label']);
+        where += parseLabelList('f1label',args['f1_label']);
+            //'`f1label` ' + parseLabel(args['f1_label']);
     }
      if (args['f2_label'] != '' && args['f2_label'] != '*') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += '`f2label` ' + parseLabel(args['f2_label']);
+        where +=parseLabelList('f2label',args['f2_label']);
+            //'`f2label` ' + parseLabel(args['f2_label']);
     }
     if (args['f1_chr'] != '' && args['f1_chr'] != '*') {
         where += (where.length > whst.length ? ' and ' : ' ');
@@ -271,9 +273,22 @@ function buildGQLQuery(args) {
     return query;
 }
 
+function parseLabelList(field_id,labellist) {
+    var clause = '(';
+    var labels = labellist.split(',');
+    if (labels.length < 1) return '';
+    labels.forEach( function(label) {
+        clause += ' `' + field_id + '` ' + parseLabel(label);
+        clause += ' or'
+    });
+    clause = clause.slice(0,-3)
+    clause += ')';
+    return clause;
+}
+
 function parseLabel(label) {
-    if (label.length > 1 && label.indexOf('*') >= 0) {
-        return 'starts with \'' + label.replace(new RegExp('[*]', 'g'),'') + '\'';
+    if (label.length > 1) {
+        return 'like \'' + label.replace(new RegExp(' ','g'),'').replace(new RegExp('[*%]', 'g'),'%25') + '\'';
          } else {
              return '=\'' + label + '\'';
     }
