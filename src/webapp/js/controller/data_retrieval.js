@@ -287,8 +287,9 @@ function parseLabelList(field_id,labellist) {
 }
 
 function parseLabel(label) {
-    if (label.length > 1) {
-        return 'like \'' + label.replace(new RegExp(' ','g'),'').replace(new RegExp('[*%]', 'g'),'%25') + '\'';
+    label = label.replace(new RegExp(' ','g'),'');
+    if (label.length > 1  && (label.indexOf('*')>=0 || label.indexOf('%')>=0)) {
+        return 'like \'' + label.replace(new RegExp('[*%]', 'g'),'%25') + '\'';
          } else {
              return '=\'' + label + '\'';
     }
