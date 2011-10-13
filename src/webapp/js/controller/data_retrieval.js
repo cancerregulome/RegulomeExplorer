@@ -195,7 +195,56 @@ function loadAnnotations() {
  not very good yet.  move json_array responsibility to server.. stop running cascading timers!
  */
 
-function loadNetworkData(query_params,callback) {
+function loadNetworkData(query_params) {
+    switch(query_params['filter_type']){
+        case('target'):
+        case('predictor'):
+            loadNetworkDataByFeature(query_params)
+        break;
+        case('association'):
+        default:
+            loadNetworkDataByAssociation(query_params);
+    }
+}
+
+function loadNetworkDataByFeature(query_params) {
+    var feature = query_params['filter_type'] == 'target' ? 'f1' : 'f2';
+    var labels = parseLabelList(query_params[feature + '_label']);
+
+function loadComplete() {
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete','associations', responses));
+    }
+
+    function loadFailed() {
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','associations',{msg:'Retrieval Timeout'}));
+    }
+
+    var responses = [];
+
+    function handleNetworkQuery(response) {
+        responses.push(Ext.decode(response.responseText));
+        if (responses.length >= labels.length) {
+            responses = pv.blend(responses);
+            loadComplete();
+        }
+    }
+    function queryFailed(response) {
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','assocations',{msg:'Query Error: ' + response.status + ': ' + response.responseText}));
+    }
+
+    labels.forEach(function(label){
+        var temp = query_params;
+        temp[feature + '_label'] = label;
+        var network_query=buildGQLQuery(temp);
+        var association_query_str = query_param + network_query + json_out_param;
+        var association_query = base_query_url + tcga_base_query_uri + network_uri + association_query_str;
+        Ext.Ajax.request({url:association_query,success:handleNetworkQuery,failure: queryFailed});
+    });
+    loadComplete();
+
+}
+
+function loadNetworkDataByAssociation(query_params) {
     function loadComplete() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete','associations', responses));
     }
@@ -204,12 +253,12 @@ function loadNetworkData(query_params,callback) {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','associations',{msg:'Retrieval Timeout'}));
     }
 
-    var responses = {network : null};
+    var responses = [];
 
     var network_query=buildGQLQuery(query_params);
 
     function handleNetworkQuery(response) {
-        responses['network'] = Ext.decode(response.responseText);
+        responses = Ext.decode(response.responseText);
         loadComplete();
     }
     function queryFailed(response) {
@@ -243,12 +292,12 @@ function buildGQLQuery(args) {
     }
     if (args['f1_label'] != '' && args['f1_label'] != '*') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += parseLabelList('f1label',args['f1_label']);
+        where += querifyLabelList('f1label',args['f1_label']);
         //'`f1label` ' + parseLabel(args['f1_label']);
     }
     if (args['f2_label'] != '' && args['f2_label'] != '*') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where +=parseLabelList('f2label',args['f2_label']);
+        where +=querifyLabelList('f2label',args['f2_label']);
         //'`f2label` ' + parseLabel(args['f2_label']);
     }
     if (args['f1_chr'] != '' && args['f1_chr'] != '*') {
@@ -319,9 +368,13 @@ function flex_field_query(label, value, fn) {
 
 }
 
-function parseLabelList(field_id,labellist) {
+function parseLabelList(labellist) {
+    return labellist.replace(new RegExp(' ','g'),'').split(',');
+}
+
+function querifyLabelList(field_id,labellist) {
+    var labels = parseLabelList(labellist);
     var clause = '(';
-    var labels = labellist.split(',');
     if (labels.length < 1) return '';
     labels.forEach( function(label) {
         clause += ' `' + field_id + '` ' + parseLabel(label);
@@ -333,7 +386,6 @@ function parseLabelList(field_id,labellist) {
 }
 
 function parseLabel(label) {
-    label = label.replace(new RegExp(' ','g'),'');
     if (label.length > 1  && (label.indexOf('*')>=0 || label.indexOf('%')>=0)) {
         return 'like \'' + label.replace(new RegExp('[*%]', 'g'),'%25') + '\'';
     } else {

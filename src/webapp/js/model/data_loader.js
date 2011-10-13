@@ -43,7 +43,7 @@ function generateNetworkDefinition(responses) {
 
     var network = {nodes: [], edges: []};
     var source_array = [], source_map = {};
-    network.edges = responses['network'].map(function(row) {
+    network.edges = responses.map(function(row) {
         var node1 = row.alias1.split(':');
         var node2 = row.alias2.split(':');
         var f1id =    row.f1id + '';
@@ -93,7 +93,7 @@ function parseNetwork(responses) {
     var timer = new vq.utils.SyncDatasources(400,40,loadComplete,parsed_data,loadFailed);
     timer.start_poll();
 
-   var whole_net = responses['network'].map(function(row) {
+   var whole_net = responses.map(function(row) {
         var node1 = row.alias1.split(':');
         var node2 = row.alias2.split(':');
            var label_mod1 = node1.length >=8 ? node1[7] : '';
