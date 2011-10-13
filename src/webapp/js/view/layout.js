@@ -21,10 +21,10 @@ function registerLayoutListeners() {
         details_window_mask.hide();
     });
     d.addListener('data_ready','annotations',function(obj){
-        //Ext.getCmp('dataset_grid').getSelectionModel().selectFirstRow();
-        var index = Ext.getCmp('dataset_grid').getStore().find('label','gbm_1006_mask');
-        var record = Ext.getCmp('dataset_grid').getStore().getAt(index);
-        Ext.getCmp('dataset_grid').getSelectionModel().selectRecords([record]);
+        Ext.getCmp('dataset_grid').getSelectionModel().selectFirstRow();
+        //var index = Ext.getCmp('dataset_grid').getStore().find('label','gbm_1006_mask');
+        //var record = Ext.getCmp('dataset_grid').getStore().getAt(index);
+        //Ext.getCmp('dataset_grid').getSelectionModel().selectRecords([record]);
         loadSelectedDataset();
     });
     d.addListener('render_complete','circvis',function(circvis_plot){
@@ -988,12 +988,12 @@ Ext.onReady(function() {
                                                 decimalPrecision : 8,
                                                 emptyText : 'Input value...',
                                                 invalidText:'This value is not valid.',
-                                                maxValue:-0.1,
-                                                minValue:-1100,
+                                                maxValue:0.9,
+                                                minValue:0,
                                                 tabIndex : 1,
                                                 validateOnBlur : true,
-                                                fieldLabel : 'log10(p) <=',
-                                                value : -10
+                                                fieldLabel : 'pvalue <=',
+                                                value : 0.5
                                             },
                                             {
                                                 xtype : 'compositefield',
