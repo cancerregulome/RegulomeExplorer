@@ -341,7 +341,7 @@ function wedge_plot(parsed_data,div) {
                     '-' + node.end + ' ' + node.label_mod;}},
                 tooltip_links : {
                     'UCSC Genome Browser' :  function(feature){
-                        return  ucsc_genome_url + '?position=chr' + feature.chr + ':' +  feature.start +'-'+ feature.end;  },
+                        return  ucsc_genome_url + '?db=hg18&position=chr' + feature.chr + ':' +  feature.start +'-'+ feature.end;  },
                     'Ensemble' : function(feature) {
                         return  'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' +  feature.start +'-'+ feature.end;  }
                 }
@@ -425,7 +425,7 @@ function wedge_plot(parsed_data,div) {
                     '-' + node.end + ' ' + node.label_mod;}},
                 node_tooltip_links : {
                     'UCSC Genome Browser' :  function(feature){
-                        return  ucsc_genome_url + '?position=chr' + feature.chr + ':' +  feature.start +'-'+ feature.end;  },
+                        return  ucsc_genome_url + '?db=hg18&position=chr' + feature.chr + ':' +  feature.start +'-'+ feature.end;  },
                     'Ensemble' : function(feature) {
                         return  'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' +  feature.start +'-'+ feature.end;  }
                 },
@@ -464,12 +464,12 @@ function linear_plot(obj) {
     var div = obj.div || null, parsed_data = obj.data || [], chrom = obj.chr || '1', start = obj.start || null, range_length = obj.range || null;
     var ucsc_genome_url = 'http://genome.ucsc.edu/cgi-bin/hgTracks';
     var tile_listener = function(feature){
-        window.open(ucsc_genome_url + '?position=chr' + feature.chr + ':' + mbpToBp(feature.start) +
+        window.open(ucsc_genome_url + '?db=hg18&position=chr' + feature.chr + ':' + mbpToBp(feature.start) +
             '-'+ mbpToBp(feature.end),'_blank');
         return false;
     };
     var spot_listener = function(feature){
-        window.open(ucsc_genome_url + '?position=chr' + feature.chr + ':' + mbpToBp(feature.start)  +
+        window.open(ucsc_genome_url + '?db=hg18&position=chr' + feature.chr + ':' + mbpToBp(feature.start)  +
             '-'+ mbpToBp(feature.start+ 20),'_blank');
         return false;
     };
