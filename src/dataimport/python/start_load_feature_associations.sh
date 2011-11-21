@@ -35,6 +35,6 @@ then
 	#dataset_label=$dataset_label"_pw"
 	associations_pw=$6
 	echo begin parsing and loading pairwise data $(date) for $associations_pw
-	python parse_pairwise.py /titan/cancerregulome3/TCGA/outputs/brca/brca_ov.merge.13nov.hg18.tsv /titan/cancerregulome3/TCGA/outputs/brca/brca_ov.merge.salvaged.pwpv.tsv brca_ov_1113 $do_pubcrawl
+	/tools/bin/python2.7 parse_pairwise.py /titan/cancerregulome3/TCGA/outputs/brca/brca_ov.merge.13nov.hg18.tsv /titan/cancerregulome3/TCGA/outputs/brca/brca_ov.merge.salvaged.pwpv.tsv brca_ov_1113 $do_pubcrawl
 	echo Done with loading pairwise
 fi
