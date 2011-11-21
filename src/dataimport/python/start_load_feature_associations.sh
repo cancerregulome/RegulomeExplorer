@@ -25,7 +25,7 @@ echo parsed and loaded associations, create materialized view $(date)
 /tools/bin/python2.7 createSchemaFromTemplate.py $dataset_label ../sql/populate_mv_rf_associations_template.sql
 echo populated materialize view $(date)
 
-#/tools/bin/python2.7 update_rgex_dataset.py $dataset_label $feature_matrix_file $associations_file
+/tools/bin/python2.7 update_rgex_dataset.py $dataset_label $feature_matrix_file $associations_file
 echo registered dataset to regulome explorer repository, program done $(date)
 
 if [ $# -gt 5 ]
