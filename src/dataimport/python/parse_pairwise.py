@@ -15,7 +15,8 @@ config = ConfigParser.RawConfigParser()
 config.read('./rfex_sql.config')
 results_path = config.get("results", "path")
 contacts = config.get("results", "pubcrawl_contact").split(',')
-
+notify = config.get("results", "notify").split(',')
+totalEdges = 0
 features_hash = {}
 edges_hash = {}
 gene_interesting_hash = {}
@@ -48,10 +49,10 @@ def process_feature_alias(alias):
 		data[3] = data[3][3:]
 	return data
 
-def process_feature_matrix(matrix_file, label):
+def process_feature_matrix(matrix_file):
 	global features_hash, dataset_label
 	feature_matrix_file = open(matrix_file)
-	feature_table = "tcga." + label + "_features"  
+	feature_table = "tcga." + dataset_label + "_features"  
 	fshout = open('./results/load_features_' + dataset_label + '.sh','w')
 	outfile = open(results_path + "/" + dataset_label + '/features_out_' + dataset_label + '_pw.tsv','w')
 	featureId = 0
@@ -93,14 +94,14 @@ def process_feature_matrix(matrix_file, label):
 """
 Add in flag to indicate whether to call generate tsv file for pubcrawl
 """
-def process_feature_edges(pairwised_file, table_name, do_pubcrawl):
+def process_feature_edges(pairwised_file, do_pubcrawl):
 	"""
 	Include edges where nodes are in original set, direction does not matter so do not populate edge if A->B if B->A are in hash
 	Expected tab delimited columns are nodeA nodeB pvalue correlation numNonNA	
 	"""
-	global features_hash, dataset_label, edges_hash
+	global features_hash, dataset_label, edges_hash, totalEdges
 	edges_file = open(pairwised_file)
-	edge_table = table_name 
+	edge_table = "tcga." + dataset_label + "_pw" 
         efshout = open('./results/load_edges_' + dataset_label + '.sh','w')
         edges_out_re = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_re.tsv','w')
 	edges_out_pc = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_pc.tsv','w')
@@ -167,7 +168,7 @@ def process_feature_edges(pairwised_file, table_name, do_pubcrawl):
 	efshout.write("\nEOFMYSQL")
 	efshout.close()
 	if (do_pubcrawl == 1):
-		smtp.main("jlin@systemsbiology.net", contacts, "TEST - New Pairwise Associations for PubCrawl", "New pairwise associations ready for PubCrawl load\n" + edges_out_pc.name + "\n" + str(pcc) + " Total Edges\n" + edges_out_re.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "_pw \n\n")
+		smtp.main("jlin@systemsbiology.net", contacts, "Notification - New Pairwise Associations for PubCrawl", "New pairwise associations ready for PubCrawl load\n" + edges_out_pc.name + "\n\n" + str(pcc) + " Total Edges\n\n" + edges_out_re.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "_pw \n\n")
 	return efshout
 
 def getFeatureId(featureStr):
@@ -232,14 +233,17 @@ def subprocessAssociationIndex(assoc_file_path, assoc_type, association_index_ou
 	return
 
 def main(pw_label, feature_matrix, associations, dopc, insert_features):
+	global totalEdges, dataset_label
+	dataset_label = pw_label
 	if (not os.path.exists(results_path + "/" + dataset_label)):
 		os.mkdir(results_path + "/" + dataset_label)
-	features_sh = process_feature_matrix(feature_matrix, dataset_label)
+	features_sh = process_feature_matrix(feature_matrix)
 	if (insert_features == 1):
 		os.system("sh " + features_sh.name)
-	print "Done with processing features, processing edges %s " %(time.ctime())
-	edges_sh = process_feature_edges(associations, dataset_label, dopc)
+	print "Done with processing features, processing pairwise edges %s " %(time.ctime())
+	edges_sh = process_feature_edges(associations, dopc)
 	os.system("sh " + edges_sh.name)
+	smtp.main("jlin@systemsbiology.net", notify, "Notification - New Pairwise Associations loaded All Pairs Significance Test", "New pairwise associations loaded into All Pairs Significance Test for " + pw_label + "\n\n" + str(totalEdges) + " Total Edges\n\nFeature matrix file:" + feature_matrix + "\nPairwise associations file:" + associations + "\n")
 	print "Done with processing pairwise edges %s " %(time.ctime())
 
 if __name__ == "__main__":

@@ -61,12 +61,13 @@ fshout = open('./results/load_sql_associations_' + dataset_label + '.sh','w')
 if (not os.path.exists(results_path + "/" + dataset_label)):
 	os.mkdir(results_path + "/" + dataset_label)
 
+unmappedout = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_rface_unmapped.tsv','w')
 tsvout = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_rface_re.tsv','w')
 pubcrawl_tsvout = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_rface_pc.tsv','w')
 
 def isUnmappedAssociation(f1alias, f2alias):
 	"""
-	Skipping N:METH:cg16793061:chr8:72436538:: B:SAMP:I(C1|mRNA_CC_3)::::
+	Must skip non CLIN SAMP features without chromosome position
 	"""	
 	f1data = f1alias.split(":")
 	if (len(f1data) < 5):
@@ -106,7 +107,7 @@ for line in lines:
 	correlation = columns[4]
 	patientct = columns[5]
 	if (isUnmappedAssociation(f1alias, f2alias)):
-		#print "Skipping %s %s" %(f1alias, f2alias)
+		unmappedout.write(f1alias + "\t" + f2alias + "\n")
 		unMapped += 1
 		continue	
 	if (not parse_features_rfex.getFeatureId(columns[0])):
@@ -130,11 +131,8 @@ for line in lines:
 	if (pvalue == "-inf"):
 		pvalue = "-1000"		 
 	tsvout.write(str(lc) + "\t" + f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + str(parse_features_rfex.getFeatureId(columns[0])) + "\t" + str(parse_features_rfex.getFeatureId(columns[1])) + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\n")
-	#else:
-	#	pvalueCutCount += 1
 	
 	if (do_pubcrawl == 1):
-		#call andrea code
 		getRFACEInfo.processLine(line, pubcrawl_tsvout)
 		pcc += 1
 
@@ -144,6 +142,7 @@ fshout.write("load data local infile '" + tsvout.name + "' replace INTO TABLE " 
 fshout.write("\nEOFMYSQL\n")
 
 tsvout.close()
+unmappedout.close()
 pubcrawl_tsvout.close()
 fshout.close()
 print "%i associations filtered because of > than pvalue %f, unMapped %i" %(pvalueCutCount, pvalue_cutoff, unMapped)
@@ -153,5 +152,5 @@ if (do_pubcrawl == 1):
 	smtp.main("jlin@systemsbiology.net", pubcrawl_contacts, "Notification - New RFAce " + dataset_label + " Associations for PubCrawl", "New RFAce associations ready for PubCrawl load\n" + pubcrawl_tsvout.name + "\n" + str(pcc) + " Total Edges\n" + tsvout.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "\n\n")
 print "Done processing associations %s" %(time.ctime())
 print "Add notification code to Process Data Set, need to add feature_matrix/associations to comments, add RFAce version, pairwise..."
-smtp.main("jlin@systemsbiology.net", contacts, "Notification - New RFAce " + dataset_label + " Associations Loaded for RegulomeExplorer", "New RFAce associations loaded for dataset " + dataset_label + "\nFeature matrix:" + matrixfile + "\nassociations:" + associationsfile + "\nParsed associations:" + tsvout.name + "\n" + str(pcc) + " Total Parsed Edges\n" + " loaded")
+smtp.main("jlin@systemsbiology.net", contacts, "Notification - New RFAce " + dataset_label + " Associations Loaded for RegulomeExplorer", "New RFAce associations loaded for dataset " + dataset_label + "\n\nFeature matrix:" + matrixfile + "\nRF Associations:" + associationsfile + "\n\nParsed associations for db:" + tsvout.name + "\n\n" + str(pcc) + " Total Parsed Associations loaded\n" + str(unMapped) + " Total Unmapped Edges saved here:" + unmappedout.name)
 

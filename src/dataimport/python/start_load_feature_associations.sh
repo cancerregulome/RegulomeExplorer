@@ -11,6 +11,7 @@ feature_matrix_file=$2
 associations_file=$3
 pvalue_cutoff=$4
 do_pubcrawl=$5
+method="RF-ACE"
 
 echo begin processing $(date)
 /tools/bin/python2.7 createSchemaFromTemplate.py $dataset_label ../sql/create_schema_rfex_template.sql
@@ -25,16 +26,19 @@ echo parsed and loaded associations, create materialized view $(date)
 /tools/bin/python2.7 createSchemaFromTemplate.py $dataset_label ../sql/populate_mv_rf_associations_template.sql
 echo populated materialize view $(date)
 
-/tools/bin/python2.7 update_rgex_dataset.py $dataset_label $feature_matrix_file $associations_file
+/tools/bin/python2.7 update_rgex_dataset.py $dataset_label $feature_matrix_file $associations_file $method
 echo registered dataset to regulome explorer repository, program done $(date)
 
 if [ $# -gt 5 ]
 then
 	echo Processing pairwise associations - prepare schema
 	/tools/bin/python2.7 createSchemaFromTemplate.py $dataset_label ../sql/create_schema_pairwise_template.sql
-	#dataset_label=$dataset_label"_pw"
 	associations_pw=$6
+	method="pairwise"
 	echo begin parsing and loading pairwise data $(date) for $associations_pw
-	/tools/bin/python2.7 parse_pairwise.py /titan/cancerregulome3/TCGA/outputs/brca/brca_ov.merge.13nov.hg18.tsv /titan/cancerregulome3/TCGA/outputs/brca/brca_ov.merge.salvaged.pwpv.tsv brca_ov_1113 $do_pubcrawl
+	/tools/bin/python2.7 parse_pairwise.py $feature_matrix_file $associations_pw $dataset_label $do_pubcrawl
+	dataset_label=$dataset_label"_pw"
+	/tools/bin/python2.7 update_rgex_dataset.py $dataset_label $feature_matrix_file $associations_pw $method
+	echo registered dataset to regulome explorer repository, program done $(date)
 	echo Done with loading pairwise
 fi
