@@ -27,7 +27,30 @@ def is_numeric(val):
 if (not os.path.exists("./results")):
 	os.system("mkdir results")
 
-def process_feature_matrix(matrix_file):
+def populate_sample_meta(sampleList):
+	"""
+	sampleList needs to be a list of patients
+	"""
+	global dataset_label
+	labelTokens = dataset_label.split("_")
+	cancer_type = ""
+	clabel = ""
+	for label in labelTokens:
+		for ct in db_util.cancer_type_list:
+			if (label == ct):
+				cancer_type = cancer_type + label + "_"	
+	cancer_type = cancer_type[0:-1]
+	clabel = dataset_label[len(cancer_type)+1:len(dataset_label)]			
+	samColIndex = 0
+	for sam in sampleList:
+		#REPLACE INTO `tcga`.`SampleMeta` (sample_key,cancer_type,dataset_label,matrix_col_offset,meta_json) VALUES ('a' /*not nullable*/,'s' /*not nullable*/,'s' /*not nullable*/,0,'s');		
+		insertSampleSql = "replace into tcga.sample_meta (sample_key,cancer_type,dataset_label,matrix_col_offset,meta_json) values ('%s', '%s', '%s', '%i', '%s');" %(sam, cancer_type,clabel,samColIndex,"{age:X,status:someStatus,comments:some comments}")
+		#print insertSampleSql
+		db_util.executeInsert(insertSampleSql)
+		samColIndex += 1
+	print "Done populating sample list for " + dataset_label
+
+def process_feature_matrix(matrix_file, persist_sample_meta):
 	global features_hash, dataset_label
 	if (not os.path.isfile(matrix_file)):
 	        print matrix_file + " does not exist; unrecoverable ERROR"
@@ -42,11 +65,13 @@ def process_feature_matrix(matrix_file):
 	for line in feature_matrix_file:
 		line = line.strip()	
 		tokens = line.split('\t')
-		if (featureId == 0):                
+		if (featureId == 0 and persist_sample_meta == 1):                
                 	sampleIds = ":".join(tokens[1:len(tokens)-1])
+			populate_sample_meta(sampleIds.split(":"))				
 			sampleOutfile.write(sampleIds + "\n");
 			featureId += 1
 			continue
+			#exit(1)
 		if (not features_hash.get(tokens[0])):
 			valuesArray = []
 			alias = tokens[0]
@@ -80,7 +105,6 @@ def process_feature_matrix(matrix_file):
 	fshout.write("\nEOFMYSQL")
 	fshout.close()
 	print "processing done, running bulk load feature data to mysql %s" %time.ctime()
-	#os.system("sh " + fshout.name)
 	return fshout
 
 def getFeatureId(featureStr):
@@ -111,7 +135,6 @@ def process_gexp_interest_score(interest_score_file):
         gexp_sh.write('mysql -u' + myuser + ' -p'+ mypw + ' < ' + gexp_sql.name + '\n')
         gexp_sh.write("\necho done updating gexp_interesting")
         gexp_sh.close()
-        #os.system("sh " + gexp_sh.name)        
 	print "finished feature matrix bulk upload  %s" %(time.ctime())
 	return gexp_sh
 
@@ -153,7 +176,6 @@ def process_pathway_associations(gsea_file_path):
 	gsea_sh.write("\ncommit;")
 	gsea_sh.write("\nEOFMYSQL")
 	gsea_sh.close()	
-	#os.system("sh " + gsea_sh.name)
 	print "done loading pathway associations %s" %(time.ctime())
 	return gsea_sh
 
@@ -212,7 +234,7 @@ if __name__ == "__main__":
 	dataset_label = sys.argv[2]
 	feature_table = mydb + "." + dataset_label + "_features"
         sample_table = mydb + "." + dataset_label + "_patients"	
-	sh = process_feature_matrix(sys.argv[1])	
+	sh = process_feature_matrix(sys.argv[1], 1)	
 	os.system("sh " + sh.name)
 	path = sys.argv[2].rsplit("/", 1)[0] 
 	if (os.path.exists(path + "/GEXP_interestingness.tsv")):

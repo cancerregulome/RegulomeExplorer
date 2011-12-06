@@ -21,6 +21,8 @@ nucleotide_complement['C'] = 'G'
 nucleotide_complement['G'] = 'C'
 nucleotide_complement['T'] = 'A'
 
+cancer_type_list = config.get("cancer_types", "list").split(",")
+
 conn = MySQLdb.connect (host = myhost,
                            user = myuser,
                            passwd = mypw,
@@ -41,7 +43,7 @@ def getDBPassword():
 
 def executeInsert(sqlStr):
 	rc = cursor.execute(sqlStr)
-	print "executed %s rc %i" %(sqlStr, rc)
+	#print "executed %s rc %i" %(sqlStr, rc)
 	return rc
 
 def executeSelect(sqlStr):

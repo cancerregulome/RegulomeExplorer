@@ -18,9 +18,9 @@ myuser = db_util.getDBUser()
 mypw = db_util.getDBPassword() 
 
 args = sys.argv
-pvalue_cutoff = 1.0
+#add in config for pvalue and importance cutoff
 if (len(args) < 4):
-	print "Usage is py2.6 parse_associations_rfex.py data_matrix.tsv data_associations.tsv dataset_label [pvalue_cutoff] [process_pubcrawl]"
+	print "Usage is py2.6 parse_associations_rfex.py data_matrix.tsv data_associations.tsv dataset_label [process_pubcrawl]"
 	sys.exit(-1)
 
 config = ConfigParser.RawConfigParser()
@@ -28,6 +28,11 @@ config.read('./rfex_sql.config')
 results_path = config.get("results", "path")
 contacts = config.get("results", "notify").split(',')
 pubcrawl_contacts = config.get("results", "pubcrawl_contact").split(',')
+
+pvalue_cutoff = float(config.get("cutoff", "pvalue"))
+#not filtering on importance or correlation scores for now
+#importance = float(config.get("cutoff", "importance"))
+#correlation = float(config.get("cutoff", "correlation"))
 
 matrixfile = args[1]
 associationsfile = args[2]
@@ -38,19 +43,16 @@ if (not os.path.isfile(associationsfile)):
 dataset_label = args[3]
 associations_table = mydb + "." + dataset_label + "_networks"
 features_table = mydb + "." + dataset_label + "_features"
-if (len(args) >= 5):
-	pvalue_cutoff = float(args[4])
 do_pubcrawl = 0
-if (len(args) >= 6):
-	do_pubcrawl = int(args[5])
+if (len(args) >= 5):
+	do_pubcrawl = int(args[4])
 
 print "Begin processing associations %s Applying pvalue cutoff %f processing_pubcrawl %i" %(time.ctime(), pvalue_cutoff, do_pubcrawl)
 associations_in = open(associationsfile,'r')
 matrix_in = open(matrixfile,'r')
 featureId = 0
-features_hash = {}
-parse_features_rfex.process_feature_matrix(matrixfile)
-#print "number of features in parse:" + str(len(parse_features_rfex.features_hash))
+#features_hash = parse_features_rfex.features_hash
+parse_features_rfex.process_feature_matrix(matrixfile, 0)
 path = sys.argv[1].rsplit("/", 1)[0]
 if (os.path.exists(path + "/GEXP_interestingness.tsv")):
 	parse_features_rfex.process_gexp_interest_score(path + "/GEXP_interestingness.tsv")
@@ -150,6 +152,7 @@ print "Begin bulk upload %s os.system sh %s" %(time.ctime(), fshout.name)
 os.system("sh " + fshout.name)
 if (do_pubcrawl == 1):
 	smtp.main("jlin@systemsbiology.net", pubcrawl_contacts, "Notification - New RFAce " + dataset_label + " Associations for PubCrawl", "New RFAce associations ready for PubCrawl load\n" + pubcrawl_tsvout.name + "\n" + str(pcc) + " Total Edges\n" + tsvout.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "\n\n")
+
 print "Done processing associations %s" %(time.ctime())
 print "Add notification code to Process Data Set, need to add feature_matrix/associations to comments, add RFAce version, pairwise..."
 smtp.main("jlin@systemsbiology.net", contacts, "Notification - New RFAce " + dataset_label + " Associations Loaded for RegulomeExplorer", "New RFAce associations loaded for dataset " + dataset_label + "\n\nFeature matrix:" + matrixfile + "\nRF Associations:" + associationsfile + "\n\nParsed associations for db:" + tsvout.name + "\n\n" + str(pcc) + " Total Parsed Associations loaded\n" + str(unMapped) + " Total Unmapped Edges saved here:" + unmappedout.name)
