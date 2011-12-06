@@ -11,9 +11,6 @@ myuser = db_util.getDBUser() #config.get("mysql_jdbc_configs", "username")
 mypw = db_util.getDBPassword() #config.get("mysql_jdbc_configs", "password")
 
 def executeSchema(schemafile_path):
-	"""
-	mysql -uvisquick_rw -pr34dwr1t3 < $schema_file
-	"""
 	cmd = "mysql -u%s -p%s < %s" %(myuser, mypw, schemafile_path)
 	print "Running system call %s" %(cmd)
 	os.system(cmd)	

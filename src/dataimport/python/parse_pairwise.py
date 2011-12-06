@@ -10,6 +10,11 @@ import math
 import ConfigParser
 import smtp
 import getPairwiseInfo
+import db_util
+
+mydb = db_util.getDBSchema() #config.get("mysql_jdbc_configs", "db")
+myuser = db_util.getDBUser() #config.get("mysql_jdbc_configs", "username")
+mypw = db_util.getDBPassword() #config.get("mysql_jdbc_configs", "password")
 
 config = ConfigParser.RawConfigParser()
 config.read('./rfex_sql.config')
@@ -23,8 +28,6 @@ gene_interesting_hash = {}
 dataset_label = ""
 feature_table = ""
 sample_table = ""
-#edge_table_label = "tcga.brca_pairwise_associations_0924"
-#feature_table_label = "tcga.brca_pairwise_features_0924"
 def is_numeric(val):
 	try:
 		float(val)
@@ -34,14 +37,6 @@ def is_numeric(val):
 
 if (not os.path.exists("./results")):
 	os.system("mkdir results")
-
-def reset_sql_tables(sqlfile):
-	"""
-        mysql -uvisquick_rw -pr34dwr1t3 < $sql_file
-        """
-        cmd = "mysql -uvisquick_rw -pr34dwr1t3 < %s" %(sqlfile)
-        print "Running system call %s" %(cmd)
-        os.system(cmd)
 
 def process_feature_alias(alias):
 	data = alias.split(':')
@@ -83,7 +78,7 @@ def process_feature_matrix(matrix_file):
 	outfile.close()
 	#sampleOutfile.close()
 	fshout.write("#!/bin/bash\n")
-	fshout.write("mysql --user=%s --password=%s --database=%s<<EOFMYSQL\n" %("visquick_rw", "r34dwr1t3", "tcga"))
+	fshout.write("mysql --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myuser, mypw, mydb))
 	fshout.write("load data local infile '" + outfile.name  + "' replace INTO TABLE " + feature_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
 	fshout.write("\ncommit;")
 	fshout.write("\nEOFMYSQL")
@@ -162,7 +157,7 @@ def process_feature_edges(pairwised_file, do_pubcrawl):
 	edges_out_re.close()
 	edges_out_pc.close()	
 	efshout.write("#!/bin/bash\n")
-	efshout.write("mysql --user=%s --password=%s --database=%s<<EOFMYSQL\n" %("visquick_rw", "r34dwr1t3", "tcga"))
+	efshout.write("mysql --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myuser, mypw, mydb))
 	efshout.write("load data local infile '" + edges_out_re.name + "' replace INTO TABLE " + edge_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
 	efshout.write("\ncommit;")
 	efshout.write("\nEOFMYSQL")
@@ -243,7 +238,7 @@ def main(pw_label, feature_matrix, associations, dopc, insert_features):
 	print "Done with processing features, processing pairwise edges %s " %(time.ctime())
 	edges_sh = process_feature_edges(associations, dopc)
 	os.system("sh " + edges_sh.name)
-	smtp.main("jlin@systemsbiology.net", notify, "Notification - New Pairwise Associations loaded All Pairs Significance Test", "New pairwise associations loaded into All Pairs Significance Test for " + pw_label + "\n\n" + str(totalEdges) + " Total Edges\n\nFeature matrix file:" + feature_matrix + "\nPairwise associations file:" + associations + "\n")
+	smtp.main("jlin@systemsbiology.net", notify, "Notification - New Pairwise Associations loaded for All Pairs Significance Test", "New pairwise associations loaded into All Pairs Significance Test for " + pw_label + "\n\n" + str(totalEdges) + " Total Edges\n\nFeature matrix file:" + feature_matrix + "\nPairwise associations file:" + associations + "\n")
 	print "Done with processing pairwise edges %s " %(time.ctime())
 
 if __name__ == "__main__":
@@ -255,7 +250,6 @@ if __name__ == "__main__":
 	insert_features = 0
 	dataset_label = sys.argv[3]
 	main(dataset_label, sys.argv[1], sys.argv[2], int(sys.argv[4]), insert_features)
-	#reset_sql_tables("/proj/ilyalab/jlin/clinical_correlates/reset_tables.sql");
 	#features_sh = process_feature_matrix(sys.argv[1], dataset_label)	
 	#optionally inserting features matrix
 	#if (len(sys.argv) == 5):
