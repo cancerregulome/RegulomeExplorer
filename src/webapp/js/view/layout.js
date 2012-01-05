@@ -1362,31 +1362,34 @@ Ext.onReady(function() {
                 viewConfig: {
                     forceFit : true
                 },
-                cm : new Ext.grid.ColumnModel({
-                    columns: [
-                        {header : "Label", width:120, id:'label', dataIndex:'label'},
-                        { header: "Method", width: 70,  id:'method', dataIndex:'method'},
-                        { header: "Source", width: 70, id: 'source',dataIndex:'source'},
-                        { header: "Contact", width:200 , id:'contact', dataIndex:'contact'},
-                        { header: "Comments", width:100, id:'comments',dataIndex:'comments'}
-                    ],
-                    defaults: {
-                        sortable: true,
-                        width: 100
-                    }
-                }),
+                 cm : new Ext.grid.ColumnModel({
+                                columns: [
+                                    {header:"Description", width:120, id:'description',dataIndex:'description'},
+                                    {header:"Date", width: 90, id:'dataset_date',dataIndex:'dataset_date',hidden:false},
+                                    {header : "Label", width:120, id:'label', dataIndex:'label', hidden: true},
+                                    { header: "Method", width: 70,  id:'method', dataIndex:'method'},
+                                    { header: "Source", width: 70, id: 'source',dataIndex:'source'},
+                                    { header: "Contact", width:200 , id:'contact', dataIndex:'contact'},
+                                    { header: "Comments", width:100, id:'comments',dataIndex:'comments'}
+                                ],
+                                defaults: {
+                                    sortable: true,
+                                    width: 100
+                                }
+                            }),
                 store : new Ext.data.JsonStore({
                     autoLoad:true,
                     storeId:'dataset_grid_store',
                     idProperty:'label',
                     proxy: new Ext.data.HttpProxy({
                         url: '/google-dsapi-svc/addama/datasources/tcga/regulome_explorer_dataset/query?' +
-                            'tq=select `label`, `method`, `source`, `contact`, `comments`' +
+                            'tq=select `description`, `dataset_date`,`label`, `method`, `source`, `contact`, `comments`' +
+                            ' where method=\'RF-ACE\'' +
                             ' order by default_display DESC&tqx=out:json_array'
                     }),
-                    fields : ['label','method','source','contact','comments'],
-                    listeners : {
-                        load :  loadListener
+                   fields : ['description','label','dataset_date','method','source','contact','comments'],
+                                          listeners : {
+                            load :  loadListener
                     }
                 })
             },
