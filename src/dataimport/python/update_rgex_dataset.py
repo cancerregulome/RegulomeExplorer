@@ -7,14 +7,24 @@ import time
 def addDataset(label, feature_matrix, associations, method):
 	description = ""
 	#not general, revisit this to enter all TCGA known cancers
-	if (label.find("brca") != -1):
+	if (label.find("brca") != -1 or label.find("BRCA") != -1):
 		description = "Breast"
-	if (label.find("ov") != -1):
+	if (label.find("ov") != -1 or label.find("OV") != -1):
 		description = description + "Ovarian"
-	if (label.find("gbm") != -1):
+	if (label.find("gbm") != -1 or label.find("GBM") != -1):
 		description = description + "Glioblastoma"
-	if (label.find("coadread") != -1):
-		description = description + "ColonRectal"
+	if (label.find("coadread") != -1 or label.find("COAD") != -1 or label.find("crc") != -1 or label.find("CRC") != -1):
+		description = description + "ColoRectal"
+	if (label.find("cesc") != -1 or label.find("CESC") != -1):
+		description = description + "Cervical"
+	if (label.find("hnsc") != -1 or label.find("HNSC") != -1):
+		description = description + "HeadNeck"
+	if (label.find("kirc") != -1 or label.find("KIRC") != -1 or label.find("kirp") != -1  or label.find("KIRP") != -1):
+		description = description + "Kidney"
+	if (label.find("luad") != -1 or label.find("LUAD") != -1 or label.find("lusc") != -1  or label.find("LUSC") != -1):
+		description = description + "Lung"
+	if (label.find("stad") != -1 or label.find("STAD") != -1):
+		description = description + "Stomach"	
 	if (label.find("nomask") != -1):
 		description = description
 	elif (label.find("mask") != -1):
