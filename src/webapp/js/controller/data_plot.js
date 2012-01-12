@@ -98,7 +98,7 @@ function modifyCircle(object) {
 
 
 var locatable_source_list = ['GEXP','METH','CNVR','MIRN','GNAB'],
-    unlocatable_source_list = ['CLIN','SAMP'],
+    unlocatable_source_list = ['CLIN','SAMP','PRDM'],
     all_source_list = pv.blend([locatable_source_list,unlocatable_source_list]);
 all_source_map = pv.numerate(all_source_list),
     locatable_source_map = pv.numerate(locatable_source_list),
