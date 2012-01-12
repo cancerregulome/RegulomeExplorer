@@ -208,7 +208,7 @@ function loadNetworkData(query_params) {
 }
 
 function loadNetworkDataByFeature(query_params) {
-    var feature = query_params['filter_type'] == 'target' ? 'f1' : 'f2';
+    var feature = query_params['filter_type'] == 'target' ? 't' : 'p';
     var labels = parseLabelList(query_params[feature + '_label']);
 
 function loadComplete() {
@@ -282,54 +282,52 @@ function buildGQLQuery(args) {
     var whst = ' where',
         where = whst;
 
-    if (args['f1_type'] != '' && args['f1_type'] != '*') {
+    if (args['t_type'] != '' && args['t_type'] != '*') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f1source = \'' +args['f1_type']+ '\'';
+        where += 'f1source = \'' +args['t_type']+ '\'';
     }
-    if (args['f2_type'] != '' && args['f2_type'] != '*') {
+    if (args['p_type'] != '' && args['p_type'] != '*') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f2source = \'' +args['f2_type']+ '\'';
+        where += 'f2source = \'' +args['p_type']+ '\'';
     }
-    if (args['f1_label'] != '' && args['f1_label'] != '*') {
+    if (args['t_label'] != '' && args['t_label'] != '*') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += querifyLabelList('f1label',args['f1_label']);
-        //'`f1label` ' + parseLabel(args['f1_label']);
+        where += '`f1label` ' + parseLabel(args['t_label']);
     }
-    if (args['f2_label'] != '' && args['f2_label'] != '*') {
+     if (args['p_label'] != '' && args['p_label'] != '*') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where +=querifyLabelList('f2label',args['f2_label']);
-        //'`f2label` ' + parseLabel(args['f2_label']);
+        where += '`f2label` ' + parseLabel(args['p_label']);
     }
-    if (args['f1_chr'] != '' && args['f1_chr'] != '*') {
+    if (args['t_chr'] != '' && args['t_chr'] != '*') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f1chr = \'' +args['f1_chr']+'\'';
+        where += 'f1chr = \'' +args['t_chr']+'\'';
     }
-    if (args['f2_chr'] != '' && args['f2_chr'] != '*') {
+    if (args['p_chr'] != '' && args['p_chr'] != '*') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f2chr = \'' +args['f2_chr']+'\'';
+        where += 'f2chr = \'' +args['p_chr']+'\'';
     }
-    if (args['f1_start'] != '') {
+    if (args['t_start'] != '') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f1start >= ' +args['f1_start'];
+        where += 'f1start >= ' +args['t_start'];
     }
-    if (args['f2_start'] != '') {
+    if (args['p_start'] != '') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f2start >= ' +args['f2_start'];
+        where += 'f2start >= ' +args['p_start'];
     }
-    if (args['f1_stop'] != '') {
+    if (args['t_stop'] != '') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f1end <= ' +args['f1_stop'];
+        where += 'f1end <= ' +args['t_stop'];
     }
-    if (args['f2_stop'] != '') {
+    if (args['p_stop'] != '') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f2end <= ' +args['f2_stop'];
+        where += 'f2end <= ' +args['p_stop'];
     }
-    if ((args['f2_start'] != '') && (args['f2_stop'] != '')) {
-        where += ' and (f2end = 0 or f2end >= ' +args['f2_start'] + ') and f2start <= ' +args['f2_stop']
-    }
-    if ((args['f1_start'] != '') && (args['f1_stop'] != '')) {
-        where += ' and (f1end = 0 or f1end >= ' +args['f1_start'] + ') and f1start <= ' +args['f1_stop'];
-    }
+    if ((args['p_start'] != '') && (args['p_stop'] != '')) {
+           where += ' and f2end >= ' +args['p_start'];
+           }
+    if ((args['t_start'] != '') && (args['t_stop'] != '')) {
+           where += ' and f1end >= ' +args['t_start'];
+           }
     if (args['importance'] != '') {
         where += (where.length > whst.length ? ' and ' : ' ');
         where += 'importance >= ' +args['importance'];
@@ -338,9 +336,19 @@ function buildGQLQuery(args) {
         where += (where.length > whst.length ? ' and ' : ' ');
         where += 'pvalue <= ' +args['pvalue'];
     }
-    var corr_clause = flex_field_query('correlation',args['correlation'],args['correlation_fn']);
-    where += ((where.length > whst.length && corr_clause.length > 0) ? ' and ' : ' ') + corr_clause;
-
+     if (args['correlation'] != '') {
+        where += (where.length > whst.length ? ' and ' : ' ');
+        var corr_fn = args['correlation_fn'];
+    if (corr_fn == 'Btw'){
+        where += '(correlation >= -' +args['correlation'] + ' and correlation <= ' + args['correlation'] +')';
+    }else if (corr_fn == '<='){
+        where += '(correlation <= ' + args['correlation'] +')';
+    }else if (corr_fn == '>='){
+        where += '(correlation >= ' +args['correlation'] +')';
+    }else{
+            where += '(correlation >= ' +args['correlation'] + ' or correlation <= -' + args['correlation'] +')';
+    }
+   }
 
     query += (where.length > whst.length ? where : '');
     query += ' order by '+args['order'] + (args['order'] == 'pvalue' ? ' ASC' : ' DESC');
