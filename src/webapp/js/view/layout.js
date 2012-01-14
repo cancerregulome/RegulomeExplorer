@@ -1,41 +1,40 @@
 
-var once_loaded = false;
 function registerLayoutListeners() {
-     var d = vq.events.Dispatcher;
+    var d = vq.events.Dispatcher;
     d.addListener('data_ready','dataset_labels',function(obj){
         loadListStores(obj);
-         resetFormPanel();
+        resetFormPanel();
         checkFormURL();
         requestFilteredData();
-        once_loaded=true;
+        re.state.once_loaded=true;
     });
     d.addListener( 'load_fail','associations',function(obj){
-        network_mask.hide();
+        re.windows.masks.network_mask.hide();
     });
-     d.addListener( 'query_fail','associations',function(obj){
-        network_mask.hide();
+    d.addListener( 'query_fail','associations',function(obj){
+        re.windows.masks.network_mask.hide();
     });
     d.addListener('click_association',function(link){
-         openDetailsWindow(link);
+        openDetailsWindow(link);
     });
     d.addListener('data_ready','features',function(obj) {
         renderScatterPlot(obj);
-        details_window_mask.hide();
+        re.windows.masks.details_window_mask.hide();
     });
     d.addListener('data_ready','annotations',function(obj){
         loadDataset();
-     });
+    });
     d.addListener('render_complete','circvis',function(circvis_plot){
-       exposeCirclePlot();
+        exposeCirclePlot();
     });
     d.addListener('data_ready','associations',function(data) {
         loadDataTableStore(data);
     });
-     d.addListener('render_complete','linear',function(linear){
-       exposeLinearPlot();
+    d.addListener('render_complete','linear',function(linear){
+        exposeLinearPlot();
     });
-     d.addListener('render_complete','scatterplot',function(obj){
-       scatterplot_obj=obj;
+    d.addListener('render_complete','scatterplot',function(obj){
+        scatterplot_obj=obj;
     });
     d.addListener('query_complete','label_position', function(obj) {
         completeLabelLookup(obj);
@@ -47,62 +46,61 @@ function registerLayoutListeners() {
 
 
 /*
-URL-based Form manipulation
+ URL-based Form manipulation
  */
 
+
 window.onpopstate = function(event) {
-    if (once_loaded) loadDataset();
+    if (re.state.once_loaded) loadDataset();
 };
 
 function extractURL() {
     var json = null;
     var url = location.search;
-        if (url.length > 1) json = Ext.urlDecode(url.slice(1));
+    if (url.length > 1) json = Ext.urlDecode(url.slice(1));
     return json;
 }
 
-   function checkDatasetURL()   {
-        var json = extractURL();
-        if (json != null && json.dataset !== undefined) {
-                selectDatasetByLabel(json.dataset);
-            }
-   }
-
-    function checkFormURL() {
-            var json = extractURL();
-            setFormState(json);
+function checkDatasetURL()   {
+    var json = extractURL();
+    if (json != null && json.dataset !== undefined) {
+        selectDatasetByLabel(json.dataset);
     }
-
-    function setFormState(json) {
-         Ext.iterate(json,setComponentState)
-    }
-
-    function setComponentState(key, value){
-        var field = Ext.getCmp(key);
-        if (field !== undefined && 'setValue' in field) {
-            Ext.getCmp(key).setValue(value,true);
-        }
-    }
-
-    function getURI() {
-        return location.protocol + '//' + location.href;
-    }
-
-    function generateStateJSON() {
-         var json = getFilterSelections();
-        json.dataset = getSelectedDatasetLabel();
-        return json;
-
 }
 
-    function generateStateURL() {
-        var completePath = getURI() + '?' + Ext.urlEncode(generateStateJSON());
-        return completePath;
-    }
+function checkFormURL() {
+    var json = extractURL();
+    setFormState(json);
+}
 
-    function preserveState() {
-        window.history.pushState(generateStateJSON(), '','?' + Ext.urlEncode(generateStateJSON()));
+function setFormState(json) {
+    Ext.iterate(json,setComponentState)
+}
+
+function setComponentState(key, value){
+    var field = Ext.getCmp(key);
+    if (field !== undefined && 'setValue' in field) {
+        Ext.getCmp(key).setValue(value,true);
     }
+}
+
+function getURI() {
+    return location.protocol + '//' + location.href;
+}
+
+function generateStateJSON() {
+    var json = getFilterSelections();
+    json.dataset = getSelectedDatasetLabel();
+    return json;
+}
+
+function generateStateURL() {
+    return getURI() + '?' + Ext.urlEncode(generateStateJSON());
+}
+
+function preserveState() {
+    window.history.pushState(generateStateJSON(), '','?' + Ext.urlEncode(generateStateJSON()));
+}
 
 
 /*
@@ -110,7 +108,7 @@ function extractURL() {
  */
 
 function hideDatasetWindow() {
-    dataset_window.hide();
+    re.windows.dataset_window.hide();
 }
 
 /*
@@ -118,15 +116,15 @@ function hideDatasetWindow() {
  */
 
 function openDetailsWindow(association) {
-    details_window.show();
-    details_window_mask =  new Ext.LoadMask('details-window', {msg:"Loading Data..."});
-    details_window_mask.show();
+    re.windows.details_window.show();
+    re.windows.masks.details_window_mask =  new Ext.LoadMask('details-window', {msg:"Loading Data..."});
+    re.windows.masks.details_window_mask.show();
     renderMedlineDocuments(association);
     renderPathways(association);
 }
 
 function showSVGDialog() {
-    export_window.show();
+    re.windows.export_window.show();
     export_svg();
 }
 
@@ -141,7 +139,7 @@ function export_svg() {
 }
 
 function loadDataDialog() {
-    dataset_window.show();
+    re.windows.dataset_window.show();
     Ext.getCmp('dataset_grid').store.load();
 }
 
@@ -150,13 +148,13 @@ function exportDataDialog() {
 }
 
 function openHelpWindow(subject,text) {
-    if (helpWindowReference == null || helpWindowReference.closed) {
-        helpWindowReference = window.open('','help-popup','width=400,height=300,resizable=1,scrollbars=1,status=0,'+
+    if (re.windows.helpWindowReference == null || re.windows.helpWindowReference.closed) {
+        re.windows.helpWindowReference = window.open('','help-popup','width=400,height=300,resizable=1,scrollbars=1,status=0,'+
             'titlebar=0,toolbar=0,location=0,directories=0,menubar=0,copyhistory=0');
     }
-    helpWindowReference.document.title='Help - ' + subject;
-    helpWindowReference.document.body.innerHTML = '<b>' + subject +'</b><p><div style=width:350>' + text + '</div>';
-    helpWindowReference.focus();
+    re.windows.helpWindowReference.document.title='Help - ' + subject;
+    re.windows.helpWindowReference.document.body.innerHTML = '<b>' + subject +'</b><p><div style=width:350>' + text + '</div>';
+    re.windows.helpWindowReference.focus();
 }
 
 function openBrowserWindow(url,width,height) {
@@ -172,7 +170,7 @@ function openBrowserTab(url) {
 
 
 /*
-        Filters
+ Filters
  */
 
 function manualFilterRequest() {
@@ -181,8 +179,8 @@ function manualFilterRequest() {
 }
 
 function requestFilteredData() {
-         vq.events.Dispatcher.dispatch(new vq.events.Event('data_request','associations',getFilterSelections()));
-         prepareVisPanels();
+    vq.events.Dispatcher.dispatch(new vq.events.Event('data_request','associations',getFilterSelections()));
+    prepareVisPanels();
 }
 
 /*
@@ -263,7 +261,7 @@ function resetFormPanel() {
         Ext.getCmp('pvalue').reset(),
         Ext.getCmp('correlation').reset(),
         Ext.getCmp('order').reset(),
-        Ext.getCmp('limit').reset()
+        Ext.getCmp('limit').reset(),
     Ext.getCmp('filter_type').reset()
 }
 
@@ -273,7 +271,7 @@ function resetFormPanel() {
 
 function loadListStores(dataset_labels) {
     var label_list = dataset_labels['feature_sources'].map(function(row) {
-        return {value:row.source, label: label_map[row.source] || row.source};
+        return {value:row.source, label: re.label_map[row.source] || row.source};
     });
     label_list.unshift({value:'*',label:'All'});
     Ext.StoreMgr.get('f1_type_combo_store').loadData(label_list);
@@ -302,19 +300,19 @@ function loadDataTableStore(data) {
 }
 
 /*
-loadSelectedDataset
-    should dispatch an event after validating dataset selection
+ loadSelectedDataset
+ should dispatch an event after validating dataset selection
  */
 
 function loadDataset() {
-        checkDatasetURL();
-        if(Ext.getCmp('dataset_grid').getSelectionModel().getSelected() === undefined)
-                Ext.getCmp('dataset_grid').getSelectionModel().selectFirstRow();
-                loadSelectedDataset();
+    checkDatasetURL();
+    if(Ext.getCmp('dataset_grid').getSelectionModel().getSelected() === undefined)
+        Ext.getCmp('dataset_grid').getSelectionModel().selectFirstRow();
+    loadSelectedDataset();
 }
 
 function selectDatasetByLabel(label)  {
-var record_index = Ext.StoreMgr.get('dataset_grid_store').find('label',label);
+    var record_index = Ext.StoreMgr.get('dataset_grid_store').find('label',label);
     if (record_index >= 0) {
         Ext.getCmp('dataset_grid').getSelectionModel().selectRow(record_index);
     }
@@ -328,7 +326,7 @@ function getSelectedDatasetLabel() {
     var selected_record = getSelectedDataset();
     var selected_dataset = '';
     if (selected_record != null) {
-             selected_dataset = selected_record.json.label;
+        selected_dataset = selected_record.json.label;
     }
     return selected_dataset;
 }
@@ -337,15 +335,15 @@ function getSelectedDatasetDescription() {
     var selected_record = getSelectedDataset();
     var selected_dataset = '';
     if (selected_record != null) {
-             selected_dataset = selected_record.json.description;
+        selected_dataset = selected_record.json.description;
     }
     return selected_dataset;
 }
 
 
 function manualLoadSelectedDataset() {
-         preserveState();
-        loadSelectedDataset();
+    preserveState();
+    loadSelectedDataset();
 }
 
 function loadSelectedDataset() {
@@ -426,7 +424,7 @@ function retrieveMedlineDocuments(term1,term2){
     Ext.StoreMgr.get('dataDocument_grid_store').on({
         beforeload:{
             fn: function(store,options){
-                store.proxy.setUrl('/solr/select/?q=%2Btext%3A\"' + term1 + '\" %2Btext%3A\"' + term2 + '\"&fq=%2Bpub_date_year%3A%5B1991 TO 2011%5D&wt=json' +
+                store.proxy.setUrl(re.databases.solr.uri + re.databases.solr.select + '?q=%2Btext%3A\"' + term1 + '\" %2Btext%3A\"' + term2 + '\"&fq=%2Bpub_date_year%3A%5B1991 TO 2011%5D&wt=json' +
                     '&hl=true&hl.fl=article_title,abstract_text&hl.snippets=100&hl.fragsize=50000&h.mergeContiguous=true');
             }
         }
@@ -467,7 +465,8 @@ function retrievePathways(target_id,predictor_id){
     Ext.StoreMgr.get('target_pathways_grid_store').on({
         beforeload:{
             fn: function(store,options){
-                store.proxy.setUrl(base_query_url + tcga_base_query_uri + pathway_uri + '?tq=' + pathway_query +
+                store.proxy.setUrl(re.databases.base_uri + re.databases.rf_ace.uri + re.tables.pathway_uri + re.rest.query +
+                    '?' + re.params.query + pathway_query +
                     ' where featureid = ' + target_id+'&tqx=out:json_array');
             }
         }
@@ -475,7 +474,8 @@ function retrievePathways(target_id,predictor_id){
     Ext.StoreMgr.get('predictor_pathways_grid_store').on({
         beforeload:{
             fn: function(store,options){
-                store.proxy.setUrl(base_query_url + tcga_base_query_uri + pathway_uri + '?tq=' + pathway_query +
+                store.proxy.setUrl(re.databases.base_uri + re.databases.rf_ace.uri + re.tables.pathway_uri + re.rest.query +
+                    '?' + re.params.query + pathway_query +
                     ' where featureid = ' + predictor_id+'&tqx=out:json_array');
             }
         }
@@ -485,8 +485,8 @@ function retrievePathways(target_id,predictor_id){
 /*clean divs*/
 
 function prepareVisPanels() {
-    network_mask = new Ext.LoadMask('view-region', {msg:"Loading Data..."});
-    network_mask.show();
+    re.windows.masks.network_mask = new Ext.LoadMask('view-region', {msg:"Loading Data..."});
+    re.windows.masks.network_mask.show();
     wipeLinearPlot();
 }
 
@@ -498,7 +498,7 @@ function wipeLinearPlot(){
 
 function exposeCirclePlot(){
     Ext.getCmp('circle-parent').expand(true);
-    network_mask.hide();
+    re.windows.masks.network_mask.hide();
 }
 function exposeLinearPlot(chr,start,range_length) {
     Ext.getCmp('linear-parent').expand(true);
@@ -751,7 +751,7 @@ Ext.onReady(function() {
                                         formBind : true,
                                         listeners : {
                                             click : function(button,e) {
-                                               manualFilterRequest();
+                                                manualFilterRequest();
                                             }
                                         }
                                     },
@@ -870,7 +870,7 @@ Ext.onReady(function() {
                                                     autoLoad : true,
                                                     fields : ['value','label'],
                                                     idProperty:'value',
-                                                    data: chrom_list,
+                                                    data: re.ui.chromosomes,
                                                     storeId:'f1_chr_combo_store'
                                                 }),
                                                 fieldLabel:'Chromosome',
@@ -1022,7 +1022,7 @@ Ext.onReady(function() {
                                                     autoLoad : true,
                                                     fields : ['value','label'],
                                                     idProperty:'value',
-                                                    data: chrom_list,
+                                                    data: re.ui.chromosomes,
                                                     storeId:'f2_chr_combo_store'
                                                 }),
                                                 fieldLabel:'Chromosome',
@@ -1100,13 +1100,13 @@ Ext.onReady(function() {
                                                 fieldLabel : 'pvalue <=',
                                                 value : 0.5
                                             },
-                                             new re.multirangeField(
-                                            {id:'correlation',
-                                             label: 'Correlation',
-                                             default_value: 0,
-                                                min_value: -1,
-                                                max_value: 1}
-                                        ),
+                                            new re.multirangeField(
+                                                {id:'correlation',
+                                                    label: 'Correlation',
+                                                    default_value: 0,
+                                                    min_value: -1,
+                                                    max_value: 1}
+                                            ),
                                             { xtype:'combo', name:'order',id:'order',
                                                 mode:'local',
                                                 allowBlank : true,
@@ -1114,7 +1114,7 @@ Ext.onReady(function() {
                                                     autoLoad : true,
                                                     fields : ['value','label'],
                                                     idProperty:'value',
-                                                    data: order_list,
+                                                    data: re.ui.order_list,
                                                     storeId:'order_combo_store'
                                                 }),
                                                 fieldLabel:'Order By',
@@ -1133,7 +1133,7 @@ Ext.onReady(function() {
                                                     autoLoad : true,
                                                     fields : ['value','label'],
                                                     idProperty:'value',
-                                                    data: limit_list,
+                                                    data: re.ui.limit_list,
                                                     storeId:'limit_combo_store'
                                                 }),
                                                 fieldLabel:'Max Results',
@@ -1219,24 +1219,6 @@ Ext.onReady(function() {
                         text:'Display',
                         labelStyle: 'font-weight:bold;',
                         menu:[{
-//                            text:'Color By:',
-//                            menu:[{
-//                                xtype:'menucheckitem',
-//                                 handler: colorHandler,
-//                                checked:true,
-//                                id:'feature_check',
-//                                group:'color_group',
-//                                text:'Feature Type'
-//                                },
-//                                {
-//                                    xtype:'menucheckitem',
-//                                    handler: colorHandler,
-//                                    group:'color_group',
-//                                    id:'inter_check',
-//                                    text:'Interestingness'
-////                                },
-////                                {
-////                                    text:'Association'
                             id:'networkMenu',
                             text:'Network',
                             labelStyle: 'font-weight:bold;',
@@ -1309,17 +1291,6 @@ Ext.onReady(function() {
         renderTo:Ext.getBody()
     });
 
-    function colorHandler(item){
-        switch(item.getId()) {
-            case('inter_check'):
-                setStrokeStyleToInterestingness(); renderCircleData();
-                break;
-            case('feature_check'):
-            default:
-                setStrokeStyleAttribute('white'); renderCircleData();
-        }
-    }
-
     function modeHandler(item){
         switch(item.getId()) {
             case('nav_check'):
@@ -1334,20 +1305,20 @@ Ext.onReady(function() {
     function networkLayoutHandler(item) {
         switch(item.text) {
             case('Radial'):
-                gbm.display_options.cytoscape.layout = 'radial';
+                re.display_options.cytoscape.layout = 'radial';
                 break;
             case('Tree'):
-                gbm.display_options.cytoscape.layout = 'tree';
+                re.display_options.cytoscape.layout = 'tree';
                 break;
             case('Force Directed') :
             default:
-                gbm.display_options.cytoscape.layout = 'force_directed';
+                re.display_options.cytoscape.layout = 'force_directed';
                 break;
         }
         vq.events.Dispatcher.dispatch(new vq.events.Event('layout_network','main_menu',{}));
     }
 
-    export_window = new Ext.Window( {
+    re.windows.export_window = new Ext.Window( {
         id          : 'export-window',
         renderTo    : 'view-region',
         modal       : true,
@@ -1375,7 +1346,7 @@ Ext.onReady(function() {
             anchor:'100% 100%'
         }
     });
-    export_window.hide();
+    re.windows.export_window.hide();
 
     var loadListener = function(store,records) {
         store.removeListener('load',loadListener) ;
@@ -1383,7 +1354,7 @@ Ext.onReady(function() {
         e.dispatch();
     };
 
-    dataset_window =
+    re.windows.dataset_window =
         new Ext.Window({
             id          : 'dataset-window',
             renderTo    : 'view-region',
@@ -1409,34 +1380,36 @@ Ext.onReady(function() {
                 viewConfig: {
                     forceFit : true
                 },
-                 cm : new Ext.grid.ColumnModel({
-                                columns: [
-                                    {header:"Description", width:120, id:'description',dataIndex:'description'},
-                                    {header:"Date", width: 90, id:'dataset_date',dataIndex:'dataset_date',hidden:false},
-                                    {header : "Label", width:120, id:'label', dataIndex:'label', hidden: true},
-                                    { header: "Method", width: 70,  id:'method', dataIndex:'method'},
-                                    { header: "Source", width: 70, id: 'source',dataIndex:'source'},
-                                    { header: "Contact", width:200 , id:'contact', dataIndex:'contact'},
-                                    { header: "Comments", width:100, id:'comments',dataIndex:'comments'}
-                                ],
-                                defaults: {
-                                    sortable: true,
-                                    width: 100
-                                }
-                            }),
+                cm : new Ext.grid.ColumnModel({
+                    columns: [
+                        {header:"Description", width:120, id:'description',dataIndex:'description'},
+                        {header:"Date", width: 90, id:'dataset_date',dataIndex:'dataset_date',hidden:false},
+                        {header : "Label", width:120, id:'label', dataIndex:'label', hidden: true},
+                        { header: "Method", width: 70,  id:'method', dataIndex:'method'},
+                        { header: "Source", width: 70, id: 'source',dataIndex:'source'},
+                        { header: "Contact", width:200 , id:'contact', dataIndex:'contact'},
+                        { header: "Comments", width:100, id:'comments',dataIndex:'comments'}
+                    ],
+                    defaults: {
+                        sortable: true,
+                        width: 100
+                    }
+                }),
                 store : new Ext.data.JsonStore({
                     autoLoad:true,
                     storeId:'dataset_grid_store',
                     idProperty:'label',
                     proxy: new Ext.data.HttpProxy({
-                        url: '/google-dsapi-svc/addama/datasources/tcga/regulome_explorer_dataset/query?' +
-                            'tq=select `description`, `dataset_date`,`label`, `method`, `source`, `contact`, `comments`' +
+                        url: re.databases.base_uri + re.databases.rf_ace.uri + re.tables.dataset + re.rest.query + '?' +
+                            re.params.query +
+                            'select `description`, `dataset_date`,`label`, `method`, `source`, `contact`, `comments`' +
                             ' where method=\'RF-ACE\'' +
-                            ' order by default_display DESC&tqx=out:json_array'
+                            ' order by default_display DESC' +
+                            re.params.json_out
                     }),
-                   fields : ['description','label','dataset_date','method','source','contact','comments'],
-                                          listeners : {
-                            load :  loadListener
+                    fields : ['description','label','dataset_date','method','source','contact','comments'],
+                    listeners : {
+                        load :  loadListener
                     }
                 })
             },
@@ -1449,7 +1422,7 @@ Ext.onReady(function() {
                 }
             ]
         });
-    dataset_window.hide();
+    re.windows.dataset_window.hide();
 
     var medlineStore= new Ext.data.JsonStore({
         root: 'response.docs',
@@ -1459,7 +1432,7 @@ Ext.onReady(function() {
         storeId:'dataDocument_grid_store',
         fields : ['pmid','article_title','abstract_text','pub_date_month','pub_date_year'],
         proxy: new Ext.data.HttpProxy({
-            url: '/solr/select/?'
+            url: re.databases.solr.uri + re.databases.solr.select + '?'
         })
     });
 
@@ -1487,24 +1460,24 @@ Ext.onReady(function() {
         var type = record.json.pathway_type; var title = record.json.pathway_name;
         switch (type) {
             case('WIKIPW'):
-                window.open(wikipw_url + title,'_blank');
+                window.open(re.pathways.wikipw_url + title,'_blank');
                 break;
             case('BIOCARTA'):
                 var position = title.indexOf('_',1);
-                title_url = title.slice(1,position)+'Pathway.asp';
-                window.open(biocarta_url+title_url,'_blank');
+                var title_url = title.slice(1,position)+'Pathway.asp';
+                window.open(re.pathways.biocarta_url+title_url,'_blank');
                 break;
             case('KEGG'):
-                window.open(kegg_url+title.replace(new RegExp('[_]', 'g'),' '),'_blank');
+                window.open(re.pathways.kegg_url+title.replace(new RegExp('[_]', 'g'),' '),'_blank');
                 break;
             case(''):
-                window.open(pw_commons_url + title.replace(new RegExp('[_]', 'g'),'+'),'_blank');
+                window.open(re.pathways.pw_commons_url + title.replace(new RegExp('[_]', 'g'),'+'),'_blank');
                 break;
         }
         return;
     }
 
-    details_window =
+    re.windows.details_window =
         new Ext.Window({
             id          : 'details-window',
             renderTo    : 'view-region',
@@ -1745,6 +1718,6 @@ Ext.onReady(function() {
                         }]
                     }]}]
         });
-    details_window.hide();
+    re.windows.details_window.hide();
 
 });

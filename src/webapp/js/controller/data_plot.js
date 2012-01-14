@@ -6,7 +6,6 @@ function registerPlotListeners() {
         renderCircleData(data);
         renderCircleLegend();
     });
-
     d.addListener( 'data_ready','graph',function(data) {
         var obj = {
         network : data,
@@ -14,18 +13,16 @@ function registerPlotListeners() {
     };
         initializeGraph(obj);
     });
-
     d.addListener( 'frame_ready','graph',function() {
-        if (!gbm.display_options.cytoscape.ready) {
+        if (!re.display_options.cytoscape.ready) {
             renderGraph();
             }
     });
-
     d.addListener('data_ready','dataset_labels',function(obj){
         generateColorMaps(obj);
     });
     d.addListener('data_ready','annotations',function(obj){
-        chrome_length = obj['chrom_leng'];
+        re.plot.chrome_length = obj['chrom_leng'];
     });
     d.addListener('render_scatterplot','details', function(obj){
         scatterplot_draw(obj);
@@ -35,23 +32,23 @@ function registerPlotListeners() {
         renderLinearLegend();
     });
     d.addListener('render_complete','circvis', function(obj){
-        gbm.circvis_obj = obj;
+        re.circvis_obj = obj;
     });
     d.addListener('render_complete','graph', function(obj){
-        //gbm.cytoscape.obj = obj.graph;
+        //re.cytoscape.obj = obj.graph;
     });
     d.addListener('modify_circvis', function(obj){
         modifyCircle(obj);
     });
     d.addListener('layout_network', function(obj){
-        if (gbm.display_options.cytoscape.ready) {
+        if (re.display_options.cytoscape.ready) {
             layoutGraph();
         }
     });
 }
 
 function layoutGraph() {
-    gbm.cytoscape.obj.layout(getNetworkLayout());
+    re.cytoscape.obj.layout(getNetworkLayout());
 }
 
 function getNetworkLayout() {
@@ -59,7 +56,7 @@ function getNetworkLayout() {
         tension: .01,drag:0.1,maxDistance:10000, minDistance: 1,
         iterations:200, autoStabilize: true, maxTime: 3000, restLength: 30}};
 
-    switch(gbm.display_options.cytoscape.layout) {
+    switch(re.display_options.cytoscape.layout) {
         case('tree'):
             layout = {name : 'Tree',
                 options:{
@@ -89,63 +86,30 @@ function getNetworkLayout() {
 
 function modifyCircle(object) {
     if (object.pan_enable != null) {
-        gbm.circvis_obj.setPanEnabled(object.pan_enable);
+        re.circvis_obj.setPanEnabled(object.pan_enable);
     }
     if (object.zoom_enable  != null) {
-        gbm.circvis_obj.setZoomEnabled(object.zoom_enable);
+        re.circvis_obj.setZoomEnabled(object.zoom_enable);
     }
-}
-
-
-var locatable_source_list = ['GEXP','METH','CNVR','MIRN','GNAB'],
-    unlocatable_source_list = ['CLIN','SAMP','PRDM'],
-    all_source_list = pv.blend([locatable_source_list,unlocatable_source_list]);
-all_source_map = pv.numerate(all_source_list),
-    locatable_source_map = pv.numerate(locatable_source_list),
-    link_type_colors = pv.colors("#c2c4ff","#e7cb94","#cedb9c","#e7969c","#e1daf9","#b8e2ef");
-link_sources_array =  [],
-    stroke_style_attribute = 'white',
-    inter_scale = pv.Scale.linear(0.00005,0.0004).range('lightpink','red'),
-    linear_unit = 100000,
-    proximal_distance = 2.5 * linear_unit,
-    chrome_length = [],
-    source_color_scale=  pv.Colors.category10();
-
-var node_colors = function(source) { return source_color_scale(all_source_map[source]);};
-var link_sources_colors;
-
-
-function setStrokeStyleAttribute(attribute) {
-    stroke_style_attribute = attribute;
-}
-
-function getStrokeStyleAttribute() {
-    return stroke_style_attribute;
-}
-
-function setStrokeStyleToInterestingness() {
-    setStrokeStyleAttribute(function(feature) {
-        return (feature.type = 'GEXP' ? inter_scale(feature.genescore) : 'white');
-    });
 }
 
 function generateColorMaps(dataset_labels) {
     var current_source_list = dataset_labels['feature_sources'].map(function(row) { return row.source;});
     var num_sources = current_source_list.length;
-    link_sources_array = [];
+    re.plot.link_sources_array = [];
     current_source_list.forEach(function(row, index) {
-        var color = link_type_colors(index);
+        var color = re.plot.colors.link_type_colors(index);
         for (var i = 0; i < num_sources; i++) {
-            link_sources_array.push(color);
+            re.plot.link_sources_array.push(color);
             color = color.darker(.3);
         }
     });
     var source_map = pv.numerate(dataset_labels['feature_sources'], function(row) {return row.source;});
-    var current_data = all_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
+    var current_data = re.plot.all_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
     var current_map = pv.numerate(current_data);
 
-    node_colors = function(source) { return source_color_scale(current_map[source]);};
-    link_sources_colors = function(link) { return link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
+    re.plot.colors.node_colors = function(source) { return re.plot.colors.source_color_scale(current_map[source]);};
+    re.plot.colors.link_sources_colors = function(link) { return re.plot.link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
 }
 
 function renderCircleLegend() {
@@ -177,14 +141,14 @@ function initiateDetailsPopup(link) {
 }
 
 function legend_draw(div) {
-    var dataset_labels = getDatasetLabels();
+    var dataset_labels = re.ui.getDatasetLabels();
     var source_map = pv.numerate(dataset_labels['feature_sources'], function(row) {return row.source;});
-    var current_locatable_data = locatable_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
-    var current_data = all_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
+    var current_locatable_data = re.plot.locatable_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
+    var current_data = re.plot.all_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
     var current_map = pv.numerate(current_data);
 
-    node_colors = function(source) { return source_color_scale(current_map[source]);};
-    link_sources_colors = function(link) { return link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
+    re.plot.colors.node_colors = function(source) { return re.plot.colors.source_color_scale(current_map[source]);};
+    re.plot.colors.link_sources_colors = function(link) { return re.plot.link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
 
     var vis= new pv.Panel()
         .width(150)
@@ -218,7 +182,7 @@ function legend_draw(div) {
         .width(12)
         .top(1)
         .bottom(1)
-        .fillStyle(function(type) { return source_color_scale(locatable_source_map[type]);});
+        .fillStyle(function(type) { return re.plot.colors.source_color_scale(re.plot.locatable_source_map[type]);});
     entry.add(pv.Label)
         .bottom(0)
         .left(20)
@@ -247,7 +211,7 @@ function legend_draw(div) {
         .width(12)
         .top(1)
         .bottom(1)
-        .fillStyle(function(type) { return link_sources_colors(type);});
+        .fillStyle(function(type) { return re.plot.colors.link_sources_colors(type);});
 
     link.add(pv.Label)
         .bottom(0)
@@ -266,7 +230,7 @@ function wedge_plot(parsed_data,div) {
     var	ring_radius = width / 20;
     var chrom_keys = ["1","2","3","4","5","6","7","8","9","10",
         "11","12","13","14","15","16","17","18","19","20","21","22","X","Y"];
-    var stroke_style = getStrokeStyleAttribute();
+    var stroke_style = re.plot.colors.getStrokeStyleAttribute();
 
     function genome_listener(chr) {
         var e = new vq.events.Event('render_linearbrowser','circvis',{data:parsed_data,chr:chr});
@@ -299,7 +263,7 @@ function wedge_plot(parsed_data,div) {
                 (feature.targetNode.end ? '-'+ feature.targetNode.end : '')  + ' ' +
                 feature.targetNode.label_mod;}
         };
-    var chrom_leng = vq.utils.VisUtils.clone(chrome_length);
+    var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
 
     var ticks = vq.utils.VisUtils.clone(parsed_data['features']);
 
@@ -336,7 +300,7 @@ function wedge_plot(parsed_data,div) {
                 display_legend : false,
                 listener : wedge_listener,
                 stroke_style :stroke_style,
-                fill_style : function(tick) {return node_colors(tick.source); },
+                fill_style : function(tick) {return re.plot.colors.node_colors(tick.source); },
                 tooltip_items : {Tick : function(node) { return node.label+ ' ' + node.source + ' Chr' + node.chr + ' ' + node.start +
                     '-' + node.end + ' ' + node.label_mod;}},
                 tooltip_links : {
@@ -396,7 +360,7 @@ function wedge_plot(parsed_data,div) {
                     radius : 4,
                     draw_axes : false,
                     shape:'dot',
-                    fill_style  : function(feature) {return link_sources_colors([feature.sourceNode.source,feature.targetNode.source]); },
+                    fill_style  : function(feature) {return re.plot.colors.link_sources_colors([feature.sourceNode.source,feature.targetNode.source]); },
                     //stroke_style  : function(feature) {return link_sources_colors([feature.sourceNode.source,feature.targetNode.source]); },
                     stroke_style : stroke_style,
                     tooltip_items : unlocated_tooltip_items,
@@ -419,7 +383,7 @@ function wedge_plot(parsed_data,div) {
                 node_listener : wedge_listener,
                 link_listener: initiateDetailsPopup,
                 link_stroke_style : function(link) {
-                    return link_sources_colors([link.sourceNode.source,link.targetNode.source]);},
+                    return re.plot.colors.link_sources_colors([link.sourceNode.source,link.targetNode.source]);},
                 constant_link_alpha : 0.7,
                 node_tooltip_items :  {Node : function(node) { return node.label+ ' ' + node.source + ' Chr' + node.chr + ' ' + node.start +
                     '-' + node.end + ' ' + node.label_mod;}},
@@ -468,13 +432,6 @@ function linear_plot(obj) {
             '-'+ mbpToBp(feature.end),'_blank');
         return false;
     };
-    var spot_listener = function(feature){
-        window.open(ucsc_genome_url + '?db=hg18&position=chr' + feature.chr + ':' + mbpToBp(feature.start)  +
-            '-'+ mbpToBp(feature.start+ 20),'_blank');
-        return false;
-    };
-
-    var stroke_style = getStrokeStyleAttribute();
 
     var unlocated_tooltip_items = {
         Target : function(tie) {
@@ -523,11 +480,11 @@ function linear_plot(obj) {
 
     var tie_map = parsed_data['network'].filter(function(link) {
         return link.node1.chr == chrom && link.node2.chr == chrom &&
-            Math.abs(link.node1.start - link.node2.start) > proximal_distance;})
+            Math.abs(link.node1.start - link.node2.start) > re.plot.proximal_distance;})
         .map(function(link) {
             var node1_clone = vq.utils.VisUtils.extend({pvalue:link.pvalue,importance:link.importance, correlation:link.correlation},link.node1);
             node1_clone.start = link.node1.start <= link.node2.start ?
-                link.node1.start : link.node2.start;
+            link.node1.start : link.node2.start;
             node1_clone.end = link.node1.start <= link.node2.start ? link.node2.start : link.node1.start;
             node1_clone.start = bpToMb(node1_clone.start);node1_clone.end = bpToMb(node1_clone.end);
             node1_clone.sourceNode = vq.utils.VisUtils.extend({},link.node1);
@@ -539,31 +496,24 @@ function linear_plot(obj) {
 
     var neighbor_map = parsed_data['network'].filter(function(link) {
         return link.node1.chr == chrom && link.node2.chr == chrom &&
-            Math.abs(link.node1.start - link.node2.start) < proximal_distance;})
+            Math.abs(link.node1.start - link.node2.start) < re.plot.proximal_distance;})
         .map(function(link) {
-            var node1_clone = vq.utils.VisUtils.extend({pvalue:link.pvalue,importance:link.importance, correlation:link.correlation},link.node1),
-                node2_clone = vq.utils.VisUtils.extend({},link.node2);
+            var node1_clone = vq.utils.VisUtils.extend({pvalue:link.pvalue,importance:link.importance, correlation:link.correlation},link.node1);
             node1_clone.start = bpToMb(node1_clone.start);node1_clone.end = bpToMb(node1_clone.end);
             node1_clone.sourceNode = vq.utils.VisUtils.extend({},link.node1);
             node1_clone.targetNode = vq.utils.VisUtils.extend({},link.node2);
-
             return node1_clone;
         });
 
 
     var locations = vq.utils.VisUtils.clone(parsed_data['features']).filter(function(node) { return node.chr == chrom;})
         .map(function (location)  {
-            var node =location;
-            node.start = bpToMb(node.start);node.end = bpToMb(node.end);
-            node.label = location.value;
-            return node;
+            return vq.utils.VisUtils.extend(location,{ start: bpToMb(location.start), end : bpToMb(location.end) , label : location.value});
         });
     var node2_locations = parsed_data['network']
         .filter(function(link) {  return link.node2.chr == chrom;})
         .map(function(link) {
-            var node = vq.utils.VisUtils.extend({},link.node2);
-            node.start = bpToMb(node.start); node.end = bpToMb(node.end);
-            return node;
+            return vq.utils.VisUtils.extend(link.node2, { start : bpToMb(link.node2.start), end: bpToMb(link.node2.end)});
         });
 
     locations = locations.concat(node2_locations);
@@ -587,8 +537,8 @@ function linear_plot(obj) {
                 label : 'Feature Locations',
                 description : 'Genome Location of Features',
                 CONFIGURATION: {
-                    fill_style : function(node) { return node_colors(node.source);},          //required
-                    stroke_style : function(node) { return node_colors(node.source);},          //required
+                    fill_style : function(node) { return re.plot.colors.node_colors(node.source);},          //required
+                    stroke_style : function(node) { return re.plot.colors.node_colors(node.source);},          //required
                     track_height : 50,           //required
                     tile_height:20,                //required
                     track_padding: 20,             //required
@@ -607,7 +557,7 @@ function linear_plot(obj) {
                 label : 'Unmapped Feature Correlates',
                 description : '',
                 CONFIGURATION: {
-                    fill_style : function(hit) { return node_colors(hit.source);},
+                    fill_style : function(hit) { return re.plot.colors.node_colors(hit.source);},
                     stroke_style : null,
                     track_height : 60,
                     track_padding: 20,
@@ -630,7 +580,7 @@ function linear_plot(obj) {
                 label : 'Proximal Feature Predictors',
                 description : '',
                 CONFIGURATION: {
-                    fill_style : function(link) { return link_sources_colors([link.sourceNode.source,link.targetNode.source])},
+                    fill_style : function(link) { return re.plot.colors.link_sources_colors([link.sourceNode.source,link.targetNode.source])},
                     stroke_style : null,
                     track_height : 80,
                     track_padding: 20,
@@ -653,8 +603,8 @@ function linear_plot(obj) {
                 label : 'Distal Intra-Chromosomal Correlates',
                 description : '',
                 CONFIGURATION: {
-                    fill_style :  function(link) { return link_sources_colors([link.sourceNode.source,link.targetNode.source]);},
-                    stroke_style : function(link) { return link_sources_colors([link.sourceNode.source,link.targetNode.source]);},
+                    fill_style :  function(link) { return re.plot.colors.link_sources_colors([link.sourceNode.source,link.targetNode.source]);},
+                    stroke_style : function(link) { return re.plot.colors.link_sources_colors([link.sourceNode.source,link.targetNode.source]);},
                     track_height : 280,
                     track_padding: 15,             //required
                     tile_height : 2,
@@ -673,7 +623,7 @@ function linear_plot(obj) {
             }]
     }
     };
-    var chrom_leng = vq.utils.VisUtils.clone(chrome_length);
+    var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
     var chr_match = chrom_leng.filter(function(chr_obj) { return chr_obj.chr_name == chrom;});
     var maxPos = Math.ceil(bpToMb(chr_match[0]['chr_length']));
 
@@ -712,21 +662,19 @@ function isNAValue(data_type,value) {
     else  return isNaN(value);
 }
 
-var scatterplot_data;
-
 
 function scatterplot_draw(params) {
-    var data = params.data || scatterplot_data || {data:[]},
+    var data = params.data || re.plot.scatterplot_data || {data:[]},
         div = params.div || null,
         regression_type = params.regression_type || 'none',
         reverse_axes = params.reverse_axes || false,
         discretize_x = params.discretize_x || false,
         discretize_y = params.discretize_y || false;
-    scatterplot_data = data;
+        re.plot.scatterplot_data = data;
 
     if (data === undefined) {return;}  //prevent null plot
 
-    var dataset_labels=getDatasetLabels();
+    var dataset_labels=re.ui.getDatasetLabels();
     var patient_labels = dataset_labels['patients'];
     var f1 = data.f1id, f2 = data.f2id;
     var f1label = data.f1alias, f2label = data.f2alias;
@@ -866,12 +814,12 @@ function initializeGraph(obj) {
     // initialization options
     var options = {
         // where you have the Cytoscape Web SWF
-        swfPath: cytoscape['swfPath'],
+        swfPath: re.cytoscape['swfPath'],
         // where you have the Flash installer SWF
-        flashInstallerPath: cytoscape['flashInstallerPath']
+        flashInstallerPath: re.cytoscape['flashInstallerPath']
     };
-    gbm.cytoscape.obj = new org.cytoscapeweb.Visualization(div_id, options);
-    gbm.cytoscape.data = obj.network;
+    re.cytoscape.obj = new org.cytoscapeweb.Visualization(div_id, options);
+    re.cytoscape.data = obj.network;
 }
 
 
@@ -893,7 +841,7 @@ function populateGraph(obj) {
                 { name: "correlation", type: "number" },
                 { name: "directed", type: "boolean", defValue: false} ]
         },
-        data:  gbm.cytoscape.data
+        data:  re.cytoscape.data
     };
 
     var visual_style = {
@@ -926,19 +874,19 @@ function populateGraph(obj) {
             + "0123456789ABCDEF".charAt(n%16);
     }
 
-    gbm.cytoscape.obj["mapFeatureType"] =  function(data)   {
+    re.cytoscape.obj["mapFeatureType"] =  function(data)   {
         var color = scale(data.type);
         return rgbToHex(color.r,color.g,color.b);
     };
     var layout =getNetworkLayout();
 
-    gbm.cytoscape.obj.ready(function() {
-        gbm.display_options.cytoscape.ready = true;
+    re.cytoscape.obj.ready(function() {
+        re.display_options.cytoscape.ready = true;
           var e = new vq.events.Event('render_complete','graph',{});
         e.dispatch();
     });
 
-    gbm.cytoscape.obj.draw({ network: network,
+    re.cytoscape.obj.draw({ network: network,
 
         // let's try another layout
         layout:layout,
