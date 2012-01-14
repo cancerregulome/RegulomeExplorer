@@ -20,7 +20,7 @@ var d = vq.events.Dispatcher;
 }
 
 function parseDatasetLabels(data) {
-        setDatasetLabels(data);
+        re.ui.setDatasetLabels(data);
         vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready','dataset_labels', data));
 }
 
