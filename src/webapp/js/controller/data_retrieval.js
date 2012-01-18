@@ -117,11 +117,11 @@ function loadFeatureData(link) {
 
     function patientQueryHandle(response) {
         patients['data'] = Ext.decode(response.responseText);
-        if (patients['data'].length >=1) {
+        if (patients['data'].length ==1) {
             loadComplete();
         }
         else{
-            loadFailed();
+            queryFailed(response());
         }
     }
 

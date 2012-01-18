@@ -42,6 +42,9 @@ function registerLayoutListeners() {
     d.addListener('query_fail','label_position', function(obj) {
         failedLabelLookup(obj);
     });
+        d.addListener('query_fail','features', function(obj) {
+        re.windows.masks.details_window_mask.hide();
+    });
 }
 
 
