@@ -162,8 +162,8 @@ def process_feature_edges(pairwised_file, do_pubcrawl):
 	efshout.write("\ncommit;")
 	efshout.write("\nEOFMYSQL")
 	efshout.close()
-	if (do_pubcrawl == 1):
-		smtp.main("jlin@systemsbiology.net", contacts, "Notification - New Pairwise Associations for PubCrawl", "New pairwise associations ready for PubCrawl load\n" + edges_out_pc.name + "\n\n" + str(pcc) + " Total Edges\n\n" + edges_out_re.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "_pw \n\n")
+ #  if (do_pubcrawl == 1):
+		#smtp.main("jlin@systemsbiology.net", contacts, "Notification - New Pairwise Associations for PubCrawl", "New pairwise associations ready for PubCrawl load\n" + edges_out_pc.name + "\n\n" + str(pcc) + " Total Edges\n\n" + edges_out_re.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "_pw \n\n")
 	return efshout
 
 def getFeatureId(featureStr):
@@ -238,7 +238,7 @@ def main(pw_label, feature_matrix, associations, dopc, insert_features):
 	print "Done with processing features, processing pairwise edges %s " %(time.ctime())
 	edges_sh = process_feature_edges(associations, dopc)
 	os.system("sh " + edges_sh.name)
-	smtp.main("jlin@systemsbiology.net", notify, "Notification - New Pairwise Associations loaded for All Pairs Significance Test", "New pairwise associations loaded into All Pairs Significance Test for " + pw_label + "\n\n" + str(totalEdges) + " Total Edges\n\nFeature matrix file:" + feature_matrix + "\nPairwise associations file:" + associations + "\n")
+	#smtp.main("jlin@systemsbiology.net", notify, "Notification - New Pairwise Associations loaded for All Pairs Significance Test", "New pairwise associations loaded into All Pairs Significance Test for " + pw_label + "\n\n" + str(totalEdges) + " Total Edges\n\nFeature matrix file:" + feature_matrix + "\nPairwise associations file:" + associations + "\n")
 	print "Done with processing pairwise edges %s " %(time.ctime())
 
 if __name__ == "__main__":
