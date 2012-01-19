@@ -3,6 +3,7 @@ function registerPlotListeners() {
 
     var d = vq.events.Dispatcher;
     d.addListener('data_ready','associations',function(data) {
+        if (re.state.query_cancel) { return;}
         renderCircleData(data);
         renderCircleLegend();
     });
@@ -45,6 +46,7 @@ function registerPlotListeners() {
             layoutGraph();
         }
     });
+ 
 }
 
 function layoutGraph() {
