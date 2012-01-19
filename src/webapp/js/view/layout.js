@@ -25,6 +25,7 @@ function registerLayoutListeners() {
         loadDataset();
     });
     d.addListener('render_complete','circvis',function(circvis_plot){
+        re.state.query_cancel = false;
         exposeCirclePlot();
     });
     d.addListener('data_ready','associations',function(data) {
@@ -42,8 +43,11 @@ function registerLayoutListeners() {
     d.addListener('query_fail','label_position', function(obj) {
         failedLabelLookup(obj);
     });
-        d.addListener('query_fail','features', function(obj) {
+    d.addListener('query_fail','features', function(obj) {
         re.windows.masks.details_window_mask.hide();
+    });
+    d.addListener('query_cancel','associations',function(data) {
+        re.state.query_cancel = true;
     });
 }
 
@@ -177,6 +181,7 @@ function openBrowserTab(url) {
  */
 
 function manualFilterRequest() {
+    re.state.query_cancel = false;
     preserveState();
     requestFilteredData();
 }
@@ -488,7 +493,14 @@ function retrievePathways(target_id,predictor_id){
 /*clean divs*/
 
 function prepareVisPanels() {
-    re.windows.masks.network_mask = new Ext.LoadMask('view-region', {msg:"Loading Data..."});
+    re.windows.masks.network_mask = new Ext.LoadMask('view-region',
+                                {
+                                msg:"Loading Data...",
+                                cancelEvent:function() {
+                                    vq.events.Dispatcher.dispatch(
+                                        new vq.events.Event('query_cancel','associations',{}));
+                                                        }
+                                        });
     re.windows.masks.network_mask.show();
     wipeLinearPlot();
 }

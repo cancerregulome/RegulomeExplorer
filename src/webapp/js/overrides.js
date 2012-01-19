@@ -1,3 +1,22 @@
+Ext.override(Ext.LoadMask, {
+        show: function() {
+        this.onBeforeLoad();
+        var me    = this,
+            msgEl = Ext.query("div.ext-el-mask-msg",this.el.dom)[0];
+            if ( me.cancelEvent != undefined && typeof me.cancelEvent == "function") {
+                var btn = new Ext.Button({
+                    cls : 'loadCancelButton',
+                    text : 'Cancel',
+                    listeners : {
+                        'click': function() {  me.cancelEvent.call(this);}
+                    },
+                    renderTo : msgEl,
+                    width : 60
+                });
+            }
+        }
+});
+
 re.multirangeField = Ext.extend(Ext.form.CompositeField, {
     constructor: function(config) {
         var default_value = config.default_value || 0;

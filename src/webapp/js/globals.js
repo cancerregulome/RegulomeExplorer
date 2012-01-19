@@ -7,6 +7,7 @@
 var re = {
     state : {
       once_loaded : false,
+      query_cancel : false,
         network_query : ''
     },
     rest : {

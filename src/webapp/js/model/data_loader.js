@@ -3,6 +3,7 @@ function registerModelListeners() {
 
 var d = vq.events.Dispatcher;
     d.addListener('query_complete','associations',function(data) {
+        if (re.state.query_cancel) { return;}
         parseNetwork(data);
         generateNetworkDefinition(data)
     });
@@ -12,11 +13,12 @@ var d = vq.events.Dispatcher;
     d.addListener('query_complete','annotations',function(data) {
         parseAnnotations(data);
     });
-
      d.addListener('query_complete','features',function(data) {
         parseFeatures(data);
     });
-
+    d.addListener('query_cancel','associations',function(data) {
+        re.state.query_cancel = true;
+    });
 }
 
 function parseDatasetLabels(data) {
