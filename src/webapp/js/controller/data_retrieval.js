@@ -124,7 +124,7 @@ function loadFeatureData(link) {
         'where f1alias  = \'' + link.sourceNode.id + '\' and f2alias = \'' + link.targetNode.id + '\' limit 1';
         var query_json = { tq : query_str, tqx : 'out:json_array'};
     var patient_query_str = '?' + Ext.urlEncode(query_json);
-    //var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.feature_data_uri + re.rest.query + patient_query_str;
+    var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.feature_data_uri + re.rest.query + patient_query_str;
 
     function patientQueryHandle(response) {
         try {
@@ -248,6 +248,18 @@ function loadNetworkDataByFeature(params) {
 
 function loadNetworkDataByAssociation(params) {
 
+    if (re.analysis.directed_association != undefined &&  re.analysis.directed_association == false) {
+        loadUndirectedNetworkDataByAssociation(params);
+        return;
+    }
+    else {
+        loadDirectedNetworkDataByAssociation(params);
+        return;
+    }
+}
+
+    function  loadDirectedNetworkDataByAssociation(params) {
+
     var responses = [];
 
     re.state.network_query=buildGQLQuery(params);
@@ -280,6 +292,50 @@ function loadNetworkDataByAssociation(params) {
 
 }
 
+  function  loadUndirectedNetworkDataByAssociation(params) {
+
+    var responses = [];
+    
+    function handleNetworkQuery(response) {      
+    try {  
+        responses.push(Ext.decode(response.responseText));       
+          if (responses.length == 2) {
+            responses = pv.blend(responses);
+            if (responses.length < 1)  {
+                noResults('associations');
+            }
+            else {
+            loadComplete();
+            }       
+        }
+        } catch (err) {
+            throwQueryError('associations',response);
+        }        
+    }
+
+    function loadComplete() {
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete','associations', responses));
+    }
+       function loadFailed() {
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','associations',{msg:'Retrieval Timeout'}));
+    }
+
+
+    re.state.network_query=buildGQLQuery(params);
+    var association_query_str = '?' + re.params.query + re.state.network_query + re.params.json_out;
+    var association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
+
+    Ext.Ajax.request({url:association_query,success:handleNetworkQuery,failure: function(response) { queryFailed('associations',response); }});
+
+    var flip_params = flipParams(params);
+    re.state.network_query=buildGQLQuery(flip_params);
+    association_query_str = '?' + re.params.query + re.state.network_query + re.params.json_out;
+    association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
+
+    Ext.Ajax.request({url:association_query,success:handleNetworkQuery,failure: function(response) { queryFailed('associations',response); }});
+
+}
+
 /* Handler functions */
     function noResults(query_type) {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail',query_type,{msg:'No matching results found.'}));
@@ -297,6 +353,27 @@ function loadNetworkDataByAssociation(params) {
 /*
  Utility functions
  */
+
+ function flipParams(params) {
+    var temp = vq.utils.VisUtils.clone(params);
+   return vq.utils.VisUtils.extend(temp,{
+       t_type:params['p_type'],
+       p_type:params['t_type'],
+       
+       t_label:params['p_label'],
+       p_label:params['t_label'],
+
+       t_chr:params['p_chr'],
+       p_chr:params['t_chr'],
+
+       t_start:params['p_start'],
+       p_start:params['t_start'],
+
+       t_stop:params['p_stop'],
+       p_stop:params['t_stop']
+
+   });
+ };
 
 function buildGQLQuery(args) {
     var query = 'select alias1, alias2';

@@ -727,7 +727,7 @@ function scatterplot_draw(params) {
     }
     var data_array = [];
     for (var i=0; i< f1values.length; i++) {
-        if (!isNAValue(f1label,f1values[i]) && !isNAValue(f2label,f2values[i]) ) {
+        if (!isNAValue(f1label[0],f1values[i]) && !isNAValue(f2label[0],f2values[i]) ) {
             var obj = {};
             obj[f1] = f1values[i], obj[f2]=f2values[i], obj['patient_id'] = patient_labels[i];
             data_array.push(obj);
