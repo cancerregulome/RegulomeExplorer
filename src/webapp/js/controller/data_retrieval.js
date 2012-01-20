@@ -40,19 +40,16 @@ function loadDatasetLabels() {
         dataset_labels['clin_labels'] = Ext.decode(response.responseText);
     }
 
-    function queryFailed(response) {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','dataset_labels',{msg:'Query Error: ' + response.status + ': ' + response.responseText}));
-    }
-
     function loadComplete() {
           vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete','dataset_labels',dataset_labels));
       }
 
       function loadFailed() {
-          vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','dataset_labels',{msg:'Retrieval Timeout'}));
+
+          vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','dataset_labels',{msg:'Failed to load dataset labels.'}));
       }
 
-    Ext.Ajax.request({url:clin_label_query,success:clinicalLabelQueryHandler,failure: queryFailed});
+    Ext.Ajax.request({url:clin_label_query,success:clinicalLabelQueryHandler, failure: function(response) { queryFailed('dataset_labels',response);}});
 
     var sources_query_str = '?' + re.params.query + 'select source' + re.params.json_out;
     var sources_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.feature_uri + re.rest.query + sources_query_str;
@@ -61,7 +58,7 @@ function loadDatasetLabels() {
         dataset_labels['feature_sources'] = Ext.decode(response.responseText);
     }
 
-    Ext.Ajax.request({url:sources_query,success:featureSourceQueryHandler,failure: queryFailed});
+    Ext.Ajax.request({url:sources_query,success:featureSourceQueryHandler, failure: function(response) { queryFailed('feature_source',response); }});
 
     var patient_query_str = '?' + re.params.query + 'limit 1'+re.params.json_out;
     var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.patient_uri + re.rest.query +patient_query_str;
@@ -71,7 +68,7 @@ function loadDatasetLabels() {
     }
 
     timer.start_poll();
-    Ext.Ajax.request({url:patient_query,success:patientQueryHandle,failure: queryFailed});
+    Ext.Ajax.request({url:patient_query,success:patientQueryHandle, failure: function(response) { queryFailed('patient_labels',response); }});
 
 }
 
@@ -83,17 +80,18 @@ function lookupLabelPosition(label_obj) {
     var  position_array = [];
 
     function positionQueryHandle(response) {
-        position_array = Ext.decode(response.responseText);
-        if (position_array.length ==1) {
-            loadComplete();
+        try {
+            position_array = Ext.decode(response.responseText);
+            if (position_array.length ==1) {
+                loadComplete();
+            }
+            else{
+                noResults('label_position');
+            }
+        } 
+        catch (err) {
+            throwQueryError('label_position',response);
         }
-        else{
-            loadFailed();
-        }
-    }
-
-    function queryFailed(response) {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','label_position',{msg:'Query Error: ' + response.status + ': ' + response.responseText}));
     }
 
     function loadComplete() {
@@ -104,7 +102,8 @@ function lookupLabelPosition(label_obj) {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','label_position',{msg:'Retrieval Timeout'}));
     }
 
-    Ext.Ajax.request({url:position_url,success:positionQueryHandle,failure: queryFailed});
+    Ext.Ajax.request({url:position_url,success:positionQueryHandle,failure: function(response) { queryFailed('label_position',response); }});
+
 }
 
 function loadFeatureData(link) {
@@ -116,18 +115,20 @@ function loadFeatureData(link) {
     var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.feature_data_uri + re.rest.query + patient_query_str;
 
     function patientQueryHandle(response) {
+        try {
         patients['data'] = Ext.decode(response.responseText);
         if (patients['data'].length ==1) {
             loadComplete();
         }
-        else{
-            queryFailed(response());
+        else {
+            noResults('features');
         }
+    } 
+    catch (err) {
+        throwQueryError('features',response);
+    }
     }
 
-    function queryFailed(response) {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','features',{msg:'Query Error: ' + response.status + ': ' + response.responseText}));
-    }
     function loadComplete() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete','features',patients));
     }
@@ -135,7 +136,7 @@ function loadFeatureData(link) {
     function loadFailed() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','features',{msg:'Retrieval Timeout'}));
     }
-    Ext.Ajax.request({url:patient_query,success:patientQueryHandle,failure: queryFailed});
+    Ext.Ajax.request({url:patient_query,success:patientQueryHandle,failure: function(response) { queryFailed('features',response); }});
 
 }
 
@@ -146,17 +147,21 @@ function loadAnnotations() {
     var chrom_query = re.databases.base_uri + re.databases.metadata.uri + re.tables.chrom_info +  re.rest.query+ chrom_query_str;
 
     function handleChromInfoQuery(response) {
-        annotations['chrom_leng'] = Ext.decode(response.responseText);
-        if (annotations['chrom_leng'].length >=1) {
-            loadComplete();
+        try {
+            annotations['chrom_leng'] = Ext.decode(response.responseText);
+              if (annotations['chrom_leng'].length >=1) {
+                  loadComplete();
+               }
+              else{
+                noResults('annotations');
+             }
+            
+            } 
+        catch (err) {
+                throwQueryError('annotations',response);
+            }
         }
-        else{
-            loadFailed();
-        }
-    }
-    function queryFailed(response) {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','annotations',{msg:'Query Error: ' + response.status + ': ' + response.responseText}));
-    }
+      
     function loadComplete() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete','annotations',annotations));
     }
@@ -164,7 +169,7 @@ function loadAnnotations() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','annotations',{msg:'Retrieval Timeout'}));
     }
 
-    Ext.Ajax.request({url:chrom_query,success:handleChromInfoQuery,failure: queryFailed});
+    Ext.Ajax.request({url:chrom_query,success:handleChromInfoQuery,failure: function(response) { queryFailed('annotations',response); }});
 }
 
 /*
@@ -198,17 +203,25 @@ function loadNetworkDataByFeature(params) {
     var responses = [];
 
     function handleNetworkQuery(response) {
-        responses.push(Ext.decode(response.responseText));
-        if (responses.length >= labels.length) {
-            responses = pv.blend(responses);
-            loadComplete();
+        try { 
+         responses.push(Ext.decode(response.responseText));
+             if (responses.length >= labels.length) {
+                responses = pv.blend(responses);
+                if (responses.length >= 1) {
+                   loadComplete();
+                   return;
+                }
+                else {  //no matching results
+                    noResults('associations')
+                }
+            }
+            else { // haven't gathered all of the responses yet
+                return;
+            }
         }
-        else {
-            loadFailed();
-        }
-    }
-    function queryFailed(response) {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','assocations',{msg:'Query Error: ' + response.status + ': ' + response.responseText}));
+        catch (err) {   //an error detected in one of the responses
+            throwQueryError('associations',response);
+        }     
     }
 
     labels.forEach(function(label){
@@ -216,9 +229,9 @@ function loadNetworkDataByFeature(params) {
         var network_query=buildGQLQuery(params);
         var association_query_str = '?' + re.params.query + network_query + re.params.json_out;
         var association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
-        Ext.Ajax.request({url:association_query,success:handleNetworkQuery,failure: queryFailed});
+        Ext.Ajax.request({url:association_query,success:handleNetworkQuery,failure: function(response) { queryFailed('associations',response); }});
     });
-    loadComplete();
+    
 }
 
 function loadNetworkDataByAssociation(params) {
@@ -229,38 +242,56 @@ function loadNetworkDataByAssociation(params) {
     var association_query_str = '?' + re.params.query + re.state.network_query + re.params.json_out;
     var association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
 
-    function handleNetworkQuery(response) {
-        responses = Ext.decode(response.responseText);
+    function handleNetworkQuery(response) {      
+    try {  
+        responses = Ext.decode(response.responseText);       
           if (responses.length >=1) {
             loadComplete();
         }
         else{
-            loadFailed();
+            noResults('associations');
         }
-    }
-    function queryFailed(response) {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','assocations',{msg:'Query Error: ' + response.status + ': ' + response.responseText}));
+        } catch (err) {
+            throwQueryError('associations',response);
+        }        
     }
 
     function loadComplete() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete','associations', responses));
     }
-
-    function loadFailed() {
+       function loadFailed() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','associations',{msg:'Retrieval Timeout'}));
     }
 
-    Ext.Ajax.request({url:association_query,success:handleNetworkQuery,failure: queryFailed});
+
+    Ext.Ajax.request({url:association_query,success:handleNetworkQuery,failure: function(response) { queryFailed('associations',response); }});
 
 }
+
+/* Handler functions */
+    function noResults(query_type) {
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail',query_type,{msg:'No matching results found.'}));
+    }
+
+    function throwQueryError(query_type,response) {
+            var text = response.responseText;
+            var json_index = text.indexOf('(') + 1;
+            // -2 because we want to cut the ); out of the end of the message 
+            var json = Ext.decode(text.slice(json_index,-2));
+            var error = json.errors[0];
+          vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail',query_type,{msg: error.message + error.detailed_message }));
+    }
 
 /*
  Utility functions
  */
 
-
 function buildGQLQuery(args) {
-    var query = 'select alias1, alias2, feature1id, feature2id, f1genescore, f2genescore, correlation, pvalue, importance';
+    var query = 'select alias1, alias2, feature1id, feature2id, f1genescore, f2genescore';
+     re.model.association.types.forEach( function(obj) { 
+         query += ', ' + obj.query.id;
+     });
+
     var whst = ' where',
         where = whst;
 
@@ -310,65 +341,34 @@ function buildGQLQuery(args) {
     if ((args['t_start'] != '') && (args['t_stop'] != '')) {
         where += ' and f1end >= ' +args['t_start'];
     }
-    if (args['importance'] != '') {
-        where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'importance >= ' +args['importance'];
-    }
-    if (args['pvalue'] != '') {
-        where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'pvalue <= ' +args['pvalue'];
-    }
-    query += flex_field_query('correlation',args['correlation'],'correlation_fn');
+
+    re.model.association.types.forEach(function(obj) {
+        if (typeof obj.query.clause == 'function') {
+             var clause =  flex_field_query(obj.query.id,args[obj.query.id],args[obj.query.id+'_fn']);
+             where += ((clause.length < 1) ?  '' : ((where.length > whst.length ? ' and ' : ' ') + clause));
+             return;
+        }
+        if (args[obj.query.id] != '') {
+            where += (where.length > whst.length ? ' and ' : ' ');
+            where += obj.query.clause + args[obj.query.id];
+        }
+    });
+
+    // if (args['importance'] != '') {
+    //     where += (where.length > whst.length ? ' and ' : ' ');
+    //     where += 'importance >= ' +args['importance'];
+    // }
+    // if (args['pvalue'] != '') {
+    //     where += (where.length > whst.length ? ' and ' : ' ');
+    //     where += 'pvalue <= ' +args['pvalue'];
+    // }
+    // query += flex_field_query('correlation',args['correlation'],'correlation_fn');
 
     query += (where.length > whst.length ? where : '');
-    query += ' order by '+args['order'] + (args['order'] == 'pvalue' ? ' ASC' : ' DESC');
+    query += ' order by '+args['order'] + ' ' + (re.model.association.types[re.model.association_map[args['order']]].query.order_direction || 'DESC');
     query += ' limit '+args['limit'] + ' label `feature1id` \'f1id\', `feature2id` \'f2id\'';
 
     return query;
-}
-
-function flex_field_query(label, value, fn) {
-    var where = '';
-    if (value != '') {
-        if (fn == 'Btw'){
-            where += '(' + label + ' >= -' +value + ' and '+ label + ' <= ' + value +')';
-        }else if (fn == '<='){
-            where += '('+ label + ' <= ' + value +')';
-        }else if (fn == '>='){
-            where += '('+ label + ' >= ' +value +')';
-        }else{
-            if (parseFloat(value) != '0' ) {
-                where += '('+ label + ' >= ' +value + ' or '+ label + ' <= -' + value +')';
-            }
-        }
-    }
-    return where;
-
-}
-
-function parseLabelList(labellist) {
-    return labellist.replace(new RegExp(' ','g'),'').split(',');
-}
-
-function querifyLabelList(field_id,labellist) {
-    var labels = parseLabelList(labellist);
-    var clause = '(';
-    if (labels.length < 1) return '';
-    labels.forEach( function(label) {
-        clause += ' `' + field_id + '` ' + parseLabel(label);
-        clause += ' or'
-    });
-    clause = clause.slice(0,-3);
-    clause += ')';
-    return clause;
-}
-
-function parseLabel(label) {
-    if (label.length > 1  && (label.indexOf('*')>=0 || label.indexOf('%')>=0)) {
-        return 'like \'' + label.replace(new RegExp('[*%]', 'g'),'%25') + '\'';
-    } else {
-        return '=\'' + label + '\'';
-    }
 }
 
 /*

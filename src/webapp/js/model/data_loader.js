@@ -16,9 +16,6 @@ var d = vq.events.Dispatcher;
      d.addListener('query_complete','features',function(data) {
         parseFeatures(data);
     });
-    d.addListener('query_cancel','associations',function(data) {
-        re.state.query_cancel = true;
-    });
 }
 
 function parseDatasetLabels(data) {
@@ -70,9 +67,13 @@ function generateNetworkDefinition(responses) {
             source_map[f2id]);
 
         source_map[f2id] = target_id;
-
-        return {id:f1id + '-' + f2id, label : f1id + ' -> ' + f2id, source:f1id ,target: f2id,
-            pvalue : row.pvalue,importance : row.importance, correlation:row.correlation};
+        var obj = {id:f1id + '-' + f2id, label : f1id + ' -> ' + f2id, source:f1id ,target: f2id};
+         re.model.association.types.forEach(function(assoc) {
+                obj[assoc.ui.grid.store_index] = row[assoc.query.id];
+            })
+        return obj;
+        // return {id:f1id + '-' + f2id, label : f1id + ' -> ' + f2id, source:f1id ,target: f2id,
+        //     pvalue : row.pvalue,importance : row.importance, correlation:row.correlation};
     });
 
     network.nodes =  source_array;
@@ -100,13 +101,18 @@ function parseNetwork(responses) {
         var node2 = row.alias2.split(':');
            var label_mod1 = node1.length >=8 ? node1[7] : '';
            var label_mod2 = node2.length >=8 ? node2[7] : '';
-           return {node1: {id : row.f1id, source : node1[1], label : node1[2], chr : node1[3].slice(3),
+           var obj =  {node1: {id : row.f1id, source : node1[1], label : node1[2], chr : node1[3].slice(3),
                label_mod : label_mod1,
                start: node1[4] != '' ? parseInt(node1[4]) : -1, end:node1[5] != '' ? parseInt(node1[5]) : parseInt(node1[4]),genescore:row.f1genescore},
             node2: {id : row.f2id, source : node2[1], label : node2[2], chr : node2[3].slice(3),
                 label_mod : label_mod2,
-                start: node2[4] != '' ? parseInt(node2[4]) : -1, end:node2[5] != '' ? parseInt(node2[5]) : parseInt(node2[4]),genescore:row.f2genescore},
-            pvalue : row.pvalue,importance : row.importance, correlation:row.correlation};
+                start: node2[4] != '' ? parseInt(node2[4]) : -1, end:node2[5] != '' ? parseInt(node2[5]) : parseInt(node2[4]),genescore:row.f2genescore}
+            };
+             re.model.association.types.forEach(function(assoc) {
+                obj[assoc.ui.grid.store_index] = row[assoc.query.id];
+            })
+        return obj;
+//            pvalue : row.pvalue,importance : row.importance, correlation:row.correlation};
     }
             );
         var located_responses = whole_net.filter(function(feature) {

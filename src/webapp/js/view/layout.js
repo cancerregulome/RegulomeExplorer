@@ -12,6 +12,7 @@ function registerLayoutListeners() {
         re.windows.masks.network_mask.hide();
     });
     d.addListener( 'query_fail','associations',function(obj){
+        Ext.Msg.alert('Query failed',obj.msg);
         re.windows.masks.network_mask.hide();
     });
     d.addListener('click_association',function(link){
@@ -127,7 +128,7 @@ function openDetailsWindow(association) {
     re.windows.masks.details_window_mask =  new Ext.LoadMask('details-window', {msg:"Loading Data..."});
     re.windows.masks.details_window_mask.show();
     renderMedlineDocuments(association);
-    renderPathways(association);
+    //renderPathways(association);
 }
 
 function showSVGDialog() {
@@ -229,26 +230,31 @@ function getFilterSelections() {
         Ext.getCmp('p_start').getValue(),
         Ext.getCmp('p_stop').getValue(),
 
-        Ext.getCmp('importance').getValue(),
-        Ext.getCmp('correlation').getValue(),
 
         Ext.getCmp('order').getValue(),
         Ext.getCmp('limit').getValue(),
 
-        Ext.getCmp('correlation_fn').getValue(),
-        Ext.getCmp('pvalue').getValue(),
         Ext.getCmp('filter_type').getValue()
     );
 }
 
 function packFilterSelections() {
-    return {t_type:arguments[0],t_label:arguments[1], t_chr:arguments[2],
+    var return_obj = {
+        t_type:arguments[0],t_label:arguments[1], t_chr:arguments[2],
         t_start:arguments[3],t_stop:arguments[4],
         p_type:arguments[5],p_label:arguments[6], p_chr:arguments[7],
         p_start:arguments[8],p_stop:arguments[9],
-        importance:arguments[10],correlation:arguments[11],order:arguments[12],
-        limit:arguments[13],correlation_fn:arguments[14],pvalue:arguments[15], filter_type:arguments[16]};
-
+        order:arguments[10],
+        limit:arguments[11],
+        filter_type:arguments[12]};
+  
+        re.model.association.types.forEach(function (obj){
+          return_obj[obj.id] = Ext.getCmp(obj.id).getValue();
+            if (obj.ui.filter.component instanceof re.multirangeField)  {
+                return_obj[obj.id + '_fn'] =  Ext.getCmp(obj.id + '_fn').getValue(); 
+            }
+        });
+    return return_obj;
 }
 
 
@@ -265,12 +271,16 @@ function resetFormPanel() {
         Ext.getCmp('p_clin').reset(),
         Ext.getCmp('p_start').reset(),
         Ext.getCmp('p_stop').reset(),
-        Ext.getCmp('importance').reset(),
-        Ext.getCmp('pvalue').reset(),
-        Ext.getCmp('correlation').reset(),
         Ext.getCmp('order').reset(),
         Ext.getCmp('limit').reset(),
-    Ext.getCmp('filter_type').reset()
+    Ext.getCmp('filter_type').reset();
+
+          re.model.association.types.forEach( function(obj){
+                Ext.getCmp(obj.id).reset();
+            if (obj.ui.filter.component instanceof re.multirangeField)  {
+                Ext.getCmp(obj.id + '_fn').reset(); 
+            }
+        });
 }
 
 /*
@@ -298,11 +308,14 @@ function loadListStores(dataset_labels) {
 
 function loadDataTableStore(data) {
     var mapped_data = pv.blend([data['network'],data['unlocated']]).map(function(row) {
-        return {target_id: row.node1.id, target_source: row.node1.source,target_label: row.node1.label,target_chr: row.node1.chr,
+        var obj = {target_id: row.node1.id, target_source: row.node1.source,target_label: row.node1.label,target_chr: row.node1.chr,
             target_start: row.node1.start,target_stop:row.node1.stop,
             source_id: row.node2.id, source_source :row.node2.source,source_label: row.node2.label,source_chr: row.node2.chr,
-            source_start: row.node2.start,source_stop: row.node2.stop,
-            importance : row.importance, correlation:row.correlation, pvalue : row.pvalue };
+            source_start: row.node2.start,source_stop: row.node2.stop};
+            re.model.association.types.forEach(function(assoc) {
+                obj[assoc.ui.grid.store_index] = row[assoc.query.id];
+            });
+        return obj;
     });
     Ext.StoreMgr.get('data_grid_store').loadData(mapped_data);
 }
@@ -458,37 +471,37 @@ function renderTitle(value, p, record) {
 /*
  Pathways functions
  */
-function renderPathways(association) {
-    var target_id = association.sourceNode.id;
-    var predictor_id = association.targetNode.id;
-    retrievePathways(target_id,predictor_id);
-    Ext.StoreMgr.get('target_pathways_grid_store').load();
-    Ext.StoreMgr.get('predictor_pathways_grid_store').load();
-    Ext.getCmp('target_pathways_grid').setTitle('Target: ' + association.sourceNode.label);
-    Ext.getCmp('predictor_pathways_grid').setTitle('Predictor: ' + association.targetNode.label);
-}
+// function renderPathways(association) {
+//     var target_id = association.sourceNode.id;
+//     var predictor_id = association.targetNode.id;
+//     retrievePathways(target_id,predictor_id);
+//     Ext.StoreMgr.get('target_pathways_grid_store').load();
+//     Ext.StoreMgr.get('predictor_pathways_grid_store').load();
+//     Ext.getCmp('target_pathways_grid').setTitle('Target: ' + association.sourceNode.label);
+//     Ext.getCmp('predictor_pathways_grid').setTitle('Predictor: ' + association.targetNode.label);
+// }
 
-function retrievePathways(target_id,predictor_id){
-    var pathway_query = 'select pathway_name, pathway_type, pvalue';
-    Ext.StoreMgr.get('target_pathways_grid_store').on({
-        beforeload:{
-            fn: function(store,options){
-                store.proxy.setUrl(re.databases.base_uri + re.databases.rf_ace.uri + re.tables.pathway_uri + re.rest.query +
-                    '?' + re.params.query + pathway_query +
-                    ' where featureid = ' + target_id+'&tqx=out:json_array');
-            }
-        }
-    });
-    Ext.StoreMgr.get('predictor_pathways_grid_store').on({
-        beforeload:{
-            fn: function(store,options){
-                store.proxy.setUrl(re.databases.base_uri + re.databases.rf_ace.uri + re.tables.pathway_uri + re.rest.query +
-                    '?' + re.params.query + pathway_query +
-                    ' where featureid = ' + predictor_id+'&tqx=out:json_array');
-            }
-        }
-    });
-}
+// function retrievePathways(target_id,predictor_id){
+//     var pathway_query = 'select pathway_name, pathway_type, pvalue';
+//     Ext.StoreMgr.get('target_pathways_grid_store').on({
+//         beforeload:{
+//             fn: function(store,options){
+//                 store.proxy.setUrl(re.databases.base_uri + re.databases.rf_ace.uri + re.tables.pathway_uri + re.rest.query +
+//                     '?' + re.params.query + pathway_query +
+//                     ' where featureid = ' + target_id+'&tqx=out:json_array');
+//             }
+//         }
+//     });
+//     Ext.StoreMgr.get('predictor_pathways_grid_store').on({
+//         beforeload:{
+//             fn: function(store,options){
+//                 store.proxy.setUrl(re.databases.base_uri + re.databases.rf_ace.uri + re.tables.pathway_uri + re.rest.query +
+//                     '?' + re.params.query + pathway_query +
+//                     ' where featureid = ' + predictor_id+'&tqx=out:json_array');
+//             }
+//         }
+//     });
+// }
 
 /*clean divs*/
 
@@ -687,15 +700,13 @@ Ext.onReady(function() {
                                     { header: "Chr", width:30 , id:'target_chr', dataIndex:'target_chr',groupName:'Target'},
                                     { header: "Start", width:100, id:'target_start',dataIndex:'target_start',groupName:'Target'},
                                     { header: "Stop", width:100, id:'target_stop',dataIndex:'target_stop',groupName:'Target'},
-                                    {header : "Id", width:40,  hidden: true, id:'source_id', dataIndex:'source_id'},
+                                    { header : "Id", width:40,  hidden: true, id:'source_id', dataIndex:'source_id'},
                                     { header: "Type", width: 40,  id:'source_source', dataIndex:'source_source',groupName:'Source'},
                                     { header: "Label", width: 120, id: 'source_label',dataIndex:'source_label',groupName:'Source'},
                                     { header: "Chr", width:30 , id:'source_chr', dataIndex:'source_chr',groupName:'Source'},
                                     { header: "Start", width:100, id:'source_start',dataIndex:'source_start',groupName:'Source'},
                                     { header: "Stop", width:100, id:'source_stop',dataIndex:'source_stop',groupName:'Source'},
-                                    { header: "Importance", width:50, id:'importance',dataIndex:'importance'},
-                                    { header: "Correlation", width:50, id:'correlation',dataIndex:'correlation'}
-                                ],
+                                    ].concat(re.model.association.types.map( function(obj){ return obj.ui.grid.column;})),
                                 defaults: {
                                     sortable: true,
                                     width: 100
@@ -704,8 +715,10 @@ Ext.onReady(function() {
                             store : new Ext.data.JsonStore({
                                 autoLoad:false,
                                 storeId:'data_grid_store',
-                                fields : ['target_id','target_source','target_label','target_chr','target_start','target_stop',
-                                    'source_id', 'source_source','source_label','source_chr','source_start','source_stop','importance','correlation']
+                               fields : ['target_id','target_source','target_label','target_chr','target_start','target_stop',
+                                    'source_id', 'source_source','source_label','source_chr','source_start','source_stop'
+                                    ].concat(re.model.association.types.map( function(obj){ return obj.ui.grid.store_index;})),
+                              
                             }),
                             listeners: {
                                 rowclick : function(grid,rowIndex,event) {
@@ -935,7 +948,7 @@ Ext.onReady(function() {
                                         labelSeparator : '',
                                         defaultType:'textfield',
                                         autoHeight:true,
-                                        items:[
+                                        items: [
                                             {
                                                 xtype:'combo',
                                                 name:'p_type',
@@ -1087,41 +1100,10 @@ Ext.onReady(function() {
                                         title:'Association',
                                         collapsible: true,
                                         autoHeight:true,
-                                        items:[
-                                            {xtype : 'numberfield',
-                                                id:'importance',
-                                                name :'importance',
-                                                allowNegative: false,
-                                                decimalPrecision : 2,
-                                                emptyText : 'Input value...',
-                                                invalidText:'This value is not valid.',
-                                                minValue:0,
-                                                tabIndex : 1,
-                                                validateOnBlur : true,
-                                                fieldLabel : 'Importance >=',
-                                                value : 0
-                                            },
-                                            {xtype : 'numberfield',
-                                                id:'pvalue',
-                                                name :'pvalue',
-                                                allowNegative: false,
-                                                decimalPrecision : 8,
-                                                emptyText : 'Input value...',
-                                                invalidText:'This value is not valid.',
-                                                maxValue:0.9,
-                                                minValue:0,
-                                                tabIndex : 1,
-                                                validateOnBlur : true,
-                                                fieldLabel : 'pvalue <=',
-                                                value : 0.5
-                                            },
-                                            new re.multirangeField(
-                                                {id:'correlation',
-                                                    label: 'Correlation',
-                                                    default_value: 0,
-                                                    min_value: -1,
-                                                    max_value: 1}
-                                            ),
+                                        items:
+                                                re.model.association.types.map( function (obj) {
+                                                    return obj.ui.filter.component;
+                                                }).concat([                                            
                                             { xtype:'combo', name:'order',id:'order',
                                                 mode:'local',
                                                 allowBlank : true,
@@ -1139,7 +1121,7 @@ Ext.onReady(function() {
                                                 typeAhead : true,
                                                 selectOnFocus:true,
                                                 triggerAction : 'all',
-                                                value : 'importance'
+                                                value : re.ui.order_list[0]['value']
                                             },
                                             { xtype:'combo', name:'limit',id:'limit',
                                                 mode:'local',
@@ -1160,7 +1142,7 @@ Ext.onReady(function() {
                                                 triggerAction : 'all',
                                                 value : 200
                                             }
-                                        ]
+                                        ])
                                     },
                                     {xtype:'combo',
                                         fieldLabel:'Filter By',
@@ -1451,46 +1433,46 @@ Ext.onReady(function() {
         })
     });
 
-    var targetPathwayStore= new Ext.data.JsonStore({
-        idProperty:'pathway',
-        remoteSort: false,
-        storeId:'target_pathways_grid_store',
-        fields : ['pathway_name','pathway_type','pvalue'],
-        proxy: new Ext.data.HttpProxy({
-            url: '/addama/datasources/?'
-        })
-    });
-    var predictorPathwayStore= new Ext.data.JsonStore({
-        idProperty:'pathway',
-        remoteSort: false,
-        storeId:'predictor_pathways_grid_store',
-        fields : ['pathway_name','pathway_type','pvalue'],
-        proxy: new Ext.data.HttpProxy({
-            url: '/addama/datasources/?'
-        })
-    });
+    // var targetPathwayStore= new Ext.data.JsonStore({
+    //     idProperty:'pathway',
+    //     remoteSort: false,
+    //     storeId:'target_pathways_grid_store',
+    //     fields : ['pathway_name','pathway_type','pvalue'],
+    //     proxy: new Ext.data.HttpProxy({
+    //         url: '/addama/datasources/?'
+    //     })
+    // });
+    // var predictorPathwayStore= new Ext.data.JsonStore({
+    //     idProperty:'pathway',
+    //     remoteSort: false,
+    //     storeId:'predictor_pathways_grid_store',
+    //     fields : ['pathway_name','pathway_type','pvalue'],
+    //     proxy: new Ext.data.HttpProxy({
+    //         url: '/addama/datasources/?'
+    //     })
+    // });
 
-    function openPathwayLink(grid,rowIndex,event) {
-        var record = grid.getStore().getAt(rowIndex);
-        var type = record.json.pathway_type; var title = record.json.pathway_name;
-        switch (type) {
-            case('WIKIPW'):
-                window.open(re.pathways.wikipw_url + title,'_blank');
-                break;
-            case('BIOCARTA'):
-                var position = title.indexOf('_',1);
-                var title_url = title.slice(1,position)+'Pathway.asp';
-                window.open(re.pathways.biocarta_url+title_url,'_blank');
-                break;
-            case('KEGG'):
-                window.open(re.pathways.kegg_url+title.replace(new RegExp('[_]', 'g'),' '),'_blank');
-                break;
-            case(''):
-                window.open(re.pathways.pw_commons_url + title.replace(new RegExp('[_]', 'g'),'+'),'_blank');
-                break;
-        }
-        return;
-    }
+    // function openPathwayLink(grid,rowIndex,event) {
+    //     var record = grid.getStore().getAt(rowIndex);
+    //     var type = record.json.pathway_type; var title = record.json.pathway_name;
+    //     switch (type) {
+    //         case('WIKIPW'):
+    //             window.open(re.pathways.wikipw_url + title,'_blank');
+    //             break;
+    //         case('BIOCARTA'):
+    //             var position = title.indexOf('_',1);
+    //             var title_url = title.slice(1,position)+'Pathway.asp';
+    //             window.open(re.pathways.biocarta_url+title_url,'_blank');
+    //             break;
+    //         case('KEGG'):
+    //             window.open(re.pathways.kegg_url+title.replace(new RegExp('[_]', 'g'),' '),'_blank');
+    //             break;
+    //         case(''):
+    //             window.open(re.pathways.pw_commons_url + title.replace(new RegExp('[_]', 'g'),'+'),'_blank');
+    //             break;
+    //     }
+    //     return;
+    // }
 
     re.windows.details_window =
         new Ext.Window({
@@ -1528,7 +1510,7 @@ Ext.onReady(function() {
                         id:'scatterplot_panel',
                         name:'scatterplot_panel',
                         anchor: '100% -100'
-                    },
+                        },
                         {
                             xtype:'panel',
                             id:'scatterplot_controls',
@@ -1663,75 +1645,76 @@ Ext.onReady(function() {
                                     })
                                 }]
                         }]
-                    },{  xtype:'panel',
-                        id:'pathways_parent',
-                        name:'pathways_parent',
-                        title:'Pathways',
-                        layout: 'anchor',
-                        margins:'3 0 3 3',
-                        height : 500,
-                        width: 600,
-                        frame : true,
-                        items:[  {  id:'target_pathways-panel',
-                            name : 'target_pathways-panel',
-                            layout : 'fit',
-                            anchor : '100% 50%',
-                            collapsible : false,
-                            items : [{xtype:'grid',
-                                id:'target_pathways_grid',
-                                autoScroll:true,
-                                anchor : '100% 100%',
-                                loadMask: true,
-                                title :'Target',
-                                store: targetPathwayStore,
-                                viewConfig: {
-                                    forceFit : true
-                                },
-                                cm : new Ext.grid.ColumnModel({
-                                    columns: [
-                                        {header : "Pathway", width:350,  id:'pathway', dataIndex:'pathway_name'},
-                                        { header: "Type", width:75 , id:'pathway_type', dataIndex:'pathway_type'},
-                                        { header: "p-value", width:75, id:'pvalue',dataIndex:'pvalue'}
-                                    ],
-                                    defaults: {
-                                        sortable: true
-                                    }
-                                }),
-                                listeners : {
-                                    rowclick: openPathwayLink
-                                }
-                            }]
-                        },{  id:'predictor_pathways-panel',
-                            name : 'predictor_pathways-panel',
-                            layout : 'fit',
-                            anchor : '100% 50%',
-                            collapsible : false,
-                            items : [{xtype:'grid',
-                                id:'predictor_pathways_grid',
-                                autoScroll:true,
-                                anchor : '100% 100%',
-                                loadMask: true,
-                                store: predictorPathwayStore,
-                                title: 'Predictor',
-                                viewConfig: {
-                                    forceFit : true
-                                },
-                                cm : new Ext.grid.ColumnModel({
-                                    columns: [
-                                        {header : "Pathway", width:350,  id:'pathway', dataIndex:'pathway_name'},
-                                        { header: "Type", width:75 , id:'pathway_type', dataIndex:'pathway_type'},
-                                        { header: "p-value", width:75, id:'pvalue',dataIndex:'pvalue'}
-                                    ],
-                                    defaults: {
-                                        sortable: true
-                                    }
-                                }),
-                                listeners : {
-                                    rowclick: openPathwayLink
-                                }
-                            }]
-                        }]
-                    }]}]
+                    // },{  xtype:'panel',
+                    //     id:'pathways_parent',
+                    //     name:'pathways_parent',
+                    //     title:'Pathways',
+                    //     layout: 'anchor',
+                    //     margins:'3 0 3 3',
+                    //     height : 500,
+                    //     width: 600,
+                    //     frame : true,
+                    //     items:[  {  id:'target_pathways-panel',
+                    //         name : 'target_pathways-panel',
+                    //         layout : 'fit',
+                    //         anchor : '100% 50%',
+                    //         collapsible : false,
+                    //         items : [{xtype:'grid',
+                    //             id:'target_pathways_grid',
+                    //             autoScroll:true,
+                    //             anchor : '100% 100%',
+                    //             loadMask: true,
+                    //             title :'Target',
+                    //             store: targetPathwayStore,
+                    //             viewConfig: {
+                    //                 forceFit : true
+                    //             },
+                    //             cm : new Ext.grid.ColumnModel({
+                    //                 columns: [
+                    //                     {header : "Pathway", width:350,  id:'pathway', dataIndex:'pathway_name'},
+                    //                     { header: "Type", width:75 , id:'pathway_type', dataIndex:'pathway_type'},
+                    //                     { header: "p-value", width:75, id:'pvalue',dataIndex:'pvalue'}
+                    //                 ],
+                    //                 defaults: {
+                    //                     sortable: true
+                    //                 }
+                    //             }),
+                    //             listeners : {
+                    //                 rowclick: openPathwayLink
+                    //             }
+                    //         }]
+                    //     },{  id:'predictor_pathways-panel',
+                    //         name : 'predictor_pathways-panel',
+                    //         layout : 'fit',
+                    //         anchor : '100% 50%',
+                    //         collapsible : false,
+                    //         items : [{xtype:'grid',
+                    //             id:'predictor_pathways_grid',
+                    //             autoScroll:true,
+                    //             anchor : '100% 100%',
+                    //             loadMask: true,
+                    //             store: predictorPathwayStore,
+                    //             title: 'Predictor',
+                    //             viewConfig: {
+                    //                 forceFit : true
+                    //             },
+                    //             cm : new Ext.grid.ColumnModel({
+                    //                 columns: [
+                    //                     {header : "Pathway", width:350,  id:'pathway', dataIndex:'pathway_name'},
+                    //                     { header: "Type", width:75 , id:'pathway_type', dataIndex:'pathway_type'},
+                    //                     { header: "p-value", width:75, id:'pvalue',dataIndex:'pvalue'}
+                    //                 ],
+                    //                 defaults: {
+                    //                     sortable: true
+                    //                 }
+                    //             }),
+                    //             listeners : {
+                    //                 rowclick: openPathwayLink
+                    //             }
+                            // }]
+                        // }]
+                    }] // medline tab
+                }] //tabpanel
         });
     re.windows.details_window.hide();
 

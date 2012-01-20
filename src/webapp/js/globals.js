@@ -3,8 +3,9 @@
 
  Import this before MVC scripts.
  */
+ if (re === undefined) { re = {};}
 
-var re = {
+vq.utils.VisUtils.extend(re, {
     state : {
       once_loaded : false,
       query_cancel : false,
@@ -139,7 +140,7 @@ var re = {
          *               value: - String - id to be passed to controller
          *               label - String - id to be used by UI
          */
-        order_list : [{value:'correlation',label:'Correlation'},{value:'importance',label:'Importance'},{value:'pvalue',label:'pvalue'}]
+        order_list : []
     },
 
 /*
@@ -160,7 +161,7 @@ var re = {
             responses : {network : null},
             patients : {data : null}
    }
-};
+});
 
 
 (function() {
@@ -194,6 +195,10 @@ var re = {
         re.plot.proximal_distance = 2.5 * re.plot.linear_unit;
 
      re.plot.colors.node_colors = function(source) { return re.plot.colors.source_color_scale(re.plot.all_source_map[source]);};
+     re.model.association.types.forEach(function(obj) { 
+        re.ui.order_list.push({value:obj.id,label:obj.label});
+     })
+
 })();
 
 

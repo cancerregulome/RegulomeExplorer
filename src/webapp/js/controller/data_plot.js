@@ -249,6 +249,14 @@ function wedge_plot(parsed_data,div) {
 
     var ucsc_genome_url = 'http://genome.ucsc.edu/cgi-bin/hgTracks';
 
+    var link_tooltip_items = {
+                    'Target' : function(link) { return link.sourceNode.label+ ' ' + link.sourceNode.source + ' Chr' + link.sourceNode.chr + ' ' + link.sourceNode.start +
+                        '-' + link.sourceNode.end + ' ' +link.sourceNode.label_mod;},
+
+                    'Predictor' : function(link) { return link.targetNode.label+ ' ' + link.targetNode.source + ' Chr' + link.targetNode.chr + ' ' + link.targetNode.start +
+                        '-' + link.targetNode.end + ' ' + link.targetNode.label_mod;}
+                    };
+       
     var karyotype_tooltip_items = {
         'Karyotype Label' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
         Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
@@ -265,19 +273,33 @@ function wedge_plot(parsed_data,div) {
                 (feature.targetNode.end ? '-'+ feature.targetNode.end : '')  + ' ' +
                 feature.targetNode.label_mod;}
         };
-    var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
 
+        re.model.association.types.forEach( function(assoc) { 
+            vq.utils.VisUtils.extend(link_tooltip_items, assoc.vis.tooltip.entry);
+            vq.utils.VisUtils.extend(unlocated_tooltip_items, assoc.vis.tooltip.entry);
+        });
+
+        
+    var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
     var ticks = vq.utils.VisUtils.clone(parsed_data['features']);
+
+    var types = re.model.association.types.map(function(assoc) { return assoc.query.id;});
 
     var unlocated_map = vq.utils.VisUtils.clone(parsed_data['unlocated']).filter(function(link) { return  link.node1.chr != '';})
         .map(function(link) {
             var node =  vq.utils.VisUtils.extend(link.node2,{ chr:link.node1.chr, start:link.node1.start,end:link.node1.end, value: 0});
             node.sourceNode = vq.utils.VisUtils.extend({},link.node1); node.targetNode = vq.utils.VisUtils.extend({},link.node2);
+            types.forEach(function(assoc) { 
+            node[assoc] = link[assoc];
+        });
             return node;
         }).concat(vq.utils.VisUtils.clone(parsed_data['unlocated']).filter(function(link) { return  link.node2.chr != '';})
         .map(function(link) {
             var node =  vq.utils.VisUtils.extend(link.node1,{ chr:link.node2.chr, start:link.node2.start,end:link.node2.end, value: 0});
             node.sourceNode = vq.utils.VisUtils.extend({},link.node1); node.targetNode = vq.utils.VisUtils.extend({},link.node2);
+            types.forEach(function(assoc) { 
+            node[assoc] = link[assoc];
+        });
             return node;
         }));
 
@@ -395,18 +417,9 @@ function wedge_plot(parsed_data,div) {
                     'Ensemble' : function(feature) {
                         return  'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' +  feature.start +'-'+ feature.end;  }
                 },
-                link_tooltip_items :  {
-                    'Target' : function(link) { return link.sourceNode.label+ ' ' + link.sourceNode.source + ' Chr' + link.sourceNode.chr + ' ' + link.sourceNode.start +
-                        '-' + link.sourceNode.end + ' ' +link.sourceNode.label_mod;},
-
-                    'Predictor' : function(link) { return link.targetNode.label+ ' ' + link.targetNode.source + ' Chr' + link.targetNode.chr + ' ' + link.targetNode.start +
-                        '-' + link.targetNode.end + ' ' + link.targetNode.label_mod;},
-                    'Importance' : 'importance',
-                    Correlation : 'correlation',
-                    pvalue : 'pvalue'
+                link_tooltip_items :  link_tooltip_items           
                 }
-            }
-        }
+            }        
     };
     var circle_vis = new vq.CircVis();
     var dataObject ={DATATYPE : "vq.models.CircVisData", CONTENTS : data };
@@ -439,11 +452,7 @@ function linear_plot(obj) {
         Target : function(tie) {
             return tie.sourceNode.label + ' ' + tie.sourceNode.source},
         Predictor : function(tie) {
-            return tie.targetNode.label + ' ' + tie.targetNode.source },
-        'Importance' : 'importance',
-        Correlation : 'correlation',
-        pvalue : 'pvalue'
-
+            return tie.targetNode.label + ' ' + tie.targetNode.source }
     },
         located_tooltip_items = {
             Feature : function(tie) {
@@ -456,23 +465,33 @@ function linear_plot(obj) {
                     tie.sourceNode.end + ' ' + tie.sourceNode.label_mod;},
             Predictor : function(tie) {
                 return tie.targetNode.label + ' ' + tie.targetNode.source +
-                    ' Chr' + tie.targetNode.chr+ ' ' +tie.targetNode.start +'-'+tie.targetNode.end + ' ' + tie.targetNode.label_mod;},
-            'Importance' : 'importance',
-            Correlation : 'correlation',
-            pvalue : 'pvalue'
-
+                    ' Chr' + tie.targetNode.chr+ ' ' +tie.targetNode.start +'-'+tie.targetNode.end + ' ' + tie.targetNode.label_mod;}
         };
+
+    re.model.association.types.forEach( function(assoc) { 
+            vq.utils.VisUtils.extend(unlocated_tooltip_items, assoc.vis.tooltip.entry);
+            vq.utils.VisUtils.extend(inter_tooltip_items, assoc.vis.tooltip.entry);
+        });
+
 
     var hit_map = parsed_data['unlocated'].filter(function(link) { return  link.node1.chr == chrom;})
         .map(function(link) {
-            var node1_clone = vq.utils.VisUtils.extend({pvalue:link.pvalue,importance:link.importance, correlation:link.correlation},link.node1);
+            var obj = {};
+             re.model.association.types.forEach(function(assoc) {
+                obj[assoc.ui.grid.store_index] = link[assoc.query.id];
+            })       
+            var node1_clone = vq.utils.VisUtils.extend(obj,link.node1);
             node1_clone.start = bpToMb(node1_clone.start); node1_clone.end = bpToMb(node1_clone.end);
             node1_clone.sourceNode = vq.utils.VisUtils.extend({},link.node1);
             node1_clone.targetNode = vq.utils.VisUtils.extend({},link.node2);
             return node1_clone;
         }).concat(parsed_data['unlocated'].filter(function(link) { return  link.node2.chr == chrom;})
         .map(function(link) {
-            var node1_clone = vq.utils.VisUtils.extend({pvalue:link.pvalue,importance:link.importance, correlation:link.correlation},link.node2);
+            var obj = {};
+             re.model.association.types.forEach(function(assoc) {
+                obj[assoc.ui.grid.store_index] = link[assoc.query.id];
+            })       
+            var node1_clone = vq.utils.VisUtils.extend(obj,link.node2);
             node1_clone.start = bpToMb(node1_clone.start); node1_clone.end = bpToMb(node1_clone.end);
             node1_clone.sourceNode = vq.utils.VisUtils.extend({},link.node1);
             node1_clone.targetNode = vq.utils.VisUtils.extend({},link.node2);
@@ -484,15 +503,22 @@ function linear_plot(obj) {
         return link.node1.chr == chrom && link.node2.chr == chrom &&
             Math.abs(link.node1.start - link.node2.start) > re.plot.proximal_distance;})
         .map(function(link) {
-            var node1_clone = vq.utils.VisUtils.extend({pvalue:link.pvalue,importance:link.importance, correlation:link.correlation},link.node1);
+            var obj = {};
+             re.model.association.types.forEach(function(assoc) {
+                obj[assoc.ui.grid.store_index] = link[assoc.query.id];
+            })       
+            var node1_clone = vq.utils.VisUtils.extend(obj,link.node1);
             node1_clone.start = link.node1.start <= link.node2.start ?
             link.node1.start : link.node2.start;
             node1_clone.end = link.node1.start <= link.node2.start ? link.node2.start : link.node1.start;
             node1_clone.start = bpToMb(node1_clone.start);node1_clone.end = bpToMb(node1_clone.end);
             node1_clone.sourceNode = vq.utils.VisUtils.extend({},link.node1);
             node1_clone.targetNode = vq.utils.VisUtils.extend({},link.node2);
-            node1_clone.importance = link.importance,node1_clone.correlation = link.correlation;
-            node1_clone.pvalue = link.pvalue;
+             re.model.association.types.forEach(function(assoc) {
+                node1_clone[assoc.ui.grid.store_index] = link[assoc.query.id];
+            })       
+            // node1_clone.importance = link.importance,node1_clone.correlation = link.correlation;
+            // node1_clone.pvalue = link.pvalue;
             return node1_clone;
         });
 
@@ -500,7 +526,11 @@ function linear_plot(obj) {
         return link.node1.chr == chrom && link.node2.chr == chrom &&
             Math.abs(link.node1.start - link.node2.start) < re.plot.proximal_distance;})
         .map(function(link) {
-            var node1_clone = vq.utils.VisUtils.extend({pvalue:link.pvalue,importance:link.importance, correlation:link.correlation},link.node1);
+            var obj = {};
+             re.model.association.types.forEach(function(assoc) {
+                obj[assoc.ui.grid.store_index] = link[assoc.query.id];
+            })       
+            var node1_clone = vq.utils.VisUtils.extend(obj,link.node1);
             node1_clone.start = bpToMb(node1_clone.start);node1_clone.end = bpToMb(node1_clone.end);
             node1_clone.sourceNode = vq.utils.VisUtils.extend({},link.node1);
             node1_clone.targetNode = vq.utils.VisUtils.extend({},link.node2);
@@ -838,10 +868,8 @@ function populateGraph(obj) {
                 { name: "end", type: "int" }
             ],
             edges: [ { name: "label", type:"string"},
-                {name: "pvalue", type: "number" },
-                { name: "importance", type: "number" },
-                { name: "correlation", type: "number" },
-                { name: "directed", type: "boolean", defValue: false} ]
+                { name: "directed", type: "boolean", defValue: false} ].concat(
+                    re.model.association.types.map(function(obj) { return obj.vis.network.edgeSchema;}))
         },
         data:  re.cytoscape.data
     };
