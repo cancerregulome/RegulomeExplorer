@@ -861,7 +861,7 @@ function populateGraph(obj) {
     var network = {
         dataSchema: {
             nodes: [ { name: "label", type: "string" },
-                { name: "genescore", type: "number" },
+                //{ name: "genescore", type: "number" },
                 { name: "type", type: "string" },
                 { name: "chr", type: "string" },
                 { name: "start", type: "int" },

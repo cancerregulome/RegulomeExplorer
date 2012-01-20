@@ -51,8 +51,7 @@ function generateNetworkDefinition(responses) {
         var source_id = (source_map[f1id] === undefined ? (source_array.push({
             id : f1id, type : node1[1], label : node1[2], chr : node1[3].slice(3),
             start: rectifyChrPosition(node1[4]) ,
-            end:rectifyChrPosition(node1[5]) != -1 ? rectifyChrPosition(node1[5]) : rectifyChrPosition(node1[4]),
-            genescore:row.f1genescore}
+            end:rectifyChrPosition(node1[5]) != -1 ? rectifyChrPosition(node1[5]) : rectifyChrPosition(node1[4])}
         )-1) :
             source_map[f1id]);
 
@@ -61,8 +60,7 @@ function generateNetworkDefinition(responses) {
         var target_id = (source_map[f2id] === undefined ? (source_array.push({id : f2id,
             type : node2[1], label : node2[2], chr : node2[3].slice(3),
             start: rectifyChrPosition(node2[4]) ,
-            end:rectifyChrPosition(node2[5]) != -1 ? rectifyChrPosition(node2[5]) : rectifyChrPosition(node2[4]),
-            genescore:row.f2genescore}
+            end:rectifyChrPosition(node2[5]) != -1 ? rectifyChrPosition(node2[5]) : rectifyChrPosition(node2[4])}
         ) -1) :
             source_map[f2id]);
 
@@ -103,10 +101,10 @@ function parseNetwork(responses) {
            var label_mod2 = node2.length >=8 ? node2[7] : '';
            var obj =  {node1: {id : row.f1id, source : node1[1], label : node1[2], chr : node1[3].slice(3),
                label_mod : label_mod1,
-               start: node1[4] != '' ? parseInt(node1[4]) : -1, end:node1[5] != '' ? parseInt(node1[5]) : parseInt(node1[4]),genescore:row.f1genescore},
+               start: node1[4] != '' ? parseInt(node1[4]) : -1, end:node1[5] != '' ? parseInt(node1[5]) : parseInt(node1[4]),
             node2: {id : row.f2id, source : node2[1], label : node2[2], chr : node2[3].slice(3),
                 label_mod : label_mod2,
-                start: node2[4] != '' ? parseInt(node2[4]) : -1, end:node2[5] != '' ? parseInt(node2[5]) : parseInt(node2[4]),genescore:row.f2genescore}
+                start: node2[4] != '' ? parseInt(node2[4]) : -1, end:node2[5] != '' ? parseInt(node2[5]) : parseInt(node2[4])}
             };
              re.model.association.types.forEach(function(assoc) {
                 obj[assoc.ui.grid.store_index] = row[assoc.query.id];
