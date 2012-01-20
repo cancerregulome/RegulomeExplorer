@@ -6,6 +6,10 @@
  if (re === undefined) { re = {};}
 
 vq.utils.VisUtils.extend(re, {
+
+    analysis : {
+        dataset_method_clause : ' where method=\'RF-ACE\''
+    }
     state : {
       once_loaded : false,
       query_cancel : false,

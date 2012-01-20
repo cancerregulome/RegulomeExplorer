@@ -1400,7 +1400,7 @@ Ext.onReady(function() {
                         url: re.databases.base_uri + re.databases.rf_ace.uri + re.tables.dataset + re.rest.query + '?' +
                             re.params.query +
                             'select `description`, `dataset_date`,`label`, `method`, `source`, `contact`, `comments`' +
-                            ' where method=\'RF-ACE\'' +
+                            re.analysis.dataset_method_clause +
                             ' order by default_display DESC' +
                             re.params.json_out
                     }),
