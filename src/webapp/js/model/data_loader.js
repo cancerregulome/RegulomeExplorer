@@ -45,8 +45,8 @@ function generateNetworkDefinition(responses) {
     network.edges = responses.map(function(row) {
         var node1 = row.alias1.split(':');
         var node2 = row.alias2.split(':');
-        var f1id =    row.f1id + '';
-        var f2id =    row.f2id + '';
+        var f1id =    row.alias1 + '';
+        var f2id =    row.alias2 + '';
 
         var source_id = (source_map[f1id] === undefined ? (source_array.push({
             id : f1id, type : node1[1], label : node1[2], chr : node1[3].slice(3),
@@ -99,12 +99,14 @@ function parseNetwork(responses) {
         var node2 = row.alias2.split(':');
            var label_mod1 = node1.length >=8 ? node1[7] : '';
            var label_mod2 = node2.length >=8 ? node2[7] : '';
-           var obj =  {node1: {id : row.f1id, source : node1[1], label : node1[2], chr : node1[3].slice(3),
+           var obj =  {node1: {id : row.alias1, source : node1[1], label : node1[2], chr : node1[3].slice(3),
                label_mod : label_mod1,
-               start: node1[4] != '' ? parseInt(node1[4]) : -1, end:node1[5] != '' ? parseInt(node1[5]) : parseInt(node1[4]),
-            node2: {id : row.f2id, source : node2[1], label : node2[2], chr : node2[3].slice(3),
+               start: node1[4] != '' ? parseInt(node1[4]) : -1, 
+               end:node1[5] != '' ? parseInt(node1[5]) : parseInt(node1[4])},
+            node2: {id : row.alias2, source : node2[1], label : node2[2], chr : node2[3].slice(3),
                 label_mod : label_mod2,
-                start: node2[4] != '' ? parseInt(node2[4]) : -1, end:node2[5] != '' ? parseInt(node2[5]) : parseInt(node2[4])}
+                start: node2[4] != '' ? parseInt(node2[4]) : -1, 
+                end:node2[5] != '' ? parseInt(node2[5]) : parseInt(node2[4])}
             };
              re.model.association.types.forEach(function(assoc) {
                 obj[assoc.ui.grid.store_index] = row[assoc.query.id];

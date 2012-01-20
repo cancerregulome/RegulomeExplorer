@@ -109,8 +109,8 @@ function lookupLabelPosition(label_obj) {
 function loadFeatureData(link) {
 
     var patients = {data : null};
-    var query_str = 'select f1id, f2id, f1alias, f1values, f2alias, f2values ' +
-        'where f1id  = ' + link.sourceNode.id + ' and f2id = ' + link.targetNode.id + ' limit 1';
+    var query_str = 'select f1alias, f1values, f2alias, f2values ' +
+        'where f1alias  = \'' + link.sourceNode.id + '\' and f2alias = \'' + link.targetNode.id + '\' limit 1';
     var patient_query_str = '?' + re.params.query + query_str + re.params.json_out;
     var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.feature_data_uri + re.rest.query + patient_query_str;
 
@@ -287,7 +287,7 @@ function loadNetworkDataByAssociation(params) {
  */
 
 function buildGQLQuery(args) {
-    var query = 'select alias1, alias2, feature1id, feature2id, f1genescore, f2genescore';
+    var query = 'select alias1, alias2';
      re.model.association.types.forEach( function(obj) { 
          query += ', ' + obj.query.id;
      });
@@ -366,7 +366,7 @@ function buildGQLQuery(args) {
 
     query += (where.length > whst.length ? where : '');
     query += ' order by '+args['order'] + ' ' + (re.model.association.types[re.model.association_map[args['order']]].query.order_direction || 'DESC');
-    query += ' limit '+args['limit'] + ' label `feature1id` \'f1id\', `feature2id` \'f2id\'';
+    query += ' limit '+args['limit'];
 
     return query;
 }

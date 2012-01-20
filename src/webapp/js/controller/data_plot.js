@@ -708,7 +708,7 @@ function scatterplot_draw(params) {
 
     var dataset_labels=re.ui.getDatasetLabels();
     var patient_labels = dataset_labels['patients'];
-    var f1 = data.f1id, f2 = data.f2id;
+    var f1 = data.f1alias, f2 = data.f2alias;
     var f1label = data.f1alias, f2label = data.f2alias;
     var f1values, f2values;
 
