@@ -37,7 +37,11 @@ function loadDatasetLabels() {
     var timer = new vq.utils.SyncDatasources(200,40,loadComplete,dataset_labels,loadFailed);
 
     function clinicalLabelQueryHandler(response) {
-        dataset_labels['clin_labels'] = Ext.decode(response.responseText);
+        try {  
+            dataset_labels['clin_labels'] = Ext.decode(response.responseText);        
+        } catch (err) {
+            throwQueryError('clin_labels',response);
+        }          
     }
 
     function loadComplete() {
@@ -45,7 +49,6 @@ function loadDatasetLabels() {
       }
 
       function loadFailed() {
-
           vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','dataset_labels',{msg:'Failed to load dataset labels.'}));
       }
 
@@ -55,7 +58,11 @@ function loadDatasetLabels() {
     var sources_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.feature_uri + re.rest.query + sources_query_str;
 
     function featureSourceQueryHandler(response) {
-        dataset_labels['feature_sources'] = Ext.decode(response.responseText);
+        try {          
+            dataset_labels['feature_sources'] = Ext.decode(response.responseText);        
+        } catch (err) {
+            throwQueryError('feature_sources',response);
+        }          
     }
 
     Ext.Ajax.request({url:sources_query,success:featureSourceQueryHandler, failure: function(response) { queryFailed('feature_source',response); }});
@@ -64,7 +71,11 @@ function loadDatasetLabels() {
     var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.patient_uri + re.rest.query +patient_query_str;
 
     function patientQueryHandle(response) {
-        dataset_labels['patients'] = Ext.decode(response.responseText)[0]['barcode'].split(':');
+          try {          
+            dataset_labels['patients'] = Ext.decode(response.responseText)[0]['barcode'].split(':');    
+        } catch (err) {
+            throwQueryError('patients_barcode',response);
+        }                 
     }
 
     timer.start_poll();
