@@ -55,7 +55,7 @@ function generateNetworkDefinition(responses) {
         )-1) :
             source_map[f1id]);
 
-        source_map[row.f1id] = source_id;
+        source_map[f1id] = source_id;
 
         var target_id = (source_map[f2id] === undefined ? (source_array.push({id : f2id,
             type : node2[1], label : node2[2], chr : node2[3].slice(3),

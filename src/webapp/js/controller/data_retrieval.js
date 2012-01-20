@@ -122,8 +122,9 @@ function loadFeatureData(link) {
     var patients = {data : null};
     var query_str = 'select f1alias, f1values, f2alias, f2values ' +
         'where f1alias  = \'' + link.sourceNode.id + '\' and f2alias = \'' + link.targetNode.id + '\' limit 1';
-    var patient_query_str = '?' + re.params.query + query_str + re.params.json_out;
-    var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.feature_data_uri + re.rest.query + patient_query_str;
+        var query_json = { tq : query_str, tqx : 'out:json_array'};
+    var patient_query_str = '?' + Ext.urlEncode(query_json);
+    //var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.feature_data_uri + re.rest.query + patient_query_str;
 
     function patientQueryHandle(response) {
         try {
@@ -189,8 +190,8 @@ function loadAnnotations() {
 
 function loadNetworkData(response) {
     switch(response['filter_type']){
-        case('target'):
-        case('predictor'):
+        case(re.ui.feature1.id):
+        case(re.ui.feature2.id):
             loadNetworkDataByFeature(response)
             break;
         case('association'):
@@ -200,7 +201,7 @@ function loadNetworkData(response) {
 }
 
 function loadNetworkDataByFeature(params) {
-    var feature = params['filter_type'] == 'target' ? 't' : 'p';
+    var feature = params['filter_type'] == re.ui.feature1.id ? 't' : 'p';
     var labels = parseLabelList(params[feature + '_label']);
 
     function loadComplete() {

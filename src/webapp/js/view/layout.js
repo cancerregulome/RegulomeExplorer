@@ -793,7 +793,7 @@ Ext.onReady(function() {
                                 ],
                                 items : [
                                     {  xtype:'fieldset',
-                                        title:'Target',
+                                        title:re.ui.feature1.label,
                                         collapsible: true,
                                         defaults:{anchor:'100%'},
                                         labelWidth: 70,
@@ -941,7 +941,7 @@ Ext.onReady(function() {
                                             }
                                         ]},
                                     {  xtype:'fieldset',
-                                        title:'Predictor',
+                                        title:re.ui.feature2.label,
                                         collapsible: true,
                                         defaults:{anchor:'100%'},
                                         labelWidth: 70,
@@ -978,13 +978,13 @@ Ext.onReady(function() {
                                                     select : function(field,record, index) {
                                                         switch(record.id)  {
                                                             case('CLIN'):
-                                                                var label_cmp = Ext.getCmp('p_label'),
+                                                                var label_cmp = Ext.getCmp('f2_label_comp'),
                                                                     clin_cmp = Ext.getCmp('p_clin');
                                                                 label_cmp.setVisible(false);
                                                                 clin_cmp.setVisible(true);
                                                                 break;
                                                             default:
-                                                                var label_cmp = Ext.getCmp('p_label'),
+                                                                var label_cmp = Ext.getCmp('f2_label_comp'),
                                                                     clin_cmp = Ext.getCmp('p_clin');
                                                                 label_cmp.setVisible(true);
                                                                 clin_cmp.setVisible(false);
@@ -1163,8 +1163,8 @@ Ext.onReady(function() {
                                             idProperty:'value',
                                             data:[
                                                 {  label:'Association', value:'association' },
-                                                {  label:'Target',  value:'target' },
-                                                {  label:'Predictor',  value:'predictor' }
+                                                re.ui.feature1,
+                                                re.ui.feature2
                                             ]
                                         }}]}
                         ]

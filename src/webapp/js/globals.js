@@ -8,7 +8,8 @@
 vq.utils.VisUtils.extend(re, {
 
     analysis : {
-        dataset_method_clause : ' where method=\'RF-ACE\''
+        dataset_method_clause : ' where method=\'RF-ACE\'',
+        directed_association : true
     },
     state : {
       once_loaded : false,
@@ -201,7 +202,15 @@ vq.utils.VisUtils.extend(re, {
      re.plot.colors.node_colors = function(source) { return re.plot.colors.source_color_scale(re.plot.all_source_map[source]);};
      re.model.association.types.forEach(function(obj) { 
         re.ui.order_list.push({value:obj.id,label:obj.label});
-     })
+     });
+
+     if (re.analysis.directed_association) {
+         re.ui.feature1 = {label : 'Target', id :'target'};
+         re.ui.feature2 = {label : 'Predictor', id : 'predictor'};
+     } else {
+         re.ui.feature1 = {label : 'Feature 1', id : 'feature1'};
+         re.ui.feature2 = {label : 'Feature 2', id : 'feature2'};
+     }
 
 })();
 

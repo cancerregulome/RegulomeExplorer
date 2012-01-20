@@ -54,7 +54,7 @@ function layoutGraph() {
 }
 
 function getNetworkLayout() {
-    var layout =  {name : "ForceDirected", options	: {gravitation : -500,mass: 3,
+    var layout =  {name : "ForceDirected", options  : {gravitation : -500,mass: 3,
         tension: .01,drag:0.1,maxDistance:10000, minDistance: 1,
         iterations:200, autoStabilize: true, maxTime: 3000, restLength: 30}};
 
@@ -77,7 +77,7 @@ function getNetworkLayout() {
             break;
         case('force_directed'):
         default:
-            layout =  {name : "ForceDirected", options	: {gravitation : -500,mass: 3,
+            layout =  {name : "ForceDirected", options  : {gravitation : -500,mass: 3,
                 tension: .01,drag:0.1,maxDistance:10000, minDistance: 1,
                 iterations:200, autoStabilize: true, maxTime: 3000, restLength: 30}};
             break;
@@ -154,7 +154,7 @@ function legend_draw(div) {
 
     var vis= new pv.Panel()
         .width(150)
-        .height(90 + Math.pow(current_data.length,2) * 13)
+        .height(90 + current_data.length * 13)
         .left(0)
         .top(20)
         .lineWidth(1)
@@ -186,42 +186,43 @@ function legend_draw(div) {
         .bottom(1)
         .fillStyle(function(type) { return re.plot.colors.source_color_scale(re.plot.locatable_source_map[type]);});
     entry.add(pv.Label)
+        .text(function(id) { return re.label_map[id] || id;})
         .bottom(0)
         .left(20)
         .textAlign('left')
         .textBaseline('bottom')
         .font("11px helvetica");
 
-    var link_panel = drawPanel.add(pv.Panel)
-        .top(80)
-        .bottom(10)
-        .left(10);
-    drawPanel.add(pv.Label)
-        .top(80)
-        .textBaseline('bottom')
-        .left(12)
-        .text('Links')
-        .font('14px helvetica');
+    // var link_panel = drawPanel.add(pv.Panel)
+    //     .top(80)
+    //     .bottom(10)
+    //     .left(10);
+    // drawPanel.add(pv.Label)
+    //     .top(80)
+    //     .textBaseline('bottom')
+    //     .left(12)
+    //     .text('Links')
+    //     .font('14px helvetica');
 
-    var link = link_panel.add(pv.Panel)
-        .data(pv.cross(current_data,current_data))
-        .top(function() { return this.index*12;})
-        .height(12);
+    // var link = link_panel.add(pv.Panel)
+    //     .data(pv.cross(current_data,current_data))
+    //     .top(function() { return this.index*12;})
+    //     .height(12);
 
-    link.add(pv.Bar)
-        .left(0)
-        .width(12)
-        .top(1)
-        .bottom(1)
-        .fillStyle(function(type) { return re.plot.colors.link_sources_colors(type);});
+    // link.add(pv.Bar)
+    //     .left(0)
+    //     .width(12)
+    //     .top(1)
+    //     .bottom(1)
+    //     .fillStyle(function(type) { return re.plot.colors.link_sources_colors(type);});
 
-    link.add(pv.Label)
-        .bottom(0)
-        .left(20)
-        .textAlign('left')
-        .textBaseline('bottom')
-        .font('11px helvetica')
-        .text(function(types) { return types[1] + ' -> ' + types[0];});
+    // link.add(pv.Label)
+    //     .bottom(0)
+    //     .left(20)
+    //     .textAlign('left')
+    //     .textBaseline('bottom')
+    //     .font('11px helvetica')
+    //     .text(function(types) { return types[1] + ' -> ' + types[0];});
 
     vis.render();
 }
@@ -229,7 +230,7 @@ function legend_draw(div) {
 
 function wedge_plot(parsed_data,div) {
     var width=800, height=800;
-    var	ring_radius = width / 20;
+    var ring_radius = width / 20;
     var chrom_keys = ["1","2","3","4","5","6","7","8","9","10",
         "11","12","13","14","15","16","17","18","19","20","21","22","X","Y"];
     var stroke_style = re.plot.colors.getStrokeStyleAttribute();
@@ -249,30 +250,28 @@ function wedge_plot(parsed_data,div) {
 
     var ucsc_genome_url = 'http://genome.ucsc.edu/cgi-bin/hgTracks';
 
-    var link_tooltip_items = {
-                    'Target' : function(link) { return link.sourceNode.label+ ' ' + link.sourceNode.source + ' Chr' + link.sourceNode.chr + ' ' + link.sourceNode.start +
-                        '-' + link.sourceNode.end + ' ' +link.sourceNode.label_mod;},
+    var link_tooltip_items = { };
+                    link_tooltip_items[re.ui.feature1.label] = function(link) { return link.sourceNode.label+ ' ' + link.sourceNode.source + ' Chr' + link.sourceNode.chr + ' ' + link.sourceNode.start +
+                        '-' + link.sourceNode.end + ' ' +link.sourceNode.label_mod;};
 
-                    'Predictor' : function(link) { return link.targetNode.label+ ' ' + link.targetNode.source + ' Chr' + link.targetNode.chr + ' ' + link.targetNode.start +
-                        '-' + link.targetNode.end + ' ' + link.targetNode.label_mod;}
-                    };
+                    link_tooltip_items[re.ui.feature2.label] = function(link) { return link.targetNode.label+ ' ' + link.targetNode.source + ' Chr' + link.targetNode.chr + ' ' + link.targetNode.start +
+                        '-' + link.targetNode.end + ' ' + link.targetNode.label_mod;};
        
     var karyotype_tooltip_items = {
         'Karyotype Label' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
         Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
     },
-        unlocated_tooltip_items = {
-            Target :  function(feature) { return feature.sourceNode.source + ' ' + feature.sourceNode.label +
+        unlocated_tooltip_items = {};
+            unlocated_tooltip_items[re.ui.feature1.label] =  function(feature) { return feature.sourceNode.source + ' ' + feature.sourceNode.label +
                 (feature.sourceNode.chr ? ' Chr'+ feature.sourceNode.chr : '') +
                 (feature.sourceNode.start ? ' '+ feature.sourceNode.start : '') +
                 (feature.sourceNode.end ? '-'+ feature.sourceNode.end : '')  + ' '+
-                feature.sourceNode.label_mod;},
-            Predictor :  function(feature) { return feature.targetNode.source + ' ' + feature.targetNode.label +
+                feature.sourceNode.label_mod;};
+            unlocated_tooltip_items[re.ui.feature2.label] = function(feature) { return feature.targetNode.source + ' ' + feature.targetNode.label +
                 (feature.targetNode.chr ? ' Chr'+ feature.targetNode.chr : '') +
                 (feature.targetNode.start ? ' '+ feature.targetNode.start : '') +
                 (feature.targetNode.end ? '-'+ feature.targetNode.end : '')  + ' ' +
-                feature.targetNode.label_mod;}
-        };
+                feature.targetNode.label_mod;};
 
         re.model.association.types.forEach( function(assoc) { 
             vq.utils.VisUtils.extend(link_tooltip_items, assoc.vis.tooltip.entry);
@@ -403,7 +402,7 @@ function wedge_plot(parsed_data,div) {
                 node_fill_style : 'ticks',
                 node_stroke_style : stroke_style,
                 link_line_width : 2,
-                node_key : function(node) { return node['label'];},
+                node_key : function(node) { return node['id'];},
                 node_listener : wedge_listener,
                 link_listener: initiateDetailsPopup,
                 link_stroke_style : function(link) {
@@ -448,25 +447,24 @@ function linear_plot(obj) {
         return false;
     };
 
-    var unlocated_tooltip_items = {
-        Target : function(tie) {
-            return tie.sourceNode.label + ' ' + tie.sourceNode.source},
-        Predictor : function(tie) {
-            return tie.targetNode.label + ' ' + tie.targetNode.source }
-    },
-        located_tooltip_items = {
+    var unlocated_tooltip_items = { };
+        unlocated_tooltip_items[re.ui.feature1.label] = function(tie) {
+            return tie.sourceNode.label + ' ' + tie.sourceNode.source};
+        unlocated_tooltip_items[re.ui.feature2.label] = function(tie) {
+            return tie.targetNode.label + ' ' + tie.targetNode.source };
+    
+    var located_tooltip_items = {
             Feature : function(tie) {
                 return tie.label + ' ' + tie.source + ' Chr' +tie.chr + ' ' +
                     mbpToBp(tie.start) + (tie.end != null ? '-'+mbpToBp(tie.end) : '')  + ' '+ tie.label_mod;}
-        },
-        inter_tooltip_items = {
-            Target : function(tie) {
-                return tie.sourceNode.label + ' ' + tie.sourceNode.source + ' Chr' +tie.sourceNode.chr + ' ' +tie.sourceNode.start +'-'+
-                    tie.sourceNode.end + ' ' + tie.sourceNode.label_mod;},
-            Predictor : function(tie) {
-                return tie.targetNode.label + ' ' + tie.targetNode.source +
-                    ' Chr' + tie.targetNode.chr+ ' ' +tie.targetNode.start +'-'+tie.targetNode.end + ' ' + tie.targetNode.label_mod;}
         };
+     var   inter_tooltip_items = { };
+            inter_tooltip_items[re.ui.feature1.label] = function(tie) {
+                return tie.sourceNode.label + ' ' + tie.sourceNode.source + ' Chr' +tie.sourceNode.chr + ' ' +tie.sourceNode.start +'-'+
+                    tie.sourceNode.end + ' ' + tie.sourceNode.label_mod;};
+            inter_tooltip_items[re.ui.feature2.label] = function(tie) {
+                return tie.targetNode.label + ' ' + tie.targetNode.source +
+                    ' Chr' + tie.targetNode.chr+ ' ' +tie.targetNode.start +'-'+tie.targetNode.end + ' ' + tie.targetNode.label_mod};
 
     re.model.association.types.forEach( function(assoc) { 
             vq.utils.VisUtils.extend(unlocated_tooltip_items, assoc.vis.tooltip.entry);
@@ -882,7 +880,7 @@ function populateGraph(obj) {
                 defaultValue: '#FFF',
                 customMapper: { functionName :'mapFeatureType'}
             },
-            labelFontSize :	20,
+            labelFontSize : 20,
             labelHorizontalAnchor: "center",
             labelVerticalAnchor : "top"
         },
