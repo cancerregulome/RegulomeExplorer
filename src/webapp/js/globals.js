@@ -7,6 +7,8 @@
 
 vq.utils.VisUtils.extend(re, {
 
+        title : 'Random Forest Associations Explorer',
+        
     analysis : {
         dataset_method_clause : ' where method=\'RF-ACE\'',
         directed_association : true

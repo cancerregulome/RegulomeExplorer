@@ -1185,7 +1185,7 @@ Ext.onReady(function() {
                 region: 'north', id:'toolbar-region',
                 collapsible: false,
                 border : false,
-                title: 'Regulome Explorer',
+                title: re.title || 'Multi-Scale Explorer',
                 split: false,
                 height: 27,
                 layout : 'fit',
