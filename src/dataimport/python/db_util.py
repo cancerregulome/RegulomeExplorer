@@ -25,7 +25,9 @@ nucleotide_complement['T'] = 'A'
 cancer_type_list = config.get("cancer_types", "list").split(",")
 results_path = config.get("results", "path")
 notify = config.get("results", "notify").split(',')
+dosmtp = config.get("results", "dosmtp")
 pubcrawlContact = config.get("results", "pubcrawl_contact").split(',')
+
 
 conn = MySQLdb.connect (host = myhost,
 			port = myport,
@@ -52,6 +54,8 @@ def getDBPassword():
 def getResultsPath():
 	return results_path
 
+def getDoSmtp():
+	return dosmtp
 def getNotify():
 	return notify
 
