@@ -1,8 +1,8 @@
-#!/usr/bin/python
 import db_util
 import sys
 import os
 import time
+import json
 
 def addDataset(label, feature_matrix, associations, method):
 	description = ""
@@ -30,7 +30,20 @@ def addDataset(label, feature_matrix, associations, method):
 	elif (label.find("mask") != -1):
 		description = description + " filtered"
 	currentDate = time.strftime("%m-%d-%y")
-	insertSql = "replace into tcga.regulome_explorer_dataset (label,method,source,contact,comments,dataset_date,description) values ('%s', '%s', 'TCGA', '%s', '%s', '%s', '%s');" %(label, method,"Sheila Reynolds sreynolds@systemsbiology.org","{matrix:"+feature_matrix+",rfassociations:"+associations+"}",currentDate,description)
+	results_path = db_util.getResultsPath()
+	max_logpv = -1.0
+	contact = "Sheila Reynolds sreynolds@systemsbiology.org"
+	if (label.find('gbm') != -1):
+		contact = "Brady Bernard bbernard@systemsbiology.org"
+	if (label.find('coad') != -1):
+		contact = "Vesteinn Thorsson vthorsson@systemsbiology.org"
+	if (os.path.exists(results_path + '/' + label + '/edges_out_' + label + '_meta.json')):
+		meta_json_file = open(results_path + '/' + label + '/edges_out_' + label + '_meta.json','r')
+		metaline = meta_json_file.read()
+		max_logpv = json.loads(metaline)["max_logpv"]
+		print metaline
+	meta_json_file.close()		
+	insertSql = "replace into tcga.regulome_explorer_dataset (label,method,source,contact,comments,dataset_date,description,max_logged_pvalue) values ('%s', '%s', 'TCGA', '%s', '%s', '%s', '%s', %f);" %(label, method, contact, "{matrix:"+feature_matrix+",associations:"+associations+"}",currentDate,description, max_logpv)
 	db_util.executeInsert(insertSql)
 
 if __name__=="__main__":

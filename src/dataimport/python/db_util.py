@@ -11,6 +11,7 @@ import MySQLdb
 config = ConfigParser.RawConfigParser()
 config.read('./rfex_sql.config')
 myhost = config.get("mysql_configs", "host")
+myport = int(config.get("mysql_configs", "port"))
 mydb = config.get("mysql_configs", "db")
 myuser = config.get("mysql_configs", "username")
 mypw = config.get("mysql_configs", "password")
@@ -22,8 +23,12 @@ nucleotide_complement['G'] = 'C'
 nucleotide_complement['T'] = 'A'
 
 cancer_type_list = config.get("cancer_types", "list").split(",")
+results_path = config.get("results", "path")
+notify = config.get("results", "notify").split(',')
+pubcrawlContact = config.get("results", "pubcrawl_contact").split(',')
 
 conn = MySQLdb.connect (host = myhost,
+			port = myport,
                            user = myuser,
                            passwd = mypw,
                            db = mydb)
@@ -31,6 +36,9 @@ cursor = conn.cursor()
 
 def getDBHost():
 	return myhost
+
+def getDBPort():
+	return myport
 
 def getDBSchema():
 	return mydb
@@ -40,6 +48,15 @@ def getDBUser():
 
 def getDBPassword():
 	return mypw
+
+def getResultsPath():
+	return results_path
+
+def getNotify():
+	return notify
+
+def getPubcrawlContact():
+	return pubcrawlContact
 
 def executeInsert(sqlStr):
 	rc = cursor.execute(sqlStr)
@@ -72,10 +89,10 @@ def getYPGKey(name):
 def isAntisense(gene):
 	return antisense_genes_hash.get(gene)
 
-def calculateMutualInformation(feature1values, feature2values, range1, range2):
-	s = pe.DiscreteSystem(feature1values, range1, feature2values, range2)
-	s.calculate_entropies(method='plugin', calc=['HX','HXY'])
-	return s.I()
+#def calculateMutualInformation(feature1values, feature2values, range1, range2):
+#	s = pe.DiscreteSystem(feature1values, range1, feature2values, range2)
+#	s.calculate_entropies(method='plugin', calc=['HX','HXY'])
+#	return s.I()
 
 def is_numeric(lit):
     'Return value of numeric literal string or ValueError exception'
@@ -107,9 +124,9 @@ def is_numeric(lit):
     return -1
 		
 if __name__ == "__main__":
-	#gene = sys.argv[1]
+	gene = sys.argv[1]
 	#print transGeneFeature(gene)
 	#print transComplement(sys.argv[1])
-	x = np.random.random_integers(0,100,10000)
-	y = np.random.random_integers(0,100,10000)
-	print(calculateMutualInformation(x,y,(1,101),(1,101)))
+	#x = np.random.random_integers(0,100,10000)
+	#y = np.random.random_integers(0,100,10000)
+	#print(calculateMutualInformation(x,y,(1,101),(1,101)))

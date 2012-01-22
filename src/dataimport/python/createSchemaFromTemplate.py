@@ -6,12 +6,13 @@ import db_util
 
 placeHolder = '#REPLACE#'
 myhost = db_util.getDBHost() #config.get("mysql_jdbc_configs", "host")
+myport = db_util.getDBPort()
 mydb = db_util.getDBSchema() #config.get("mysql_jdbc_configs", "db")
 myuser = db_util.getDBUser() #config.get("mysql_jdbc_configs", "username")
 mypw = db_util.getDBPassword() #config.get("mysql_jdbc_configs", "password")
 
 def executeSchema(schemafile_path):
-	cmd = "mysql -u%s -p%s < %s" %(myuser, mypw, schemafile_path)
+	cmd = "mysql -h %s --port %s -u%s -p%s < %s" %(myhost, myport, myuser, mypw, schemafile_path)
 	print "Running system call %s" %(cmd)
 	os.system(cmd)	
 

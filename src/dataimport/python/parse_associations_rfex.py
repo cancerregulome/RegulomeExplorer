@@ -13,6 +13,7 @@ import smtp
 import getRFACEInfo
 
 myhost = db_util.getDBHost() 
+myport = db_util.getDBPort()
 mydb = db_util.getDBSchema() 
 myuser = db_util.getDBUser() 
 mypw = db_util.getDBPassword() 
@@ -23,13 +24,13 @@ if (len(args) < 4):
 	print "Usage is py2.6 parse_associations_rfex.py data_matrix.tsv data_associations.tsv dataset_label [process_pubcrawl]"
 	sys.exit(-1)
 
-config = ConfigParser.RawConfigParser()
-config.read('./rfex_sql.config')
-results_path = config.get("results", "path")
-contacts = config.get("results", "notify").split(',')
-pubcrawl_contacts = config.get("results", "pubcrawl_contact").split(',')
+results_path = db_util.getResultsPath()
+contacts = db_util.getNotify() 
+#config.get("results", "notify").split(',')
+pubcrawl_contacts = db_util.getPubcrawlContact() 
+#config.get("results", "pubcrawl_contact").split(',')
 
-pvalue_cutoff = float(config.get("cutoff", "pvalue"))
+#pvalue_cutoff = float(config.get("cutoff", "pvalue"))
 #not filtering on importance or correlation scores for now
 #importance = float(config.get("cutoff", "importance"))
 #correlation = float(config.get("cutoff", "correlation"))
@@ -47,7 +48,7 @@ do_pubcrawl = 0
 if (len(args) >= 5):
 	do_pubcrawl = int(args[4])
 
-print "Begin processing associations %s Applying pvalue cutoff %f processing_pubcrawl %i" %(time.ctime(), pvalue_cutoff, do_pubcrawl)
+print "Begin processing associations %s Applying processing_pubcrawl %i" %(time.ctime(), do_pubcrawl)
 associations_in = open(associationsfile,'r')
 matrix_in = open(matrixfile,'r')
 featureId = 0
@@ -56,7 +57,6 @@ parse_features_rfex.process_feature_matrix(matrixfile, 0)
 path = sys.argv[1].rsplit("/", 1)[0]
 if (os.path.exists(path + "/GEXP_interestingness.tsv")):
 	parse_features_rfex.process_gexp_interest_score(path + "/GEXP_interestingness.tsv")
-#print "number of feature gene interesting:" + str(len(parse_features_rfex.gene_interesting_hash))
 
 fshout = open('./results/load_sql_associations_' + dataset_label + '.sh','w')
 #check if path exists
@@ -139,7 +139,7 @@ for line in lines:
 		pcc += 1
 
 fshout.write("#!/bin/bash\n")
-fshout.write("mysql --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myuser, mypw, mydb))
+fshout.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
 fshout.write("load data local infile '" + tsvout.name + "' replace INTO TABLE " + associations_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';")
 fshout.write("\nEOFMYSQL\n")
 
@@ -147,11 +147,11 @@ tsvout.close()
 unmappedout.close()
 pubcrawl_tsvout.close()
 fshout.close()
-print "%i associations filtered because of > than pvalue %f, unMapped %i" %(pvalueCutCount, pvalue_cutoff, unMapped)
+print "%i associations filtered because unMapped %i" %(pvalueCutCount, unMapped)
 print "Begin bulk upload %s os.system sh %s" %(time.ctime(), fshout.name)
 os.system("sh " + fshout.name)
-#if (do_pubcrawl == 1):
- #  smtp.main("jlin@systemsbiology.net", pubcrawl_contacts, "Notification - New RFAce " + dataset_label + " Associations for PubCrawl", "New RFAce associations ready for PubCrawl load\n" + pubcrawl_tsvout.name + "\n" + str(pcc) + " Total Edges\n" + tsvout.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "\n\n")
+if (do_pubcrawl == 1):
+	smtp.main("jlin@systemsbiology.net", pubcrawl_contacts, "Notification - New RFAce " + dataset_label + " Associations for PubCrawl", "New RFAce associations ready for PubCrawl load\n" + pubcrawl_tsvout.name + "\n" + str(pcc) + " Total Edges\n" + tsvout.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "\n\n")
 
 print "Done processing associations %s" %(time.ctime())
 print "Add notification code to Process Data Set, need to add feature_matrix/associations to comments, add RFAce version, pairwise..."

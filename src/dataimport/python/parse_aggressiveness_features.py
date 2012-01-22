@@ -13,6 +13,9 @@ import db_util
 mydb = db_util.getDBSchema() #config.get("mysql_jdbc_configs", "db")
 myuser = db_util.getDBUser() #config.get("mysql_jdbc_configs", "username")
 mypw = db_util.getDBPassword() #config.get("mysql_jdbc_configs", "password")
+myhost = db_util.getDBHost()
+myport = db_util.getDBPort()
+
 
 features_hash = {}
 edges_hash = {}
@@ -36,7 +39,7 @@ def reset_sql_tables(sqlfile):
 	"""
         mysql -uuser -ppassword < $sql_file
         """
-        cmd = "mysql -u%s -p%s < %s" %(myuser, mypw, sqlfile)
+	cmd = "mysql -h %s --port %s -u%s -p%s < %s" %(myhost, myport, myuser, mypw, sqlfile)
         print "Running system call %s" %(cmd)
         os.system(cmd)
 
@@ -109,7 +112,8 @@ def process_feature_aggressiveness(matrix_file, table_name, dognab):
 	feature_matrix_file.close()
 	outfile.close()
 	fshout.write("#!/bin/bash\n")
-	fshout.write("mysql --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myuser, mypw, mydb))
+	#"mysql -h %s --port %s -u%s -p%s < %s" %(myhost, myport, myuser, mypw, sqlfile)
+	fshout.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
 	fshout.write("load data local infile '" + './results/features_out_' + dataset_label + '.tsv' + "' replace INTO TABLE " + feature_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
 	fshout.write("\ncommit;")
 	fshout.write("\nEOFMYSQL")
@@ -175,7 +179,7 @@ def process_feature_edges(pairwised_file, table_name):
 	circin_file.close()
 	edges_out_tsv.close()	
 	efshout.write("#!/bin/bash\n")
-	efshout.write("mysql --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myuser, mypw, mydb))
+	efshout.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
 	efshout.write("load data local infile '" + './results/edges_out_' + dataset_label + '.tsv' + "' replace INTO TABLE " + cca_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
 	efshout.write("\ncommit;")
 	efshout.write("\nEOFMYSQL")
@@ -223,7 +227,7 @@ def process_pathway_associations(gsea_file_path):
 	gsea_file.close()
 	gsea_tsv_out.close()
 	gsea_sh.write("#!/bin/bash\n")
-	gsea_sh.write("mysql --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myuser, mypw, mydb))
+	gsea_sh.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
 	gsea_sh.write("load data local infile '" + gsea_tsv_out.name + "' replace INTO TABLE " + feature_pathways_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';")
 	gsea_sh.write("\ncommit;")
 	gsea_sh.write("\nEOFMYSQL")

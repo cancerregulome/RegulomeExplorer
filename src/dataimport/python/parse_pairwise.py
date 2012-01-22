@@ -15,12 +15,13 @@ import db_util
 mydb = db_util.getDBSchema() #config.get("mysql_jdbc_configs", "db")
 myuser = db_util.getDBUser() #config.get("mysql_jdbc_configs", "username")
 mypw = db_util.getDBPassword() #config.get("mysql_jdbc_configs", "password")
+myhost = db_util.getDBHost()
+myport = db_util.getDBPort()
 
-config = ConfigParser.RawConfigParser()
-config.read('./rfex_sql.config')
-results_path = config.get("results", "path")
-contacts = config.get("results", "pubcrawl_contact").split(',')
-notify = config.get("results", "notify").split(',')
+results_path = db_util.getResultsPath()
+notify = db_util.getNotify()
+contacts = db_util.getPubcrawlContact()
+
 totalEdges = 0
 features_hash = {}
 edges_hash = {}
@@ -28,6 +29,8 @@ gene_interesting_hash = {}
 dataset_label = ""
 feature_table = ""
 sample_table = ""
+max_pv = -1000.0
+max_pv_corr = -1000.0
 def is_numeric(val):
 	try:
 		float(val)
@@ -78,7 +81,7 @@ def process_feature_matrix(matrix_file):
 	outfile.close()
 	#sampleOutfile.close()
 	fshout.write("#!/bin/bash\n")
-	fshout.write("mysql --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myuser, mypw, mydb))
+	fshout.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
 	fshout.write("load data local infile '" + outfile.name  + "' replace INTO TABLE " + feature_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
 	fshout.write("\ncommit;")
 	fshout.write("\nEOFMYSQL")
@@ -94,12 +97,13 @@ def process_feature_edges(pairwised_file, do_pubcrawl):
 	Include edges where nodes are in original set, direction does not matter so do not populate edge if A->B if B->A are in hash
 	Expected tab delimited columns are nodeA nodeB pvalue correlation numNonNA	
 	"""
-	global features_hash, dataset_label, edges_hash, totalEdges
+	global features_hash, dataset_label, edges_hash, totalEdges, max_pv, max_pv_corr
 	edges_file = open(pairwised_file)
-	edge_table = "tcga." + dataset_label + "_pw" 
+	edge_table = "tcga.mv_" + dataset_label + "_feature_networks" 
         efshout = open('./results/load_edges_' + dataset_label + '.sh','w')
         edges_out_re = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_re.tsv','w')
 	edges_out_pc = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_pc.tsv','w')
+	edges_meta_json = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_meta.json','w')
 	validEdgeId = 1
 	dupeEdges = 0
 	totalEdges = 0
@@ -137,8 +141,13 @@ def process_feature_edges(pairwised_file, do_pubcrawl):
 					continue
 				numna = tokens[3]
 				pv = tokens[4]
+				if (float(pv) > max_pv):
+					max_pv = float(pv)
+				
 				bonf = tokens[5]
 				pv_bonf = tokens[6]
+				if (float(pv_bonf) > max_pv_corr):
+					max_pv_corr = float(pv_bonf)
 				numnaf1 = tokens[7]
 				pvf1 = tokens[8]
 				numnaf2 = tokens[9]
@@ -152,17 +161,19 @@ def process_feature_edges(pairwised_file, do_pubcrawl):
 		else:
 			print "duplicated edge:" + nodeA + "_" + nodeB
 			dupeEdges += 1
-	print "Valid Edges %i Duped %i cNAN %i Total %i " %(validEdgeId-1, dupeEdges, cnan, totalEdges)	
+	print "Valid Edges %i Duped %i cNAN %i Total %i max_pvalue %f max_pvalue_corr %f" %(validEdgeId-1, dupeEdges, cnan, totalEdges, max_pv, max_pv_corr)	
+	edges_meta_json.write('{"max_logpv":%f}' %(max_pv))
 	edges_file.close()
 	edges_out_re.close()
-	edges_out_pc.close()	
+	edges_out_pc.close()
+	edges_meta_json.close()	
 	efshout.write("#!/bin/bash\n")
-	efshout.write("mysql --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myuser, mypw, mydb))
+	efshout.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
 	efshout.write("load data local infile '" + edges_out_re.name + "' replace INTO TABLE " + edge_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
 	efshout.write("\ncommit;")
 	efshout.write("\nEOFMYSQL")
 	efshout.close()
- #  if (do_pubcrawl == 1):
+	#if (do_pubcrawl == 1):
 		#smtp.main("jlin@systemsbiology.net", contacts, "Notification - New Pairwise Associations for PubCrawl", "New pairwise associations ready for PubCrawl load\n" + edges_out_pc.name + "\n\n" + str(pcc) + " Total Edges\n\n" + edges_out_re.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "_pw \n\n")
 	return efshout
 
@@ -207,7 +218,7 @@ def process_pathway_associations(gsea_file_path):
 	gsea_file.close()
 	gsea_tsv_out.close()
 	gsea_sh.write("#!/bin/bash\n")
-	gsea_sh.write("mysql --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myuser, mypw, mydb))
+	gsea_sh.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
 	gsea_sh.write("load data local infile '" + gsea_tsv_out.name + "' replace INTO TABLE " + feature_pathways_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';")
 	gsea_sh.write("\ncommit;")
 	gsea_sh.write("\nEOFMYSQL")
@@ -251,11 +262,4 @@ if __name__ == "__main__":
 	dataset_label = sys.argv[3]
 	main(dataset_label, sys.argv[1], sys.argv[2], int(sys.argv[4]), insert_features)
 	#features_sh = process_feature_matrix(sys.argv[1], dataset_label)	
-	#optionally inserting features matrix
-	#if (len(sys.argv) == 5):
-	#	os.system("sh " + features_sh.name)
-	#print "Done with processing features, processing edges %s " %(time.ctime())
-	#edges_sh = process_feature_edges(sys.argv[2], dataset_label)	
-	#os.system("sh " + edges_sh.name)
-        #print "Done with processing edges %s " %(time.ctime())
 

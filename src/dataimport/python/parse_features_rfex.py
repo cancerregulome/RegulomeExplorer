@@ -11,6 +11,9 @@ import time
 mydb = db_util.getDBSchema() #config.get("mysql_jdbc_configs", "db")
 myuser = db_util.getDBUser() #config.get("mysql_jdbc_configs", "username")
 mypw = db_util.getDBPassword() #config.get("mysql_jdbc_configs", "password")
+myhost = db_util.getDBHost() #config.get("mysql_jdbc_configs", "host")
+myport = db_util.getDBPort()
+
 features_hash = {}
 gene_interesting_hash = {}
 dataset_label = ""
@@ -98,7 +101,7 @@ def process_feature_matrix(matrix_file, persist_sample_meta):
 	outfile.close()
 	sampleOutfile.close()
 	fshout.write("#!/bin/bash\n")
-	fshout.write("mysql --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myuser, mypw, mydb))
+	fshout.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
 	fshout.write("load data local infile '" + './results/features_out_' + dataset_label + '.tsv' + "' replace INTO TABLE " + feature_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
 	fshout.write("load data local infile '" + './results/sample_values_out_' + dataset_label + '.tsv' + "' replace INTO TABLE " + sample_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
 	fshout.write("\ncommit;")
@@ -132,7 +135,7 @@ def process_gexp_interest_score(interest_score_file):
         gexp_interesting_file.close()
         gexp_sql.close()
         gexp_sh.write("#!/bin/bash\n")
-        gexp_sh.write('mysql -u' + myuser + ' -p'+ mypw + ' < ' + gexp_sql.name + '\n')
+        gexp_sh.write('mysql -h ' + myhost + ' --port ' + myport + ' -u' + myuser + ' -p'+ mypw + ' < ' + gexp_sql.name + '\n')
         gexp_sh.write("\necho done updating gexp_interesting")
         gexp_sh.close()
 	print "finished feature matrix bulk upload  %s" %(time.ctime())
@@ -171,7 +174,7 @@ def process_pathway_associations(gsea_file_path):
 	gsea_file.close()
 	gsea_tsv_out.close()
 	gsea_sh.write("#!/bin/bash\n")
-	gsea_sh.write("mysql --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myuser, mypw, mydb))
+	gsea_sh.write("mysql -h % --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
 	gsea_sh.write("load data local infile '" + gsea_tsv_out.name + "' replace INTO TABLE " + feature_pathways_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';")
 	gsea_sh.write("\ncommit;")
 	gsea_sh.write("\nEOFMYSQL")
@@ -219,7 +222,7 @@ def processGeneAssociation(datapath):
 	
 	association_index_out.close()
 	association_index_sh.write("#!/bin/bash\n")
-        association_index_sh.write("mysql --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myuser, mypw, mydb))
+        association_index_sh.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
         association_index_sh.write("load data local infile '" + association_index_out.name + "' replace INTO TABLE " + association_index_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';")
         association_index_sh.write("\ncommit;")
         association_index_sh.write("\nEOFMYSQL")

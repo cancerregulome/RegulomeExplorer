@@ -6,10 +6,10 @@ import os
 import time
 
 myhost = db_util.getDBHost() #config.get("mysql_jdbc_configs", "host")
+myport = db_util.getDBPort()
 mydb = db_util.getDBSchema() #config.get("mysql_jdbc_configs", "db")
 myuser = db_util.getDBUser() #config.get("mysql_jdbc_configs", "username")
 mypw = db_util.getDBPassword() #config.get("mysql_jdbc_configs", "password")
-
 
 print "Parsing samples/patients and values kicked off %s" %time.ctime()
 if (len(sys.argv) != 3):
@@ -83,7 +83,7 @@ infile.close()
 outfile.close()
 fshout.write("#!/bin/bash\n")
 #fshout.write("mysql --user=root --database=omics<<EOFMYSQL\n")
-fshout.write('mysql -u' + myuser + ' -p'+ mypw + ' < ' + outfile.name + '\n')
+fshout.write('mysql -h ' + myhost + ' -port ' + myport + ' -u' + myuser + ' -p'+ mypw + ' < ' + outfile.name + '\n')
 
 #fshout.write("load data local infile '/local/dudley/omics/KruglyakFeaturesOut.tsv' replace INTO TABLE kruglyak_features " + " fields terminated by '\\t' LINES TERMINATED BY '\\n';")
 #fshout.write("\nEOFMYSQL")
