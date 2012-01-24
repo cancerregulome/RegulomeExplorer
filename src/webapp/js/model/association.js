@@ -18,6 +18,7 @@ re.model.association =  {
                                                 tabIndex : 1,
                                                 validateOnBlur : true,
                                                 fieldLabel : 'Importance >=',
+                                                defaultValue : 0,
                                                 value : 0
                                             }
 			},
@@ -57,6 +58,7 @@ re.model.association =  {
                                                 tabIndex : 1,
                                                 validateOnBlur : true,
                                                 fieldLabel : 'pvalue <=',
+                                                defaultValue : 0.5,
                                                 value : 0.5
                                             }
 			},

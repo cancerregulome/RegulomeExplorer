@@ -96,16 +96,33 @@ function getURI() {
     return location.protocol + '//' + location.href;
 }
 
+function removeDefaultValues(json) {
+    //remove default clinical label values.  They've already been copied to the label field
+    ['t','p'].forEach(function(f) {
+        if (json[f + '_type'] == 'CLIN') {
+            if (json[f + '_label'] == Ext.getCmp(f + '_clin').defaultValue) {
+                delete json[f + '_label'];
+            }
+        }
+    });
+    //remove all of the other default value fields
+    for (var i in json) {
+            if (json[i] == null || json[i] == Ext.getCmp(i).defaultValue) {
+                delete json[i];
+            }
+        }
+        return json;
+}
+
+
 function generateStateJSON() {
     var json = getFilterSelections();
     //don't preserve empty or obvious values
-    for (i in json) {
-        if (json[i] == null || json[i] == '' || json[i]=='*' || json[i] == 'All') {
-            delete json[i];
-        }
-    }
-    json.dataset = getSelectedDatasetLabel();
-    return json;
+    json = removeDefaultValues(json);
+    var obj = {};
+    obj.dataset = getSelectedDatasetLabel();
+    obj = vq.utils.VisUtils.extend(obj,json);
+    return obj;
 }
 
 function generateStateURL() {
@@ -308,8 +325,10 @@ function loadListStores(dataset_labels) {
     clin_list.unshift({value:'*',label:'All'});
     Ext.StoreMgr.get('f1_clin_list_store').loadData(clin_list);
     Ext.getCmp('t_clin').setValue('*');
+    Ext.getCmp('t_clin').defaultValue = '*';
     Ext.StoreMgr.get('f2_clin_list_store').loadData(clin_list);
     Ext.getCmp('p_clin').setValue('*');
+    Ext.getCmp('p_clin').defaultValue = '*';
 }
 
 function loadDataTableStore(data) {
@@ -830,6 +849,7 @@ Ext.onReady(function() {
                                                 triggerAction : 'all',
                                                 forceSelection : true,
                                                 emptyText : 'Select a Type...',
+                                                defaultValue : 'GEXP',
                                                 value : 'GEXP',
                                                 listeners : {
                                                     select : function(field,record, index) {
@@ -857,7 +877,9 @@ Ext.onReady(function() {
                                                         tabIndex: 1,
                                                         width:80,
                                                         selectOnFocus:true,
-                                                        fieldLabel:'Label'
+                                                        fieldLabel:'Label',
+                                                        defaultValue : '',
+                                                        value : ''
                                                     },
                                                     {
                                                         xtype:'button',
@@ -893,6 +915,7 @@ Ext.onReady(function() {
                                                 valueField:'value',
                                                 displayField:'label',
                                                 emptyText:'CLIN Feature...',
+                                                defaultValue:'*',
                                                 value:'*'
                                             },
                                             {
@@ -914,6 +937,7 @@ Ext.onReady(function() {
                                                 forceSelection : true,
                                                 triggerAction : 'all',
                                                 emptyText : 'Select Chr...',
+                                                defaultValue:'*',
                                                 value : '*'
                                             },{xtype : 'numberfield',
                                                 id:'t_start',
@@ -928,6 +952,7 @@ Ext.onReady(function() {
                                                 validateOnBlur : true,
                                                 allowDecimals : false,
                                                 fieldLabel : 'Start >=',
+                                                defaultValue : '',
                                                 value : ''
                                             },{xtype : 'numberfield',
                                                 id:'t_stop',
@@ -942,6 +967,7 @@ Ext.onReady(function() {
                                                 validateOnBlur : true,
                                                 allowDecimals : false,
                                                 fieldLabel : 'Stop <=',
+                                                defaultValue : '',
                                                 value : ''
                                             }
                                         ]},
@@ -978,6 +1004,7 @@ Ext.onReady(function() {
                                                 triggerAction : 'all',
                                                 forceSelection : true,
                                                 emptyText : 'Select a Type...',
+                                                defaultValue : '*',
                                                 value : '*',
                                                 listeners : {
                                                     select : function(field,record, index) {
@@ -1009,7 +1036,9 @@ Ext.onReady(function() {
                                                         tabIndex: 1,
                                                         width:80,
                                                         selectOnFocus:true,
-                                                        fieldLabel:'Label'
+                                                        fieldLabel:'Label',
+                                                        defaultValue : '',
+                                                        value : ''
                                                     },
                                                     {
                                                         xtype:'button',
@@ -1046,6 +1075,7 @@ Ext.onReady(function() {
                                                 valueField:'value',
                                                 displayField:'label',
                                                 emptyText:'CLIN Feature...',
+                                                defaultValue:'*',
                                                 value:'*'
                                             },
                                             { xtype:'combo', name:'p_chr',id:'p_chr',
@@ -1066,6 +1096,7 @@ Ext.onReady(function() {
                                                 forceSelection : true,
                                                 triggerAction : 'all',
                                                 emptyText : 'Select Chr...',
+                                                defaultValue : '*',
                                                 value : '*'
                                             },{xtype : 'numberfield',
                                                 id:'p_start',
@@ -1080,6 +1111,7 @@ Ext.onReady(function() {
                                                 validateOnBlur : true,
                                                 allowDecimals : false,
                                                 fieldLabel : 'Start >=',
+                                                defaultValue : '',
                                                 value : ''
                                             },{xtype : 'numberfield',
                                                 id:'p_stop',
@@ -1094,6 +1126,7 @@ Ext.onReady(function() {
                                                 validateOnBlur : true,
                                                 allowDecimals : false,
                                                 fieldLabel : 'Stop <=',
+                                                defaultValue : '',
                                                 value : ''
                                             }
 
@@ -1126,6 +1159,7 @@ Ext.onReady(function() {
                                                 typeAhead : true,
                                                 selectOnFocus:true,
                                                 triggerAction : 'all',
+                                                defaultValue : re.ui.order_list[0]['value'],
                                                 value : re.ui.order_list[0]['value']
                                             },
                                             { xtype:'combo', name:'limit',id:'limit',
@@ -1145,6 +1179,7 @@ Ext.onReady(function() {
                                                 typeAhead : true,
                                                 selectOnFocus:true,
                                                 triggerAction : 'all',
+                                                defaultValue : 200,
                                                 value : 200
                                             }
                                         ])
@@ -1155,6 +1190,7 @@ Ext.onReady(function() {
                                         valueField:'value',
                                         id:'filter_type',
                                         mode: 'local',
+                                        defaultValue:'association',
                                         value:'association',
                                         typeAhead : true,
                                         forceSelection : true,

@@ -38,6 +38,7 @@ re.multirangeField = Ext.extend(Ext.form.CompositeField, {
                     name :id + '_fn',
                     xtype:          'combo',
                     mode:           'local',
+                    defaultValue:          'Abs',
                     value:          'Abs',
                     triggerAction:  'all',
                     forceSelection: true,
@@ -77,6 +78,7 @@ re.multirangeField = Ext.extend(Ext.form.CompositeField, {
                     tabIndex : 1,
                     validateOnBlur : true,
                     fieldLabel : 'Range('+ label + ')',
+                    defaultValue : default_value,
                     value : default_value,
                     listeners: {
                         render: function(c) {
