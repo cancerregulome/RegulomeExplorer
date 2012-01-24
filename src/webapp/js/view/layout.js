@@ -98,6 +98,12 @@ function getURI() {
 
 function generateStateJSON() {
     var json = getFilterSelections();
+    //don't preserve empty or obvious values
+    for (i in json) {
+        if (json[i] == null || json[i] == '' || json[i]=='*' || json[i] == 'All') {
+            delete json[i];
+        }
+    }
     json.dataset = getSelectedDatasetLabel();
     return json;
 }
@@ -705,7 +711,7 @@ Ext.onReady(function() {
                                     { header: "Label", width: 120, id: 'source_label',dataIndex:'source_label',groupName:'Source'},
                                     { header: "Chr", width:30 , id:'source_chr', dataIndex:'source_chr',groupName:'Source'},
                                     { header: "Start", width:100, id:'source_start',dataIndex:'source_start',groupName:'Source'},
-                                    { header: "Stop", width:100, id:'source_stop',dataIndex:'source_stop',groupName:'Source'},
+                                    { header: "Stop", width:100, id:'source_stop',dataIndex:'source_stop',groupName:'Source'}
                                     ].concat(re.model.association.types.map( function(obj){ return obj.ui.grid.column;})),
                                 defaults: {
                                     sortable: true,
@@ -717,8 +723,7 @@ Ext.onReady(function() {
                                 storeId:'data_grid_store',
                                fields : ['target_id','target_source','target_label','target_chr','target_start','target_stop',
                                     'source_id', 'source_source','source_label','source_chr','source_start','source_stop'
-                                    ].concat(re.model.association.types.map( function(obj){ return obj.ui.grid.store_index;})),
-                              
+                                    ].concat(re.model.association.types.map( function(obj){ return obj.ui.grid.store_index;}))
                             }),
                             listeners: {
                                 rowclick : function(grid,rowIndex,event) {
