@@ -82,6 +82,12 @@ function checkFormURL() {
 }
 
 function setFormState(json) {
+    ['t','p'].forEach(function(f){
+        if (json[f+'_type'] == 'CLIN') {
+            json[f+'_clin'] = json[f+'_label'];
+            delete json[f+'_label']
+        }
+        });
     Ext.iterate(json,setComponentState)
 }
 
@@ -254,9 +260,9 @@ function getFilterSelections() {
         Ext.getCmp('p_stop').getValue(),
         Ext.getCmp('order').getValue(),
         Ext.getCmp('limit').getValue(),
-       // Ext.getCmp('filter_type').getValue()
+       Ext.getCmp('filter_type').getValue(),
 
-       (Ext.getCmp('filter_sf').checked ? 'single' : Ext.getCmp('filter_type').getValue())
+       Ext.getCmp('isolate').checked
     );
 }
 
@@ -269,7 +275,8 @@ function packFilterSelections() {
         p_start:arguments[8]|| '',p_stop:arguments[9]|| '',
         order:arguments[10],
         limit:arguments[11],
-        filter_type:arguments[12]};
+        filter_type:arguments[12],
+        isolate:arguments[13]};
   
         re.model.association.types.forEach(function (obj){
           return_obj[obj.id] = Ext.getCmp(obj.id).getValue();
@@ -795,7 +802,23 @@ Ext.onReady(function() {
                                     checked: false,
                                     group:'networklayout_group'}
                             ]
-                        }]
+                        }, {
+                            id:'circularScatterplotMenu',
+                            text:'Circular Scatterplot',
+                            labelStyle: 'font-weight:bold;',
+                            menu:        re.model.association.types.map(function (obj,index){
+                                var return_obj = {
+                                    text:obj.label,
+                                    value:obj.id,
+                                    xtype:'menucheckitem',
+                                    handler:scatterplotFieldHandler,
+                                    checked: false,
+                                    group:'scatterplot_group'};
+                                if (index ==0) { return_obj.checked = true; }
+                                return     return_obj;
+                                })
+                        }
+                        ]
                     },{
                         id:'modalMenu',
                         text:'Mode',
@@ -855,6 +878,9 @@ Ext.onReady(function() {
             default:
                 vq.events.Dispatcher.dispatch(new vq.events.Event('modify_circvis','main_menu',{pan_enable:false,zoom_enable:false}));
         }
+    }
+    function scatterplotFieldHandler(item) {
+                re.display_options.circvis.rings.pairwise_scores.value_field = re.model.association.types[re.model.association_map[item.value]].id;
     }
 
     function networkLayoutHandler(item) {

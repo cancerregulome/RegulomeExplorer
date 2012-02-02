@@ -63,7 +63,7 @@ vq.utils.VisUtils.extend(re.ui, {
                                 ],
                                 items : [
                                     {  xtype:'fieldset',
-                                        title:re.ui.feature1.id,
+                                        id:re.ui.feature1.id,
                                         title:re.ui.feature1.label,
                                         collapsible: true,
                                         defaults:{anchor:'100%'},
@@ -73,14 +73,16 @@ vq.utils.VisUtils.extend(re.ui, {
                                         autoHeight:true,
                                         items:[
                                         { xtype:'checkbox',
-                                        	id:'filter_sf',
-                                        	fieldLabel:'Specify Feature',
+                                        	id:'isolate',
+                                        	fieldLabel:'Isolate',
+                                            defaultValue:false,
                                         	checked:false,
                                         	listeners: { check: function(cb, checked) {
                                         		Ext.getCmp(re.ui.feature2.id).setDisabled(checked);
                                         		if (checked) { Ext.getCmp(re.ui.feature2.id).collapse(); }
                                         		else { Ext.getCmp(re.ui.feature2.id).expand(); }
                                         		if (checked) {Ext.getCmp('t_type').setValue('CLIN',true);}
+                                                Ext.getCmp('t_type').setDisabled(checked);
                                         	}
                                         }
                                         },

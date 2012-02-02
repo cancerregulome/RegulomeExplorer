@@ -38,7 +38,10 @@ re.model.association =  {
 				},
 				tooltip : {
 					entry : { ' Importance' : 'importance'}
-				}
+				},
+                scatterplot : {
+                    scale_type :'linear'
+                }
 			}	
 		},
 		{ 	id : 'pvalue',
@@ -78,8 +81,11 @@ re.model.association =  {
 				},
 				tooltip : {
 					entry : { pvalue : 'pvalue' }
-				}
-			}	
+				},
+                scatterplot : {
+                }
+			}
+
 		},
 		{ 	id : 'correlation',
 			label : 'Correlation',
@@ -108,9 +114,16 @@ re.model.association =  {
 					edgeSchema : { name: "correlation", type: "number" }
 				},
 				tooltip : {
-					entry : {  Correlation : 'correlation',}
-				}
-			}	
+					entry : {  Correlation : 'correlation'}
+				},
+                scatterplot : {
+                    scale_type :'linear',
+                    values : {
+                           min : -1,
+                            max : 1
+                        }
+                }
+			}
 		}
 	]
 };

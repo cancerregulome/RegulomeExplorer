@@ -129,7 +129,7 @@ function parseNetwork(responses) {
                         console.error('Association attribute is malformed. Expected attribute with label \'' + assoc.query.id + '\'');        
                     }                
                 obj[assoc.ui.grid.store_index] = row[assoc.query.id];
-            })
+            });
         return obj;
 //            pvalue : row.pvalue,importance : row.importance, correlation:row.correlation};
     }
@@ -170,9 +170,9 @@ function parseSFValues(responses) {
         vq.events.Dispatcher.dispatch(new vq.events.Event('load_fail','sf_associations',{msg:'Error in loading assocation data'}));
     }
 
-    
+       var data = [];
 try {
-   var data = responses.map(function(row) {
+   data = responses.map(function(row) {
         var node = row.alias.split(':');
            var label_mod = node.length >=8 ? node[7] : '';
            var obj =  {id : row.alias, source : node[1], label : node[2], chr : node[3].slice(3),
@@ -185,10 +185,9 @@ try {
             });
         return obj;
         });
-
-        parsed_data.features = data;
-        loadComplete();
         }catch(e) {
             loadFailed();
         }
+    parsed_data.features = data.filter(function(feature) { return feature.chr != '' && feature.start != '';});
+    loadComplete();
 }
