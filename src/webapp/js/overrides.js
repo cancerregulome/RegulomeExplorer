@@ -17,6 +17,14 @@ Ext.override(Ext.LoadMask, {
         }
 });
 
+Ext.override(Ext.form.FieldSet, {        
+        onCheckClick: function() {
+        var me    = this,
+            checked = this.checkbox.dom.checked;
+            me.setDisabled(!checked);            
+            }
+});
+
 re.multirangeField = Ext.extend(Ext.form.CompositeField, {
     constructor: function(config) {
         var default_value = config.default_value || 0;
@@ -34,7 +42,7 @@ re.multirangeField = Ext.extend(Ext.form.CompositeField, {
                     //the width of this field in the HBox layout is set directly
                     //the other 2 items are given flex: 1, so will share the rest of the space
                     width:          50,
-                    id:id + '_fn',
+                    id: id + '_fn',
                     name :id + '_fn',
                     xtype:          'combo',
                     mode:           'local',

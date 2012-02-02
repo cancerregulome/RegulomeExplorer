@@ -72,6 +72,7 @@ vq.utils.VisUtils.extend(re, {
                     hidden : false
                 },
                 pairwise_scores : {
+                    value_field : re.model.association.types[0].query.id,
                     hidden : false
                 }
             },
@@ -128,7 +129,10 @@ vq.utils.VisUtils.extend(re, {
 
         scatterplot_data : null
     },
-    ui: {
+    ui: {        
+        filters: {
+            single_feature : true  
+        },
         chromosomes:  [],
         dataset_labels: [],
         getDatasetLabels : function () { return re.ui.dataset_labels;},

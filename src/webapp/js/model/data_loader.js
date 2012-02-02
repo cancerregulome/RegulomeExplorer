@@ -7,6 +7,10 @@ var d = vq.events.Dispatcher;
         parseNetwork(data);
         generateNetworkDefinition(data)
     });
+         d.addListener('query_complete','sf_associations',function(data) {
+        if (re.state.query_cancel) { return;}
+        parseSFValues(data);
+    });
     d.addListener('query_complete','dataset_labels',function(data) {
         parseDatasetLabels(data);
     });
@@ -48,6 +52,10 @@ function generateNetworkDefinition(responses) {
         var f1id =    row.alias1 + '';
         var f2id =    row.alias2 + '';
 
+        if (node1.length < 7 || node2.length < 7) {
+            console.error('Feature data is malformed. RF-ACE features consist of 7 required properties.');        
+        }
+
         var source_id = (source_map[f1id] === undefined ? (source_array.push({
             id : f1id, type : node1[1], label : node1[2], chr : node1[3].slice(3),
             start: rectifyChrPosition(node1[4]) ,
@@ -67,6 +75,9 @@ function generateNetworkDefinition(responses) {
         source_map[f2id] = target_id;
         var obj = {id:f1id + '-' + f2id, label : f1id + ' -> ' + f2id, source:f1id ,target: f2id};
          re.model.association.types.forEach(function(assoc) {
+                    if (row[assoc.query.id] === undefined) {
+                        console.error('Association attribute is malformed. Expected attribute with label \'' + assoc.query.id + '\'');        
+                    }
                 obj[assoc.ui.grid.store_index] = row[assoc.query.id];
             })
         return obj;
@@ -97,6 +108,11 @@ function parseNetwork(responses) {
    var whole_net = responses.map(function(row) {
         var node1 = row.alias1.split(':');
         var node2 = row.alias2.split(':');
+
+        if (node1.length < 7 || node2.length < 7) {
+            console.error('Feature data is malformed. RF-ACE features consist of 7 required properties.');        
+        }
+
            var label_mod1 = node1.length >=8 ? node1[7] : '';
            var label_mod2 = node2.length >=8 ? node2[7] : '';
            var obj =  {node1: {id : row.alias1, source : node1[1], label : node1[2], chr : node1[3].slice(3),
@@ -109,6 +125,9 @@ function parseNetwork(responses) {
                 end:node2[5] != '' ? parseInt(node2[5]) : parseInt(node2[4])}
             };
              re.model.association.types.forEach(function(assoc) {
+                    if (row[assoc.query.id] === undefined) {
+                        console.error('Association attribute is malformed. Expected attribute with label \'' + assoc.query.id + '\'');        
+                    }                
                 obj[assoc.ui.grid.store_index] = row[assoc.query.id];
             })
         return obj;
@@ -137,4 +156,39 @@ function parseNetwork(responses) {
     parsed_data['located_features'] = vq.utils.VisUtils.clone(features).filter(function(feature) {
             return feature.chr !='';
         });
+}
+
+
+function parseSFValues(responses) {
+
+    var parsed_data = {features:[]};
+        function loadComplete() {
+        vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready','sf_associations', parsed_data));
+    }
+
+    function loadFailed() {
+        vq.events.Dispatcher.dispatch(new vq.events.Event('load_fail','sf_associations',{msg:'Error in loading assocation data'}));
+    }
+
+    
+try {
+   var data = responses.map(function(row) {
+        var node = row.alias.split(':');
+           var label_mod = node.length >=8 ? node[7] : '';
+           var obj =  {id : row.alias, source : node[1], label : node[2], chr : node[3].slice(3),
+               label_mod : label_mod,
+               start: node[4] != '' ? parseInt(node[4]) : -1, 
+               end:node[5] != '' ? parseInt(node[5]) : parseInt(node[4])
+            };
+             re.model.association.types.forEach(function(assoc) {
+                obj[assoc.ui.grid.store_index] = row[assoc.query.id];
+            });
+        return obj;
+        });
+
+        parsed_data.features = data;
+        loadComplete();
+        }catch(e) {
+            loadFailed();
+        }
 }

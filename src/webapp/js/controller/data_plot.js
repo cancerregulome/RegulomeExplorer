@@ -7,6 +7,11 @@ function registerPlotListeners() {
         renderCircleData(data);
         renderCircleLegend();
     });
+         d.addListener('data_ready','sf_associations',function(data) {
+        if (re.state.query_cancel) { return;}
+        renderSFCircleData(data);
+        renderCircleLegend();
+    });
     d.addListener( 'data_ready','graph',function(data) {
         var obj = {
         network : data,
@@ -124,6 +129,10 @@ function renderCircleData(data) {
     wedge_plot(data, document.getElementById('circle-panel'));
 }
 
+function renderSFCircleData(data) {
+    singlefeature_circvis(data, document.getElementById('circle-panel'));
+}
+
 function renderLinearData(obj) {
     linear_plot(vq.utils.VisUtils.extend(obj,{div:document.getElementById('linear-panel')}));
 }
@@ -225,6 +234,161 @@ function legend_draw(div) {
     //     .text(function(types) { return types[1] + ' -> ' + types[0];});
 
     vis.render();
+}
+
+
+function singlefeature_circvis(parsed_data,div) {
+    var width=800, height=800;
+    var ring_radius = width / 10;
+    var chrom_keys = ["1","2","3","4","5","6","7","8","9","10",
+        "11","12","13","14","15","16","17","18","19","20","21","22","X","Y"];
+    var stroke_style = re.plot.colors.getStrokeStyleAttribute();
+
+    var data = parsed_data['features'];
+
+    function genome_listener(chr) {
+        var e = new vq.events.Event('render_linearbrowser','circvis',{data:parsed_data,chr:chr});
+        e.dispatch();
+    }
+
+    function wedge_listener(feature) {
+        var chr = feature.chr;
+        var start = bpToMb(feature.start) - 2.5;
+        var range_length = bpToMb(feature.end) - start + 2.5;
+        var e = new vq.events.Event('render_linearbrowser','circvis',{data:parsed_data,chr:chr,start:start,range:range_length});
+        e.dispatch();
+    }
+
+    var ucsc_genome_url = 'http://genome.ucsc.edu/cgi-bin/hgTracks';
+ 
+    var karyotype_tooltip_items = {
+        'Karyotype Label' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
+        Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
+    },       
+    scatterplot_tooltips =  {Feature : function(node) { return node.label+ ' ' + node.source + ' Chr' + node.chr + ' ' + node.start +
+                    '-' + node.end + ' ' + node.label_mod;}
+                    };
+      
+    re.model.association.types.forEach( function(assoc) { 
+            vq.utils.VisUtils.extend(scatterplot_tooltips, assoc.vis.tooltip.entry);
+        });
+
+   var field = re.display_options.circvis.rings.pairwise_scores.value_field;
+   var min = pv.min(data, function(o) { return o.field;});
+   var max = pv.max(data, function(o) { return o.field;});
+    
+    var score_color_scale = pv.Scale.linear(min,max).range('blue','red');
+
+        
+    var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
+    var ticks = vq.utils.VisUtils.clone(parsed_data['features']);
+
+    var types = re.model.association.types.map(function(assoc) { return assoc.query.id;});
+
+    var data = {
+        GENOME: {
+            DATA:{
+                key_order : chrom_keys,
+                key_length : chrom_leng
+            },
+            OPTIONS: {
+                radial_grid_line_width: 1,
+                label_layout_style : 'clock',
+                listener : genome_listener,
+                label_font_style : '18pt helvetica'
+            }
+        },
+        TICKS : {
+            DATA : {
+                data_array : ticks
+            },
+            OPTIONS :{
+                display_legend : false,
+                listener : wedge_listener,
+                stroke_style :stroke_style,
+                fill_style : function(tick) {return re.plot.colors.node_colors(tick.source); },
+                tooltip_items : {Tick : function(node) { return node.label+ ' ' + node.source + ' Chr' + node.chr + ' ' + node.start +
+                    '-' + node.end + ' ' + node.label_mod;}},
+                tooltip_links : {
+                    'UCSC Genome Browser' :  function(feature){
+                        return  ucsc_genome_url + '?db=hg18&position=chr' + feature.chr + ':' +  feature.start +'-'+ feature.end;  },
+                    'Ensemble' : function(feature) {
+                        return  'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' +  feature.start +'-'+ feature.end;  }
+                }
+            }
+        },
+        PLOT: {
+            width : width,
+            height :  height,
+            horizontal_padding : 30,
+            vertical_padding : 30,
+            container : div,
+            enable_pan : false,
+            enable_zoom : false,
+            show_legend: false,
+            legend_include_genome : false,
+            legend_corner : 'ne',
+            legend_radius  : width / 15
+        },
+        WEDGE:[
+            {
+                PLOT : {
+                    height : ring_radius/2,
+                    type :   'karyotype'
+                },
+                DATA:{
+                    data_array : cytoband
+                },
+                OPTIONS: {
+                    legend_label : 'Karyotype Bands' ,
+                    legend_description : 'Chromosomal Karyotype',
+                    outer_padding : 10,
+//                    fill_style : function(feature) { return feature.value;},
+//                    stroke_style : function(feature) { return feature.value;},
+                    tooltip_items : karyotype_tooltip_items
+//                    listener : wedge_listener
+                }
+            },{
+                PLOT : {
+                    height : ring_radius,
+                    type :   'scatterplot'
+                },
+                DATA:{
+                    data_array : data
+                },
+                OPTIONS: {
+                    legend_label : 'Association Values' ,
+                    legend_description : 'Feature Association Values',
+                    outer_padding : 10,
+                    base_value : (max - min) / 2,
+                    min_value : min,
+                    max_value : max,
+                    radius : 2,
+                    draw_axes : true,
+                    shape:'dot',
+                    fill_style  : function(feature) {return source_color_scale(feature[field]); },
+                    fill_style  : function(feature) {return source_color_scale(feature[field]); },
+                    stroke_style : stroke_style,
+                    tooltip_items : scatterplot_tooltips,
+                    tooltip_links : {
+                    'UCSC Genome Browser' :  function(feature){
+                        return  ucsc_genome_url + '?db=hg18&position=chr' + feature.chr + ':' +  feature.start +'-'+ feature.end;  },
+                    'Ensemble' : function(feature) {
+                        return  'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' +  feature.start +'-'+ feature.end;  }
+                    }
+                   // listener : initiateDetailsPopup
+                }
+            }
+        ]           
+    };
+    var circle_vis = new vq.CircVis();
+    var dataObject ={DATATYPE : "vq.models.CircVisData", CONTENTS : data };
+    circle_vis.draw(dataObject);
+
+    var e = new vq.events.Event('render_complete','circvis',circle_vis);
+    e.dispatch();
+
+    return circle_vis;
 }
 
 
