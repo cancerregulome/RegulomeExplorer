@@ -12,23 +12,34 @@ import ConfigParser
 import smtp
 import getRFACEInfo
 
-myhost = db_util.getDBHost() 
+"""myhost = db_util.getDBHost() 
 myport = db_util.getDBPort()
 mydb = db_util.getDBSchema() 
 myuser = db_util.getDBUser() 
 mypw = db_util.getDBPassword() 
+"""
 
 args = sys.argv
 #add in config for pvalue and importance cutoff
-if (len(args) < 4):
-	print "Usage is py2.6 parse_associations_rfex.py data_matrix.tsv data_associations.tsv dataset_label [process_pubcrawl]"
+if (len(args) < 5):
+	print "Usage is py2.6 parse_associations_rfex.py data_matrix.tsv data_associations.tsv dataset_label configfile"
 	sys.exit(-1)
 
-results_path = db_util.getResultsPath()
-contacts = db_util.getNotify() 
-#config.get("results", "notify").split(',')
-pubcrawl_contacts = db_util.getPubcrawlContact() 
-#config.get("results", "pubcrawl_contact").split(',')
+print " "
+print " in parse_associations_rfex : args : ", args
+print " "
+
+configfile = args[4]
+config = db_util.getConfig(configfile)
+mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
+myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
+mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
+myhost = db_util.getDBHost(config) #config.get("mysql_jdbc_configs", "host")
+myport = db_util.getDBPort(config)
+
+results_path = db_util.getResultsPath(config)
+contacts = db_util.getNotify(config) 
+pubcrawl_contacts = db_util.getPubcrawlContact(config) 
 
 #pvalue_cutoff = float(config.get("cutoff", "pvalue"))
 #not filtering on importance or correlation scores for now
@@ -42,18 +53,21 @@ if (not os.path.isfile(associationsfile)):
 	sys.exit(-1)
 
 dataset_label = args[3]
+print " "
+print " in parse_associations_rfex : dataset_label = <%s> " % dataset_label
+print " "
+
 associations_table = mydb + "." + dataset_label + "_networks"
 features_table = mydb + "." + dataset_label + "_features"
-do_pubcrawl = 0
-if (len(args) >= 5):
-	do_pubcrawl = int(args[4])
+do_pubcrawl = db_util.getDoPubcrawl(config)
 
-print "Begin processing associations %s Applying processing_pubcrawl %i" %(time.ctime(), do_pubcrawl)
+print "Begin processing associations %s Applying processing_pubcrawl %s" %(time.ctime(), do_pubcrawl)
 associations_in = open(associationsfile,'r')
 matrix_in = open(matrixfile,'r')
 featureId = 0
-#features_hash = parse_features_rfex.features_hash
-parse_features_rfex.process_feature_matrix(matrixfile, 0)
+
+print " in parse_associations_rfex ... calling parse_features_rfex.process_feature_matrix ... <%s> " % dataset_label
+parse_features_rfex.process_feature_matrix(dataset_label, matrixfile, 0, configfile)
 path = sys.argv[1].rsplit("/", 1)[0]
 if (os.path.exists(path + "/GEXP_interestingness.tsv")):
 	parse_features_rfex.process_gexp_interest_score(path + "/GEXP_interestingness.tsv")
@@ -134,7 +148,7 @@ for line in lines:
 		pvalue = "-1000"		 
 	tsvout.write(str(lc) + "\t" + f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + str(parse_features_rfex.getFeatureId(columns[0])) + "\t" + str(parse_features_rfex.getFeatureId(columns[1])) + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\n")
 	
-	if (do_pubcrawl == 1):
+	if (do_pubcrawl == "yes"):
 		getRFACEInfo.processLine(line, pubcrawl_tsvout)
 		pcc += 1
 
@@ -150,11 +164,11 @@ fshout.close()
 print "%i associations filtered because unMapped %i" %(pvalueCutCount, unMapped)
 print "Begin bulk upload %s os.system sh %s" %(time.ctime(), fshout.name)
 os.system("sh " + fshout.name)
-if (do_pubcrawl == 1 and db_util.getDoSmtp() == 'yes'):
+if (do_pubcrawl == 'yes' and db_util.getDoSmtp(config) == 'yes'):
 	smtp.main("jlin@systemsbiology.net", pubcrawl_contacts, "Notification - New RFAce " + dataset_label + " Associations for PubCrawl", "New RFAce associations ready for PubCrawl load\n" + pubcrawl_tsvout.name + "\n" + str(pcc) + " Total Edges\n" + tsvout.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "\n\n")
 
 print "Done processing associations %s" %(time.ctime())
 print "Add notification code to Process Data Set, need to add feature_matrix/associations to comments, add RFAce version, pairwise..."
-if (db_util.getDoSmtp() == 'yes'):
+if (db_util.getDoSmtp(config) == 'yes'):
 	smtp.main("jlin@systemsbiology.net", contacts, "Notification - New RFAce " + dataset_label + " Associations Loaded for RegulomeExplorer", "New RFAce associations loaded for dataset " + dataset_label + "\n\nFeature matrix:" + matrixfile + "\nRF Associations:" + associationsfile + "\n\nParsed associations for db:" + tsvout.name + "\n\n" + str(pcc) + " Total Parsed Associations loaded\n" + str(unMapped) + " Total Unmapped Edges saved here:" + unmappedout.name)
 

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-Utility class for configuration loading and mysql updates
+Data import configuration and mysql settings
 """
 import sys
 import numpy as np
@@ -8,62 +8,69 @@ import pyentropy as pe
 import ConfigParser
 import MySQLdb
 
-config = ConfigParser.RawConfigParser()
-config.read('./rfex_sql.config')
-myhost = config.get("mysql_configs", "host")
-myport = int(config.get("mysql_configs", "port"))
-mydb = config.get("mysql_configs", "db")
-myuser = config.get("mysql_configs", "username")
-mypw = config.get("mysql_configs", "password")
-
 nucleotide_complement = {}
 nucleotide_complement['A'] = 'T'
 nucleotide_complement['C'] = 'G'
 nucleotide_complement['G'] = 'C'
 nucleotide_complement['T'] = 'A'
 
-cancer_type_list = config.get("cancer_types", "list").split(",")
-results_path = config.get("results", "path")
-notify = config.get("results", "notify").split(',')
-dosmtp = config.get("results", "dosmtp")
-pubcrawlContact = config.get("results", "pubcrawl_contact").split(',')
-
-
+"""
 conn = MySQLdb.connect (host = myhost,
 			port = myport,
                            user = myuser,
                            passwd = mypw,
                            db = mydb)
 cursor = conn.cursor()
+"""
 
-def getDBHost():
-	return myhost
+def getConfig(path):
+	config = ConfigParser.RawConfigParser()
+	config.read(path)
+	return config
 
-def getDBPort():
-	return myport
+def getCancerTypes(config):
+	return config.get("cancer_types", "list").split(',')
 
-def getDBSchema():
-	return mydb
+def getCursor(config):
+	conn = MySQLdb.connect (host = getDBHost(config),
+                        port = getDBPort(config),
+                        user = getDBUser(config),
+                        passwd = getDBPassword(config),
+                        db = getDBSchema(config))
+	return conn.cursor()
 
-def getDBUser():
-	return myuser
+def getDBHost(config):
+	return config.get("mysql_configs", "host") #myhost
 
-def getDBPassword():
-	return mypw
+def getDBPort(config):
+	return int(config.get("mysql_configs", "port")) #myport
 
-def getResultsPath():
-	return results_path
+def getDBSchema(config):
+	return config.get("mysql_configs", "db")
 
-def getDoSmtp():
-	return dosmtp
-def getNotify():
-	return notify
+def getDBUser(config):
+	return config.get("mysql_configs", "username")
 
-def getPubcrawlContact():
-	return pubcrawlContact
+def getDBPassword(config):
+	return config.get("mysql_configs", "password")
 
-def executeInsert(sqlStr):
-	rc = cursor.execute(sqlStr)
+def getResultsPath(config):
+	return config.get("results", "path")
+
+def getDoSmtp(config):
+	return config.get("results", "dosmtp")
+
+def getNotify(config):
+	return config.get("results", "notify").split(',')
+
+def getDoPubcrawl(config):
+	return config.get("pubcrawl", "dopubcrawl")
+
+def getPubcrawlContact(config):
+	return config.get("pubcrawl", "pubcrawl_contact").split(',')
+
+def executeInsert(config, sqlStr):
+	rc = getCursor(config).execute(sqlStr)
 	#print "executed %s rc %i" %(sqlStr, rc)
 	return rc
 
@@ -86,9 +93,6 @@ def transComplement(seq):
 	for r in seq[::-1]:
 		complement = complement + nucleotide_complement.get(r)
 	return complement
-
-def getYPGKey(name):
-	return kruglyak_ypg_hash.get(name)
 		
 def isAntisense(gene):
 	return antisense_genes_hash.get(gene)
@@ -127,8 +131,22 @@ def is_numeric(lit):
     print lit	
     return -1
 		
-if __name__ == "__main__":
-	gene = sys.argv[1]
+if __name__ == "__main__":	
+	configfile = sys.argv[1]
+	config = getConfig(configfile) #config.read(configfile)
+	
+	"""
+	myhost = config.get("mysql_configs", "host")
+	myport = int(config.get("mysql_configs", "port"))
+	mydb = config.get("mysql_configs", "db")
+	myuser = config.get("mysql_configs", "username")
+	mypw = config.get("mysql_configs", "password")
+	cancer_type_list = config.get("cancer_types", "list").split(",")
+	results_path = config.get("results", "path")
+	notify = config.get("results", "notify").split(',')
+	dosmtp = config.get("results", "dosmtp")
+	pubcrawlContact = config.get("results", "pubcrawl_contact").split(',')
+	"""
 	#print transGeneFeature(gene)
 	#print transComplement(sys.argv[1])
 	#x = np.random.random_integers(0,100,10000)

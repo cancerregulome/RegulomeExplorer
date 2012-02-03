@@ -12,6 +12,7 @@ import smtp
 import getPairwiseInfo
 import db_util
 
+"""
 mydb = db_util.getDBSchema() #config.get("mysql_jdbc_configs", "db")
 myuser = db_util.getDBUser() #config.get("mysql_jdbc_configs", "username")
 mypw = db_util.getDBPassword() #config.get("mysql_jdbc_configs", "password")
@@ -21,6 +22,7 @@ myport = db_util.getDBPort()
 results_path = db_util.getResultsPath()
 notify = db_util.getNotify()
 contacts = db_util.getPubcrawlContact()
+"""
 
 totalEdges = 0
 features_hash = {}
@@ -38,17 +40,25 @@ def is_numeric(val):
 		return False
 	return True
 
-if (not os.path.exists("./results")):
-	os.system("mkdir results")
-
 def process_feature_alias(alias):
 	data = alias.split(':')
 	if len(data) > 4 and len(data[3]) > 3:
 		data[3] = data[3][3:]
 	return data
 
-def process_feature_matrix(matrix_file):
+def process_feature_matrix(matrix_file, config):
 	global features_hash, dataset_label
+
+	print " "
+	print " in parse_pairwise.process_feature_matrix ... dataset_label = <%s> " % ( dataset_label )
+	print " "
+
+	mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
+	myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
+	mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
+	myhost = db_util.getDBHost(config)
+	myport = db_util.getDBPort(config)
+	results_path = db_util.getResultsPath(config)
 	feature_matrix_file = open(matrix_file)
 	feature_table = "tcga." + dataset_label + "_features"  
 	fshout = open('./results/load_features_' + dataset_label + '.sh','w')
@@ -89,15 +99,19 @@ def process_feature_matrix(matrix_file):
 	print "processing done, running bulk load feature data to mysql %s" %time.ctime()
 	return fshout
 
-"""
-Add in flag to indicate whether to call generate tsv file for pubcrawl
-"""
-def process_feature_edges(pairwised_file, do_pubcrawl):
+def process_pairwise_edges(pairwised_file, config):
 	"""
 	Include edges where nodes are in original set, direction does not matter so do not populate edge if A->B if B->A are in hash
 	Expected tab delimited columns are nodeA nodeB pvalue correlation numNonNA	
 	"""
 	global features_hash, dataset_label, edges_hash, totalEdges, max_pv, max_pv_corr
+	mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
+	myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
+	mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
+	myhost = db_util.getDBHost(config)
+	myport = db_util.getDBPort(config)
+	do_pubcrawl = db_util.getDoPubcrawl(config)
+	results_path = db_util.getResultsPath(config)
 	edges_file = open(pairwised_file)
 	edge_table = "tcga.mv_" + dataset_label + "_feature_networks" 
         efshout = open('./results/load_edges_' + dataset_label + '.sh','w')
@@ -154,7 +168,7 @@ def process_feature_edges(pairwised_file, do_pubcrawl):
 				pvf2 = tokens[10]
 				edges_out_re.write(nodeA + "\t" + "\t".join(dataA) + "\t" + nodeB + "\t" + "\t".join(dataB) + "\t" + correlation + "\t" + numna + "\t" + pv + "\t" + bonf + "\t" + pv_bonf + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\n")
 				#edges_out_tsv.write(nodeB + "\t" + "\t".join(dataB) + "\t" + nodeA + "\t" + "\t".join(dataA) + "\t" + correlation + "\t" + numna + "\t" + pv + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\n")
-				if (do_pubcrawl == 1):
+				if (do_pubcrawl == "yes"):
 					#call andrea code
 					getPairwiseInfo.processLine(line, edges_out_pc)
 					pcc += 1
@@ -173,7 +187,7 @@ def process_feature_edges(pairwised_file, do_pubcrawl):
 	efshout.write("\ncommit;")
 	efshout.write("\nEOFMYSQL")
 	efshout.close()
-	#if (do_pubcrawl == 1 and db_util.getDoSmtp() == 'yes'):
+	if (do_pubcrawl == 1 and db_util.getDoSmtp() == 'yes'):
 		smtp.main("jlin@systemsbiology.net", contacts, "Notification - New Pairwise Associations for PubCrawl", "New pairwise associations ready for PubCrawl load\n" + edges_out_pc.name + "\n\n" + str(pcc) + " Total Edges\n\n" + edges_out_re.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "_pw \n\n")
 	return efshout
 
@@ -185,82 +199,35 @@ def getGeneInterestScore(featureStr):
 	global gene_interesting_hash
 	return gene_interesting_hash.get(featureStr)
 
-def process_pathway_associations(gsea_file_path):
-	global features_hash, dataset_label
-	gsea_file = open(gsea_file_path, 'r')
-	pathway_hash = {}
-	feature_pathways_table = mydb + "." + dataset_label + "_feature_pathways" 
-	gsea_sh = open('./results/load_gsea_' + dataset_label + '.sh','w')   
-	gsea_tsv_out = open('./results/gsea_processed_' + dataset_label + '.tsv','w')     
-	for line in gsea_file:
-		tokens = line.strip().split('\t')
-		pathway = tokens[0].split(":")[2]
-		feature = tokens[1]
-		pvalue = tokens[2]
-		pathway_type = ""
-		pathway_name = ""
-		if (not pathway_hash.get(tokens[0])):
-			pathway_hash[tokens[0]] = tokens[0]
-		if (pathway.find("KEGG") != -1):
-			pathway_type = "KEGG"
-			pathway_name = pathway.replace("KEGG_", "")
-		elif (pathway.find("WIKIPW") != -1):
-			pathway_type = "WIKIPW"
-			pathway_name = pathway.replace("_WIKIPW", "")
-		elif (pathway.find("BIOCARTA") != -1):
-			pathway_type = "BIOCARTA"
-			pathway_name = pathway.replace("BIOCARTA", "")
-		else:
-			pathway_type = ""
-			pathway_name = pathway
-		gsea_tsv_out.write(str(features_hash.get(feature)) + "\t" + feature + "\t" + pathway_name + "\t" + pathway_type + "\t" + pvalue + "\n")
-	#print "%i Unique pathways" %(len(pathway_hash))				
-	gsea_file.close()
-	gsea_tsv_out.close()
-	gsea_sh.write("#!/bin/bash\n")
-	gsea_sh.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
-	gsea_sh.write("load data local infile '" + gsea_tsv_out.name + "' replace INTO TABLE " + feature_pathways_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';")
-	gsea_sh.write("\ncommit;")
-	gsea_sh.write("\nEOFMYSQL")
-	gsea_sh.close()	
-	#os.system("sh " + gsea_sh.name)
-	print "done loading pathway associations %s" %(time.ctime())
-	return gsea_sh
-
-def subprocessAssociationIndex(assoc_file_path, assoc_type, association_index_out):
-	global features_hash
-	assoc_file = open(assoc_file_path,'r')
-	for line in assoc_file:
-		tokens = line.strip().split("\t")
-		feature = tokens[0]
-		score = tokens[1]
-		association_index_out.write(str(features_hash.get(feature)) + "\t" + feature + "\t" + assoc_type + "\t" + score + "\n")
-	assoc_file.close()
-	return
-
-def main(pw_label, feature_matrix, associations, dopc, insert_features):
+def main(pw_label, feature_matrix, associations, configfile, insert_features):
 	global totalEdges, dataset_label
 	dataset_label = pw_label
+
+	print " "
+	print " in parse_pairwise : dataset_label = <%s> " % dataset_label
+	print " "
+
+	config = db_util.getConfig(configfile)
+	results_path = db_util.getResultsPath(config)
+	notify = db_util.getNotify(config)
 	if (not os.path.exists(results_path + "/" + dataset_label)):
 		os.mkdir(results_path + "/" + dataset_label)
-	features_sh = process_feature_matrix(feature_matrix)
+	features_sh = process_feature_matrix(feature_matrix, config)
 	if (insert_features == 1):
 		os.system("sh " + features_sh.name)
 	print "Done with processing features, processing pairwise edges %s " %(time.ctime())
-	edges_sh = process_feature_edges(associations, dopc)
+	edges_sh = process_pairwise_edges(associations, config)
 	os.system("sh " + edges_sh.name)
-	if (db_util.getDoSmtp() == 'yes'):
+	if (db_util.getDoSmtp(config) == 'yes'):
 		smtp.main("jlin@systemsbiology.net", notify, "Notification - New Pairwise Associations loaded for All Pairs Significance Test", "New pairwise associations loaded into All Pairs Significance Test for " + pw_label + "\n\n" + str(totalEdges) + " Total Edges\n\nFeature matrix file:" + feature_matrix + "\nPairwise associations file:" + associations + "\n")
 	print "Done with processing pairwise edges %s " %(time.ctime())
 
 if __name__ == "__main__":
 	print "Parsing features kicked off %s" %time.ctime()
-	#edge_table_label
 	if (len(sys.argv) < 5):
-        	print 'Usage is py2.6 parse_pairwise.py feature_matrix.tsv edges_matrix.tsv  dataset_label do_pubcrawl[0,1] optional[insert_features]'
+        	print 'Usage is py2.6 parse_pairwise.py feature_matrix.tsv edges_matrix.tsv  dataset_label configfile optional[insert_features]'
         	sys.exit(1)
 	insert_features = 0
 	dataset_label = sys.argv[3]
-	main(dataset_label, sys.argv[1], sys.argv[2], int(sys.argv[4]), insert_features)
-	#features_sh = process_feature_matrix(sys.argv[1], dataset_label)	
+	main(dataset_label, sys.argv[1], sys.argv[2], sys.argv[4], insert_features)
 

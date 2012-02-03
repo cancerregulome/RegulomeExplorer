@@ -8,12 +8,6 @@ import sys
 import os
 import time
 
-mydb = db_util.getDBSchema() #config.get("mysql_jdbc_configs", "db")
-myuser = db_util.getDBUser() #config.get("mysql_jdbc_configs", "username")
-mypw = db_util.getDBPassword() #config.get("mysql_jdbc_configs", "password")
-myhost = db_util.getDBHost() #config.get("mysql_jdbc_configs", "host")
-myport = db_util.getDBPort()
-
 features_hash = {}
 gene_interesting_hash = {}
 dataset_label = ""
@@ -30,7 +24,7 @@ def is_numeric(val):
 if (not os.path.exists("./results")):
 	os.system("mkdir results")
 
-def populate_sample_meta(sampleList):
+def populate_sample_meta(sampleList, config):
 	"""
 	sampleList needs to be a list of patients
 	"""
@@ -39,7 +33,7 @@ def populate_sample_meta(sampleList):
 	cancer_type = ""
 	clabel = ""
 	for label in labelTokens:
-		for ct in db_util.cancer_type_list:
+		for ct in db_util.getCancerTypes(config):
 			if (label == ct):
 				cancer_type = cancer_type + label + "_"	
 	cancer_type = cancer_type[0:-1]
@@ -48,13 +42,24 @@ def populate_sample_meta(sampleList):
 	for sam in sampleList:
 		#REPLACE INTO `tcga`.`SampleMeta` (sample_key,cancer_type,dataset_label,matrix_col_offset,meta_json) VALUES ('a' /*not nullable*/,'s' /*not nullable*/,'s' /*not nullable*/,0,'s');		
 		insertSampleSql = "replace into tcga.sample_meta (sample_key,cancer_type,dataset_label,matrix_col_offset,meta_json) values ('%s', '%s', '%s', '%i', '%s');" %(sam, cancer_type,clabel,samColIndex,"{age:X,status:someStatus,comments:some comments}")
-		#print insertSampleSql
-		db_util.executeInsert(insertSampleSql)
+		db_util.executeInsert(config, insertSampleSql)
 		samColIndex += 1
 	print "Done populating sample list for " + dataset_label
 
-def process_feature_matrix(matrix_file, persist_sample_meta):
-	global features_hash, dataset_label
+def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, configfile):	
+	global features_hash
+	config = db_util.getConfig(configfile)
+	mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
+	myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
+	mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
+	myhost = db_util.getDBHost(config) #config.get("mysql_jdbc_configs", "host")
+	myport = db_util.getDBPort(config)
+
+	## PROBLEM ... when I get here I do not have the dataset_label anymore !!!???
+	print " "
+	print " in parse_features_rfex.process_feature_matrix ... dataset_label = <%s> " % dataset_label
+	print " "
+
 	if (not os.path.isfile(matrix_file)):
 	        print matrix_file + " does not exist; unrecoverable ERROR"
 		sys.exit(-1)
@@ -70,11 +75,10 @@ def process_feature_matrix(matrix_file, persist_sample_meta):
 		tokens = line.split('\t')
 		if (featureId == 0 and persist_sample_meta == 1):                
                 	sampleIds = ":".join(tokens[1:len(tokens)-1])
-			populate_sample_meta(sampleIds.split(":"))				
+			populate_sample_meta(sampleIds.split(":"), config)				
 			sampleOutfile.write(sampleIds + "\n");
 			featureId += 1
 			continue
-			#exit(1)
 		if (not features_hash.get(tokens[0])):
 			valuesArray = []
 			alias = tokens[0]
@@ -118,11 +122,17 @@ def getGeneInterestScore(featureStr):
 	global gene_interesting_hash
 	return gene_interesting_hash.get(featureStr)
  
-def process_gexp_interest_score(interest_score_file):
+def process_gexp_interest_score(interest_score_file, configfile):
 	"""
 	Requires valid full path gexp_interest file, extend this to accept other feature specific values, but schema needs to be defined
 	"""
 	global features_hash, dataset_label
+	config = db_util.getConfig(configfile)
+        mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
+        myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
+        mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
+        myhost = db_util.getDBHost(config) #config.get("mysql_jdbc_configs", "host")
+        myport = db_util.getDBPort(config)
         print "Begin processing feature specific values %s" %(time.ctime())
 	gexp_interesting_file = open(interest_score_file)
         gexp_sh = open('./results/load_gexp_interesting_' + dataset_label + '.sh','w')
@@ -141,8 +151,15 @@ def process_gexp_interest_score(interest_score_file):
 	print "finished feature matrix bulk upload  %s" %(time.ctime())
 	return gexp_sh
 
-def process_pathway_associations(gsea_file_path):
+def process_pathway_associations(gsea_file_path, configfile):
 	global features_hash, dataset_label
+	config = db_util.getConfig(configfile)
+        mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
+        myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
+        mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
+        myhost = db_util.getDBHost(config) #config.get("mysql_jdbc_configs", "host")
+        myport = db_util.getDBPort(config)
+
 	gsea_file = open(gsea_file_path, 'r')
 	pathway_hash = {}
 	feature_pathways_table = mydb + "." + dataset_label + "_feature_pathways" 
@@ -193,7 +210,7 @@ def subprocessAssociationIndex(assoc_file_path, assoc_type, association_index_ou
 	assoc_file.close()
 	return
 
-def processGeneAssociation(datapath):
+def processGeneAssociation(datapath, configfile):
 	"""
 	-rwxr-xr-- 1 terkkila cncrreg    624887 May 31 00:20 GEXP_CLIN_association_index.tsv*
 	-rwxr-xr-- 1 terkkila cncrreg    642188 May 31 00:16 GEXP_CNVR_association_index.tsv*
@@ -203,6 +220,13 @@ def processGeneAssociation(datapath):
 	-rwxr-xr-- 1 terkkila cncrreg    629823 May 31 00:21 GEXP_SAMP_association_index.tsv*
 	"""
 	global features_hash, dataset_label
+	config = db_util.getConfig(configfile)
+        mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
+        myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
+        mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
+        myhost = db_util.getDBHost(config) #config.get("mysql_jdbc_configs", "host")
+        myport = db_util.getDBPort(config)
+
 	association_index_table = mydb + "." + dataset_label + "_association_index"
 	association_index_out = open('./results/association_index_processed_' + dataset_label + '.tsv','w')
 	association_index_sh = open('./results/load_association_index_' + dataset_label + '.sh','w')
@@ -230,22 +254,28 @@ def processGeneAssociation(datapath):
 	os.system("sh " + association_index_sh.name)
 
 if __name__ == "__main__":
+	global datast_label
 	print "Parsing features kicked off %s" %time.ctime()
 	if (len(sys.argv) < 3):
         	print 'Usage is py2.6 parse_features_rfex.py data_matrix.tsv dataset_label'
         	sys.exit(1)
 	dataset_label = sys.argv[2]
-	feature_table = mydb + "." + dataset_label + "_features"
-        sample_table = mydb + "." + dataset_label + "_patients"	
-	sh = process_feature_matrix(sys.argv[1], 1)	
+	
+	print " "
+	print " in parse_features_rfex : dataset_label = <%s> " % dataset_label
+	print " "
+
+	configfile = sys.argv[3]
+	sh = process_feature_matrix(dataset_label, sys.argv[1], 1, configfile)	
 	os.system("sh " + sh.name)
+	
 	path = sys.argv[2].rsplit("/", 1)[0] 
 	if (os.path.exists(path + "/GEXP_interestingness.tsv")):
-		sh = process_gexp_interest_score(path + "/GEXP_interestingness.tsv")	
+		sh = process_gexp_interest_score(path + "/GEXP_interestingness.tsv", configfile)	
 		os.system("sh " + sh.name)
 	if (os.path.exists(path + "/gsea_associations.tsv")):
-		sh = process_pathway_associations(path + "/gsea_associations.tsv")
+		sh = process_pathway_associations(path + "/gsea_associations.tsv", configfile)
 		os.system("sh " + sh.name)
-	processGeneAssociation(path)		
+	processGeneAssociation(path,configfile)		
 	print "Done with processing feature relating loads %s " %(time.ctime())
 
