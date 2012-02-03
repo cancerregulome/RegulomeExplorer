@@ -252,6 +252,7 @@ function loadNetworkDataSingleFeature(params) {
     ['t','p'].forEach(function(f){
         var obj = vq.utils.VisUtils.clone(query_obj);
         obj[f +'_label'] = params['t_label'];
+        obj[f +'_type'] = params['t_type'];
         var network_query=buildSingleFeatureGQLQuery(obj, f == 't' ? re.ui.feature1.id : re.ui.feature2.id);
         var association_query_str = '?' + re.params.query + network_query + re.params.json_out;
         var association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;

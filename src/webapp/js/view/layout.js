@@ -208,12 +208,27 @@ function openBrowserTab(url) {
     new_window.focus();
 }
 
-
 /*
  Filters
  */
 
+ function invalidIsolateRequest(request_obj){
+     var invalid = true;
+     if (request_obj.t_type == 'CLIN' && request_obj.t_label != '*') {
+         invalid = false;
+     }
+     else if (request_obj.t_label != '' && 
+        request_obj.t_label.indexOf('*') < 0 && 
+        request_obj.t_label.indexOf('%') < 0) 
+        { invalid = false; }
+     return invalid;
+ }
+
 function manualFilterRequest() {
+    if (Ext.getCmp('isolate').checked && invalidIsolateRequest(getFilterSelections())) {
+        Ext.Msg.alert('Invalid Request','An exact feature label must be specified.');
+        return;
+    }
     re.state.query_cancel = false;
     preserveState();
     requestFilteredData();
@@ -410,7 +425,7 @@ function loadSelectedDataset() {
         hideDatasetWindow();
         Ext.getCmp('filter_parent').setTitle( 'Filtering \'' + selected_description + '\'');
     } else {
-        Ext.MessageBox.alert('Dataset not selected','Select a dataset to load.');
+        Ext.Msg.alert('Dataset not selected','Select a dataset to load.');
     }
 }
 
@@ -854,6 +869,37 @@ Ext.onReady(function() {
                                     value: 'Select'
                                 }]
                         }]
+                    },{
+                        id:'helpMenu',
+                        text:'Help',
+                        labelStyle: 'font-weight:bold;',
+                        menu:[{
+                                text:'User Guide',
+                                handler: userGuideHandler
+                            },{
+                              text: 'Circular Ideogram'  
+                            },{
+                                text:'Legends'
+                            },
+                            {
+                                handler: openIssueHandler,
+                                text:'Submit an Issue/Bug'
+                            }]
+                    }, {
+                        id:'aboutMenu',
+                        text:'About',                        
+                        labelStyle: 'font-weight:bold;',
+                        menu:[{
+                                text:'CSACR',
+                                handler: function() {openBrowserTab('http://www.cancerregulome.org/')}
+                            },
+                            {
+                                handler: openCodeRepository,
+                                text:'Code Repository'
+                            },{
+                                text:'Analyses'
+                            }
+                            ]                    
                     }]
             },
             { region:'center',
@@ -871,6 +917,20 @@ Ext.onReady(function() {
         ],
         renderTo:Ext.getBody()
     });
+
+    function userGuideHandler(item) {
+        openBrowserTab('/help/re/user_guide.html');
+    }
+       function circularViewHelpHandler(item) {
+        openBrowserTab('/help/re/user_guide.html');
+    }
+
+    function openIssueHandler(item){
+        openBrowserTab('http://code.google.com/p/regulome-explorer/issues/entry');
+    }
+     function openCodeRepository(item){
+        openBrowserTab('http://code.google.com/p/regulome-explorer/');
+    }
 
     function modeHandler(item){
         switch(item.getId()) {
