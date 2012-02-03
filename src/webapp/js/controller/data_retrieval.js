@@ -211,7 +211,7 @@ function loadNetworkDataSingleFeature(params) {
     }
 
     function loadFailed() {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','sf_associations',{msg:'Retrieval Timeout'}));
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail','associations',{msg:'Retrieval Timeout'}));
     }
 
     function handleNetworkQuery(response) {

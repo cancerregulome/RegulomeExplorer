@@ -53,7 +53,7 @@ function generateNetworkDefinition(responses) {
         var f2id =    row.alias2 + '';
 
         if (node1.length < 7 || node2.length < 7) {
-            console.error('Feature data is malformed. RF-ACE features consist of 7 required properties.');        
+            console.error('Feature data is malformed. RF-ACE features consist of 7 required properties.');
         }
 
         var source_id = (source_map[f1id] === undefined ? (source_array.push({
@@ -76,10 +76,10 @@ function generateNetworkDefinition(responses) {
         var obj = {id:f1id + '-' + f2id, label : f1id + ' -> ' + f2id, source:f1id ,target: f2id};
          re.model.association.types.forEach(function(assoc) {
                     if (row[assoc.query.id] === undefined) {
-                        console.error('Association attribute is malformed. Expected attribute with label \'' + assoc.query.id + '\'');        
+                        console.error('Association attribute is malformed. Expected attribute with label \'' + assoc.query.id + '\'');
                     }
                 obj[assoc.ui.grid.store_index] = row[assoc.query.id];
-            })
+            });
         return obj;
         // return {id:f1id + '-' + f2id, label : f1id + ' -> ' + f2id, source:f1id ,target: f2id,
         //     pvalue : row.pvalue,importance : row.importance, correlation:row.correlation};
@@ -98,7 +98,7 @@ function parseNetwork(responses) {
     }
 
     function loadFailed() {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('load_fail','associations',{msg:'Error in loading assocation data'}));
+        vq.events.Dispatcher.dispatch(new vq.events.Event('load_fail','associations',{msg:'Error in loading association data'}));
     }
 
     var parsed_data = {network : null,unlocated : null, features : null,unlocated_features:null,located_features:null};
@@ -110,24 +110,24 @@ function parseNetwork(responses) {
         var node2 = row.alias2.split(':');
 
         if (node1.length < 7 || node2.length < 7) {
-            console.error('Feature data is malformed. RF-ACE features consist of 7 required properties.');        
+            console.error('Feature data is malformed. RF-ACE features consist of 7 required properties.');
         }
 
            var label_mod1 = node1.length >=8 ? node1[7] : '';
            var label_mod2 = node2.length >=8 ? node2[7] : '';
            var obj =  {node1: {id : row.alias1, source : node1[1], label : node1[2], chr : node1[3].slice(3),
                label_mod : label_mod1,
-               start: node1[4] != '' ? parseInt(node1[4]) : -1, 
+               start: node1[4] != '' ? parseInt(node1[4]) : -1,
                end:node1[5] != '' ? parseInt(node1[5]) : parseInt(node1[4])},
             node2: {id : row.alias2, source : node2[1], label : node2[2], chr : node2[3].slice(3),
                 label_mod : label_mod2,
-                start: node2[4] != '' ? parseInt(node2[4]) : -1, 
+                start: node2[4] != '' ? parseInt(node2[4]) : -1,
                 end:node2[5] != '' ? parseInt(node2[5]) : parseInt(node2[4])}
             };
              re.model.association.types.forEach(function(assoc) {
                     if (row[assoc.query.id] === undefined) {
-                        console.error('Association attribute is malformed. Expected attribute with label \'' + assoc.query.id + '\'');        
-                    }                
+                        console.error('Association attribute is malformed. Expected attribute with label \'' + assoc.query.id + '\'');
+                    }
                 obj[assoc.ui.grid.store_index] = row[assoc.query.id];
             });
         return obj;
@@ -167,7 +167,7 @@ function parseSFValues(responses) {
     }
 
     function loadFailed() {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('load_fail','sf_associations',{msg:'Error in loading assocation data'}));
+        vq.events.Dispatcher.dispatch(new vq.events.Event('load_fail','associations',{msg:'Zero mappable features found.'}));
     }
 
        var data = [];
@@ -177,7 +177,7 @@ try {
            var label_mod = node.length >=8 ? node[7] : '';
            var obj =  {id : row.alias, source : node[1], label : node[2], chr : node[3].slice(3),
                label_mod : label_mod,
-               start: node[4] != '' ? parseInt(node[4]) : -1, 
+               start: node[4] != '' ? parseInt(node[4]) : -1,
                end:node[5] != '' ? parseInt(node[5]) : parseInt(node[4])
             };
              re.model.association.types.forEach(function(assoc) {
@@ -189,5 +189,6 @@ try {
             loadFailed();
         }
     parsed_data.features = data.filter(function(feature) { return feature.chr != '' && feature.start != '';});
-    loadComplete();
+    if (parsed_data.features.length > 0) loadComplete();
+    else loadFailed();
 }

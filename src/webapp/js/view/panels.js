@@ -81,8 +81,11 @@ vq.utils.VisUtils.extend(re.ui, {
                                         		Ext.getCmp(re.ui.feature2.id).setDisabled(checked);
                                         		if (checked) { Ext.getCmp(re.ui.feature2.id).collapse(); }
                                         		else { Ext.getCmp(re.ui.feature2.id).expand(); }
-                                        		if (checked) {Ext.getCmp('t_type').setValue('CLIN',true);}
-                                                Ext.getCmp('t_type').setDisabled(checked);
+                                        		if (checked)
+                                                Ext.getCmp('t_chr').setDisabled(checked);
+                                                Ext.getCmp('t_start').setDisabled(checked);
+                                                Ext.getCmp('t_stop').setDisabled(checked);
+                                                Ext.getCmp('t_lookup_button').setDisabled(checked);
                                         	}
                                         }
                                         },
@@ -144,6 +147,7 @@ vq.utils.VisUtils.extend(re.ui, {
                                                     },
                                                     {
                                                         xtype:'button',
+                                                        id:'t_lookup_button',
                                                         text:'Lookup',
                                                         width:50,
                                                         handler:function(evt) {
@@ -457,7 +461,7 @@ vq.utils.VisUtils.extend(re.ui, {
                                     {xtype:'combo',
                                         fieldLabel:'Filter By',
                                         displayField: 'label',
-                                        valueField:'value',
+                                        valueField:'id',
                                         id:'filter_type',
                                         mode: 'local',
                                         defaultValue:'association',
@@ -469,11 +473,11 @@ vq.utils.VisUtils.extend(re.ui, {
                                         allowBlank : false,
                                         store: {
                                             xtype: 'jsonstore',
-                                            fields:['label','value'],
+                                            fields:['label','id'],
                                             autoLoad: true,
-                                            idProperty:'value',
+                                            idProperty:'id',
                                             data:[
-                                                {  label:'Association', value:'association' },
+                                                {  label:'Association', id:'association' },
                                                 re.ui.feature1,
                                                 re.ui.feature2
                                             ]

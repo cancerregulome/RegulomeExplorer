@@ -262,10 +262,8 @@ function singlefeature_circvis(parsed_data,div) {
         "11","12","13","14","15","16","17","18","19","20","21","22","X","Y"];
     var stroke_style = re.plot.colors.getStrokeStyleAttribute();
 
-    var data = parsed_data['features'];
-
     function genome_listener(chr) {
-        var e = new vq.events.Event('render_linearbrowser','circvis',{data:parsed_data,chr:chr});
+        var e = new vq.events.Event('render_linearbrowser','circvis',{data:vq.utils.VisUtils.clone(parsed_data),chr:chr});
         e.dispatch();
     }
 
@@ -273,7 +271,7 @@ function singlefeature_circvis(parsed_data,div) {
         var chr = feature.chr;
         var start = bpToMb(feature.start) - 2.5;
         var range_length = bpToMb(feature.end) - start + 2.5;
-        var e = new vq.events.Event('render_linearbrowser','circvis',{data:parsed_data,chr:chr,start:start,range:range_length});
+        var e = new vq.events.Event('render_linearbrowser','circvis',{data:vq.utils.VisUtils.clone(parsed_data),chr:chr,start:start,range:range_length});
         e.dispatch();
     }
 
@@ -291,19 +289,32 @@ function singlefeature_circvis(parsed_data,div) {
             vq.utils.VisUtils.extend(scatterplot_tooltips, assoc.vis.tooltip.entry);
         });
 
+    var scatterplot_data = parsed_data['features'];
+
    var field = re.display_options.circvis.rings.pairwise_scores.value_field;
     var association  = re.model.association.types[re.model.association_map[field]];
     var settings = association.vis.scatterplot;
-    if (!settings.values) { settings.values = {};}
-   var min = settings.values.min === undefined ? pv.min(data, function(o) { return o[field];}) : settings.values.min;
-   var max = settings.values.max === undefined ? pv.max(data, function(o) { return o[field];}) : settings.values.max;
+    if (settings.values === undefined) { settings.values = {};}
+   var min = settings.values.min === undefined ? pv.min(scatterplot_data, function(o) { return o[field];}) : settings.values.min;
+   var max = settings.values.max === undefined ? pv.max(scatterplot_data, function(o) { return o[field];}) : settings.values.max;
    var scale_type = settings.scale_type;
-    var score_color_scale = pv.Scale.linear(min,max).range('blue','red');
 
-        
     var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
     var ticks = vq.utils.VisUtils.clone(parsed_data['features']);
 
+    var floor = settings.values.floor === undefined ? min : settings.values.floor;
+    var ceil = settings.values.ceil === undefined ? max : settings.values.ceil;
+    if ( floor != min || ceil != max)  {
+        scatterplot_data = parsed_data['features'].map(function(obj){
+        var return_obj = vq.utils.VisUtils.clone(obj);
+        return_obj[field+'_plot'] = Math.max(floor,Math.min(return_obj[field],ceil));
+             return return_obj;
+    });
+        field = field+'_plot';
+    }
+    min = floor;
+    max = ceil;
+    var score_color_scale = pv.Scale.linear(min,max).range('blue','red');
 
 
     var data = {
@@ -375,7 +386,7 @@ function singlefeature_circvis(parsed_data,div) {
                     type :   'scatterplot'
                 },
                 DATA:{
-                    data_array : data,
+                    data_array : scatterplot_data,
                     value_key : field
                 },
                 OPTIONS: {
@@ -421,7 +432,7 @@ function wedge_plot(parsed_data,div) {
     var stroke_style = re.plot.colors.getStrokeStyleAttribute();
 
     function genome_listener(chr) {
-        var e = new vq.events.Event('render_linearbrowser','circvis',{data:parsed_data,chr:chr});
+        var e = new vq.events.Event('render_linearbrowser','circvis',{data:vq.utils.VisUtils.clone(parsed_data),chr:chr});
         e.dispatch();
     }
 
@@ -429,7 +440,7 @@ function wedge_plot(parsed_data,div) {
         var chr = feature.chr;
         var start = bpToMb(feature.start) - 2.5;
         var range_length = bpToMb(feature.end) - start + 2.5;
-        var e = new vq.events.Event('render_linearbrowser','circvis',{data:parsed_data,chr:chr,start:start,range:range_length});
+        var e = new vq.events.Event('render_linearbrowser','circvis',{data:vq.utils.VisUtils.clone(parsed_data),chr:chr,start:start,range:range_length});
         e.dispatch();
     }
 
@@ -449,13 +460,13 @@ function wedge_plot(parsed_data,div) {
         unlocated_tooltip_items = {};
             unlocated_tooltip_items[re.ui.feature1.label] =  function(feature) { return feature.sourceNode.source + ' ' + feature.sourceNode.label +
                 (feature.sourceNode.chr ? ' Chr'+ feature.sourceNode.chr : '') +
-                (feature.sourceNode.start ? ' '+ feature.sourceNode.start : '') +
-                (feature.sourceNode.end ? '-'+ feature.sourceNode.end : '')  + ' '+
+                (feature.sourceNode.start > -1 ? ' '+ feature.sourceNode.start : '') +
+                (!isNaN(feature.sourceNode.end) ? '-'+ feature.sourceNode.end : '')  + ' '+
                 feature.sourceNode.label_mod;};
             unlocated_tooltip_items[re.ui.feature2.label] = function(feature) { return feature.targetNode.source + ' ' + feature.targetNode.label +
                 (feature.targetNode.chr ? ' Chr'+ feature.targetNode.chr : '') +
-                (feature.targetNode.start ? ' '+ feature.targetNode.start : '') +
-                (feature.targetNode.end ? '-'+ feature.targetNode.end : '')  + ' ' +
+                (feature.targetNode.start > -1 ? ' '+ feature.targetNode.start : '') +
+                (!isNaN(feature.targetNode.end) ? '-'+ feature.targetNode.end : '')  + ' ' +
                 feature.targetNode.label_mod;};
 
         re.model.association.types.forEach( function(assoc) { 
@@ -471,7 +482,7 @@ function wedge_plot(parsed_data,div) {
 
     var unlocated_map = vq.utils.VisUtils.clone(parsed_data['unlocated']).filter(function(link) { return  link.node1.chr != '';})
         .map(function(link) {
-            var node =  vq.utils.VisUtils.extend(link.node2,{ chr:link.node1.chr, start:link.node1.start,end:link.node1.end, value: 0});
+            var node =  { chr:link.node1.chr, start:link.node1.start,end:link.node1.end, value: 0};
             node.sourceNode = vq.utils.VisUtils.extend({},link.node1); node.targetNode = vq.utils.VisUtils.extend({},link.node2);
             types.forEach(function(assoc) { 
             node[assoc] = link[assoc];
@@ -479,7 +490,7 @@ function wedge_plot(parsed_data,div) {
             return node;
         }).concat(vq.utils.VisUtils.clone(parsed_data['unlocated']).filter(function(link) { return  link.node2.chr != '';})
         .map(function(link) {
-            var node =  vq.utils.VisUtils.extend(link.node1,{ chr:link.node2.chr, start:link.node2.start,end:link.node2.end, value: 0});
+            var node =  { chr:link.node2.chr, start:link.node2.start,end:link.node2.end, value: 0};
             node.sourceNode = vq.utils.VisUtils.extend({},link.node1); node.targetNode = vq.utils.VisUtils.extend({},link.node2);
             types.forEach(function(assoc) { 
             node[assoc] = link[assoc];
@@ -959,7 +970,7 @@ function scatterplot_draw(params) {
             valuecolumnid: 'patient_id',
             xcolumnlabel : f1label,
             ycolumnlabel : f2label,
-            valuecolumnlabel : 'Sample Id',
+            valuecolumnlabel : '',
             tooltip_items : tooltip,
             show_points : true,
             regression :regression_type
@@ -982,7 +993,7 @@ function scatterplot_draw(params) {
             valuecolumnid: 'patient_id',
             xcolumnlabel : f1label,
             ycolumnlabel : f2label,
-            valuecolumnlabel : 'Sample Id',
+            valuecolumnlabel : '',
             tooltip_items : tooltip,
             show_points : true,
             radial_interval : 7
@@ -1006,7 +1017,7 @@ function scatterplot_draw(params) {
             valuecolumnid: 'patient_id',
             xcolumnlabel : f1label,
             ycolumnlabel : f2label,
-            valuecolumnlabel : 'Sample Id',
+            valuecolumnlabel : '',
             tooltip_items : tooltip,
             radial_interval : 7,
             regression :regression_type

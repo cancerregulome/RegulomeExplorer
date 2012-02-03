@@ -9,6 +9,7 @@ function registerLayoutListeners() {
         re.state.once_loaded=true;
     });
     d.addListener( 'load_fail','associations',function(obj){
+        Ext.Msg.alert('Query failed',obj.msg);
         re.windows.masks.network_mask.hide();
     });
     d.addListener( 'query_fail','associations',function(obj){
@@ -45,7 +46,9 @@ function registerLayoutListeners() {
         failedLabelLookup(obj);
     });
     d.addListener('query_fail','features', function(obj) {
+        Ext.Msg.alert('Query failed',obj.msg);
         re.windows.masks.details_window_mask.hide();
+        re.windows.details_window.hide();
     });
     d.addListener('query_cancel','associations',function(data) {
         re.state.query_cancel = true;
@@ -78,7 +81,7 @@ function checkDatasetURL()   {
 
 function checkFormURL() {
     var json = extractURL();
-    setFormState(json);
+    if (json != null) setFormState(json);
 }
 
 function setFormState(json) {

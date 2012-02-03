@@ -40,7 +40,10 @@ re.model.association =  {
 					entry : { ' Importance' : 'importance'}
 				},
                 scatterplot : {
-                    scale_type :'linear'
+                    scale_type :'linear',
+                    values : {
+
+                    }
                 }
 			}	
 		},

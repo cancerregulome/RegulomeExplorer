@@ -197,7 +197,7 @@ vq.utils.VisUtils.extend(re, {
         'GNAB' : 'Gene Aberration',
         'SAMP' : 'Tumor Sample',
         'PRDM' : 'Paradigm Feature',
-        'RPPA'  : 'Reverse Phase Protein Array'
+        'RPPA'  : 'RPPA'
     };
      re.plot.all_source_list = pv.blend([re.plot.locatable_source_list,re.plot.unlocatable_source_list]);
      re.plot.all_source_map = pv.numerate(re.plot.all_source_list);
