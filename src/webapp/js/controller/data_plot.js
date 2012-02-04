@@ -5,12 +5,12 @@ function registerPlotListeners() {
     d.addListener('data_ready','associations',function(data) {
         if (re.state.query_cancel) { return;}
         renderCircleData(data);
-        renderCircleLegend();
+        renderCircleLegend('top-right');
     });
          d.addListener('data_ready','sf_associations',function(data) {
         if (re.state.query_cancel) { return;}
         renderSFCircleData(data);
-        renderCircleLegend('top-right');
+        renderCircleLegend('center');
     });
     d.addListener( 'data_ready','graph',function(data) {
         var obj = {
@@ -115,7 +115,7 @@ function generateColorMaps(dataset_labels) {
     var current_data = re.plot.all_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
     var current_map = pv.numerate(current_data);
 
-    re.plot.colors.node_colors = function(source) { return re.plot.colors.source_color_scale(current_map[source]);};
+    //re.plot.colors.node_colors = function(source) { return re.plot.colors.source_color_scale(current_map[source]);};
     re.plot.colors.link_sources_colors = function(link) { return re.plot.link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
 }
 
@@ -125,12 +125,18 @@ function renderCircleLegend(anchor) {
 function renderLinearLegend(anchor) {
     legend_draw(document.getElementById('linear-legend-panel'));
 }
+
 function renderCircleData(data) {
+   Ext.getCmp('circle-colorscale-panel').el.dom.innerHTML = '';
     wedge_plot(data, document.getElementById('circle-panel'));
 }
 
 function renderSFCircleData(data) {
     singlefeature_circvis(data, document.getElementById('circle-panel'));
+    var field = re.display_options.circvis.rings.pairwise_scores.value_field;
+    var association  = re.model.association.types[re.model.association_map[field]];
+
+    colorscale_draw( association,'circle-colorscale-panel');
 }
 
 function renderLinearData(obj) {
@@ -151,7 +157,47 @@ function initiateDetailsPopup(link) {
     e.dispatch();
 }
 
-function legend_draw(div) {
+
+
+function colorscale_draw(association_obj, div) {
+
+    var width = 180;
+    var vis= new pv.Panel()
+        .top(10)
+        .left(10)
+        .height(70)
+        .width(width)
+        .strokeStyle('black')
+        .lineWidth(1)
+        .canvas(div);
+    var x_axis = pv.Scale.linear.apply(pv.Scale,association_obj.vis.scatterplot.color_scale.domain()).range(0,width-20);
+    var legend = vis.add(pv.Panel)
+        .left(10)
+        .right(10)
+        .strokeStyle('black')
+        .lineWidth(1)
+        .bottom(30)
+        .height(30);
+    legend.add(pv.Image)
+        .image(association_obj.vis.scatterplot.color_scale.by(function(x,y){ return x_axis.invert(x);}));
+
+    legend.add(pv.Rule)
+        .data(x_axis.ticks(2))
+        .left(x_axis)
+        .strokeStyle('#000')
+        .lineWidth(1)
+        .anchor('bottom').add(pv.Label)
+        .font('10px bold Courier, monospace')
+        .text(x_axis.tickFormat);
+
+    vis.anchor('bottom').add(pv.Label)
+        .text(association_obj.label);
+
+    vis.render();
+
+}
+
+function legend_draw(div,anchor) {
 
     var dataset_labels = re.ui.getDatasetLabels();
         var source_map = pv.numerate(dataset_labels['feature_sources'], function(row) {return row.source;});
@@ -159,34 +205,38 @@ function legend_draw(div) {
         var current_data = re.plot.all_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
         var current_map = pv.numerate(current_data);
 
-       var anchor = 'top-right';
+       var anchor = anchor || 'top-right';
     var width=800, height=800;
+    var legend_height = (30 + current_locatable_data.length * 13), legend_width = 150;
     var top = 20, left = 0;
-    var legend_height = (30 + current_data.length * 13), legend_width = 150;;
-
     if (arguments[1] != undefined) {anchor = arguments[1];}
     switch(anchor) {
         case('center'):
-            top = (height / 2) - (legend_height / 2);
-            left = (width / 2) - (legend_width / 2);
+                    Ext.getCmp('circle-legend-panel').setPosition(375,330);
+                    Ext.getCmp('circle-legend-panel').doLayout();
         break;
         case('top-right'):
+                Ext.getCmp('circle-legend-panel').setPosition(880,20);
+                Ext.getCmp('circle-legend-panel').doLayout();
         default:
         break;
     }
 
 
-    re.plot.colors.node_colors = function(source) { return re.plot.colors.source_color_scale(current_map[source]);};
+
+    //re.plot.colors.node_colors = function(source) { return re.plot.colors.source_color_scale(current_map[source]);};
     re.plot.colors.link_sources_colors = function(link) { return re.plot.link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
 
     var vis= new pv.Panel()
-        .width(legend_width)
-        .height(legend_height)
         .left(left)
         .top(top)
+
+        .width(legend_width)
+        .height(legend_height)
         .lineWidth(1)
         .strokeStyle('black')
         .canvas(div);
+
 
     var drawPanel = vis.add(pv.Panel)
         .top(20)
@@ -211,7 +261,7 @@ function legend_draw(div) {
         .width(12)
         .top(1)
         .bottom(1)
-        .fillStyle(function(type) { return re.plot.colors.source_color_scale(re.plot.locatable_source_map[type]);});
+        .fillStyle(function(type) { return re.plot.colors.node_colors(type);});
     entry.add(pv.Label)
         .text(function(id) { return re.label_map[id] || id;})
         .bottom(0)
@@ -219,37 +269,6 @@ function legend_draw(div) {
         .textAlign('left')
         .textBaseline('bottom')
         .font("11px helvetica");
-
-    // var link_panel = drawPanel.add(pv.Panel)
-    //     .top(80)
-    //     .bottom(10)
-    //     .left(10);
-    // drawPanel.add(pv.Label)
-    //     .top(80)
-    //     .textBaseline('bottom')
-    //     .left(12)
-    //     .text('Links')
-    //     .font('14px helvetica');
-
-    // var link = link_panel.add(pv.Panel)
-    //     .data(pv.cross(current_data,current_data))
-    //     .top(function() { return this.index*12;})
-    //     .height(12);
-
-    // link.add(pv.Bar)
-    //     .left(0)
-    //     .width(12)
-    //     .top(1)
-    //     .bottom(1)
-    //     .fillStyle(function(type) { return re.plot.colors.link_sources_colors(type);});
-
-    // link.add(pv.Label)
-    //     .bottom(0)
-    //     .left(20)
-    //     .textAlign('left')
-    //     .textBaseline('bottom')
-    //     .font('11px helvetica')
-    //     .text(function(types) { return types[1] + ' -> ' + types[0];});
 
     vis.render();
 }
@@ -314,8 +333,16 @@ function singlefeature_circvis(parsed_data,div) {
     }
     min = floor;
     max = ceil;
-    var score_color_scale = pv.Scale.linear(min,max).range('blue','red');
-
+    function re_interpolate(new_domain) {
+        var old_domain  = settings.color_scale.domain(), old_range = settings.color_scale.range();
+        var scale = pv.Scale.linear(old_domain);
+        scale.range.apply(scale,new_domain);
+        var new_good_domain = old_domain.map(scale);
+        var new_scale = pv.Scale.linear.apply(pv.Scale,new_good_domain).nice();
+        new_scale.range.apply(new_scale,old_range);
+        settings.color_scale= new_scale;
+    }
+    re_interpolate([min,max]);
 
     var data = {
         GENOME: {
@@ -357,7 +384,7 @@ function singlefeature_circvis(parsed_data,div) {
             container : div,
             enable_pan : false,
             enable_zoom : false,
-            show_legend: true,
+            show_legend: false,
             legend_include_genome : false,
             legend_corner : 'ne',
             legend_radius  : width / 15
@@ -399,8 +426,8 @@ function singlefeature_circvis(parsed_data,div) {
                     radius : 2,
                     draw_axes : true,
                     shape:'dot',
-                    fill_style  : function(feature) {return score_color_scale(feature[field]); },
-                    stroke_style  : function(feature) {return score_color_scale(feature[field]); },
+                    fill_style  : function(feature) {return settings.color_scale(feature[field]); },
+                    stroke_style  : function(feature) {return settings.color_scale(feature[field]); },
                     tooltip_items : scatterplot_tooltips,
                     tooltip_links : {
                     'UCSC Genome Browser' :  function(feature){

@@ -37,9 +37,10 @@ function querifyLabelList(field_id,labellist) {
 }
 
 function parseLabel(label) {
-    if (label.length > 1  && (label.indexOf('*')>=0 || label.indexOf('%')>=0)) {
-        return 'like \'' + label.replace(new RegExp('[*%]', 'g'),'%25') + '\'';
+    var return_label = label.toUpperCase();
+    if (return_label.length > 1  && (return_label.indexOf('*')>=0 || return_label.indexOf('%')>=0)) {
+        return 'like \'' + return_label.replace(new RegExp('[*%]', 'g'),'%25') + '\'';
     } else {
-        return '=\'' + label + '\'';
+        return '=\'' + return_label + '\'';
     }
 }

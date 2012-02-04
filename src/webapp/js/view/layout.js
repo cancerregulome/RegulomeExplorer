@@ -33,6 +33,9 @@ function registerLayoutListeners() {
     d.addListener('data_ready','associations',function(data) {
         loadDataTableStore(data);
     });
+    d.addListener('data_ready','sf_associations',function(data) {
+        loadDataTableStore(data);
+    });
     d.addListener('render_complete','linear',function(linear){
         exposeLinearPlot();
     });
@@ -90,7 +93,7 @@ function setFormState(json) {
             json[f+'_clin'] = json[f+'_label'];
             delete json[f+'_label']
         }
-        });
+    });
     Ext.iterate(json,setComponentState)
 }
 
@@ -116,11 +119,11 @@ function removeDefaultValues(json) {
     });
     //remove all of the other default value fields
     for (var i in json) {
-            if (json[i] == null || json[i] == Ext.getCmp(i).defaultValue) {
-                delete json[i];
-            }
+        if (json[i] == null || json[i] == Ext.getCmp(i).defaultValue) {
+            delete json[i];
         }
-        return json;
+    }
+    return json;
 }
 
 
@@ -212,17 +215,17 @@ function openBrowserTab(url) {
  Filters
  */
 
- function invalidIsolateRequest(request_obj){
-     var invalid = true;
-     if (request_obj.t_type == 'CLIN' && request_obj.t_label != '*') {
-         invalid = false;
-     }
-     else if (request_obj.t_label != '' && 
-        request_obj.t_label.indexOf('*') < 0 && 
-        request_obj.t_label.indexOf('%') < 0) 
-        { invalid = false; }
-     return invalid;
- }
+function invalidIsolateRequest(request_obj){
+    var invalid = true;
+    if (request_obj.t_type == 'CLIN' && request_obj.t_label != '*') {
+        invalid = false;
+    }
+    else if (request_obj.t_label != '' &&
+        request_obj.t_label.indexOf('*') < 0 &&
+        request_obj.t_label.indexOf('%') < 0)
+    { invalid = false; }
+    return invalid;
+}
 
 function manualFilterRequest() {
     if (Ext.getCmp('isolate').checked && invalidIsolateRequest(getFilterSelections())) {
@@ -278,9 +281,9 @@ function getFilterSelections() {
         Ext.getCmp('p_stop').getValue(),
         Ext.getCmp('order').getValue(),
         Ext.getCmp('limit').getValue(),
-       Ext.getCmp('filter_type').getValue(),
+        Ext.getCmp('filter_type').getValue(),
 
-       Ext.getCmp('isolate').checked
+        Ext.getCmp('isolate').checked
     );
 }
 
@@ -295,13 +298,13 @@ function packFilterSelections() {
         limit:arguments[11],
         filter_type:arguments[12],
         isolate:arguments[13]};
-  
-        re.model.association.types.forEach(function (obj){
-          return_obj[obj.id] = Ext.getCmp(obj.id).getValue();
-            if (obj.ui.filter.component instanceof re.multirangeField)  {
-                return_obj[obj.id + '_fn'] =  Ext.getCmp(obj.id + '_fn').getValue(); 
-            }
-        });
+
+    re.model.association.types.forEach(function (obj){
+        return_obj[obj.id] = Ext.getCmp(obj.id).getValue();
+        if (obj.ui.filter.component instanceof re.multirangeField)  {
+            return_obj[obj.id + '_fn'] =  Ext.getCmp(obj.id + '_fn').getValue();
+        }
+    });
     return return_obj;
 }
 
@@ -321,14 +324,14 @@ function resetFormPanel() {
         Ext.getCmp('p_stop').reset(),
         Ext.getCmp('order').reset(),
         Ext.getCmp('limit').reset(),
-    Ext.getCmp('filter_type').reset();
+        Ext.getCmp('filter_type').reset();
 
-          re.model.association.types.forEach( function(obj){
-                Ext.getCmp(obj.id).reset();
-            if (obj.ui.filter.component instanceof re.multirangeField)  {
-                Ext.getCmp(obj.id + '_fn').reset(); 
-            }
-        });
+    re.model.association.types.forEach( function(obj){
+        Ext.getCmp(obj.id).reset();
+        if (obj.ui.filter.component instanceof re.multirangeField)  {
+            Ext.getCmp(obj.id + '_fn').reset();
+        }
+    });
 }
 
 /*
@@ -357,17 +360,43 @@ function loadListStores(dataset_labels) {
 }
 
 function loadDataTableStore(data) {
-    var mapped_data = pv.blend([data['network'],data['unlocated']]).map(function(row) {
-        var obj = {target_id: row.node1.id, target_source: row.node1.source,target_label: row.node1.label,target_chr: row.node1.chr,
-            target_start: row.node1.start,target_stop:row.node1.stop,
-            source_id: row.node2.id, source_source :row.node2.source,source_label: row.node2.label,source_chr: row.node2.chr,
-            source_start: row.node2.start,source_stop: row.node2.stop};
+    var columns =['source_id', 'source_source','source_label','source_chr','source_start','source_stop'];
+    var colModel = Ext.getCmp('data_grid').getColumnModel();
+    var load_data = [];
+    if (data['features'] != undefined) {
+        load_data = data['features'].map(function(node) {
+            var obj = {target_id: node.id, target_source: node.source,
+                target_label: node.label,target_chr: node.chr,
+                target_start: node.start,target_stop:node.stop
+            };
+            re.model.association.types.forEach(function(assoc) {
+                obj[assoc.ui.grid.store_index] = node[assoc.query.id];
+            });
+            return obj;
+        });
+
+        columns.forEach(function(col){
+            colModel.setHidden(colModel.getIndexById(col),true);
+        });
+
+    } else{
+        load_data = pv.blend([data['network'],data['unlocated']]).map(function(row) {
+            var obj = {target_id: row.node1.id, target_source: row.node1.source,target_label: row.node1.label,target_chr: row.node1.chr,
+                target_start: row.node1.start,target_stop:row.node1.stop,
+                source_id: row.node2.id, source_source :row.node2.source,source_label: row.node2.label,source_chr: row.node2.chr,
+                source_start: row.node2.start,source_stop: row.node2.stop};
             re.model.association.types.forEach(function(assoc) {
                 obj[assoc.ui.grid.store_index] = row[assoc.query.id];
             });
-        return obj;
-    });
-    Ext.StoreMgr.get('data_grid_store').loadData(mapped_data);
+            return obj;
+        });
+        columns.forEach(function(col){
+            colModel.setHidden(colModel.getIndexById(col),false);
+        });
+    }
+    Ext.StoreMgr.get('data_grid_store').loadData(load_data);
+
+    return;
 }
 
 /*
@@ -523,13 +552,13 @@ function renderTitle(value, p, record) {
 
 function prepareVisPanels() {
     re.windows.masks.network_mask = new Ext.LoadMask('view-region',
-                                {
-                                msg:"Loading Data...",
-                                cancelEvent:function() {
-                                    vq.events.Dispatcher.dispatch(
-                                        new vq.events.Event('query_cancel','associations',{}));
-                                                        }
-                                        });
+        {
+            msg:"Loading Data...",
+            cancelEvent:function() {
+                vq.events.Dispatcher.dispatch(
+                    new vq.events.Event('query_cancel','associations',{}));
+            }
+        });
     re.windows.masks.network_mask.show();
     wipeLinearPlot();
 }
@@ -621,6 +650,14 @@ Ext.onReady(function() {
                                 frame : false,
                                 x:880,
                                 y:20
+                            },
+                            {
+                                xtype: 'panel', id:'circle-colorscale-panel',
+                                width:150,
+                                border:false,
+                                frame : false,
+                                x:345,
+                                y:450
                             }]
                     }, {
                         xtype: 'panel', id:'linear-parent',
@@ -722,7 +759,7 @@ Ext.onReady(function() {
                                     { header: "Chr", width:30 , id:'source_chr', dataIndex:'source_chr',groupName:'Source'},
                                     { header: "Start", width:100, id:'source_start',dataIndex:'source_start',groupName:'Source'},
                                     { header: "Stop", width:100, id:'source_stop',dataIndex:'source_stop',groupName:'Source'}
-                                    ].concat(re.model.association.types.map( function(obj){ return obj.ui.grid.column;})),
+                                ].concat(re.model.association.types.map( function(obj){ return obj.ui.grid.column;})),
                                 defaults: {
                                     sortable: true,
                                     width: 100
@@ -731,9 +768,9 @@ Ext.onReady(function() {
                             store : new Ext.data.JsonStore({
                                 autoLoad:false,
                                 storeId:'data_grid_store',
-                               fields : ['target_id','target_source','target_label','target_chr','target_start','target_stop',
+                                fields : ['target_id','target_source','target_label','target_chr','target_start','target_stop',
                                     'source_id', 'source_source','source_label','source_chr','source_start','source_stop'
-                                    ].concat(re.model.association.types.map( function(obj){ return obj.ui.grid.store_index;}))
+                                ].concat(re.model.association.types.map( function(obj){ return obj.ui.grid.store_index;}))
                             }),
                             listeners: {
                                 rowclick : function(grid,rowIndex,event) {
@@ -834,7 +871,7 @@ Ext.onReady(function() {
                                     group:'scatterplot_group'};
                                 if (index ==0) { return_obj.checked = true; }
                                 return     return_obj;
-                                })
+                            })
                         }
                         ]
                     },{
@@ -874,32 +911,32 @@ Ext.onReady(function() {
                         text:'Help',
                         labelStyle: 'font-weight:bold;',
                         menu:[{
-                                text:'User Guide',
-                                handler: userGuideHandler
-                            },{
-                              text: 'Circular Ideogram'  
-                            },{
-                                text:'Legends'
-                            },
+                            text:'User Guide',
+                            handler: userGuideHandler
+                        },{
+                            text: 'Circular Ideogram'
+                        },{
+                            text:'Legends'
+                        },
                             {
                                 handler: openIssueHandler,
                                 text:'Submit an Issue/Bug'
                             }]
                     }, {
                         id:'aboutMenu',
-                        text:'About',                        
+                        text:'About',
                         labelStyle: 'font-weight:bold;',
                         menu:[{
-                                text:'CSACR',
-                                handler: function() {openBrowserTab('http://www.cancerregulome.org/')}
-                            },
+                            text:'CSACR',
+                            handler: function() {openBrowserTab('http://www.cancerregulome.org/')}
+                        },
                             {
                                 handler: openCodeRepository,
                                 text:'Code Repository'
                             },{
                                 text:'Analyses'
                             }
-                            ]                    
+                        ]
                     }]
             },
             { region:'center',
@@ -921,14 +958,14 @@ Ext.onReady(function() {
     function userGuideHandler(item) {
         openBrowserTab('/help/re/user_guide.html');
     }
-       function circularViewHelpHandler(item) {
+    function circularViewHelpHandler(item) {
         openBrowserTab('/help/re/user_guide.html');
     }
 
     function openIssueHandler(item){
         openBrowserTab('http://code.google.com/p/regulome-explorer/issues/entry');
     }
-     function openCodeRepository(item){
+    function openCodeRepository(item){
         openBrowserTab('http://code.google.com/p/regulome-explorer/');
     }
 
@@ -943,7 +980,7 @@ Ext.onReady(function() {
         }
     }
     function scatterplotFieldHandler(item) {
-                re.display_options.circvis.rings.pairwise_scores.value_field = re.model.association.types[re.model.association_map[item.value]].id;
+        re.display_options.circvis.rings.pairwise_scores.value_field = re.model.association.types[re.model.association_map[item.value]].id;
     }
 
     function networkLayoutHandler(item) {
@@ -1116,7 +1153,7 @@ Ext.onReady(function() {
                         id:'scatterplot_panel',
                         name:'scatterplot_panel',
                         anchor: '100% -100'
-                        },
+                    },
                         {
                             xtype:'panel',
                             id:'scatterplot_controls',
@@ -1250,9 +1287,9 @@ Ext.onReady(function() {
                                             }]
                                     })
                                 }]
-                        }]                    
+                        }]
                     }] // medline tab
-                }] //tabpanel
+            }] //tabpanel
         });
     re.windows.details_window.hide();
 
