@@ -42,8 +42,8 @@ re.model.association =  {
                 scatterplot : {
                     scale_type :'linear',
                     values : {
-
-                    }
+                    },
+                    color_scale : pv.Scale.linear(0,1).range('blue','red')
                 }
 			}	
 		},
@@ -86,7 +86,9 @@ re.model.association =  {
 					entry : { pvalue : 'pvalue' }
 				},
                 scatterplot : {
-                }
+                    color_scale : pv.Scale.linear(0.5,0).range('blue','red')
+                },
+
 			}
 
 		},
@@ -124,7 +126,8 @@ re.model.association =  {
                     values : {
                            min : -1,
                             max : 1
-                        }
+                        },
+                    color_scale : pv.Scale.linear(-1,0,1).range('red','blue','red')
                 }
 			}
 		}

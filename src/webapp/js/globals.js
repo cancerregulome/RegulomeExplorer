@@ -205,7 +205,25 @@ vq.utils.VisUtils.extend(re, {
 
         re.plot.proximal_distance = 2.5 * re.plot.linear_unit;
 
-     re.plot.colors.node_colors = function(source) { return re.plot.colors.source_color_scale(re.plot.all_source_map[source]);};
+    re.plot.colors.features = {
+                'GEXP' : '#1f77b4',
+                'METH': '#ff7f0e',
+                'CNVR' : '#2ca02c',
+                'MIRN': '#d62728',
+                'GNAB' : '#9467bd',
+                'PRDM' : '#8c564b',
+                'RPPA' : '#e377c2',
+                'CLIN' : '#7f7f7f',
+                'SAMP' : '#bcbd22'
+                //#17becf
+            };
+
+         re.plot.colors.node_colors = function(source) {
+             if (source in re.plot.colors.features){
+                return pv.color(re.plot.colors.features[source]);
+             }
+             return "blue";
+         };
      re.model.association.types.forEach(function(obj) { 
         re.ui.order_list.push({value:obj.id,label:obj.label});
      });
