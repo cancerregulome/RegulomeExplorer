@@ -300,15 +300,9 @@ function singlefeature_circvis(parsed_data,div) {
         'Karyotype Label' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
         Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
     },       
-    scatterplot_tooltips =  {Feature : function(node) { return node.label+ ' ' + node.source + ' Chr' + node.chr + ' ' + node.start +
-                    '-' + node.end + ' ' + node.label_mod;}
-                    };
-      
-    re.model.association.types.forEach( function(assoc) { 
-            vq.utils.VisUtils.extend(scatterplot_tooltips, assoc.vis.tooltip.entry);
-        });
 
-    var scatterplot_data = parsed_data['features'];
+        scatterplot_tooltips =  re.display_options.circvis.tooltips.feature;
+         var scatterplot_data = parsed_data['features'];
 
    var field = re.display_options.circvis.rings.pairwise_scores.value_field;
     var association  = re.model.association.types[re.model.association_map[field]];

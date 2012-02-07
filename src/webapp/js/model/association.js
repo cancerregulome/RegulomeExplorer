@@ -37,7 +37,7 @@ re.model.association =  {
 					edgeSchema : { name: "importance", type: "number" }
 				},
 				tooltip : {
-					entry : { ' Importance' : 'importance'}
+					entry : { 'Importance' : 'importance'}
 				},
                 scatterplot : {
                     scale_type :'linear',
@@ -87,10 +87,8 @@ re.model.association =  {
 				},
                 scatterplot : {
                     color_scale : pv.Scale.linear(0.5,0).range('blue','red')
-                },
-
+                }
 			}
-
 		},
 		{ 	id : 'correlation',
 			label : 'Correlation',

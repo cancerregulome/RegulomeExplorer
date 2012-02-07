@@ -7,7 +7,7 @@
 
 vq.utils.VisUtils.extend(re, {
 
-        title : 'Random Forest Associations Explorer',
+    title : 'Random Forest Associations Explorer',
         
     analysis : {
         dataset_method_clause : ' where method=\'RF-ACE\'',
@@ -76,6 +76,17 @@ vq.utils.VisUtils.extend(re, {
                     hidden : false
                 }
             },
+            tooltips:{
+                            feature :  {
+                                Feature : function(node) { var pos = node.label.indexOf('_');
+                                return pos > 0 ? node.label.slice(0,pos) : node.label;},
+                                Source : function(node) { return re.label_map[node.source]},
+                                'Location' : function(node) { return node.chr + ' ' + node.start + '-' + node.end + ' ';} ,
+                                Other : function(node) { return node.label_mod.replace(/_/g,', ');}
+                            },
+                            edge : function(edge) {}
+
+                        },
             ticks : {
                 tick_overlap_distance : null,
                 tile_ticks_manually : false,
@@ -235,6 +246,11 @@ vq.utils.VisUtils.extend(re, {
          re.ui.feature1 = {label : 'Feature 1', id : 'feature1'};
          re.ui.feature2 = {label : 'Feature 2', id : 'feature2'};
      }
+
+
+    re.model.association.types.forEach( function(assoc) {
+                            vq.utils.VisUtils.extend(re.display_options.circvis.tooltips.feature, assoc.vis.tooltip.entry);
+                        });
 
 })();
 

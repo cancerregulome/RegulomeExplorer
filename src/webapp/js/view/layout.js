@@ -367,7 +367,7 @@ function loadDataTableStore(data) {
         load_data = data['features'].map(function(node) {
             var obj = {target_id: node.id, target_source: node.source,
                 target_label: node.label,target_chr: node.chr,
-                target_start: node.start,target_stop:node.stop
+                target_start: node.start,target_stop:node.end
             };
             re.model.association.types.forEach(function(assoc) {
                 obj[assoc.ui.grid.store_index] = node[assoc.query.id];
@@ -382,9 +382,9 @@ function loadDataTableStore(data) {
     } else{
         load_data = pv.blend([data['network'],data['unlocated']]).map(function(row) {
             var obj = {target_id: row.node1.id, target_source: row.node1.source,target_label: row.node1.label,target_chr: row.node1.chr,
-                target_start: row.node1.start,target_stop:row.node1.stop,
+                target_start: row.node1.start,target_stop:row.node1.end,
                 source_id: row.node2.id, source_source :row.node2.source,source_label: row.node2.label,source_chr: row.node2.chr,
-                source_start: row.node2.start,source_stop: row.node2.stop};
+                source_start: row.node2.start,source_stop: row.node2.end};
             re.model.association.types.forEach(function(assoc) {
                 obj[assoc.ui.grid.store_index] = row[assoc.query.id];
             });
