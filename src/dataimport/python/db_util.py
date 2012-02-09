@@ -74,8 +74,11 @@ def executeInsert(config, sqlStr):
 	#print "executed %s rc %i" %(sqlStr, rc)
 	return rc
 
-def executeSelect(sqlStr):
-	pass
+def executeSelect(config, sqlStr):
+	cursor = getCursor(config)
+	rc = cursor.execute(sqlStr)	
+	#print "executed %s rc %i" %(sqlStr, rc)
+	return cursor.fetchall()
 
 def executeUpdate(sqlStr):
 	pass
@@ -96,6 +99,28 @@ def transComplement(seq):
 		
 def isAntisense(gene):
 	return antisense_genes_hash.get(gene)
+
+def isUnmappedAssociation(f1alias, f2alias):
+        """
+        Must skip non CLIN SAMP features without chromosome position
+        """
+        f1data = f1alias.split(":")
+        if (len(f1data) < 5):
+                return False
+        f1source = f1data[1]
+        f1chr = f1data[3]
+        f2data = f2alias.split(":")
+        f2source = f2data[1]
+        f2chr = f2data[3]
+
+        if (f1chr == "" and (f1source != "CLIN" and f1source != "SAMP")):
+                if (f2source != "CLIN" and f2source != "SAMP"):
+                        return True
+        if (f2chr == "" and (f2source != "CLIN" and f2source != "SAMP")):
+                if (f1source != "CLIN" and f1source != "SAMP"):
+                        return True
+        return False
+
 
 #def calculateMutualInformation(feature1values, feature2values, range1, range2):
 #	s = pe.DiscreteSystem(feature1values, range1, feature2values, range2)

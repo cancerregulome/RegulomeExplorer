@@ -48,7 +48,7 @@ def addDataset(label, feature_matrix, associations, method, description, comment
 		max_logpv = json.loads(metaline)["max_logpv"]
 		#print metaline
 		meta_json_file.close()		
-	insertSql = "replace into tcga.regulome_explorer_dataset (label,method,source,contact,comments,dataset_date,description,max_logged_pvalue, input_files) values ('%s', '%s', 'TCGA', '%s', '%s', '%s', '%s', %f, '%s');" %(label, method, contact, comments,currentDate,description, max_logpv, inputfiles)
+	insertSql = "replace into regulome_explorer_dataset (label,method,source,contact,comments,dataset_date,description,max_logged_pvalue, input_files) values ('%s', '%s', 'TCGA', '%s', '%s', '%s', '%s', %f, '%s');" %(label, method, contact, comments,currentDate,description, max_logpv, inputfiles)
 	db_util.executeInsert(config, insertSql)
 
 if __name__=="__main__":

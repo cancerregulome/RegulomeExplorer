@@ -81,10 +81,9 @@ unmappedout = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_
 tsvout = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_rface_re.tsv','w')
 pubcrawl_tsvout = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_rface_pc.tsv','w')
 
+"""
+moved to db_util
 def isUnmappedAssociation(f1alias, f2alias):
-	"""
-	Must skip non CLIN SAMP features without chromosome position
-	"""	
 	f1data = f1alias.split(":")
 	if (len(f1data) < 5):
 		return False
@@ -101,6 +100,7 @@ def isUnmappedAssociation(f1alias, f2alias):
 		if (f1source != "CLIN" and f1source != "SAMP"):
 			return True
 	return False	
+"""
 
 lc = 0
 pcc = 0
@@ -122,7 +122,7 @@ for line in lines:
 	importance = columns[3]
 	correlation = columns[4]
 	patientct = columns[5]
-	if (isUnmappedAssociation(f1alias, f2alias)):
+	if (db_util.isUnmappedAssociation(f1alias, f2alias)):
 		unmappedout.write(f1alias + "\t" + f2alias + "\n")
 		unMapped += 1
 		continue	

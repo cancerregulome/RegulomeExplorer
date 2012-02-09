@@ -60,7 +60,7 @@ def process_feature_matrix(matrix_file, config):
 	myport = db_util.getDBPort(config)
 	results_path = db_util.getResultsPath(config)
 	feature_matrix_file = open(matrix_file)
-	feature_table = "tcga." + dataset_label + "_features"  
+	feature_table = mydb + "." + dataset_label + "_features"  
 	fshout = open('./results/load_features_' + dataset_label + '.sh','w')
 	outfile = open(results_path + "/" + dataset_label + '/features_out_' + dataset_label + '_pw.tsv','w')
 	featureId = 0
@@ -113,16 +113,18 @@ def process_pairwise_edges(pairwised_file, config):
 	do_pubcrawl = db_util.getDoPubcrawl(config)
 	results_path = db_util.getResultsPath(config)
 	edges_file = open(pairwised_file)
-	edge_table = "tcga.mv_" + dataset_label + "_feature_networks" 
+	edge_table = mydb + ".mv_" + dataset_label + "_feature_networks" 
         efshout = open('./results/load_edges_' + dataset_label + '.sh','w')
         edges_out_re = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_re.tsv','w')
 	edges_out_pc = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_pc.tsv','w')
 	edges_meta_json = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_meta.json','w')
+	unmappedout = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_unmapped.tsv','w')
 	validEdgeId = 1
 	dupeEdges = 0
 	totalEdges = 0
 	cnan = 0
 	pcc = 0
+	unMapped = 0
 	for line in edges_file:
 		totalEdges += 1 
 		line = line.strip()
@@ -131,8 +133,12 @@ def process_pairwise_edges(pairwised_file, config):
 			print "not enough tokens:" + line
 			continue
 		nodeA = tokens[0]
-		nodeA = nodeA.replace('|', '_')
 		nodeB = tokens[1]
+		if (db_util.isUnmappedAssociation(nodeA, nodeB)):
+	                unmappedout.write(nodeA + "\t" + nodeB + "\n")
+        	        unMapped += 1
+                	continue
+		nodeA = nodeA.replace('|', '_')
 		nodeB = nodeB.replace('|', '_')
 		if (features_hash.get(tokens[0]) and features_hash.get(tokens[1])):
 			if (not edges_hash.get(nodeA + "_" + nodeB) and not edges_hash.get(nodeA + "_" + nodeB)):
@@ -175,12 +181,13 @@ def process_pairwise_edges(pairwised_file, config):
 		else:
 			print "duplicated edge:" + nodeA + "_" + nodeB
 			dupeEdges += 1
-	print "Valid Edges %i Duped %i cNAN %i Total %i max_pvalue %f max_pvalue_corr %f" %(validEdgeId-1, dupeEdges, cnan, totalEdges, max_pv, max_pv_corr)	
+	print "Valid Edges %i Duped %i cNAN %i unMapped %i Total %i max_pvalue %f max_pvalue_corr %f" %(validEdgeId-1, dupeEdges, cnan, unMapped, totalEdges, max_pv, max_pv_corr)	
 	edges_meta_json.write('{"max_logpv":%f}' %(max_pv))
 	edges_file.close()
 	edges_out_re.close()
 	edges_out_pc.close()
 	edges_meta_json.close()	
+	unmappedout.close()
 	efshout.write("#!/bin/bash\n")
 	efshout.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
 	efshout.write("load data local infile '" + edges_out_re.name + "' replace INTO TABLE " + edge_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
