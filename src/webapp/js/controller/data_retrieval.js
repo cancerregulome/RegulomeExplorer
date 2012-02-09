@@ -398,6 +398,10 @@ function  loadUndirectedNetworkDataByAssociation(params) {
 
 }
 
+function queryFailed(data_type,response) {
+            vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail',data_type,{msg:'Query Error: ' + response.status + ': ' + response.responseText}));
+        }
+
 /* Handler functions */
 function noResults(query_type) {
     vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail',query_type,{msg:'No matching results found.'}));

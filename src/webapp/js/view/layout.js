@@ -181,6 +181,38 @@ function export_svg() {
     Ext.getCmp('export-textarea').setRawValue(svg_tags);
 }
 
+
+function export_svg_new() {
+    // var serializer = new XMLSerializer();
+    var svg_tags;
+    var panel_dom = Ext.DomQuery.selectNode('div#circle-panel>svg');
+    if (panel_dom === undefined){
+        // svg_tags=serializer.serializeToString(panel_dom);
+        return; 
+    }
+    var exportWindow = openBrowserTab('');
+    var svg_str = SvgToString(panel_dom);
+    if(Ext.DomQuery.selectNode('div#export_canvas') === undefined) {
+                    var canvas_div = Ext.DomHelper.append(Ext.getBody(), {tag:'div',id: 'export_canvas'},true);
+                    canvas_div.hide(true);
+                }
+                canvas_div.innerHTML='';
+                var canvasEl = Ext.DomHelper.append(canvas_div,{tag:'canvas'},true);
+                var c=canvasEl.dom
+                
+                c.width = panel_dom['width'];
+                c.height = panel_dom['height'];
+
+                canvg(c, svg_str, {renderCallback: function() {
+                    var datauri = c.toDataURL('image/png');
+                    exportWindow.location.href = datauri;            
+                }});
+            
+    //Ext.getCmp('export-textarea').setRawValue(svg_tags);
+    return;
+}
+
+
 function loadDataDialog() {
     re.windows.dataset_window.show();
     Ext.getCmp('dataset_grid').store.load();
