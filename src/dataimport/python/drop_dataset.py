@@ -53,7 +53,7 @@ if __name__=="__main__":
 		for l in list:
 			print "\t".join(l[0:3]) 
 			mylist.append(l[0])
-		ds = raw_input("Enter dataset label to drop from db, for > 1 separate the datasets by comma\n")
+		ds = raw_input("Enter dataset label to drop from db, for > 1 sets, separate the datasets by comma. \nThis is permanent!\n")
 		if (ds != None and len(ds) > 1):
 			drop_list = ds.split(",")
 			if ("".join(mylist).find("".join(drop_list)) == -1 ):
