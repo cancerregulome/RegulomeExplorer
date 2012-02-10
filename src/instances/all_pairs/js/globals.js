@@ -7,13 +7,13 @@
 
 vq.utils.VisUtils.extend(re, {
 
-    title : 'Random Forest Associations Explorer',
+        title : 'All Pairs Significance Explorer',
     google :{
         analytics_id: 'UA-20488457-2'
     },
     analysis : {
-        dataset_method_clause : ' where method=\'RF-ACE\'',
-        directed_association : true
+        dataset_method_clause : ' where method=\'pairwise\'',
+        directed_association : false
     },
     state : {
       once_loaded : false,
@@ -78,17 +78,6 @@ vq.utils.VisUtils.extend(re, {
                     hidden : false
                 }
             },
-            tooltips:{
-                            feature :  {
-                                Feature : function(node) { var pos = node.label.indexOf('_');
-                                return pos > 0 ? node.label.slice(0,pos) : node.label;},
-                                Source : function(node) { return re.label_map[node.source]},
-                                'Location' : function(node) { return node.chr + ' ' + node.start + '-' + node.end + ' ';} ,
-                                Other : function(node) { return node.label_mod.replace(/_/g,', ');}
-                            },
-                            edge : function(edge) {}
-
-                        },
             ticks : {
                 tick_overlap_distance : null,
                 tile_ticks_manually : false,
@@ -219,13 +208,13 @@ vq.utils.VisUtils.extend(re, {
         re.plot.proximal_distance = 2.5 * re.plot.linear_unit;
 
     re.plot.colors.features = {
-                'GEXP' : '#1f77b4',
-                'METH': '#ff7f0e',
-                'CNVR' : '#2ca02c',
-                'MIRN': '#d62728',
-                'GNAB' : '#9467bd',
-                'PRDM' : '#8c564b',
-                'RPPA' : '#e377c2',
+                'GEXP' : '#1f77b4',  //blue
+                'METH': '#2ca02c',    //green
+                'CNVR' : '#ff7f0e',   //orange
+                'MIRN': '#9467bd',    //purple
+                'GNAB' : '#d62728',    //red
+                'PRDM' : '#8c564b',    //pink
+                'RPPA' : '#e377c2',    //brown
                 'CLIN' : '#7f7f7f',
                 'SAMP' : '#bcbd22'
                 //#17becf
@@ -241,6 +230,7 @@ vq.utils.VisUtils.extend(re, {
         re.ui.order_list.push({value:obj.id,label:obj.label});
      });
 
+
      if (re.analysis.directed_association) {
          re.ui.feature1 = {label : 'Target', id :'target'};
          re.ui.feature2 = {label : 'Predictor', id : 'predictor'};
@@ -248,11 +238,6 @@ vq.utils.VisUtils.extend(re, {
          re.ui.feature1 = {label : 'Feature 1', id : 'feature1'};
          re.ui.feature2 = {label : 'Feature 2', id : 'feature2'};
      }
-
-
-    re.model.association.types.forEach( function(assoc) {
-                            vq.utils.VisUtils.extend(re.display_options.circvis.tooltips.feature, assoc.vis.tooltip.entry);
-                        });
 
 })();
 
