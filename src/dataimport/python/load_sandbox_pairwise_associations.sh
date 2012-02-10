@@ -12,7 +12,7 @@ feature_matrix_file=$2
 associations_pw=$3
 description=$4
 comments=$5
-config_file=../config/rfex_sql.config
+config_file=../config/rfex_sql_sandbox.config
 echo comments $comments desc $description
 
 if [ $# -eq 6 ]

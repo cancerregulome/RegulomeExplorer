@@ -41,7 +41,7 @@ def populate_sample_meta(sampleList, config):
 	samColIndex = 0
 	for sam in sampleList:
 		#REPLACE INTO `tcga`.`SampleMeta` (sample_key,cancer_type,dataset_label,matrix_col_offset,meta_json) VALUES ('a' /*not nullable*/,'s' /*not nullable*/,'s' /*not nullable*/,0,'s');		
-		insertSampleSql = "replace into tcga.sample_meta (sample_key,cancer_type,dataset_label,matrix_col_offset,meta_json) values ('%s', '%s', '%s', '%i', '%s');" %(sam, cancer_type,clabel,samColIndex,"{age:X,status:someStatus,comments:some comments}")
+		insertSampleSql = "replace into sample_meta (sample_key,cancer_type,dataset_label,matrix_col_offset,meta_json) values ('%s', '%s', '%s', '%i', '%s');" %(sam, cancer_type,clabel,samColIndex,"{age:X,status:someStatus,comments:some comments}")
 		db_util.executeInsert(config, insertSampleSql)
 		samColIndex += 1
 	print "Done populating sample list for " + dataset_label
