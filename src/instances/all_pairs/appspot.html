@@ -1,0 +1,100 @@
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>All Pairs Significance Explorer (Addama)</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.cancerregulome.org/js/extjs/3.4.0/resources/css/ext-all.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.cancerregulome.org/js/extjs/3.4.0/resources/css/xtheme-slate.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.cancerregulome.org/css/re/1.0.0/icons.css" />
+
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/extjs/3.4.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/extjs/3.4.0/ext-all.js"></script>
+
+     <!-- JSON support for IE (needed to use JS API) -->
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/cytoscape_web/0.8/js/min/json2.min.js"></script>
+
+        <!-- Flash embedding utility (needed to embed Cytoscape Web) -->
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/cytoscape_web/0.8/js/min/AC_OETags.min.js"></script>
+
+    <!-- Cytoscape Web JS API (needed to reference org.cytoscapeweb.Visualization) -->
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/cytoscape_web/0.8/js/min/cytoscapeweb.min.js"></script>
+    
+    <!-- intial setup -->
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/re/1.0.0/namespace.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/re/1.0.0/overrides.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/re/1.0.0/utils.js"></script>
+
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/svg/canvg.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/svg/rgbcolor.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/svg/export.js"></script>
+
+    <!-- Karyotype data -->
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/visquick/1.0.2/data/cytoband.hg18.json"></script>
+
+    <!-- Protovis library -->
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/protovis/3.3.1/protovis-r3.3.1.js"></script>
+    <!-- Visquick libraries -->
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/visquick/1.0.2/vq.min.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/visquick/1.0.2/vq.linear_browser.min.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/visquick/1.0.2/vq.scatterplot.min.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/visquick/1.0.2/vq.violinplot.min.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/visquick/1.0.2/vq.circvis.min.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/visquick/1.0.2/vq.cubbyhole.min.js"></script>
+    
+    <script type="text/javascript" src="js/association.js"></script>
+    <script type="text/javascript" src="appspot/globals.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/re/1.0.0/controller/data_retrieval.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/re/1.0.0/controller/data_plot.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/re/1.0.0/model/data_loader.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/re/1.0.0/view/panels.js"></script>
+    <script type="text/javascript" src="https://cdn.cancerregulome.org/js/re/1.0.0/view/layout.js"></script>
+
+    <script type="text/javascript" src="/js/utils.js"></script>
+    <script type="text/javascript" src="/js/widgets.js"></script>
+    <script type="text/javascript" src="/js/topbar.js"></script>
+    <link rel="stylesheet" type="text/css" href="appspot/topbar.css" />
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            new org.systemsbiology.addama.js.FloatingTopBar();
+        });
+    </script>
+    <style type="text/css">
+        #scatterplot_panel { background-color : #fff	!important}
+    </style>
+</head>
+<body>
+
+<!--[if lt IE 9]>
+    <script type="text/javascript"
+     src="https://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+
+    <style>
+     .chromeFrameInstallDefaultStyle {
+       width: 100%; /* default is 800px */
+       border: 5px solid blue;
+     }
+    </style>
+            <div id="notice"></div>
+            <div id="prompt"></div>
+
+    <script>
+          function displayGCFText() {
+            document.getElementById('notice').innerHTML = "Internet Explorer has been detected." +
+            "Please install the Google Chrome Frame if it is not already installed.  This will enable" +
+            "HTML5 features necessary for the web application.<p>"+
+            "If the install panel does not appear, please enable Compatibility mode in your browser and reload this page.";
+            };
+     // The conditional ensures that this code will only execute in IE,
+     // Therefore we can use the IE-specific attachEvent without worry
+     window.attachEvent("onload", function() {
+       CFInstall.check({
+         mode: "inline", // the default
+         node: "prompt"
+       });
+     });
+    </script>
+  <![endif]-->
+<iframe id="frame" height=0 width=0></iframe>
+<div id="home"></div>
+</body>
+</html>
