@@ -107,11 +107,9 @@ vq.utils.VisUtils.extend(re, {
     cytoscape: {
         obj : {},
         data:[],
-        swfPath : "/cytoscape_web/swf/CytoscapeWeb",
-        flashInstallerPath : "/cytoscape_web/swf/playerProductInstall"
+        swfPath : "http://cdn.cancerregulome.org/js/cytoscape_web/0.8/swf/CytoscapeWeb",
+        flashInstallerPath : "http://cdn.cancerregulome.org/js/cytoscape_web/0.8/swf/playerProductInstall"
     },
-
-
     plot: {
         locatable_source_list : ['GEXP','METH','CNVR','MIRN','GNAB','RPPA'],
         unlocatable_source_list : ['CLIN','SAMP','PRDM'],
