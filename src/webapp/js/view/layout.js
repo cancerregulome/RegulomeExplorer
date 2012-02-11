@@ -32,9 +32,15 @@ function registerLayoutListeners() {
     });
     d.addListener('data_ready','associations',function(data) {
         loadDataTableStore(data);
+        if  (Ext.getCmp('details-tabpanel').layout.activeItem.id =='network-panel') {
+            requestGraphRender();
+        }
     });
     d.addListener('data_ready','sf_associations',function(data) {
         loadDataTableStore(data);
+        if  (Ext.getCmp('details-tabpanel').layout.activeItem.id =='network-panel') {
+            Ext.getCmp('details-tabpanel').layout.setActiveItem('rf-graphical');
+        }
     });
     d.addListener('render_complete','linear',function(linear){
         exposeLinearPlot();
@@ -188,26 +194,26 @@ function export_svg_new() {
     var panel_dom = Ext.DomQuery.selectNode('div#circle-panel>svg');
     if (panel_dom === undefined){
         // svg_tags=serializer.serializeToString(panel_dom);
-        return; 
+        return;
     }
     var exportWindow = openBrowserTab('');
     var svg_str = SvgToString(panel_dom);
     if(Ext.DomQuery.selectNode('div#export_canvas') === undefined) {
-                    var canvas_div = Ext.DomHelper.append(Ext.getBody(), {tag:'div',id: 'export_canvas'},true);
-                    canvas_div.hide(true);
-                }
-                canvas_div.innerHTML='';
-                var canvasEl = Ext.DomHelper.append(canvas_div,{tag:'canvas'},true);
-                var c=canvasEl.dom
-                
-                c.width = panel_dom['width'];
-                c.height = panel_dom['height'];
+        var canvas_div = Ext.DomHelper.append(Ext.getBody(), {tag:'div',id: 'export_canvas'},true);
+        canvas_div.hide(true);
+    }
+    canvas_div.innerHTML='';
+    var canvasEl = Ext.DomHelper.append(canvas_div,{tag:'canvas'},true);
+    var c=canvasEl.dom
 
-                canvg(c, svg_str, {renderCallback: function() {
-                    var datauri = c.toDataURL('image/png');
-                    exportWindow.location.href = datauri;            
-                }});
-            
+    c.width = panel_dom['width'];
+    c.height = panel_dom['height'];
+
+    canvg(c, svg_str, {renderCallback: function() {
+        var datauri = c.toDataURL('image/png');
+        exportWindow.location.href = datauri;
+    }});
+
     //Ext.getCmp('export-textarea').setRawValue(svg_tags);
     return;
 }
@@ -392,10 +398,10 @@ function loadListStores(dataset_labels) {
 }
 
 function loadDataTableStore(data) {
-    var columns =['source_id', 'source_source','source_label','source_chr','source_start','source_stop'];
+    var columns =['source_source','source_label','source_chr','source_start','source_stop'];
     var colModel = Ext.getCmp('data_grid').getColumnModel();
     var load_data = [];
-    if (data['features'] != undefined) {
+    if (data['unlocated'] === undefined) {
         load_data = data['features'].map(function(node) {
             var obj = {target_id: node.id, target_source: node.source,
                 target_label: node.label,target_chr: node.chr,
@@ -513,6 +519,11 @@ function failedLabelLookup() {
         alert.hide();
     });
     task.delay(1300);
+}
+
+function requestGraphRender() {
+    var e = new vq.events.Event('frame_ready','graph',{});
+    e.dispatch();
 }
 
 /*
@@ -725,31 +736,23 @@ Ext.onReady(function() {
                     xtype: 'panel',  id:'network-panel',
                     name : 'network-panel',
                     title : 'Network',
-                    monitorResize : true,
                     autoScroll : false,
-                    layout : 'absolute',
-                    height: 800,
-                    width:1050,
+                    layout : 'auto',
+                    monitorResize : true,
                     collapsible : false,
                     listeners: {
                         activate: function() {
-                            var e = new vq.events.Event('frame_ready','graph',{});
-                            e.dispatch();
+                            requestGraphRender();
                         }
                     },
-                    items : [
-                        { xtype : 'panel',
-                            border : false,
-                            frame : false,
-                            items: [ {
-                                xtype:'panel' ,
-                                id : 'graph-panel',
-                                name : 'graph-panel',
-                                autoScroll:false,
-                                height: 800,
-                                width:800
-                            }]
-                        }]
+                    items:{
+                        layout:'fit',
+                        items : {
+                            xtype:'panel' ,
+                            id : 'graph-panel',
+                            name : 'graph-panel'
+                        }
+                    }
                 }, {
                     xtype: 'panel',  id:'grid-panel',
                     name : 'grid-panel',
