@@ -188,7 +188,7 @@ function export_svg_new() {
     var panel_dom = Ext.DomQuery.selectNode('div#circle-panel>svg');
     if (panel_dom === undefined){
         // svg_tags=serializer.serializeToString(panel_dom);
-        return; 
+        return;
     }
     var exportWindow = openBrowserTab('');
     var svg_str = SvgToString(panel_dom);
@@ -199,15 +199,15 @@ function export_svg_new() {
                 canvas_div.innerHTML='';
                 var canvasEl = Ext.DomHelper.append(canvas_div,{tag:'canvas'},true);
                 var c=canvasEl.dom
-                
+
                 c.width = panel_dom['width'];
                 c.height = panel_dom['height'];
 
                 canvg(c, svg_str, {renderCallback: function() {
                     var datauri = c.toDataURL('image/png');
-                    exportWindow.location.href = datauri;            
+                    exportWindow.location.href = datauri;
                 }});
-            
+
     //Ext.getCmp('export-textarea').setRawValue(svg_tags);
     return;
 }
@@ -395,7 +395,7 @@ function loadDataTableStore(data) {
     var columns =['source_id', 'source_source','source_label','source_chr','source_start','source_stop'];
     var colModel = Ext.getCmp('data_grid').getColumnModel();
     var load_data = [];
-    if (data['features'] != undefined) {
+    if (data['unlocated'] === undefined) {
         load_data = data['features'].map(function(node) {
             var obj = {target_id: node.id, target_source: node.source,
                 target_label: node.label,target_chr: node.chr,

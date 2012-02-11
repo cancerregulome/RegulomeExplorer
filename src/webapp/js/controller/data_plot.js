@@ -1107,7 +1107,6 @@ function populateGraph(obj) {
     };
 
     // init and draw
-    var scale = pv.Scale.ordinal().range("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",  "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf");
 
     function rgbToHex(R,G,B) {return '#' + toHex(R)+toHex(G)+toHex(B)}
     function toHex(n) {
@@ -1119,7 +1118,7 @@ function populateGraph(obj) {
     }
 
     re.cytoscape.obj["mapFeatureType"] =  function(data)   {
-        var color = scale(data.type);
+        var color = re.plot.colors.node_colors(data.type);
         return rgbToHex(color.r,color.g,color.b);
     };
     var layout =getNetworkLayout();
