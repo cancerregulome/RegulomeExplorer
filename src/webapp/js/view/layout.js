@@ -199,20 +199,20 @@ function export_svg_new() {
     var exportWindow = openBrowserTab('');
     var svg_str = SvgToString(panel_dom);
     if(Ext.DomQuery.selectNode('div#export_canvas') === undefined) {
-                    var canvas_div = Ext.DomHelper.append(Ext.getBody(), {tag:'div',id: 'export_canvas'},true);
-                    canvas_div.hide(true);
-                }
-                canvas_div.innerHTML='';
-                var canvasEl = Ext.DomHelper.append(canvas_div,{tag:'canvas'},true);
-                var c=canvasEl.dom
+        var canvas_div = Ext.DomHelper.append(Ext.getBody(), {tag:'div',id: 'export_canvas'},true);
+        canvas_div.hide(true);
+    }
+    canvas_div.innerHTML='';
+    var canvasEl = Ext.DomHelper.append(canvas_div,{tag:'canvas'},true);
+    var c=canvasEl.dom
 
-                c.width = panel_dom['width'];
-                c.height = panel_dom['height'];
+    c.width = panel_dom['width'];
+    c.height = panel_dom['height'];
 
-                canvg(c, svg_str, {renderCallback: function() {
-                    var datauri = c.toDataURL('image/png');
-                    exportWindow.location.href = datauri;
-                }});
+    canvg(c, svg_str, {renderCallback: function() {
+        var datauri = c.toDataURL('image/png');
+        exportWindow.location.href = datauri;
+    }});
 
     //Ext.getCmp('export-textarea').setRawValue(svg_tags);
     return;
@@ -398,7 +398,7 @@ function loadListStores(dataset_labels) {
 }
 
 function loadDataTableStore(data) {
-    var columns =['source_id', 'source_source','source_label','source_chr','source_start','source_stop'];
+    var columns =['source_source','source_label','source_chr','source_start','source_stop'];
     var colModel = Ext.getCmp('data_grid').getColumnModel();
     var load_data = [];
     if (data['unlocated'] === undefined) {
@@ -523,7 +523,7 @@ function failedLabelLookup() {
 
 function requestGraphRender() {
     var e = new vq.events.Event('frame_ready','graph',{});
-                                e.dispatch();
+    e.dispatch();
 }
 
 /*
@@ -736,30 +736,23 @@ Ext.onReady(function() {
                     xtype: 'panel',  id:'network-panel',
                     name : 'network-panel',
                     title : 'Network',
-                    monitorResize : true,
                     autoScroll : false,
-                    layout : 'absolute',
-                    height: 800,
-                    width:1050,
+                    layout : 'auto',
+                    monitorResize : true,
                     collapsible : false,
                     listeners: {
                         activate: function() {
                             requestGraphRender();
                         }
                     },
-                    items : [
-                        { xtype : 'panel',
-                            border : false,
-                            frame : false,
-                            items: [ {
-                                xtype:'panel' ,
-                                id : 'graph-panel',
-                                name : 'graph-panel',
-                                autoScroll:false,
-                                height: 800,
-                                width:800
-                            }]
-                        }]
+                    items:{
+                        layout:'fit',
+                        items : {
+                            xtype:'panel' ,
+                            id : 'graph-panel',
+                            name : 'graph-panel'
+                        }
+                    }
                 }, {
                     xtype: 'panel',  id:'grid-panel',
                     name : 'grid-panel',
