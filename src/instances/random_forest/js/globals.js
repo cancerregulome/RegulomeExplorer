@@ -38,7 +38,6 @@ vq.utils.VisUtils.extend(re, {
         solr : {
             uri : '/solr',
             select : '/select/'
-
         }
     },
     tables: {
@@ -219,13 +218,13 @@ vq.utils.VisUtils.extend(re, {
         re.plot.proximal_distance = 2.5 * re.plot.linear_unit;
 
     re.plot.colors.features = {
-                'GEXP' : '#1f77b4',
-                'METH': '#ff7f0e',
-                'CNVR' : '#2ca02c',
-                'MIRN': '#d62728',
-                'GNAB' : '#9467bd',
-                'PRDM' : '#8c564b',
-                'RPPA' : '#e377c2',
+                'GEXP' : '#1f77b4',  //blue
+                'METH': '#2ca02c',    //green
+                'CNVR' : '#ff7f0e',   //orange
+                'MIRN': '#9467bd',    //purple
+                'GNAB' : '#d62728',    //red
+                'PRDM' : '#8c564b',    //pink
+                'RPPA' : '#e377c2',    //brown
                 'CLIN' : '#7f7f7f',
                 'SAMP' : '#bcbd22'
                 //#17becf
