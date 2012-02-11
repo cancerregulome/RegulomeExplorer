@@ -32,9 +32,15 @@ function registerLayoutListeners() {
     });
     d.addListener('data_ready','associations',function(data) {
         loadDataTableStore(data);
+        if  (Ext.getCmp('details-tabpanel').layout.activeItem.id =='network-panel') {
+            requestGraphRender();
+        }
     });
     d.addListener('data_ready','sf_associations',function(data) {
         loadDataTableStore(data);
+        if  (Ext.getCmp('details-tabpanel').layout.activeItem.id =='network-panel') {
+            Ext.getCmp('details-tabpanel').layout.setActiveItem('rf-graphical');
+        }
     });
     d.addListener('render_complete','linear',function(linear){
         exposeLinearPlot();
@@ -515,6 +521,11 @@ function failedLabelLookup() {
     task.delay(1300);
 }
 
+function requestGraphRender() {
+    var e = new vq.events.Event('frame_ready','graph',{});
+                                e.dispatch();
+}
+
 /*
  renderScatterPlot
  should be wrapped in an event listener external to the ui layout code
@@ -733,8 +744,7 @@ Ext.onReady(function() {
                     collapsible : false,
                     listeners: {
                         activate: function() {
-                            var e = new vq.events.Event('frame_ready','graph',{});
-                            e.dispatch();
+                            requestGraphRender();
                         }
                     },
                     items : [
