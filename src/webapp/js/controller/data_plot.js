@@ -288,8 +288,9 @@ function singlefeature_circvis(parsed_data,div) {
 
     function wedge_listener(feature) {
         var chr = feature.chr;
-        var start = bpToMb(feature.start) - 2.5;
-        var range_length = bpToMb(feature.end) - start + 2.5;
+        var neighborhood = getFeatureNeighborhood(feature,2.5*re.MILLION);
+        var start = neighborhood.start;
+        var range_length = neighborhood.end - neighborhood.start;
         var e = new vq.events.Event('render_linearbrowser','circvis',{data:vq.utils.VisUtils.clone(parsed_data),chr:chr,start:start,range:range_length});
         e.dispatch();
     }
@@ -458,8 +459,9 @@ function wedge_plot(parsed_data,div) {
 
     function wedge_listener(feature) {
         var chr = feature.chr;
-        var start = bpToMb(feature.start) - 2.5;
-        var range_length = bpToMb(feature.end) - start + 2.5;
+        var neighborhood = getFeatureNeighborhood(feature,2.5*re.MILLION);
+                var start = neighborhood.start;
+                var range_length = neighborhood.end - neighborhood.start;
         var e = new vq.events.Event('render_linearbrowser','circvis',{data:vq.utils.VisUtils.clone(parsed_data),chr:chr,start:start,range:range_length});
         e.dispatch();
     }
@@ -654,12 +656,19 @@ function mbpToBp(num) {
     return Math.floor(num* 1000000);
 }
 
+function getFeatureNeighborhood(feature,window_size) {
+    var f= vq.utils.VisUtils.clone(feature);
+    f.start = f.start - window_size;
+    f.end = f.end + window_size;
+    return f;
+}
+
 function linear_plot(obj) {
     var div = obj.div || null, parsed_data = obj.data || [], chrom = obj.chr || '1', start = obj.start || null, range_length = obj.range || null;
     var ucsc_genome_url = 'http://genome.ucsc.edu/cgi-bin/hgTracks';
     var tile_listener = function(feature){
-        window.open(ucsc_genome_url + '?db=hg18&position=chr' + feature.chr + ':' + mbpToBp(feature.start) +
-            '-'+ mbpToBp(feature.end),'_blank');
+        window.open(ucsc_genome_url + '?db=hg18&position=chr' + feature.chr + ':' + feature.start +
+            '-'+ feature.end,'_blank');
         return false;
     };
 
@@ -672,7 +681,7 @@ function linear_plot(obj) {
     var located_tooltip_items = {
         Feature : function(tie) {
             return tie.label + ' ' + tie.source + ' Chr' +tie.chr + ' ' +
-                mbpToBp(tie.start) + (tie.end != null ? '-'+mbpToBp(tie.end) : '')  + ' '+ tie.label_mod;}
+                tie.start + (tie.end != null ? '-'+tie.end : '')  + ' '+ tie.label_mod;}
     };
     var   inter_tooltip_items = { };
     inter_tooltip_items[re.ui.feature1.label] = function(tie) {
@@ -695,7 +704,7 @@ function linear_plot(obj) {
                 obj[assoc.ui.grid.store_index] = link[assoc.query.id];
             })
             var node1_clone = vq.utils.VisUtils.extend(obj,link.node1);
-            node1_clone.start = bpToMb(node1_clone.start); node1_clone.end = bpToMb(node1_clone.end);
+            node1_clone.start = node1_clone.start; node1_clone.end = node1_clone.end;
             node1_clone.sourceNode = vq.utils.VisUtils.extend({},link.node1);
             node1_clone.targetNode = vq.utils.VisUtils.extend({},link.node2);
             return node1_clone;
@@ -706,7 +715,7 @@ function linear_plot(obj) {
                 obj[assoc.ui.grid.store_index] = link[assoc.query.id];
             })
             var node1_clone = vq.utils.VisUtils.extend(obj,link.node2);
-            node1_clone.start = bpToMb(node1_clone.start); node1_clone.end = bpToMb(node1_clone.end);
+            node1_clone.start = node1_clone.start; node1_clone.end = node1_clone.end;
             node1_clone.sourceNode = vq.utils.VisUtils.extend({},link.node1);
             node1_clone.targetNode = vq.utils.VisUtils.extend({},link.node2);
             return node1_clone;
@@ -720,19 +729,17 @@ function linear_plot(obj) {
             var obj = {};
             re.model.association.types.forEach(function(assoc) {
                 obj[assoc.ui.grid.store_index] = link[assoc.query.id];
-            })
+            });
             var node1_clone = vq.utils.VisUtils.extend(obj,link.node1);
             node1_clone.start = link.node1.start <= link.node2.start ?
                 link.node1.start : link.node2.start;
             node1_clone.end = link.node1.start <= link.node2.start ? link.node2.start : link.node1.start;
-            node1_clone.start = bpToMb(node1_clone.start);node1_clone.end = bpToMb(node1_clone.end);
+            node1_clone.start = node1_clone.start;node1_clone.end = node1_clone.end;
             node1_clone.sourceNode = vq.utils.VisUtils.extend({},link.node1);
             node1_clone.targetNode = vq.utils.VisUtils.extend({},link.node2);
             re.model.association.types.forEach(function(assoc) {
                 node1_clone[assoc.ui.grid.store_index] = link[assoc.query.id];
-            })
-            // node1_clone.importance = link.importance,node1_clone.correlation = link.correlation;
-            // node1_clone.pvalue = link.pvalue;
+            });
             return node1_clone;
         });
 
@@ -743,23 +750,22 @@ function linear_plot(obj) {
             var obj = {};
             re.model.association.types.forEach(function(assoc) {
                 obj[assoc.ui.grid.store_index] = link[assoc.query.id];
-            })
+            });
             var node1_clone = vq.utils.VisUtils.extend(obj,link.node1);
-            node1_clone.start = bpToMb(node1_clone.start);node1_clone.end = bpToMb(node1_clone.end);
+            node1_clone.start = node1_clone.start;node1_clone.end = node1_clone.end;
             node1_clone.sourceNode = vq.utils.VisUtils.extend({},link.node1);
             node1_clone.targetNode = vq.utils.VisUtils.extend({},link.node2);
             return node1_clone;
         });
 
-
     var locations = vq.utils.VisUtils.clone(parsed_data['features']).filter(function(node) { return node.chr == chrom;})
         .map(function (location)  {
-            return vq.utils.VisUtils.extend(location,{ start: bpToMb(location.start), end : bpToMb(location.end) , label : location.value});
+            return vq.utils.VisUtils.extend(location,{ start: location.start, end : location.end , label : location.value});
         });
     var node2_locations = parsed_data['network']
         .filter(function(link) {  return link.node2.chr == chrom;})
         .map(function(link) {
-            return vq.utils.VisUtils.extend(link.node2, { start : bpToMb(link.node2.start), end: bpToMb(link.node2.end)});
+            return vq.utils.VisUtils.extend(link.node2, { start : link.node2.start, end: link.node2.end});
         });
 
     locations = locations.concat(node2_locations);
@@ -777,7 +783,13 @@ function linear_plot(obj) {
             vertical_padding:20,
             horizontal_padding:20,
             container : div,
-            context_height: 100},
+            context_height: 100,
+                            axes : {
+                                x: {
+                                    label : 'Chromosome ' + obj.chr + ' (Mb)',
+                                    scale_multiplier : (1 / re.MILLION)
+                                }
+                            }},
         TRACKS : [
             { type: 'tile',
                 label : 'Feature Locations',
@@ -789,7 +801,7 @@ function linear_plot(obj) {
                     tile_height:20,                //required
                     track_padding: 20,             //required
                     tile_padding:6,              //required
-                    tile_overlap_distance:1,    //required
+                    tile_overlap_distance:1 * re.MILLION,
                     notifier:tile_listener,         //optional
                     track_fill_style : pv.color('#EEDEDD'),
                     track_line_width : 1,
@@ -808,7 +820,7 @@ function linear_plot(obj) {
                     track_height : 60,
                     track_padding: 20,
                     tile_padding:6,              //required
-                    tile_overlap_distance:.1,    //required
+                    tile_overlap_distance:.1 * re.MILLION,    //required
                     shape :  'dot',
                     tile_show_all_tiles : true,
                     radius : 3,
@@ -831,7 +843,7 @@ function linear_plot(obj) {
                     track_height : 80,
                     track_padding: 20,
                     tile_padding:4,              //required
-                    tile_overlap_distance:1,    //required
+                    tile_overlap_distance:1 * re.MILLION,    //required
                     shape :  'dot',
                     tile_show_all_tiles : true,
                     radius : 3,
@@ -855,7 +867,7 @@ function linear_plot(obj) {
                     track_padding: 15,             //required
                     tile_height : 2,
                     tile_padding:7,              //required
-                    tile_overlap_distance:.1,    //required
+                    tile_overlap_distance:.1 * re.MILLION,    //required
                     tile_show_all_tiles : true,
                     track_fill_style : pv.color('#EEDDEE'),
                     track_line_width : 1,
@@ -871,7 +883,7 @@ function linear_plot(obj) {
     };
     var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
     var chr_match = chrom_leng.filter(function(chr_obj) { return chr_obj.chr_name == chrom;});
-    var maxPos = Math.ceil(bpToMb(chr_match[0]['chr_length']));
+    var maxPos = Math.ceil(chr_match[0]['chr_length']);
 
     var lin_browser = new vq.LinearBrowser();
     var lin_data = {DATATYPE: 'vq.models.LinearBrowserData',CONTENTS: data_obj()};
@@ -907,6 +919,8 @@ function isNAValue(data_type,value) {
     if (isNonLinear(data_type))  return value == 'NA';
     else  return isNaN(value);
 }
+
+re.MILLION = 1000000;
 
 
 function scatterplot_draw(params) {
@@ -983,7 +997,9 @@ function scatterplot_draw(params) {
             PLOT : {container: div,
                 width : 600,
                 height: 300,
-                vertical_padding : 40, horizontal_padding: 40, font :"14px sans"},
+                vertical_padding : 40,
+                horizontal_padding: 40,
+                font :"14px sans"},
             data_array: data_array,
             xcolumnid: f1,
             ycolumnid: f2,
