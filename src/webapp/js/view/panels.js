@@ -1,16 +1,16 @@
 
- if (re === undefined) { re = {};}
+if (re === undefined) { re = {};}
 
 vq.utils.VisUtils.extend(re.ui, {
- panels : {
-	 east : {
-		 region: 'east',
+        panels : {
+            east : {
+                region: 'east',
                 collapsible: true,
                 floatable: true,
                 autoHide:false,
                 split: true,
                 width: 280,
-				id: 'filter_parent',
+                id: 'filter_parent',
                 title: 'Filtering',
                 layout: {
                     type: 'accordion'
@@ -33,7 +33,7 @@ vq.utils.VisUtils.extend(re.ui, {
                             }}],
                         items :[
                             { xtype:'form',
-                                d :'association_filter_panel',
+                                id :'association_filter_panel',
                                 name :'association_filter_panel',
                                 bodyStyle:'padding:5px 5px 5px 5px',
                                 defaults:{anchor:'100%'},
@@ -43,9 +43,17 @@ vq.utils.VisUtils.extend(re.ui, {
                                 labelSeparator : '',
                                 defaultType:'textfield',
                                 monitorValid : true,
+                                keys: [
+                                    {
+                                        key: [Ext.EventObject.ENTER],
+                                        fn: function() {
+                                            Ext.ComponentMgr.get('re_filter_button').fireEvent('click');
+                                        }}
+                                ],
                                 buttons : [
                                     {
                                         text: 'Filter',
+                                        id:'re_filter_button',
                                         formBind : true,
                                         listeners : {
                                             click : function(button,e) {
@@ -72,23 +80,23 @@ vq.utils.VisUtils.extend(re.ui, {
                                         defaultType:'textfield',
                                         autoHeight:true,
                                         items:[
-                                        { xtype:'checkbox',
-                                        	id:'isolate',
-                                        	fieldLabel:'Isolate',
-                                            defaultValue:false,
-                                        	checked:false,
-                                        	listeners: { check: function(cb, checked) {
-                                        		Ext.getCmp(re.ui.feature2.id).setDisabled(checked);
-                                        		if (checked) { Ext.getCmp(re.ui.feature2.id).collapse(); }
-                                        		else { Ext.getCmp(re.ui.feature2.id).expand(); }
-                                                Ext.getCmp('t_chr').setDisabled(checked);
-                                                Ext.getCmp('t_start').setDisabled(checked);
-                                                Ext.getCmp('t_stop').setDisabled(checked);
-                                                Ext.getCmp('t_lookup_button').setDisabled(checked);
-                                                Ext.getCmp('filter_type').setDisabled(checked);
-                                        	}
-                                        }
-                                        },
+                                            { xtype:'checkbox',
+                                                id:'isolate',
+                                                fieldLabel:'Isolate',
+                                                defaultValue:false,
+                                                checked:false,
+                                                listeners: { check: function(cb, checked) {
+                                                    Ext.getCmp(re.ui.feature2.id).setDisabled(checked);
+                                                    if (checked) { Ext.getCmp(re.ui.feature2.id).collapse(); }
+                                                    else { Ext.getCmp(re.ui.feature2.id).expand(); }
+                                                    Ext.getCmp('t_chr').setDisabled(checked);
+                                                    Ext.getCmp('t_start').setDisabled(checked);
+                                                    Ext.getCmp('t_stop').setDisabled(checked);
+                                                    Ext.getCmp('t_lookup_button').setDisabled(checked);
+                                                    Ext.getCmp('filter_type').setDisabled(checked);
+                                                }
+                                                }
+                                            },
                                             {
                                                 xtype:'combo',
                                                 name:'t_type',
@@ -237,10 +245,10 @@ vq.utils.VisUtils.extend(re.ui, {
                                             }
                                         ]},
                                     {  xtype:'fieldset',
-                                    	id:re.ui.feature2.id,
-                                        title:re.ui.feature2.label, 
-                                       	checkboxToggle:false,
-                                       	maskDisabled:true,
+                                        id:re.ui.feature2.id,
+                                        title:re.ui.feature2.label,
+                                        checkboxToggle:false,
+                                        maskDisabled:true,
                                         collapsible: true,
                                         defaults:{anchor:'100%'},
                                         labelWidth: 70,
@@ -248,12 +256,12 @@ vq.utils.VisUtils.extend(re.ui, {
                                         defaultType:'textfield',
                                         autoHeight:true,
                                         listeners: {
-                                        	disabled : function(){
-                                        		var me = this;
-                                        		Ext.getCmp('filter_type').setDisabled(me.disabled);
-                                        	}
+                                            disabled : function(){
+                                                var me = this;
+                                                Ext.getCmp('filter_type').setDisabled(me.disabled);
+                                            }
                                         },
-                                        items: [                                        	
+                                        items: [
                                             {
                                                 xtype:'combo',
                                                 name:'p_type',
@@ -413,50 +421,50 @@ vq.utils.VisUtils.extend(re.ui, {
                                         collapsible: true,
                                         autoHeight:true,
                                         items:
-                                                re.model.association.types.map( function (obj) {
-                                                    return obj.ui.filter.component;
-                                                }).concat([                                            
-                                            { xtype:'combo', name:'order',id:'order',
-                                                mode:'local',
-                                                allowBlank : true,
-                                                store: new Ext.data.JsonStore({
-                                                    autoLoad : true,
-                                                    fields : ['value','label'],
-                                                    idProperty:'value',
-                                                    data: re.ui.order_list,
-                                                    storeId:'order_combo_store'
-                                                }),
-                                                fieldLabel:'Order By',
-                                                valueField:'value',
-                                                displayField:'label',
-                                                tabIndex : 2,
-                                                typeAhead : true,
-                                                selectOnFocus:true,
-                                                triggerAction : 'all',
-                                                defaultValue : re.ui.order_list[0]['value'],
-                                                value : re.ui.order_list[0]['value']
-                                            },
-                                            { xtype:'combo', name:'limit',id:'limit',
-                                                mode:'local',
-                                                allowBlank : true,
-                                                store: new Ext.data.JsonStore({
-                                                    autoLoad : true,
-                                                    fields : ['value','label'],
-                                                    idProperty:'value',
-                                                    data: re.ui.limit_list,
-                                                    storeId:'limit_combo_store'
-                                                }),
-                                                fieldLabel:'Max Results',
-                                                valueField:'value',
-                                                displayField:'label',
-                                                tabIndex : 2,
-                                                typeAhead : true,
-                                                selectOnFocus:true,
-                                                triggerAction : 'all',
-                                                defaultValue : 200,
-                                                value : 200
-                                            }
-                                        ])
+                                            re.model.association.types.map( function (obj) {
+                                                return obj.ui.filter.component;
+                                            }).concat([
+                                                { xtype:'combo', name:'order',id:'order',
+                                                    mode:'local',
+                                                    allowBlank : true,
+                                                    store: new Ext.data.JsonStore({
+                                                        autoLoad : true,
+                                                        fields : ['value','label'],
+                                                        idProperty:'value',
+                                                        data: re.ui.order_list,
+                                                        storeId:'order_combo_store'
+                                                    }),
+                                                    fieldLabel:'Order By',
+                                                    valueField:'value',
+                                                    displayField:'label',
+                                                    tabIndex : 2,
+                                                    typeAhead : true,
+                                                    selectOnFocus:true,
+                                                    triggerAction : 'all',
+                                                    defaultValue : re.ui.order_list[0]['value'],
+                                                    value : re.ui.order_list[0]['value']
+                                                },
+                                                { xtype:'combo', name:'limit',id:'limit',
+                                                    mode:'local',
+                                                    allowBlank : true,
+                                                    store: new Ext.data.JsonStore({
+                                                        autoLoad : true,
+                                                        fields : ['value','label'],
+                                                        idProperty:'value',
+                                                        data: re.ui.limit_list,
+                                                        storeId:'limit_combo_store'
+                                                    }),
+                                                    fieldLabel:'Max Results',
+                                                    valueField:'value',
+                                                    displayField:'label',
+                                                    tabIndex : 2,
+                                                    typeAhead : true,
+                                                    selectOnFocus:true,
+                                                    triggerAction : 'all',
+                                                    defaultValue : 200,
+                                                    value : 200
+                                                }
+                                            ])
                                     },
                                     {xtype:'combo',
                                         fieldLabel:'Filter By',
@@ -486,6 +494,6 @@ vq.utils.VisUtils.extend(re.ui, {
                     }]
             }
 
-        }   
-}
+        }
+    }
 );
