@@ -45,10 +45,11 @@ re.model.association =  {
                         min:-300,
                         floor : -50,
                         ceil: 0
-                    }
-                }
-			}
-		},
+                    },
+                     color_scale : pv.Scale.linear(-100,0).range('blue','red')
+                 }
+            }
+	},
 		{ 	id : 'num_nonna',
 			label : '# of non-NA',
 			ui : {
@@ -86,7 +87,12 @@ re.model.association =  {
 				tooltip : {
 					entry : { ' # of non-NA' : 'num_nonna'}
 				},
-                scatterplot: {}
+                scatterplot : {
+                                    scale_type :'linear',
+                                    values : {
+                                    },
+                                    color_scale : pv.Scale.linear(0,400).range('blue','red')
+                                }
 			}
 		},
 		{ 	id : 'correlation',
@@ -118,8 +124,13 @@ re.model.association =  {
 				tooltip : {
 					entry : {  Correlation : 'correlation'}
 				},
-                scatterplot: {}
-			}
+                scatterplot : {
+                                    scale_type :'linear',
+                                    values : {
+                                    },
+                                    color_scale : pv.Scale.linear(-1,1).range('blue','red')
+                                }
+            }
 		}
 	]
 };

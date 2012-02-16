@@ -87,7 +87,7 @@ re.model.association =  {
 				},
                 scatterplot : {
                     color_scale : pv.Scale.linear(0.5,0).range('blue','red')
-                },
+                }
 			}
 		},
 		{ 	id : 'correlation',
