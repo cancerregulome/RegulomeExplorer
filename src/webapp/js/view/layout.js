@@ -30,16 +30,19 @@ function registerLayoutListeners() {
         re.state.query_cancel = false;
         exposeCirclePlot();
     });
+    d.addListener('graph_ready','graph',function(data) {
+    if  (Ext.getCmp('view-region').layout.activeItem.id =='network-panel') {
+                requestGraphRender();
+            }
+    });
     d.addListener('data_ready','associations',function(data) {
         loadDataTableStore(data);
-        if  (Ext.getCmp('details-tabpanel').layout.activeItem.id =='network-panel') {
-            requestGraphRender();
-        }
+
     });
     d.addListener('data_ready','sf_associations',function(data) {
         loadDataTableStore(data);
-        if  (Ext.getCmp('details-tabpanel').layout.activeItem.id =='network-panel') {
-            Ext.getCmp('details-tabpanel').layout.setActiveItem('rf-graphical');
+        if  (Ext.getCmp('view-region').layout.activeItem.id =='network-panel') {
+            Ext.getCmp('view-region').layout.setActiveItem('rf-graphical');
         }
     });
     d.addListener('render_complete','linear',function(linear){

@@ -18,6 +18,8 @@ function registerPlotListeners() {
             div : 'graph-panel'
         };
         initializeGraph(obj);
+        var e = new vq.events.Event('graph_ready','graph',{});
+            e.dispatch();
     });
     d.addListener( 'frame_ready','graph',function() {
         if (!re.display_options.cytoscape.ready) {
