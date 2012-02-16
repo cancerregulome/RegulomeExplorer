@@ -116,7 +116,7 @@ re.model.association =  {
 					edgeSchema : { name: "correlation", type: "number" }
 				},
 				tooltip : {
-					entry : {  Correlation : 'correlation',}
+					entry : {  Correlation : 'correlation'}
 				},
                 scatterplot: {}
 			}

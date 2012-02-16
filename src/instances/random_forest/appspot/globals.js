@@ -80,13 +80,38 @@ vq.utils.VisUtils.extend(re, {
             tooltips:{
                             feature :  {
                                 Feature : function(node) { var pos = node.label.indexOf('_');
-                                return pos > 0 ? node.label.slice(0,pos) : node.label;},
+                                    return pos > 0 ? node.label.slice(0,pos) : node.label;},
                                 Source : function(node) { return re.label_map[node.source]},
-                                'Location' : function(node) { return node.chr + ' ' + node.start + '-' + node.end + ' ';} ,
-                                Other : function(node) { return node.label_mod.replace(/_/g,', ');}
+                                'Location' : function(node) { return 'Chr' + node.chr + ' ' + node.start + (node.end == '' ? '' : '-'+ node.end) + ' ';} ,
+                                Annotations :  parseAnnotationList
                             },
-                            edge : function(edge) {}
-
+                            edge : function(edge) {},
+                            link_objects: [
+                                {
+                                    label : 'UCSC Genome Browser',
+                                    url : 'http://genome.ucsc.edu/cgi-bin/hgTracks',
+                                    uri : '?db=hg18&position=chr',
+                                    config_object :  function(feature){
+                                        return  'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg18&position=chr' +
+                                            feature.chr + ':' +  feature.start + (feature.end == '' ? '' : '-'+ feature.end);  }
+                                },//ucsc_genome_browser
+                                {
+                                    label :'Ensemble',
+                                    url : 'http://uswest.ensembl.org/Homo_sapiens/Location/View',
+                                    uri : '?r=',
+                                    config_object :  function(feature) {
+                                        return  'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr +
+                                            ':' +  feature.start + (feature.end == '' ? '' : '-'+ feature.end);  }
+                                },//ensemble
+                               {
+                                   label :'Cosmic',
+                                   url : 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic',
+                                   uri : '?action=bygene&ln=',
+                                   config_object :  function(feature) {
+                                       return  'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label;  }
+                               }
+                            ], //link_objects
+                            links : {}
                         },
             ticks : {
                 tick_overlap_distance : null,

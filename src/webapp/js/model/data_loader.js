@@ -81,8 +81,6 @@ function generateNetworkDefinition(responses) {
             obj[assoc.ui.grid.store_index] = row[assoc.query.id];
         });
         return obj;
-        // return {id:f1id + '-' + f2id, label : f1id + ' -> ' + f2id, source:f1id ,target: f2id,
-        //     pvalue : row.pvalue,importance : row.importance, correlation:row.correlation};
     });
 
     network.nodes =  source_array;
