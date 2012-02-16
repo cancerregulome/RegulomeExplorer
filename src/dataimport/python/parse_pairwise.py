@@ -113,6 +113,7 @@ def process_pairwise_edges(pairwised_file, config):
 	do_pubcrawl = db_util.getDoPubcrawl(config)
 	results_path = db_util.getResultsPath(config)
 	edges_file = open(pairwised_file)
+	print "\nBegin processing pairwise edges\n\n"
 	edge_table = mydb + ".mv_" + dataset_label + "_feature_networks" 
         efshout = open('./results/load_edges_' + dataset_label + '.sh','w')
         edges_out_re = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_re.tsv','w')
@@ -172,8 +173,8 @@ def process_pairwise_edges(pairwised_file, config):
 				pvf1 = tokens[8]
 				numnaf2 = tokens[9]
 				pvf2 = tokens[10]
-				edges_out_re.write(nodeA + "\t" + "\t".join(dataA) + "\t" + nodeB + "\t" + "\t".join(dataB) + "\t" + correlation + "\t" + numna + "\t" + pv + "\t" + bonf + "\t" + pv_bonf + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\n")
-				#edges_out_tsv.write(nodeB + "\t" + "\t".join(dataB) + "\t" + nodeA + "\t" + "\t".join(dataA) + "\t" + correlation + "\t" + numna + "\t" + pv + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\n")
+				rho = str(db_util.sign(float(correlation))*abs(float(pv)))
+				edges_out_re.write(nodeA + "\t" + "\t".join(dataA) + "\t" + nodeB + "\t" + "\t".join(dataB) + "\t" + correlation + "\t" + numna + "\t" + pv + "\t" + bonf + "\t" + pv_bonf + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\t" + rho + "\n")
 				if (do_pubcrawl == "yes"):
 					#call andrea code
 					getPairwiseInfo.processLine(line, edges_out_pc)

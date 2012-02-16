@@ -7,6 +7,7 @@ import numpy as np
 import pyentropy as pe
 import ConfigParser
 import MySQLdb
+import math
 
 nucleotide_complement = {}
 nucleotide_complement['A'] = 'T'
@@ -155,6 +156,9 @@ def is_numeric(lit):
         pass
     print lit	
     return -1
+
+#quick function to tell sign of int
+sign = lambda x: math.copysign(1, x)
 		
 if __name__ == "__main__":	
 	configfile = sys.argv[1]

@@ -34,6 +34,8 @@ def loadConfig(env):
 		configFile = "../config/rfex_sql_sandbox.config"
 	elif (env == "public"):
 		configFile = "../config/rfex_sql.config"
+	elif (env == "gdac"):
+		configFile = "../config/rfex_sql_gdac.config"
 	else:
 		print "The env selected is invalid " + env
 		sys.exit(-1)
@@ -44,7 +46,7 @@ def loadConfig(env):
 
 
 if __name__=="__main__":
-	ds_env = raw_input("Deleting datasets, Please enter internal or public\n")	
+	ds_env = raw_input("Deleting datasets, Please enter one of the following: [internal, gdac, public]\n")	
 	config = (loadConfig(ds_env))
 	list = getDatasets(config)
 	if (list != None):
@@ -53,7 +55,7 @@ if __name__=="__main__":
 		for l in list:
 			print "\t".join(l[0:3]) 
 			mylist.append(l[0])
-		ds = raw_input("Enter dataset label to drop from db, for > 1 sets, separate the datasets by comma. \nThis is permanent!\n")
+		ds = raw_input("Enter dataset label to drop from db, for > 1 separate the datasets by comma\n")
 		if (ds != None and len(ds) > 1):
 			drop_list = ds.split(",")
 			if ("".join(mylist).find("".join(drop_list)) == -1 ):
