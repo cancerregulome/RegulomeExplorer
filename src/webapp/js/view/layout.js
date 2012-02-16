@@ -271,6 +271,7 @@ function manualFilterRequest() {
         return;
     }
     re.state.query_cancel = false;
+    re.display_options.cytoscape.ready = false;
     preserveState();
     requestFilteredData();
 }

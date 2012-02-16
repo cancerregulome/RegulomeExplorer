@@ -1,7 +1,7 @@
 
 function flex_field_query(label, value, fn) {
     var where = '';
-    if (value != '') {
+    if (value + '' != '') {
         if (fn == 'Btw'){
             where += '(' + label + ' >= -' +value + ' and '+ label + ' <= ' + value +')';
         }else if (fn == '<='){
