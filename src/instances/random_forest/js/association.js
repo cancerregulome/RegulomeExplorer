@@ -27,6 +27,23 @@ re.model.association =  {
 				store_index : 'importance'
 				}
 			},
+            filter : {
+            				 					component: {
+            					 							xtype : 'numberfield',
+                                                            id:'importance',
+                                                            name :'importance',
+                                                            allowNegative: false,
+                                                            decimalPrecision : 2,
+                                                            emptyText : 'Input value...',
+                                                            invalidText:'This value is not valid.',
+                                                            minValue:0,
+                                                            tabIndex : 1,
+                                                            validateOnBlur : true,
+                                                            fieldLabel : 'Importance >=',
+                                                            defaultValue : 0,
+                                                            value : 0
+                                                        }
+            			},
 			query : {
 				id : 'importance',
 				clause : 'importance >= ',
@@ -75,6 +92,24 @@ re.model.association =  {
 				store_index : 'pvalue'
 			}
 			},
+            filter : {
+            				 					component: {
+            					 							xtype : 'numberfield',
+                                                            id:'pvalue',
+                                                            name :'pvalue',
+                                                            allowNegative: false,
+                                                            decimalPrecision : 8,
+                                                            emptyText : 'Input value...',
+                                                            invalidText:'This value is not valid.',
+                                                            maxValue:0.9,
+                                                            minValue:0,
+                                                            tabIndex : 1,
+                                                            validateOnBlur : true,
+                                                            fieldLabel : 'pvalue <=',
+                                                            defaultValue : 0.5,
+                                                            value : 0.5
+                                                        }
+            			},
 			query : {
 				id : 'pvalue',
 				clause : 'pvalue <= ',
@@ -113,6 +148,15 @@ re.model.association =  {
 				store_index : 'correlation'
 			}
 			},
+            filter : {
+            				 					component:   new re.multirangeField(
+                                                            {   id:'correlation',
+                                                                label: 'Correlation',
+                                                                default_value: 0,
+                                                                min_value: -1,
+                                                                max_value: 1}
+                                                        )
+            			},
 			query : {
 				id : 'correlation',
 				clause : flex_field_query,
