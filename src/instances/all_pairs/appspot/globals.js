@@ -82,8 +82,8 @@ vq.utils.VisUtils.extend(re, {
                                 Feature : function(node) { var pos = node.label.indexOf('_');
                                     return pos > 0 ? node.label.slice(0,pos) : node.label;},
                                 Source : function(node) { return re.label_map[node.source]},
-                                'Location' : function(node) { return 'Chr' + node.chr + ' ' + node.start + (node.end == '' ? '' : '-'+ node.end) + ' ';},
-                                Annotations :  parseAnnotationList
+                                'Location' : function(node) { return 'Chr' + node.chr + ' ' + node.start + (node.end == '' ? '' : '-'+ node.end) + ' ';}
+//                                Annotations :  parseAnnotationList
                             },
                             edge : function(edge) {},
                             link_objects: [
