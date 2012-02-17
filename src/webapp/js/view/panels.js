@@ -421,7 +421,10 @@ vq.utils.VisUtils.extend(re.ui, {
                                         collapsible: true,
                                         autoHeight:true,
                                         items:
-                                            re.model.association.types.map( function (obj) {
+                                            re.model.association.types.filter(function(assoc) {
+                                                    return assoc.filter != undefined &&
+                                                            assoc.filter.component != undefined;
+                                            }).map( function (obj) {
                                                 return obj.ui.filter.component;
                                             }).concat([
                                                 { xtype:'combo', name:'order',id:'order',
