@@ -133,99 +133,99 @@ re.model.association =  {
                                     color_scale : pv.Scale.linear(-1,0,1).range('red','blue','red')
                                 }
             }
-		},
-        { 	id : 'logged_pvalue_bonf',
-        			label : 'log10(bonf)',
-        			ui : {
-        			filter : {
-
-        			},
-        			grid : {
-        				column : { header: 'log10(bonf)', width:50, id:'logged_pvalue_bonf',dataIndex:'logged_pvalue_bonf'},
-        				store_index : 'logged_pvalue_bonf'
-        				}
-        			},
-        			query : {
-        				id : 'logged_pvalue_bonf'
-//        				clause : flex_field_query,
-//        				order_direction : 'DESC'
-        			},
-        			vis : {
-        				network : {
-        					edgeSchema : { name: "logged_pvalue_bonf", type: "number" }
-        				},
-        				tooltip : {
-        					entry : {  'log10(bonf)' : 'logged_pvalue_bonf'}
-        				},
-                        scatterplot : {
-                                            scale_type :'linear',
-                                            values : {
-                                            },
-                                            color_scale : pv.Scale.linear(-100,0).range('blue','red')
-                                        }
-                    }
-        		},
-        { 	id : 'num_nonna_f1',
-        			label : '# of non-NA (f1)',
-        			ui : {
-        			filter : {
-
-        			},
-        			grid : {
-        				column : { header: '# of non-NA (f1)', width:50, id:'num_nonna_f1',dataIndex:'num_nonna_f1'},
-        				store_index : 'num_nonna_f1'
-        				}
-        			},
-        			query : {
-        				id : 'num_nonna_f1'
-//        				clause : flex_field_query,
-//        				order_direction : 'DESC'
-        			},
-        			vis : {
-        				network : {
-        					edgeSchema : { name: "num_nonna_f1", type: "number" }
-        				},
-        				tooltip : {
-        					entry : {  '# of non-NA' : 'num_nonna_f1'}
-        				},
-                        scatterplot : {
-                                            scale_type :'linear',
-                                            values : {
-                                            },
-                                            color_scale : pv.Scale.linear(0,500).range('blue','red')
-                                        }
-                    }
-        		},
-        { 	id : 'rho_score',
-                			label : 'Score',
-                			ui : {
-                			filter : {
-
-                			},
-                			grid : {
-                				column : { header: 'Score', width:50, id:'rho_score',dataIndex:'rho_score'},
-                				store_index : 'rho_score'
-                				}
-                			},
-                			query : {
-                				id : 'rho_score'
-        //        				clause : flex_field_query,
-        //        				order_direction : 'DESC'
-                			},
-                			vis : {
-                				network : {
-                					edgeSchema : { name: "rho_score", type: "number" }
-                				},
-                				tooltip : {
-                					entry : {  'Score' : 'rho_score'}
-                				},
-                                scatterplot : {
-                                                    scale_type :'linear',
-                                                    values : {
-                                                    },
-                                                    color_scale : pv.Scale.linear(-1,1).range('red','blue','red')
-                                                }
-                            }
+//		},
+//        { 	id : 'logged_pvalue_bonf',
+//        			label : 'log10(bonf)',
+//        			ui : {
+//        			filter : {
+//
+//        			},
+//        			grid : {
+//        				column : { header: 'log10(bonf)', width:50, id:'logged_pvalue_bonf',dataIndex:'logged_pvalue_bonf'},
+//        				store_index : 'logged_pvalue_bonf'
+//        				}
+//        			},
+//        			query : {
+//        				id : 'logged_pvalue_bonf'
+////        				clause : flex_field_query,
+////        				order_direction : 'DESC'
+//        			},
+//        			vis : {
+//        				network : {
+//        					edgeSchema : { name: "logged_pvalue_bonf", type: "number" }
+//        				},
+//        				tooltip : {
+//        					entry : {  'log10(bonf)' : 'logged_pvalue_bonf'}
+//        				},
+//                        scatterplot : {
+//                                            scale_type :'linear',
+//                                            values : {
+//                                            },
+//                                            color_scale : pv.Scale.linear(-100,0).range('blue','red')
+//                                        }
+//                    }
+//        		},
+//        { 	id : 'num_nonna_f1',
+//        			label : '# of non-NA (f1)',
+//        			ui : {
+//        			filter : {
+//
+//        			},
+//        			grid : {
+//        				column : { header: '# of non-NA (f1)', width:50, id:'num_nonna_f1',dataIndex:'num_nonna_f1'},
+//        				store_index : 'num_nonna_f1'
+//        				}
+//        			},
+//        			query : {
+//        				id : 'num_nonna_f1'
+////        				clause : flex_field_query,
+////        				order_direction : 'DESC'
+//        			},
+//        			vis : {
+//        				network : {
+//        					edgeSchema : { name: "num_nonna_f1", type: "number" }
+//        				},
+//        				tooltip : {
+//        					entry : {  '# of non-NA' : 'num_nonna_f1'}
+//        				},
+//                        scatterplot : {
+//                                            scale_type :'linear',
+//                                            values : {
+//                                            },
+//                                            color_scale : pv.Scale.linear(0,500).range('blue','red')
+//                                        }
+//                    }
+//        		},
+//        { 	id : 'rho_score',
+//                			label : 'Score',
+//                			ui : {
+//                			filter : {
+//
+//                			},
+//                			grid : {
+//                				column : { header: 'Score', width:50, id:'rho_score',dataIndex:'rho_score'},
+//                				store_index : 'rho_score'
+//                				}
+//                			},
+//                			query : {
+//                				id : 'rho_score'
+//        //        				clause : flex_field_query,
+//        //        				order_direction : 'DESC'
+//                			},
+//                			vis : {
+//                				network : {
+//                					edgeSchema : { name: "rho_score", type: "number" }
+//                				},
+//                				tooltip : {
+//                					entry : {  'Score' : 'rho_score'}
+//                				},
+//                                scatterplot : {
+//                                                    scale_type :'linear',
+//                                                    values : {
+//                                                    },
+//                                                    color_scale : pv.Scale.linear(-1,1).range('red','blue','red')
+//                                                }
+//                            }
                 		}
 	]
 };
