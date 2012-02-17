@@ -127,6 +127,8 @@ re.model.association =  {
                 scatterplot : {
                                     scale_type :'linear',
                                     values : {
+                                        min:-1,
+                                        max:1
                                     },
                                     color_scale : pv.Scale.linear(-1,0,1).range('red','blue','red')
                                 }

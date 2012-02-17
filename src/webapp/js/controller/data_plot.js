@@ -164,6 +164,7 @@ function initiateDetailsPopup(link) {
 function colorscale_draw(association_obj, div) {
 
     var width = 180;
+    var dom = association_obj.vis.scatterplot.color_scale.domain();
     var vis= new pv.Panel()
         .top(10)
         .left(10)
@@ -172,7 +173,7 @@ function colorscale_draw(association_obj, div) {
         .strokeStyle('black')
         .lineWidth(1)
         .canvas(div);
-    var x_axis = pv.Scale.linear.apply(pv.Scale,association_obj.vis.scatterplot.color_scale.domain()).range(0,width-20);
+    var x_axis = pv.Scale.linear.apply(pv.Scale,[dom[0],dom[dom.length-1]]).range(0,width-20);
     var legend = vis.add(pv.Panel)
         .left(10)
         .right(10)
@@ -317,28 +318,28 @@ function singlefeature_circvis(parsed_data,div) {
     var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
     var ticks = vq.utils.VisUtils.clone(parsed_data['features']);
 
-    var floor = settings.values.floor === undefined ? min : settings.values.floor;
-    var ceil = settings.values.ceil === undefined ? max : settings.values.ceil;
-    if ( floor != min || ceil != max)  {
-        scatterplot_data = parsed_data['features'].map(function(obj){
-            var return_obj = vq.utils.VisUtils.clone(obj);
-            return_obj[field+'_plot'] = Math.max(floor,Math.min(return_obj[field],ceil));
-            return return_obj;
-        });
-        field = field+'_plot';
-    }
-    min = floor;
-    max = ceil;
-    function re_interpolate(new_domain) {
-        var old_domain  = settings.color_scale.domain(), old_range = settings.color_scale.range();
-        var scale = pv.Scale.linear(old_domain);
-        scale.range.apply(scale,new_domain);
-        var new_good_domain = old_domain.map(scale);
-        var new_scale = pv.Scale.linear.apply(pv.Scale,new_good_domain).nice();
-        new_scale.range.apply(new_scale,old_range);
-        settings.color_scale= new_scale;
-    }
-    re_interpolate([min,max]);
+//    var floor = settings.values.floor === undefined ? min : settings.values.floor;
+//    var ceil = settings.values.ceil === undefined ? max : settings.values.ceil;
+//    if ( floor != min || ceil != max)  {
+//        scatterplot_data = parsed_data['features'].map(function(obj){
+//            var return_obj = vq.utils.VisUtils.clone(obj);
+//            return_obj[field+'_plot'] = Math.max(floor,Math.min(return_obj[field],ceil));
+//            return return_obj;
+//        });
+//        field = field+'_plot';
+//    }
+//    min = floor;
+//    max = ceil;
+//    function re_interpolate(new_domain) {
+//        var old_domain  = settings.color_scale.domain(), old_range = settings.color_scale.range();
+//        var scale = pv.Scale.linear(old_domain);
+//        scale.range.apply(scale,new_domain);
+//        var new_good_domain = old_domain.map(scale);
+//        var new_scale = pv.Scale.linear.apply(pv.Scale,new_good_domain).nice();
+//        new_scale.range.apply(new_scale,old_range);
+//        settings.color_scale= new_scale;
+//    }
+//    re_interpolate([min,max]);
 
     var data = {
         GENOME: {
