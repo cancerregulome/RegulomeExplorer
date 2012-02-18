@@ -28,24 +28,6 @@ re.model.association =  {
 				store_index : 'logged_pvalue'
 			}
 			},
-            filter : {
-            				 					component: {
-            					 							xtype : 'numberfield',
-                                                            id:'logged_pvalue',
-                                                            name :'logged_pvalue',
-                                                            allowNegative: true,
-                                                            decimalPrecision : 0,
-                                                            emptyText : 'Input value...',
-                                                            invalidText:'This value is not valid.',
-                                                            maxValue:0,
-                                                            minValue:-300.0,
-                                                            tabIndex : 1,
-                                                            validateOnBlur : true,
-                                                            fieldLabel : 'log10(p) <=',
-                                                            defaultValue: -2,
-                                                            value : -2
-                                                        }
-            			},
 			query : {
 				id : 'logged_pvalue',
 				clause : 'logged_pvalue <= ',
@@ -93,23 +75,6 @@ re.model.association =  {
 				store_index : 'num_nonna'
 				}
 			},
-            filter : {
-            				 					component: {
-            					 							xtype : 'numberfield',
-                                                            id:'num_nonna',
-                                                            name :'num_nonna',
-                                                            allowNegative: false,
-                                                            decimalPrecision : 2,
-                                                            emptyText : 'Input value...',
-                                                            invalidText:'This value is not valid.',
-                                                            minValue:0,
-                                                            tabIndex : 1,
-                                                            validateOnBlur : true,
-                                                            fieldLabel : '# of non-NA >=',
-                                                            defaultValue: 0,
-                                                            value : 0
-                                                       }
-            			},
 			query : {
 				id : 'num_nonna',
 				clause : 'num_nonna >= ',
@@ -147,15 +112,6 @@ re.model.association =  {
 				store_index : 'correlation'
 				}
 			},
-            filter : {
-            				 					component:   new re.multirangeField(
-                                                            {   id:'correlation',
-                                                                label: 'Correlation',
-                                                                default_value: 0,
-                                                                min_value: -1,
-                                                                max_value: 1}
-                                                        )
-            			},
 			query : {
 				id : 'correlation',
 				clause : flex_field_query,

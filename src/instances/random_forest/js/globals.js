@@ -3,7 +3,7 @@
 
  Import this before MVC scripts.
  */
- if (re === undefined) { re = {};}
+if (re === undefined) { re = {};}
 
 vq.utils.VisUtils.extend(re, {
 
@@ -16,8 +16,8 @@ vq.utils.VisUtils.extend(re, {
         directed_association : true
     },
     state : {
-      once_loaded : false,
-      query_cancel : false,
+        once_loaded : false,
+        query_cancel : false,
         network_query : ''
     },
     rest : {
@@ -30,7 +30,7 @@ vq.utils.VisUtils.extend(re, {
     databases: {
         base_uri : '',
         metadata: {
-        uri: '/google-dsapi-svc/addama/datasources/csacr'
+            uri: '/google-dsapi-svc/addama/datasources/csacr'
         },
         rf_ace: {
             uri: '/google-dsapi-svc/addama/datasources/tcga'
@@ -44,6 +44,7 @@ vq.utils.VisUtils.extend(re, {
         dataset :   '/regulome_explorer_dataset',
         label_lookup : '/refgene',
         chrom_info : '/chrom_info',
+        entrez_gene : '/entrez_gene',
         current_data : '',
         network_uri : '',
         feature_uri : '',
@@ -52,10 +53,10 @@ vq.utils.VisUtils.extend(re, {
         feature_data_uri : '',
         pathway_uri : ''
     },
-/*
- *        URL's
- *            addresses to pathways used by MEDLINE tab
- */
+    /*
+     *        URL's
+     *            addresses to pathways used by MEDLINE tab
+     */
     pathways: {
         wikipw_url : 'http://www.wikipathways.org/index.php?title=Special%3ASearchPathways&doSearch=1&sa=Search&species=Homo+sapiens&query=',
         biocarta_url : 'http://www.biocarta.com/pathfiles/h_',
@@ -103,13 +104,20 @@ vq.utils.VisUtils.extend(re, {
                             return  'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr +
                                 ':' +  feature.start + (feature.end == '' ? '' : '-'+ feature.end);  }
                     },//ensemble
-                   {
-                       label :'Cosmic',
-                       url : 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic',
-                       uri : '?action=bygene&ln=',
-                       config_object :  function(feature) {
-                           return  'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label;  }
-                   }
+                    {
+                        label :'Cosmic',
+                        url : 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic',
+                        uri : '?action=bygene&ln=',
+                        config_object :  function(feature) {
+                            return  'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label;  }
+                    }, {
+                         label: 'OMIM',
+                         url : 'http://omim.org/search/',
+                         uri : '?index=entry&start=1&limit=10&search=',
+                         config_object : function(feature) {
+                             return 'http://omim.org/search?index=entry&start=1&limit=10&search=' + feature.label;
+                         }
+                     }
                 ], //link_objects
                 links : {}
             },
@@ -164,9 +172,9 @@ vq.utils.VisUtils.extend(re, {
 
         scatterplot_data : null
     },
-    ui: {        
+    ui: {
         filters: {
-            single_feature : true  
+            single_feature : true
         },
         chromosomes:  [],
         dataset_labels: [],
@@ -189,24 +197,24 @@ vq.utils.VisUtils.extend(re, {
         order_list : []
     },
 
-/*
- Window handles
- global handles to the masks and windows used by events
- */
+    /*
+     Window handles
+     global handles to the masks and windows used by events
+     */
 
- windows : {
-     details_window : null,
-    helpWindowReference : null,
-     masks: {
-     details_window_mask: null,
-         network_mask : null
-     }
+    windows : {
+        details_window : null,
+        helpWindowReference : null,
+        masks: {
+            details_window_mask: null,
+            network_mask : null
+        }
     },
     data: {
         parsed_data : {network : null,unlocated : null,features : null,unlocated_features:null,located_features:null},
-            responses : {network : null},
-            patients : {data : null}
-   }
+        responses : {network : null},
+        patients : {data : null}
+    }
 });
 
 
@@ -218,10 +226,10 @@ vq.utils.VisUtils.extend(re, {
     re.ui.chromosomes.push({value:'X',label:'X'});
     re.ui.chromosomes.push({value:'Y',label:'Y'});
 
-/*
- Label map
- Hash maps feature type id to feature type label
- */
+    /*
+     Label map
+     Hash maps feature type id to feature type label
+     */
     re.label_map = {
         '*':'All',
         'GEXP' :'Gene Expression',
@@ -234,47 +242,47 @@ vq.utils.VisUtils.extend(re, {
         'PRDM' : 'Paradigm Feature',
         'RPPA'  : 'RPPA'
     };
-     re.plot.all_source_list = pv.blend([re.plot.locatable_source_list,re.plot.unlocatable_source_list]);
-     re.plot.all_source_map = pv.numerate(re.plot.all_source_list);
-     re.plot.locatable_source_map = pv.numerate(re.plot.locatable_source_list);
+    re.plot.all_source_list = pv.blend([re.plot.locatable_source_list,re.plot.unlocatable_source_list]);
+    re.plot.all_source_map = pv.numerate(re.plot.all_source_list);
+    re.plot.locatable_source_map = pv.numerate(re.plot.locatable_source_list);
 
-        re.plot.proximal_distance = 2.5 * re.plot.linear_unit;
+    re.plot.proximal_distance = 2.5 * re.plot.linear_unit;
 
     re.plot.colors.features = {
-                'GEXP' : '#1f77b4',  //blue
-                'METH': '#2ca02c',    //green
-                'CNVR' : '#ff7f0e',   //orange
-                'MIRN': '#9467bd',    //purple
-                'GNAB' : '#d62728',    //red
-                'PRDM' : '#8c564b',    //pink
-                'RPPA' : '#e377c2',    //brown
-                'CLIN' : '#7f7f7f',
-                'SAMP' : '#bcbd22'
-                //#17becf
-            };
+        'GEXP' : '#1f77b4',  //blue
+        'METH': '#2ca02c',    //green
+        'CNVR' : '#ff7f0e',   //orange
+        'MIRN': '#9467bd',    //purple
+        'GNAB' : '#d62728',    //red
+        'PRDM' : '#8c564b',    //pink
+        'RPPA' : '#e377c2',    //brown
+        'CLIN' : '#7f7f7f',
+        'SAMP' : '#bcbd22'
+        //#17becf
+    };
 
-         re.plot.colors.node_colors = function(source) {
-             if (source in re.plot.colors.features){
-                return pv.color(re.plot.colors.features[source]);
-             }
-             return "blue";
-         };
-     re.model.association.types.forEach(function(obj) { 
+    re.plot.colors.node_colors = function(source) {
+        if (source in re.plot.colors.features){
+            return pv.color(re.plot.colors.features[source]);
+        }
+        return "blue";
+    };
+    re.model.association.types.forEach(function(obj) {
         re.ui.order_list.push({value:obj.id,label:obj.label});
-     });
+    });
 
-     if (re.analysis.directed_association) {
-         re.ui.feature1 = {label : 'Target', id :'target'};
-         re.ui.feature2 = {label : 'Predictor', id : 'predictor'};
-     } else {
-         re.ui.feature1 = {label : 'Feature 1', id : 'feature1'};
-         re.ui.feature2 = {label : 'Feature 2', id : 'feature2'};
-     }
+    if (re.analysis.directed_association) {
+        re.ui.feature1 = {label : 'Target', id :'target'};
+        re.ui.feature2 = {label : 'Predictor', id : 'predictor'};
+    } else {
+        re.ui.feature1 = {label : 'Feature 1', id : 'feature1'};
+        re.ui.feature2 = {label : 'Feature 2', id : 'feature2'};
+    }
 
 
     re.model.association.types.forEach( function(assoc) {
-                            vq.utils.VisUtils.extend(re.display_options.circvis.tooltips.feature, assoc.vis.tooltip.entry);
-                        });
+        vq.utils.VisUtils.extend(re.display_options.circvis.tooltips.feature, assoc.vis.tooltip.entry);
+    });
 
 })();
 

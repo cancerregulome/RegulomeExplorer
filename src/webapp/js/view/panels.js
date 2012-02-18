@@ -422,8 +422,8 @@ vq.utils.VisUtils.extend(re.ui, {
                                         autoHeight:true,
                                         items:
                                             re.model.association.types.filter(function(assoc) {
-                                                    return assoc.filter != undefined &&
-                                                            assoc.filter.component != undefined;
+                                                    return assoc.ui != undefined && assoc.ui.filter != undefined &&
+                                                            assoc.ui.filter.component != undefined;
                                             }).map( function (obj) {
                                                 return obj.ui.filter.component;
                                             }).concat([

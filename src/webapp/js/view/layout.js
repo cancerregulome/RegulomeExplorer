@@ -342,6 +342,7 @@ function packFilterSelections() {
         isolate:arguments[13]};
 
     re.model.association.types.forEach(function (obj){
+        if (Ext.getCmp(obj.id) === undefined) { return;}
         return_obj[obj.id] = Ext.getCmp(obj.id).getValue();
         if (obj.ui.filter.component instanceof re.multirangeField)  {
             return_obj[obj.id + '_fn'] =  Ext.getCmp(obj.id + '_fn').getValue();
@@ -369,6 +370,7 @@ function resetFormPanel() {
         Ext.getCmp('filter_type').reset();
 
     re.model.association.types.forEach( function(obj){
+        if (Ext.getCmp(obj.id) === undefined) { return;}
         Ext.getCmp(obj.id).reset();
         if (obj.ui.filter.component instanceof re.multirangeField)  {
             Ext.getCmp(obj.id + '_fn').reset();
