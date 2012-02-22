@@ -128,6 +128,14 @@ def isUnmappedAssociation(f1alias, f2alias):
 #	s.calculate_entropies(method='plugin', calc=['HX','HXY'])
 #	return s.I()
 
+def is_numeric(val):
+	try:
+		float(val)
+	except ValueError, e:
+		return False        
+	return True
+
+"""
 def is_numeric(lit):
     'Return value of numeric literal string or ValueError exception'
     # Handle '0'
@@ -156,6 +164,7 @@ def is_numeric(lit):
         pass
     print lit	
     return -1
+"""
 
 #quick function to tell sign of int
 sign = lambda x: math.copysign(1, x)

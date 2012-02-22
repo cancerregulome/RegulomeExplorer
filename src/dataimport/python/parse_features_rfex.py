@@ -14,12 +14,14 @@ dataset_label = ""
 feature_table = ""
 sample_table = ""
 
+"""
 def is_numeric(val):
 	try:
 		float(val)
 	except ValueError, e:
 		return False
 	return True
+"""
 
 if (not os.path.exists("./results")):
 	os.system("mkdir results")
@@ -46,20 +48,14 @@ def populate_sample_meta(sampleList, config):
 		samColIndex += 1
 	print "Done populating sample list for " + dataset_label
 
-def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, configfile):	
+def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, config):	
 	global features_hash
-	config = db_util.getConfig(configfile)
+	#config = db_util.getConfig(configfile)
 	mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
 	myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
 	mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
 	myhost = db_util.getDBHost(config) #config.get("mysql_jdbc_configs", "host")
 	myport = db_util.getDBPort(config)
-
-	## PROBLEM ... when I get here I do not have the dataset_label anymore !!!???
-	print " "
-	print " in parse_features_rfex.process_feature_matrix ... dataset_label = <%s> " % dataset_label
-	print " "
-
 	if (not os.path.isfile(matrix_file)):
 	        print matrix_file + " does not exist; unrecoverable ERROR"
 		sys.exit(-1)
@@ -92,7 +88,7 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 				data.append("")
 			patient_values = ":".join(tokens[1:len(tokens)-1])
 			for val in tokens[1:(len(tokens)-1)]:
-				if (is_numeric(val)):
+				if (db_util.is_numeric(val)):
 					valuesArray.append(float(val))
 				else:
 					valuesArray.append(0.0)
@@ -261,14 +257,11 @@ if __name__ == "__main__":
         	sys.exit(1)
 	dataset_label = sys.argv[2]
 	
-	print " "
-	print " in parse_features_rfex : dataset_label = <%s> " % dataset_label
-	print " "
-
+	print "\nin parse_features_rfex : dataset_label = <%s>\n" % dataset_label
 	configfile = sys.argv[3]
-	sh = process_feature_matrix(dataset_label, sys.argv[1], 1, configfile)	
+	config = db_util.getConfig(configfile)
+	sh = process_feature_matrix(dataset_label, sys.argv[1], 1, config)	
 	os.system("sh " + sh.name)
-	
 	path = sys.argv[2].rsplit("/", 1)[0] 
 	if (os.path.exists(path + "/GEXP_interestingness.tsv")):
 		sh = process_gexp_interest_score(path + "/GEXP_interestingness.tsv", configfile)	
