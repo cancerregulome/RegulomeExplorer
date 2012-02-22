@@ -19,9 +19,13 @@ vq.utils.VisUtils.extend(re, {
       once_loaded : false,
       query_cancel : false,
         network_query : ''
+    },    
+    node : { : '/data'
     },
     rest : {
-        query : '/query'
+        query : '/query',
+        echo : '/echo',
+        convert:'/convert'
     },
     params: {
         json_out:'&tqx=out:json_array',

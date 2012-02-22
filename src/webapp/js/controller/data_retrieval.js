@@ -609,12 +609,48 @@ function buildSingleFeatureGQLQuery(args,feature) {
  Misc data/file retrieval
  */
 
-function downloadNetworkData(target_frame,output) {
-    var output_label = output;
-    var output_extension=output;
-    if (output_label =='tsv') {output_extension=output_label;output_label='tsv-excel';}
-    target_frame.src = 'http://' + window.location.host + encodeURI(re.databases.base_uri +
-        re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query+ '?tq=' + re.state.network_query + '&tqx=out:' +output_label+';outFileName:'+re.tables.current_data+'_query.'+output_extension);
+function postData(url, data,success,fail) {
+    var req = new XMLHttpRequest();  
+    req.open("POST", url, true);   
+    req.setRequestHeader("Content-Length", data.length);  // Adjust for actual data length
+    req.setRequestHeader("Content-type", "text");
+    req.setRequestHeader("Connection", "close");
+
+    req.onreadystatechange = function() {
+        if(req.readyState == 4 && req.status == 200) {
+            alert(req.responseText);
+            success.call();
+        }
+        else {
+            fail.call();
+        }
+    }
+    req.send(data); 
+
+}
+
+
+function downloadData(data,filename, in_format,out_format) {
+    
+    function dataSuccess(response) {    
+    }   
+
+    function dataFail(response) {    
+    }   
+    var url = re.node + re.rest.echo+filename + in_format;
+    postData(url,data,dataSuccess, dataFail);
+}
+
+function convertData(data,filename, in_format,out_format) {
+    function dataSuccess(response) {   
+    }   
+
+    function dataFail(response) { 
+    }   
+
+    var url = re.node + re.rest.convert+filename + in_format + out_format;
+    postData(url,data,dataSuccess, dataFail);
+
 }
 
 
