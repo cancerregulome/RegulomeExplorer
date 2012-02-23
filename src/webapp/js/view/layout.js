@@ -31,9 +31,9 @@ function registerLayoutListeners() {
         exposeCirclePlot();
     });
     d.addListener('graph_ready','graph',function(data) {
-    if  (Ext.getCmp('view-region').layout.activeItem.id =='network-panel') {
-                requestGraphRender();
-            }
+        if  (Ext.getCmp('view-region').layout.activeItem.id =='network-panel') {
+            requestGraphRender();
+        }
     });
     d.addListener('data_ready','associations',function(data) {
         loadDataTableStore(data);
@@ -958,11 +958,13 @@ Ext.onReady(function() {
                             text: 'Circular Ideogram'
                         },{
                             text:'Legends'
-                        },
-                            {
-                                handler: openIssueHandler,
-                                text:'Submit an Issue/Bug'
-                            }]
+                        },{
+                            handler:  function() {openBrowserTab('http://groups.google.com/group/regulome-explorer') },
+                            text:'Questions & Answers'
+                        },{
+                            handler: openIssueHandler,
+                            text:'Submit an Issue/Bug'
+                        }]
                     }, {
                         id:'aboutMenu',
                         text:'About',
@@ -970,14 +972,12 @@ Ext.onReady(function() {
                         menu:[{
                             text:'CSACR',
                             handler: function() {openBrowserTab('http://www.cancerregulome.org/')}
-                        },
-                            {
+                        },{
                                 handler: openCodeRepository,
                                 text:'Code Repository'
-                            },{
+                        },{
                                 text:'Analyses'
-                            }
-                        ]
+                        }]
                     }]
             },
             { region:'center',
