@@ -936,24 +936,29 @@ Ext.onReady(function() {
                                     value: 'Select'
                                 }]
                         }]
-                    },{
+                  },{
                         id:'helpMenu',
                         text:'Help',
                         labelStyle: 'font-weight:bold;',
                         menu:[{
                             text:'User Guide',
                             handler: userGuideHandler
-                        },{
-                            text: 'Circular Ideogram'
-                        },{
-                            text:'Legends'
-                        },{
-                            handler:  function() {openBrowserTab('http://groups.google.com/group/regulome-explorer') },
-                            text:'User Group'
-                        },{
-                            handler: openIssueHandler,
-                            text:'Submit an Issue/Bug'
-                        }]
+                        },
+                            {
+                                text:'Quick Start Guide',
+                                handler: function() {openBrowserTab(re.help.links.quick_start) }
+                            },
+                            {
+                                text: 'Circular Ideogram'
+                            },
+                            {
+                                handler:  function() {openBrowserTab(re.help.links.user_group) },
+                                text:'User Group'
+                            },
+                            {
+                                handler: openIssueHandler,
+                                text:'Report an Issue/Bug'
+                            }]
                     }, {
                         id:'aboutMenu',
                         text:'About',
@@ -961,15 +966,18 @@ Ext.onReady(function() {
                         menu:[{
                             text:'CSACR',
                             handler: function() {openBrowserTab('http://www.cancerregulome.org/')}
-                        },{
-                            handler: openCodeRepository,
-                            text:'Code Repository'
-                        },{
-                            text:'Analyses'
-                        },{
-                            text:'Contact Us',
-                            handler: function() {openBrowserTab('/help/crc_agg/analysis/contact_us.html') }
-                        }]
+                        },
+                            {
+                                handler: openCodeRepository,
+                                text:'Code Repository'
+                            },{
+                                text:'This Analysis',
+                                handler: function() {openBrowserTab(re.help.links.analysis_summary) }
+                            },{
+                                text:'Contact Us',
+                                handler: function() {openBrowserTab(re.help.links.contact_us) }
+                            }
+                        ]
                     }]
             },
             { region:'center',
@@ -988,16 +996,14 @@ Ext.onReady(function() {
         renderTo:Ext.getBody()
     });
 
-    function userGuideHandler(item) {
-        openBrowserTab('/help/re/user_guide.html');
-    }
-    function circularViewHelpHandler(item) {
-        openBrowserTab('/help/re/user_guide.html');
+   function userGuideHandler(item) {
+        openBrowserTab(re.help.links.user_guide);
     }
 
     function openIssueHandler(item){
-        openBrowserTab('http://code.google.com/p/regulome-explorer/issues/entry');
+        openBrowserTab(re.help.links.bug_report);
     }
+
     function openCodeRepository(item){
         openBrowserTab('http://code.google.com/p/regulome-explorer/');
     }
