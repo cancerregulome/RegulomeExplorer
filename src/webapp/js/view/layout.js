@@ -175,60 +175,46 @@ function openDetailsWindow(association) {
     //renderPathways(association);
 }
 
-function showSVGDialog() {
-    re.windows.export_window.show();
-    export_svg();
-}
-
-function export_svg() {
+function retrieveSVG() {
     var serializer = new XMLSerializer();
-    var svg_tags;
-    var panel_dom = Ext.DomQuery.selectNode('div#circle-panel>svg');
-    if (panel_dom !== undefined){
-        svg_tags=serializer.serializeToString(panel_dom);
-    }
-    Ext.getCmp('export-textarea').setRawValue(svg_tags);
+        var svg_tags;
+        var panel_dom = Ext.DomQuery.selectNode('div#circle-panel>svg');
+        if (panel_dom !== undefined){
+            svg_tags=SvgToString(panel_dom);
+        }
+    return svg_tags;
 }
 
-
-function export_svg_new() {
-    // var serializer = new XMLSerializer();
-    var svg_tags;
-    var panel_dom = Ext.DomQuery.selectNode('div#circle-panel>svg');
-    if (panel_dom === undefined){
-        // svg_tags=serializer.serializeToString(panel_dom);
-        return;
-    }
-    var exportWindow = openBrowserTab('');
-    var svg_str = SvgToString(panel_dom);
-    if(Ext.DomQuery.selectNode('div#export_canvas') === undefined) {
-        var canvas_div = Ext.DomHelper.append(Ext.getBody(), {tag:'div',id: 'export_canvas'},true);
-        canvas_div.hide(true);
-    }
-    canvas_div.innerHTML='';
-    var canvasEl = Ext.DomHelper.append(canvas_div,{tag:'canvas'},true);
-    var c=canvasEl.dom
-
-    c.width = panel_dom['width'];
-    c.height = panel_dom['height'];
-
-    canvg(c, svg_str, {renderCallback: function() {
-        var datauri = c.toDataURL('image/png');
-        exportWindow.location.href = datauri;
-    }});
-
-    //Ext.getCmp('export-textarea').setRawValue(svg_tags);
-    return;
+function exportSVG() {
+    downloadData(retrieveSVG(),'export.svg','svg');
 }
 
+function exportPNG() {
+    convertData(retrieveSVG(),'export.svg','svg','png');
+}
 
 function loadDataDialog() {
     re.windows.dataset_window.show();
     Ext.getCmp('dataset_grid').store.load();
 }
 
-function exportDataDialog() {
-    downloadNetworkData(document.getElementById('frame'),this.value);
+function exportData() {
+    convertData(retrieveEdges(),'data_table','json',this.value);
+}
+
+function retrieveEdges() {
+    var colModel = Ext.getCmp('data_grid').getColumnModel();
+    var id_list = colModel.columns.map(function(col) { return col.id;});
+    return Ext.encode(  //make into JSON
+        [id_list].concat(   //append headers first
+                    Ext.StoreMgr.get('data_grid_store').getRange()  //grab all records from last query
+                     .map(function(record) {                    //change each record in array
+                            return id_list.map(function(id) {   //into an array of values based on column id
+                                                        return record.data[id];
+                                                   });
+                            })
+            )
+        );
 }
 
 function openHelpWindow(subject,text) {
@@ -863,13 +849,16 @@ Ext.onReady(function() {
                             menu:[{
                                 text:'CSV',
                                 value:'csv',
-                                handler:exportDataDialog
+                                handler:exportData
                             },{
                                 text:'TSV',value:'tsv',
-                                handler:exportDataDialog
+                                handler:exportData
                             },
                                 {text:'SVG',value:'svg',
-                                    handler:showSVGDialog
+                                    handler:exportSVG
+                                },
+                                {text:'PNG',value:'png',
+                                    handler:exportPNG
                                 }]
                         }]
                     },{
@@ -960,7 +949,7 @@ Ext.onReady(function() {
                             text:'Legends'
                         },{
                             handler:  function() {openBrowserTab('http://groups.google.com/group/regulome-explorer') },
-                            text:'Questions & Answers'
+                            text:'User Group'
                         },{
                             handler: openIssueHandler,
                             text:'Submit an Issue/Bug'
@@ -973,10 +962,13 @@ Ext.onReady(function() {
                             text:'CSACR',
                             handler: function() {openBrowserTab('http://www.cancerregulome.org/')}
                         },{
-                                handler: openCodeRepository,
-                                text:'Code Repository'
+                            handler: openCodeRepository,
+                            text:'Code Repository'
                         },{
-                                text:'Analyses'
+                            text:'Analyses'
+                        },{
+                            text:'Contact Us',
+                            handler: function() {openBrowserTab('/help/crc_agg/analysis/contact_us.html') }
                         }]
                     }]
             },

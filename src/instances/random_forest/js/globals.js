@@ -20,7 +20,11 @@ vq.utils.VisUtils.extend(re, {
         query_cancel : false,
         network_query : ''
     },
-    node : { : '/data'
+    node : {
+        uri : '/node',
+        services : {
+            data : '/data'
+        }
     },
     rest : {
         query : '/query',
@@ -61,6 +65,16 @@ vq.utils.VisUtils.extend(re, {
      *        URL's
      *            addresses to pathways used by MEDLINE tab
      */
+    help: {
+        links: {
+            user_guide: '/help/crc_agg/user_guide.html',
+            quick_start: '/help/crc_agg/quick_start.html',
+            contact_us :'/help/crc_agg/contact_us.html',
+            analysis_summary : '/help/crc_agg/analysis/analysis_summary.html',
+            bug_report : 'http://code.google.com/p/regulome-explorer/issues/entry',
+            user_group : 'http://groups.google.com/group/regulome-explorer'
+        }
+    },
     pathways: {
         wikipw_url : 'http://www.wikipathways.org/index.php?title=Special%3ASearchPathways&doSearch=1&sa=Search&species=Homo+sapiens&query=',
         biocarta_url : 'http://www.biocarta.com/pathfiles/h_',
@@ -85,9 +99,11 @@ vq.utils.VisUtils.extend(re, {
             tooltips:{
                 feature :  {
                     Feature : function(node) { var pos = node.label.indexOf('_');
-                        return pos > 0 ? node.label.slice(0,pos) : node.label;},
+                        var label = (pos > 0 ? node.label.slice(0,pos) : node.label);
+                        label = (label =='GisticArm' ? "Arm " + node.label.split('_')[1] : label);
+                        return label;},
                     Source : function(node) { return re.label_map[node.source]},
-                    'Location' : function(node) { return 'Chr' + node.chr + ' ' + node.start + (node.end == '' ? '' : '-'+ node.end) + ' ';},
+                    'Location' : function(node) { return 'Chr' + node.chr + ' ' + node.start + (node.end == '' ? '' : '-'+ node.end) + ' ';} ,
                     Annotations :  parseAnnotationList
                 },
                 edge : function(edge) {},
@@ -113,15 +129,23 @@ vq.utils.VisUtils.extend(re, {
                         url : 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic',
                         uri : '?action=bygene&ln=',
                         config_object :  function(feature) {
-                            return  'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label;  }
+                            return ['CNVR','MIRN'].indexOf(feature.source)< 0 ? 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label : null;
+                        }
                     }, {
-                         label: 'OMIM',
-                         url : 'http://omim.org/search/',
-                         uri : '?index=entry&start=1&limit=10&search=',
-                         config_object : function(feature) {
-                             return 'http://omim.org/search?index=entry&start=1&limit=10&search=' + feature.label;
-                         }
-                     }
+                        label: 'OMIM',
+                        url : 'http://omim.org/search/',
+                        uri : '?index=entry&start=1&limit=10&search=',
+                        config_object : function(feature) {
+                            return ['CNVR','MIRN'].indexOf(feature.source) < 0 ? 'http://omim.org/search?index=entry&start=1&limit=10&search=' + feature.label: null;
+                        }
+                    },{
+                        label:'miRBase',
+                        url: 'http://mirbase.org/cgi-bin/query.pl',
+                        uri : '?terms=',
+                        config_object : function(feature) {
+                            return feature.source == 'MIRN' ? 'http://www.mirbase.org/cgi-bin/query.pl?terms=' + feature.label : null;
+                        }
+                    }
                 ], //link_objects
                 links : {}
             },
