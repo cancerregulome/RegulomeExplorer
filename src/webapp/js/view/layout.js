@@ -179,6 +179,8 @@ function retrieveSVG(parent_panel) {
     var serializer = new XMLSerializer();
     var svg_tags;
     var panel_dom = Ext.DomQuery.selectNode('div#' + parent_panel + '>svg');
+    //!important for web browsers that attempt to render the image after export.
+    panel_dom.setAttribute('xmlns',"http://www.w3.org/2000/svg");
     if (panel_dom !== undefined) {
         svg_tags = serializeSVG(panel_dom);
     }
