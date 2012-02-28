@@ -163,8 +163,14 @@ function initiateDetailsPopup(link) {
 
 function colorscale_draw(association_obj, div) {
 
-    var width = 180;
     var dom = association_obj.vis.scatterplot.color_scale.domain();
+    var width = 180,
+        scale_width = width - 20,
+        box_width = 4,
+        end = dom[dom.length-1],
+        start = dom[0],
+        step_size = end - start,
+        steps = scale_width / box_width;
     var vis= new pv.Panel()
         .top(10)
         .left(10)
@@ -173,7 +179,8 @@ function colorscale_draw(association_obj, div) {
         .strokeStyle('black')
         .lineWidth(1)
         .canvas(div);
-    var x_axis = pv.Scale.linear.apply(pv.Scale,[dom[0],dom[dom.length-1]]).range(0,width-20);
+
+    var x_axis = pv.Scale.linear(start,end).range(0,scale_width);
     var legend = vis.add(pv.Panel)
         .left(10)
         .right(10)
@@ -181,8 +188,12 @@ function colorscale_draw(association_obj, div) {
         .lineWidth(1)
         .bottom(30)
         .height(30);
-    legend.add(pv.Image)
-        .image(association_obj.vis.scatterplot.color_scale.by(function(x,y){ return x_axis.invert(x);}));
+    legend.add(pv.Bar)
+            .data(pv.range(start,end,step_size/steps))
+            .width(box_width)
+            .left(function() { return this.index * box_width;})
+            .fillStyle(association_obj.vis.scatterplot.color_scale);
+
 
     legend.add(pv.Rule)
         .data(x_axis.ticks(2))
