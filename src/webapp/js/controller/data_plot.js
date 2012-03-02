@@ -188,6 +188,7 @@ function colorscale_draw(association_obj, div) {
         .lineWidth(1)
         .bottom(30)
         .height(30);
+
     legend.add(pv.Bar)
             .data(pv.range(start,end,step_size/steps))
             .width(box_width)
@@ -312,7 +313,7 @@ function singlefeature_circvis(parsed_data,div) {
     var ucsc_genome_url = 'http://genome.ucsc.edu/cgi-bin/hgTracks';
 
     var karyotype_tooltip_items = {
-        'Karyotype Label' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
+        'Cytogenetic Band' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
         Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
     },
         scatterplot_tooltips =  re.display_options.circvis.tooltips.feature,
@@ -407,8 +408,8 @@ function singlefeature_circvis(parsed_data,div) {
                     data_array : cytoband
                 },
                 OPTIONS: {
-                    legend_label : 'Karyotype Bands' ,
-                    legend_description : 'Chromosomal Karyotype',
+                    legend_label : 'Cytogenetic Bands' ,
+                    legend_description : 'Chromosomal Cytogenetic Bands',
                     outer_padding : 10,
 //                    fill_style : function(feature) { return feature.value;},
 //                    stroke_style : function(feature) { return feature.value;},
@@ -490,7 +491,7 @@ function wedge_plot(parsed_data,div) {
         '-' + link.targetNode.end + ' ' + link.targetNode.label_mod;};
 
     var karyotype_tooltip_items = {
-        'Karyotype Label' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
+        'Cytogenetic Band' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
         Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
     },
         unlocated_tooltip_items = {};
@@ -589,8 +590,8 @@ function wedge_plot(parsed_data,div) {
                     data_array : cytoband
                 },
                 OPTIONS: {
-                    legend_label : 'Karyotype Bands' ,
-                    legend_description : 'Chromosomal Karyotype',
+                    legend_label : 'Cytogenetic Bands' ,
+                    legend_description : 'Chromosomal Cytogenetic Bands',
                     outer_padding : 10,
 //                    fill_style : function(feature) { return feature.value;},
 //                    stroke_style : function(feature) { return feature.value;},
@@ -662,18 +663,10 @@ function wedge_plot(parsed_data,div) {
     return circle_vis;
 }
 
-function bpToMb(bp) {
-    return bp != null ? (bp == 0 ? 0 : bp / 1000000): null;
-}
-
-function mbpToBp(num) {
-    return Math.floor(num* 1000000);
-}
-
 function getFeatureNeighborhood(feature,window_size) {
     var f= vq.utils.VisUtils.clone(feature);
     f.start = f.start - window_size;
-    f.end = f.end + window_size;
+    f.end = (f.end || feature.start) + window_size;
     return f;
 }
 

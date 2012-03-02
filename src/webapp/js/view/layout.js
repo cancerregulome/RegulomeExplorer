@@ -1305,6 +1305,7 @@ Ext.onReady(function() {
         layout: 'fit',
         width: 600,
         height: 500,
+        constrain:true,
         title: "Details",
         closable: true,
         layoutConfig: {

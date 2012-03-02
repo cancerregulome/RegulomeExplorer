@@ -86,13 +86,13 @@ vq.utils.VisUtils.extend(re.ui, {
                                                 defaultValue:false,
                                                 checked:false,
                                                 listeners: { check: function(cb, checked) {
-                                                    Ext.getCmp(re.ui.feature2.id).setDisabled(checked);
-                                                    if (checked) { Ext.getCmp(re.ui.feature2.id).collapse(); }
-                                                    else { Ext.getCmp(re.ui.feature2.id).expand(); }
+                                                    //Ext.getCmp(re.ui.feature2.id).setDisabled(checked);
+                                                    //if (checked) { Ext.getCmp(re.ui.feature2.id).collapse(); }
+                                                    //else { Ext.getCmp(re.ui.feature2.id).expand(); }
                                                     Ext.getCmp('t_chr').setDisabled(checked);
                                                     Ext.getCmp('t_start').setDisabled(checked);
                                                     Ext.getCmp('t_stop').setDisabled(checked);
-                                                    Ext.getCmp('t_lookup_button').setDisabled(checked);
+                                                    //Ext.getCmp('t_lookup_button').setDisabled(checked);
                                                     Ext.getCmp('filter_type').setDisabled(checked);
                                                 }
                                                 }
