@@ -4,16 +4,19 @@ CREATE DATABASE tcga;
 
 CREATE TABLE `tcga`.`regulome_explorer_dataset`
 (
-   label varchar(40) PRIMARY KEY NOT NULL,
-   method varchar(100),
-   source varchar(100) DEFAULT 'TCGA',
-   contact varchar(50),
-   comments longtext,
-   pvalue_cutoff double,
-   timestamp timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-   default_display bit DEFAULT b'0' NOT NULL,
-   description varchar(100),
-   dataset_date varchar(30)
+ `label` varchar(40) NOT NULL,
+  `method` varchar(100) default NULL,
+  `source` varchar(100) default 'TCGA',
+  `contact` varchar(50) default NULL,
+  `comments` longtext,
+  `pvalue_cutoff` double default NULL,
+  `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+  `default_display` bit(1) NOT NULL default b'0',
+  `description` varchar(255) default NULL,
+  `dataset_date` varchar(30) default NULL,
+  `max_logged_pvalue` float default NULL,
+  `input_files` varchar(255) default NULL,
+  PRIMARY KEY  (`label`)
 );
 
 CREATE TABLE `tcga`.`sample_meta` (
