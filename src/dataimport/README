@@ -1,0 +1,16 @@
+First - set up the RE admin dependencies and set permissions by executing rfex_admin.sql with root on the mysql server:
+
+mysql -u root -ppassword < rfex_admin.sql
+
+if you want to call your database a different name then tcga, you will want to replace the rfex_admin.sql 'tcga' with name you want and then modify one of the example config/rfex_sql.config files.  
+The host can be localhost, or the actual server name, the rfex_admin.sql does a grant, in the file provided, 
+the server name is saskatoon, therefore if you decided to use a server name, replace saskatoon and rerun the rfex_admin.sql 
+
+If you were to update the random_forest database name for the chrom and ref info, be aware that RE contains a google-dsapi-svc.config file containing this database name and you will need to update this and then redeploy the same name war file in your web app server. 
+
+From python dir, run sh:
+There should be corresponding sh files to the config files setup above, the commands required for the sh is:
+dataset_label feature_matrix_file associations_file dataset_comment dataset_description
+ie:
+sh load_sandbox_rface_associations.sh test_gbm_rface /titan/cancerregulome3/TCGA/outputs/gbm/gbm.merge.u133a.31oct.hg18.tsv /titan/cancerregulome3/TCGA/outputs/gbm/rf.u133a.31oct.mask1.F/all_associations.out "BRCA Her2 subset" "59 Her2-classified patients"
+
