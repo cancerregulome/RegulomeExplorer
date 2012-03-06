@@ -3,8 +3,8 @@
 Data import configuration and mysql settings
 """
 import sys
-import numpy as np
-import pyentropy as pe
+#import numpy as np
+#import pyentropy as pe
 import ConfigParser
 import MySQLdb
 import math
