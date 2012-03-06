@@ -1,12 +1,14 @@
-#RE-Config and MySql
+#RE-Config and MySql Data Import notes and requirements
+#Requires python 2.5, 2.6, or 2.7 and libraries MySQLdb 
 First - set up the RE admin dependencies and set permissions by executing rfex_admin.sql with root on the mysql server:
 
 mysql -u root -ppassword < rfex_admin.sql
 
 #Config
-if you want to call your database a different name then tcga, you will want to replace the rfex_admin.sql 'tcga' with name you want and then modify one of the example config/rfex_sql.config files.  
-The host can be localhost, or the actual server name, the rfex_admin.sql does a grant, in the file provided, 
-the server name is saskatoon, therefore if you decided to use a server name, replace saskatoon and rerun the rfex_admin.sql 
+if you want to call your database a different schema name then tcga, you will want to replace the rfex_admin.sql 'tcga' with name you want and then modify one of the example config/rfex_sql.config files.  
+The host can be localhost, or the actual server name. If you are running the data import on the db server, then localhost is best, if you are running the data import from a different server, then put in the entire address, such as machine.systemsbiology.net with the appropriate port. The server you are on must have access to the db server.  
+
+The rfex_admin.sql contains grant statements and it is important that you replace the existing server name of saskatoon with your server name. 
 Within the config file, the path dictated needs to exist, since the script only creates dir dynamically relative to this path.  
 [results]
 path=/titan/cancerregulome3/TCGA/outputs_sandbox/parsed_associations
@@ -17,6 +19,13 @@ If you were to update the random_forest database name for the chrom and ref info
 From python dir, run sh:
 There should be corresponding sh files to the config files setup above, the commands required for the sh is:
 dataset_label feature_matrix_file associations_file dataset_comment dataset_description
-ie:
+
+#RFACE analysis example:
 sh load_sandbox_rface_associations.sh test_gbm_rface /titan/cancerregulome3/TCGA/outputs/gbm/gbm.merge.u133a.31oct.hg18.tsv /titan/cancerregulome3/TCGA/outputs/gbm/rf.u133a.31oct.mask1.F/all_associations.out "BRCA Her2 subset" "59 Her2-classified patients"
 
+#All Pairs example:
+sh load_sandbox_pairwise_associations.sh test_kirc_0206_pw /titan/cancerregulome3/TCGA/outputs/kirc/bigMerge.06feb12.hg18.tsv /titan/cancerregulome3/TCGA/outputs/kirc/bigMerge.06feb12.pwpv "Kidney" "Kidney sandbox"
+
+Regarding processing time, we are averaging about 800,000-1 million edges per minute. It is recommended that you modify your /etc/my.cnf to have high memory settings as quite a number of views, indexes and buffers are used. 
+
+Please contact codefor@systemsbiology.net with any questions
