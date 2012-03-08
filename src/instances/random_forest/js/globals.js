@@ -25,7 +25,8 @@ vq.utils.VisUtils.extend(re, {
     node: {
         uri: '/node',
         services: {
-            data: '/data'
+            data: '/data',
+            lookup:'/lookup/label/entrez'
         }
     },
     rest: {
@@ -136,15 +137,42 @@ vq.utils.VisUtils.extend(re, {
                     url: 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic',
                     uri: '?action=bygene&ln=',
                     config_object: function(feature) {
-                        return ['CNVR', 'MIRN'].indexOf(feature.source) < 0 ? 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label : null;
+                        return ['CNVR', 'MIRN','METH'].indexOf(feature.source) < 0 ? 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label : null;
                     }
-                }, {
-                    label: 'OMIM',
-                    url: 'http://omim.org/search/',
-                    uri: '?index=entry&start=1&limit=10&search=',
+               },  {
+                    label: 'NCBI',
+                    url: 'http://www.ncbi.nlm.nih.gov/gene/',
+                    uri: '',
+                    selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
                     config_object: function(feature) {
-                        return ['CNVR', 'MIRN'].indexOf(feature.source) < 0 ? 'http://omim.org/search?index=entry&start=1&limit=10&search=' + feature.label : null;
+                        if (['CNVR', 'MIRN','METH'].indexOf(feature.source) >= 0) return null;
+                        Ext.Ajax.request({url:re.node.uri + re.node.services.lookup+'/'+feature.label,success:entrezHandler, failure: lookupFailed});
+
+                        function lookupFailed() {
+                            var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
+                              node.setAttribute('href','http://www.ncbi.nlm.nih.gov/gene?term='+feature.label);
+                        }
+
+                        function entrezHandler(response) {
+                            var gene,entrez;
+                            var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
+                            try {
+                                gene = Ext.decode(response.responseText);
+                                entrez = gene[Object.keys(gene)[0]];
+                                node.setAttribute('href',node.getAttribute('href').replace('zzzZZZzzz',entrez));
+                            } catch (err) {
+                                lookupFailed();
+                            }
+                        }
+                        return 'http://www.ncbi.nlm.nih.gov/gene/' + 'zzzZZZzzz';
                     }
+                // },{
+                //     label: 'OMIM',
+                //     url: 'http://omim.org/search/',
+                //     uri: '?index=entry&start=1&limit=10&search=',
+                //     config_object: function(feature) {
+                //         return ['CNVR', 'MIRN'].indexOf(feature.source) < 0 ? 'http://omim.org/search?index=entry&start=1&limit=10&search=' + feature.label : null;
+                //     }
                 }, {
                     label: 'miRBase',
                     url: 'http://mirbase.org/cgi-bin/query.pl',
@@ -152,7 +180,8 @@ vq.utils.VisUtils.extend(re, {
                     config_object: function(feature) {
                         return feature.source == 'MIRN' ? 'http://www.mirbase.org/cgi-bin/query.pl?terms=' + feature.label : null;
                     }
-                }],
+                },
+                   ],
                 //link_objects
                 links: {}
             },
@@ -384,10 +413,12 @@ vq.utils.VisUtils.extend(re, {
             id: 'feature2'
         };
     }
-
-
-    re.model.association.types.forEach(function(assoc) {
-        vq.utils.VisUtils.extend(re.display_options.circvis.tooltips.feature, assoc.vis.tooltip.entry);
+    re.display_options.circvis.tooltips.link_objects.forEach(function(link) {
+        re.display_options.circvis.tooltips.links[link.label] = link.config_object;
     });
+
+    // re.model.association.types.forEach(function(assoc) {
+    //     vq.utils.VisUtils.extend(re.display_options.circvis.tooltips.feature, assoc.vis.tooltip.entry);
+    // });
 
 })();

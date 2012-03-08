@@ -375,14 +375,8 @@ function singlefeature_circvis(parsed_data,div) {
                 listener : wedge_listener,
                 stroke_style :stroke_style,
                 fill_style : function(tick) {return re.plot.colors.node_colors(tick.source); },
-                tooltip_items : {Tick : function(node) { return node.label+ ' ' + node.source + ' Chr' + node.chr + ' ' + node.start +
-                    '-' + node.end + ' ' + node.label_mod;}},
-                tooltip_links : {
-                    'UCSC Genome Browser' :  function(feature){
-                        return  ucsc_genome_url + '?db=hg18&position=chr' + feature.chr + ':' +  feature.start +'-'+ feature.end;  },
-                    'Ensemble' : function(feature) {
-                        return  'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' +  feature.start +'-'+ feature.end;  }
-                }
+                tooltip_items :  re.display_options.circvis.tooltips.feature,
+                tooltip_links : re.display_options.circvis.tooltips.links
             }
         },
         PLOT: {
@@ -438,12 +432,7 @@ function singlefeature_circvis(parsed_data,div) {
                     fill_style  : function(feature) {return settings.color_scale(feature[field]); },
                     stroke_style  : function(feature) {return settings.color_scale(feature[field]); },
                     tooltip_items : scatterplot_tooltips,
-                    tooltip_links : {
-                        'UCSC Genome Browser' :  function(feature){
-                            return  ucsc_genome_url + '?db=hg18&position=chr' + feature.chr + ':' +  feature.start +'-'+ feature.end;  },
-                        'Ensemble' : function(feature) {
-                            return  'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' +  feature.start +'-'+ feature.end;  }
-                    }
+                    tooltip_links : re.display_options.circvis.tooltips.links
                     // listener : initiateDetailsPopup
                 }
             }
@@ -557,14 +546,8 @@ function wedge_plot(parsed_data,div) {
                 listener : wedge_listener,
                 stroke_style :stroke_style,
                 fill_style : function(tick) {return re.plot.colors.node_colors(tick.source); },
-                tooltip_items : {Tick : function(node) { return node.label+ ' ' + node.source + ' Chr' + node.chr + ' ' + node.start +
-                    '-' + node.end + ' ' + node.label_mod;}},
-                tooltip_links : {
-                    'UCSC Genome Browser' :  function(feature){
-                        return  ucsc_genome_url + '?db=hg18&position=chr' + feature.chr + ':' +  feature.start +'-'+ feature.end;  },
-                    'Ensemble' : function(feature) {
-                        return  'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' +  feature.start +'-'+ feature.end;  }
-                }
+              tooltip_links :re.display_options.circvis.tooltips.links,
+                    tooltip_items :  re.display_options.circvis.tooltips.feature     //optional
             }
         },
         PLOT: {
@@ -641,14 +624,9 @@ function wedge_plot(parsed_data,div) {
                 link_stroke_style : function(link) {
                     return re.plot.colors.link_sources_colors([link.sourceNode.source,link.targetNode.source]);},
                 constant_link_alpha : 0.7,
-                node_tooltip_items :  {Node : function(node) { return node.label+ ' ' + node.source + ' Chr' + node.chr + ' ' + node.start +
-                    '-' + node.end + ' ' + node.label_mod;}},
-                node_tooltip_links : {
-                    'UCSC Genome Browser' :  function(feature){
-                        return  ucsc_genome_url + '?db=hg18&position=chr' + feature.chr + ':' +  feature.start +'-'+ feature.end;  },
-                    'Ensemble' : function(feature) {
-                        return  'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' +  feature.start +'-'+ feature.end;  }
-                },
+                node_tooltip_items :   re.display_options.circvis.tooltips.feature,
+                node_tooltip_links : re.display_options.circvis.tooltips.links,
+                
                 link_tooltip_items :  link_tooltip_items
             }
         }
@@ -815,7 +793,8 @@ function linear_plot(obj) {
                     track_stroke_style: pv.color('#000000')
                 },
                 OPTIONS: {
-                    tooltip_items :  located_tooltip_items     //optional
+                   tooltip_links :re.display_options.circvis.tooltips.links,
+                    tooltip_items :  re.display_options.circvis.tooltips.feature     //optional
                 },
                 data_array : locations
             },  { type: 'glyph',

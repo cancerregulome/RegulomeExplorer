@@ -681,8 +681,6 @@ function buildSingleFeatureGQLQuery(args, feature) {
     });
 
     var order_id = (re.model.association.types[re.model.association_map[args['order']]].query.order_id === undefined) ? args['order'] : re.model.association.types[re.model.association_map[args['order']]].query.order_id;
-
-
     query += (where.length > whst.length ? where : '');
     query += ' order by ' + order_id + ' ' + (re.model.association.types[re.model.association_map[args['order']]].query.order_direction || 'DESC');
     query += ' limit ' + args['limit'];
