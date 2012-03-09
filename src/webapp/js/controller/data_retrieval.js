@@ -37,7 +37,7 @@ function loadDatasetLabels() {
     };
     var clin_label_query_str = '?' + re.params.query + 'select `label`' + re.params.json_out;
     var clin_label_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.clin_uri + re.rest.query + clin_label_query_str;
-    var timer = new vq.utils.SyncDatasources(200, 40, loadComplete, dataset_labels, loadFailed);
+    var synchronizer = new vq.utils.SyncCallbacks(loadComplete, this);
 
     function clinicalLabelQueryHandler(response) {
         try {
@@ -59,7 +59,7 @@ function loadDatasetLabels() {
 
     Ext.Ajax.request({
         url: clin_label_query,
-        success: clinicalLabelQueryHandler,
+        success: synchronizer.add(clinicalLabelQueryHandler,this),
         failure: function(response) {
             queryFailed('dataset_labels', response);
         }
@@ -78,7 +78,7 @@ function loadDatasetLabels() {
 
     Ext.Ajax.request({
         url: sources_query,
-        success: featureSourceQueryHandler,
+        success: synchronizer.add(featureSourceQueryHandler,this),
         failure: function(response) {
             queryFailed('feature_source', response);
         }
@@ -95,10 +95,9 @@ function loadDatasetLabels() {
         }
     }
 
-    timer.start_poll();
     Ext.Ajax.request({
         url: patient_query,
-        success: patientQueryHandle,
+        success: synchronizer.add(patientQueryHandle,this),
         failure: function(response) {
             queryFailed('patient_labels', response);
         }
@@ -234,9 +233,6 @@ function loadAnnotations() {
     });
 }
 
-/*
- not very good yet.  move json_array responsibility to server.. stop running cascading timers!
- */
 
 function loadNetworkData(response) {
     if (response['isolate']) {
