@@ -4,6 +4,8 @@ First - set up the RE admin dependencies and set permissions by executing rfex_a
 
 mysql -u root -ppassword < rfex_admin.sql
 
+It is also recommended taking a look at MySQL's /etc/my.cnf If you have millions of associations, then you should consider following the my-large.cnf (See MySQL documentation) settings
+
 #Config
 if you want to call your database a different schema name then tcga, you will want to replace the rfex_admin.sql 'tcga' with name you want and then modify one of the example config/rfex_sql.config files.  
 The host can be localhost, or the actual server name. If you are running the data import on the db server, then localhost is best, if you are running the data import from a different server, then put in the entire address, such as machine.systemsbiology.net with the appropriate port. The server you are on must have access to the db server.  
@@ -14,6 +16,9 @@ Within the config file, the path dictated needs to exist, since the script only 
 path=/titan/cancerregulome3/TCGA/outputs_sandbox/parsed_associations
 
 If you were to update the random_forest database name for the chrom and ref info, be aware that RE contains a google-dsapi-svc.config file containing this database name and you will need to update this and then redeploy the same name war file in your web app server. 
+
+#MySQL Engine
+RE db tables are using the MyISAM engine, versus InnoDB, since MyISAM is better fitted for read-intensive (select) and offers full-text indexing and simpler to design and drop.
 
 #SH
 From python dir, run sh:
