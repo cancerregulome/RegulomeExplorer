@@ -19,6 +19,7 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 	mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
 	myhost = db_util.getDBHost(config) #config.get("mysql_jdbc_configs", "host")
 	myport = db_util.getDBPort(config)
+	imp_cutoff = db_util.getImportanceCutoff(config)
 	results_path = db_util.getResultsPath(config)
 	contacts = db_util.getNotify(config) 
 	pubcrawl_contacts = db_util.getPubcrawlContact(config) 
@@ -47,6 +48,7 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 	pcc = 0
 	unMapped = 0
 	pvalueCutCount = 0
+	impCut = 0
 	lines = associations_in.readlines()
 	associations_in.close()
 	for line in lines:
@@ -61,6 +63,9 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 		f2alias = f2alias.replace('|', '_')
 		pvalue = columns[2]
 		importance = columns[3]
+		if (float(importance) < imp_cutoff):
+			impCut += 1
+			continue
 		correlation = columns[4]
 		patientct = columns[5]
 		if (db_util.isUnmappedAssociation(f1alias, f2alias)):
@@ -100,7 +105,7 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 	unmappedout.close()
 	pubcrawl_tsvout.close()
 	fshout.close()
-	print "%i ValidEdges %i edges filtered because unMapped %i" %(edgeCount, pvalueCutCount, unMapped)
+	print "ValidEdges %i ImportanceCutoff %i edges filtered %i because unMapped %i" %(edgeCount, impCut, pvalueCutCount, unMapped)
 	print "Begin bulk upload %s os.system sh %s" %(time.ctime(), fshout.name)
 	os.system("sh " + fshout.name)
 	if (do_pubcrawl == 'yes' and db_util.getDoSmtp(config) == 'yes'):

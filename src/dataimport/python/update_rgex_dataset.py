@@ -14,7 +14,7 @@ def addDataset(label, feature_matrix, associations, method, description, comment
 			description = description + "Ovarian"
 		if (label.find("gbm") != -1 or label.find("GBM") != -1):
 			description = description + "Glioblastoma"
-		if (label.find("coadread") != -1 or label.find("COAD") != -1 or label.find("crc") != -1 or label.find("CRC") != -1):
+		if (label.find("coadread") != -1 or label.find("COAD") != -1 or label.find("coad") != -1 or label.find("crc") != -1 or label.find("CRC") != -1):
 			description = description + "ColoRectal"
 		if (label.find("cesc") != -1 or label.find("CESC") != -1):
 			description = description + "Cervical"
@@ -45,8 +45,15 @@ def addDataset(label, feature_matrix, associations, method, description, comment
 	if (os.path.exists(results_path + '/' + label + '/edges_out_' + label + '_meta.json')):
 		meta_json_file = open(results_path + '/' + label + '/edges_out_' + label + '_meta.json','r')
 		metaline = meta_json_file.read()
-		max_logpv = json.loads(metaline)["max_logpv"]
-		#print metaline
+		if (len(metaline) > 1):
+			try:
+				max_logpv = json.loads(metaline)["max_logpv"]
+			except ValueError:
+				max_logpv = -1
+				#okay that the max_logpv is not set
+			except:
+				print "Unexpected error:", sys.exc_info()[0]
+				raise
 		meta_json_file.close()		
 	insertSql = "replace into regulome_explorer_dataset (label,method,source,contact,comments,dataset_date,description,max_logged_pvalue, input_files) values ('%s', '%s', 'TCGA', '%s', '%s', '%s', '%s', %f, '%s');" %(label, method, contact, comments,currentDate,description, max_logpv, inputfiles)
 	db_util.executeInsert(config, insertSql)

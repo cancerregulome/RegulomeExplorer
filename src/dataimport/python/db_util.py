@@ -58,6 +58,12 @@ def getDBPassword(config):
 def getResultsPath(config):
 	return config.get("results", "path")
 
+def getImportanceCutoff(config):
+	return config.getfloat("cutoff", "importance")
+
+def getLoggedPVCutoff(config):
+	return config.getint("cutoff", "loggedpvalue")
+
 def getDoSmtp(config):
 	return config.get("results", "dosmtp")
 
