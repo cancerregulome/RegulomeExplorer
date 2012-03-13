@@ -22,8 +22,17 @@ vq.utils.VisUtils.extend(re, {
         query_cancel: false,
         network_query: ''
     },
+    node: {
+        uri: '/node',
+        services: {
+            data: '/data',
+            lookup:'/lookup/label/entrez'
+        }
+    },
     rest: {
-        query: '/query'
+        query: '/query',
+        echo: '/echo',
+        convert: '/convert'
     },
     params: {
         json_out: '&tqx=out:json_array',
@@ -40,6 +49,7 @@ vq.utils.VisUtils.extend(re, {
         solr: {
             uri: '/addama/indexes/solr',
             select: '/select/'
+
         }
     },
     tables: {
@@ -100,8 +110,8 @@ vq.utils.VisUtils.extend(re, {
                     },
                     'Location': function(node) {
                         return 'Chr' + node.chr + ' ' + node.start + (node.end == '' ? '' : '-' + node.end) + ' ';
-                    }
-                    //                                Annotations :  parseAnnotationList
+                    },
+                    Annotations: parseAnnotationList
                 },
                 edge: function(edge) {},
                 link_objects: [{
@@ -120,19 +130,39 @@ vq.utils.VisUtils.extend(re, {
                         return 'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
                     }
                 }, //ensemble
-                {
+                 {
                     label: 'Cosmic',
                     url: 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic',
                     uri: '?action=bygene&ln=',
                     config_object: function(feature) {
                         return ['CNVR', 'MIRN'].indexOf(feature.source) < 0 ? 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label : null;
                     }
-                }, {
-                    label: 'OMIM',
-                    url: 'http://omim.org/search/',
-                    uri: '?index=entry&start=1&limit=10&search=',
+               },  {
+                    label: 'NCBI',
+                    url: 'http://www.ncbi.nlm.nih.gov/gene/',
+                    uri: '',
+                    selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
                     config_object: function(feature) {
-                        return ['CNVR', 'MIRN'].indexOf(feature.source) < 0 ? 'http://omim.org/search?index=entry&start=1&limit=10&search=' + feature.label : null;
+                        if (['CNVR', 'MIRN','METH'].indexOf(feature.source) >= 0) return null;
+                        Ext.Ajax.request({url:re.node.uri + re.node.services.lookup+'/'+feature.label,success:entrezHandler, failure: lookupFailed});
+
+                        function lookupFailed() {
+                            var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
+                              node.setAttribute('href','http://www.ncbi.nlm.nih.gov/gene?term='+feature.label);
+                        }
+
+                        function entrezHandler(response) {
+                            var gene,entrez;
+                            var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
+                            try {
+                                gene = Ext.decode(response.responseText);
+                                entrez = gene[Object.keys(gene)[0]];
+                                node.setAttribute('href',node.getAttribute('href').replace('zzzZZZzzz',entrez));
+                            } catch (err) {
+                                lookupFailed();
+                            }
+                        }
+                        return 'http://www.ncbi.nlm.nih.gov/gene/' + 'zzzZZZzzz';
                     }
                 }, {
                     label: 'miRBase',
@@ -141,7 +171,9 @@ vq.utils.VisUtils.extend(re, {
                     config_object: function(feature) {
                         return feature.source == 'MIRN' ? 'http://www.mirbase.org/cgi-bin/query.pl?terms=' + feature.label : null;
                     }
-                }],
+                },
+                   ],
+                //link_objects
                 links: {}
             },
             ticks: {
@@ -172,11 +204,9 @@ vq.utils.VisUtils.extend(re, {
     cytoscape: {
         obj: {},
         data: [],
-        swfPath: "http://cdn.cancerregulome.org/js/cytoscape_web/0.8/swf/CytoscapeWeb",
-        flashInstallerPath: "http://cdn.cancerregulome.org/js/cytoscape_web/0.8/swf/playerProductInstall"
+        swfPath: "http://cdn.cancerregulome.org/js/cytoscape_web/1.0/swf/CytoscapeWeb",
+        flashInstallerPath: "http://cdn.cancerregulome.org/js/cytoscape_web/1.0/swf/playerProductInstall"
     },
-
-
     plot: {
         locatable_source_list: ['GEXP', 'METH', 'CNVR', 'MIRN', 'GNAB', 'RPPA'],
         unlocatable_source_list: ['CLIN', 'SAMP', 'PRDM'],
@@ -355,6 +385,7 @@ vq.utils.VisUtils.extend(re, {
         });
     });
 
+
     if (re.analysis.directed_association) {
         re.ui.feature1 = {
             label: 'Target',
@@ -374,5 +405,8 @@ vq.utils.VisUtils.extend(re, {
             id: 'feature2'
         };
     }
+       re.display_options.circvis.tooltips.link_objects.forEach(function(link) {
+        re.display_options.circvis.tooltips.links[link.label] = link.config_object;
+    });
 
 })();

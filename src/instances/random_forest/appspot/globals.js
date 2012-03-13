@@ -22,8 +22,17 @@ vq.utils.VisUtils.extend(re, {
         query_cancel: false,
         network_query: ''
     },
+    node: {
+        uri: '/node',
+        services: {
+            data: '/data',
+            lookup:'/lookup/label/entrez'
+        }
+    },
     rest: {
-        query: '/query'
+        query: '/query',
+        echo: '/echo',
+        convert: '/convert'
     },
     params: {
         json_out: '&tqx=out:json_array',
@@ -46,6 +55,7 @@ vq.utils.VisUtils.extend(re, {
         dataset: '/regulome_explorer_dataset',
         label_lookup: '/refgene',
         chrom_info: '/chrom_info',
+        entrez_gene: '/entrez_gene',
         current_data: '',
         network_uri: '',
         feature_uri: '',
@@ -93,15 +103,17 @@ vq.utils.VisUtils.extend(re, {
                 feature: {
                     Feature: function(node) {
                         var pos = node.label.indexOf('_');
-                        return pos > 0 ? node.label.slice(0, pos) : node.label;
+                        var label = (pos > 0 ? node.label.slice(0, pos) : node.label);
+                        label = (label == 'GisticArm' ? "Arm " + node.label.split('_')[1] : label);
+                        return label;
                     },
                     Source: function(node) {
                         return re.label_map[node.source]
                     },
                     'Location': function(node) {
                         return 'Chr' + node.chr + ' ' + node.start + (node.end == '' ? '' : '-' + node.end) + ' ';
-                    }
-                    //                                Annotations :  parseAnnotationList
+                    },
+                    Annotations: parseAnnotationList
                 },
                 edge: function(edge) {},
                 link_objects: [{
@@ -125,15 +137,42 @@ vq.utils.VisUtils.extend(re, {
                     url: 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic',
                     uri: '?action=bygene&ln=',
                     config_object: function(feature) {
-                        return ['CNVR', 'MIRN'].indexOf(feature.source) < 0 ? 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label : null;
+                        return ['CNVR', 'MIRN','METH'].indexOf(feature.source) < 0 ? 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label : null;
                     }
-                }, {
-                    label: 'OMIM',
-                    url: 'http://omim.org/search/',
-                    uri: '?index=entry&start=1&limit=10&search=',
+               },  {
+                    label: 'NCBI',
+                    url: 'http://www.ncbi.nlm.nih.gov/gene/',
+                    uri: '',
+                    selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
                     config_object: function(feature) {
-                        return ['CNVR', 'MIRN'].indexOf(feature.source) < 0 ? 'http://omim.org/search?index=entry&start=1&limit=10&search=' + feature.label : null;
+                        if (['CNVR', 'MIRN','METH'].indexOf(feature.source) >= 0) return null;
+                        Ext.Ajax.request({url:re.node.uri + re.node.services.lookup+'/'+feature.label,success:entrezHandler, failure: lookupFailed});
+
+                        function lookupFailed() {
+                            var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
+                              node.setAttribute('href','http://www.ncbi.nlm.nih.gov/gene?term='+feature.label);
+                        }
+
+                        function entrezHandler(response) {
+                            var gene,entrez;
+                            var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
+                            try {
+                                gene = Ext.decode(response.responseText);
+                                entrez = gene[Object.keys(gene)[0]];
+                                node.setAttribute('href',node.getAttribute('href').replace('zzzZZZzzz',entrez));
+                            } catch (err) {
+                                lookupFailed();
+                            }
+                        }
+                        return 'http://www.ncbi.nlm.nih.gov/gene/' + 'zzzZZZzzz';
                     }
+                // },{
+                //     label: 'OMIM',
+                //     url: 'http://omim.org/search/',
+                //     uri: '?index=entry&start=1&limit=10&search=',
+                //     config_object: function(feature) {
+                //         return ['CNVR', 'MIRN'].indexOf(feature.source) < 0 ? 'http://omim.org/search?index=entry&start=1&limit=10&search=' + feature.label : null;
+                //     }
                 }, {
                     label: 'miRBase',
                     url: 'http://mirbase.org/cgi-bin/query.pl',
@@ -141,7 +180,9 @@ vq.utils.VisUtils.extend(re, {
                     config_object: function(feature) {
                         return feature.source == 'MIRN' ? 'http://www.mirbase.org/cgi-bin/query.pl?terms=' + feature.label : null;
                     }
-                }],
+                }
+                   ],
+                //link_objects
                 links: {}
             },
             ticks: {
@@ -172,11 +213,9 @@ vq.utils.VisUtils.extend(re, {
     cytoscape: {
         obj: {},
         data: [],
-        swfPath: "http://cdn.cancerregulome.org/js/cytoscape_web/0.8/swf/CytoscapeWeb",
-        flashInstallerPath: "http://cdn.cancerregulome.org/js/cytoscape_web/0.8/swf/playerProductInstall"
+        swfPath: "http://cdn.cancerregulome.org/js/cytoscape_web/1.0/swf/CytoscapeWeb",
+        flashInstallerPath: "http://cdn.cancerregulome.org/js/cytoscape_web/1.0/swf/playerProductInstall"
     },
-
-
     plot: {
         locatable_source_list: ['GEXP', 'METH', 'CNVR', 'MIRN', 'GNAB', 'RPPA'],
         unlocatable_source_list: ['CLIN', 'SAMP', 'PRDM'],
@@ -250,9 +289,9 @@ vq.utils.VisUtils.extend(re, {
     },
 
 /*
- Window handles
- global handles to the masks and windows used by events
- */
+     Window handles
+     global handles to the masks and windows used by events
+     */
 
     windows: {
         details_window: null,
@@ -301,9 +340,9 @@ vq.utils.VisUtils.extend(re, {
     });
 
 /*
- Label map
- Hash maps feature type id to feature type label
- */
+     Label map
+     Hash maps feature type id to feature type label
+     */
     re.label_map = {
         '*': 'All',
         'GEXP': 'Gene Expression',
@@ -374,10 +413,12 @@ vq.utils.VisUtils.extend(re, {
             id: 'feature2'
         };
     }
-
-
-    re.model.association.types.forEach(function(assoc) {
-        vq.utils.VisUtils.extend(re.display_options.circvis.tooltips.feature, assoc.vis.tooltip.entry);
+    re.display_options.circvis.tooltips.link_objects.forEach(function(link) {
+        re.display_options.circvis.tooltips.links[link.label] = link.config_object;
     });
+
+    // re.model.association.types.forEach(function(assoc) {
+    //     vq.utils.VisUtils.extend(re.display_options.circvis.tooltips.feature, assoc.vis.tooltip.entry);
+    // });
 
 })();
