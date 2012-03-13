@@ -254,3 +254,11 @@ var serializeSVG = function(elem) {
 
     return SvgToString(elem);
 };
+
+re.setRingHidden = function(ring, value) {
+    re.display_options.circvis.rings[ring].hidden = value;
+};
+
+re.isRingHidden = function(ring) {
+    return re.display_options.circvis.rings[ring]['hidden'];
+};
