@@ -171,7 +171,7 @@ vq.utils.VisUtils.extend(re, {
                     config_object: function(feature) {
                         return feature.source == 'MIRN' ? 'http://www.mirbase.org/cgi-bin/query.pl?terms=' + feature.label : null;
                     }
-                },
+                }
                    ],
                 //link_objects
                 links: {}

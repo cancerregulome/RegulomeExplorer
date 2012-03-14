@@ -96,7 +96,15 @@ vq.utils.VisUtils.extend(re, {
                 },
                 pairwise_scores: {
                     value_field: re.model.association.types[0].query.id,
-                    hidden: false
+                    hidden: false,
+
+
+                    manual_y_color_scale:false,
+                    min_y_color:'#0000FF',
+                    max_y_color:'#FF0000',
+                    manual_y_values: false,
+                    min_y_value:0,
+                    max_y_value:1
                 }
             },
             tooltips: {
@@ -407,6 +415,14 @@ vq.utils.VisUtils.extend(re, {
     }
        re.display_options.circvis.tooltips.link_objects.forEach(function(link) {
         re.display_options.circvis.tooltips.links[link.label] = link.config_object;
+    });
+
+    re.display_options.circvis.tooltips.link_objects.forEach(function(link) {
+        re.display_options.circvis.tooltips.links[link.label] = link.config_object;
+    });
+
+    re.model.association.types.forEach(function(assoc) {
+         vq.utils.VisUtils.extend(re.display_options.circvis.tooltips.feature, assoc.vis.tooltip.entry);
     });
 
 })();

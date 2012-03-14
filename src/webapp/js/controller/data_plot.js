@@ -4,11 +4,13 @@ function registerPlotListeners() {
     var d = vq.events.Dispatcher;
     d.addListener('data_ready','associations',function(data) {
         if (re.state.query_cancel) { return;}
+        generateColorScale();
         renderCircleData(data);
         renderCircleLegend('top-right');
     });
     d.addListener('data_ready','sf_associations',function(data) {
         if (re.state.query_cancel) { return;}
+        generateColorScale();
         renderSFCircleData(data);
         renderCircleLegend('center');
     });
@@ -102,6 +104,25 @@ function modifyCircle(object) {
     }
 }
 
+function generateColorScale() {
+    var pairwise_settings = re.display_options.circvis.rings.pairwise_scores;
+    var field = re.display_options.circvis.rings.pairwise_scores.value_field;
+        var association  = re.model.association.types[re.model.association_map[field]];
+        var settings = association.vis.scatterplot;
+        pairwise_settings.color_scale = pv.Scale.linear(settings.color_scale.domain());
+        pairwise_settings.color_scale.range.apply(pairwise_settings.color_scale,settings.color_scale.range());
+
+        if (pairwise_settings.manual_y_values) {
+            var min = pairwise_settings.min_y_value;
+            var max = pairwise_settings.max_y_value;
+            pairwise_settings.color_scale.domain(min,max);
+        }
+
+        if (pairwise_settings.manual_y_color_scale) { pairwise_settings.color_scale.range(pairwise_settings.min_y_color,pairwise_settings.max_y_color);}
+
+
+}
+
 function generateColorMaps(dataset_labels) {
     var current_source_list = dataset_labels['feature_sources'].map(function(row) { return row.source;});
     var num_sources = current_source_list.length;
@@ -162,8 +183,9 @@ function initiateDetailsPopup(link) {
 
 
 function colorscale_draw(association_obj, div) {
+    var color_scale = re.display_options.circvis.rings.pairwise_scores.color_scale;
 
-    var dom = association_obj.vis.scatterplot.color_scale.domain();
+    var dom = color_scale.domain();
     var width = 180,
         scale_width = width - 20,
         box_width = 4,
@@ -193,7 +215,7 @@ function colorscale_draw(association_obj, div) {
             .data(pv.range(start,end,step_size/steps))
             .width(box_width)
             .left(function() { return this.index * box_width;})
-            .fillStyle(association_obj.vis.scatterplot.color_scale);
+            .fillStyle(color_scale);
 
 
     legend.add(pv.Rule)
@@ -310,22 +332,24 @@ function singlefeature_circvis(parsed_data,div) {
         e.dispatch();
     }
 
-    var ucsc_genome_url = 'http://genome.ucsc.edu/cgi-bin/hgTracks';
-
     var karyotype_tooltip_items = {
         'Cytogenetic Band' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
         Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
     },
-        scatterplot_tooltips =  re.display_options.circvis.tooltips.feature,
+
         scatterplot_data = parsed_data['features'];
 
+    var pairwise_settings = re.display_options.circvis.rings.pairwise_scores;
     var field = re.display_options.circvis.rings.pairwise_scores.value_field;
     var association  = re.model.association.types[re.model.association_map[field]];
     var settings = association.vis.scatterplot;
+
     if (settings.values === undefined) { settings.values = {};}
     var min = settings.values.min === undefined ? pv.min(scatterplot_data, function(o) { return o[field];}) : settings.values.min;
     var max = settings.values.max === undefined ? pv.max(scatterplot_data, function(o) { return o[field];}) : settings.values.max;
     var scale_type = settings.scale_type;
+
+    if (pairwise_settings.manual_y_values) { min = pairwise_settings.min_y_value; max = pairwise_settings.max_y_value;}
 
     var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
     var ticks = vq.utils.VisUtils.clone(parsed_data['features']);
@@ -429,9 +453,9 @@ function singlefeature_circvis(parsed_data,div) {
                     radius : 2,
                     draw_axes : true,
                     shape:'dot',
-                    fill_style  : function(feature) {return settings.color_scale(feature[field]); },
-                    stroke_style  : function(feature) {return settings.color_scale(feature[field]); },
-                    tooltip_items : scatterplot_tooltips,
+                    fill_style  : function(feature) {return pairwise_settings.color_scale(feature[field]); },
+                    stroke_style  : function(feature) {return pairwise_settings.color_scale(feature[field]); },
+                    tooltip_items : re.display_options.circvis.tooltips.feature,
                     tooltip_links : re.display_options.circvis.tooltips.links
                     // listener : initiateDetailsPopup
                 }
