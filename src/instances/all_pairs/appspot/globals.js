@@ -179,7 +179,7 @@ vq.utils.VisUtils.extend(re, {
                     config_object: function(feature) {
                         return feature.source == 'MIRN' ? 'http://www.mirbase.org/cgi-bin/query.pl?terms=' + feature.label : null;
                     }
-                },
+                }
                    ],
                 //link_objects
                 links: {}
@@ -414,10 +414,6 @@ vq.utils.VisUtils.extend(re, {
         };
     }
        re.display_options.circvis.tooltips.link_objects.forEach(function(link) {
-        re.display_options.circvis.tooltips.links[link.label] = link.config_object;
-    });
-
-    re.display_options.circvis.tooltips.link_objects.forEach(function(link) {
         re.display_options.circvis.tooltips.links[link.label] = link.config_object;
     });
 

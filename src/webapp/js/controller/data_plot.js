@@ -151,11 +151,11 @@ function renderLinearLegend(anchor) {
 
 function renderCircleData(data) {
     Ext.getCmp('circle-colorscale-panel').el.dom.innerHTML = '';
-    wedge_plot(data, document.getElementById('circle-panel'));
+    buildNetworkCircvis(data, document.getElementById('circle-panel'));
 }
 
 function renderSFCircleData(data) {
-    singlefeature_circvis(data, document.getElementById('circle-panel'));
+    buildSFCircvis(data, document.getElementById('circle-panel'));
     var field = re.display_options.circvis.rings.pairwise_scores.value_field;
     var association  = re.model.association.types[re.model.association_map[field]];
 
@@ -186,26 +186,23 @@ function colorscale_draw(association_obj, div) {
     var color_scale = re.display_options.circvis.rings.pairwise_scores.color_scale;
 
     var dom = color_scale.domain();
-    var width = 180,
-        scale_width = width - 20,
+    var width = 240,
+        scale_width = 160,
         box_width = 4,
         end = dom[dom.length-1],
         start = dom[0],
         step_size = end - start,
         steps = scale_width / box_width;
     var vis= new pv.Panel()
-        .top(10)
-        .left(10)
         .height(70)
         .width(width)
-        .strokeStyle('black')
-        .lineWidth(1)
+        .strokeStyle(null)
         .canvas(div);
 
     var x_axis = pv.Scale.linear(start,end).range(0,scale_width);
     var legend = vis.add(pv.Panel)
-        .left(10)
-        .right(10)
+        .left((width-scale_width)/2)
+        .right((width-scale_width)/2)
         .strokeStyle('black')
         .lineWidth(1)
         .bottom(30)
@@ -434,7 +431,28 @@ function singlefeature_circvis(parsed_data,div) {
                     tooltip_items : karyotype_tooltip_items
 //                    listener : wedge_listener
                 }
-            },{
+//            },{
+//                            PLOT : {
+//                                height : re.display_options.circvis.rings.cnvr.radius,
+//                                type :   'tile'
+//                            },
+//                            DATA:{
+//                                data_array : vq.utils.VisUtils.clone(scatterplot_data.filter(function(feature){return feature.source == 'CNVR';}))
+//                            },
+//                            OPTIONS: {
+//                                legend_label : 'Somatic Copy Number Variation' ,
+//                                legend_description : 'Somatic Copy Number Variation',
+//                                outer_padding : 10,
+//                                tile_padding: 4,
+//                                tile_height: 8,
+//                                tile_overlap_distance:1000000,
+//                                fill_style  : function(feature) {return re.plot.colors.node_colors(feature.source);  },
+//                                stroke_style  : function(feature) {return re.plot.colors.node_colors(feature.source);  },
+//                                tooltip_items : re.display_options.circvis.tooltips.feature,
+//                                tooltip_links :  re.display_options.circvis.tooltips.links,
+//                                listener : wedge_listener
+//                            }
+                        },{
                 PLOT : {
                     height : ring_radius,
                     type :   'scatterplot'
@@ -462,14 +480,21 @@ function singlefeature_circvis(parsed_data,div) {
             }
         ]
     };
+   return data;
+}
+
+function buildSFCircvis(parsed_data,div) {
+    re.display_options.circvis.rings.pairwise_scores.hidden=false;
     var circle_vis = new vq.CircVis();
-    var dataObject ={DATATYPE : "vq.models.CircVisData", CONTENTS : data };
-    circle_vis.draw(dataObject);
+    var config = singlefeature_circvis(parsed_data,div);
+        var obj = modifyCircvisObject(config);
+        var dataObject ={DATATYPE : "vq.models.CircVisData", CONTENTS : obj };
+        circle_vis.draw(dataObject);
 
-    var e = new vq.events.Event('render_complete','circvis',circle_vis);
-    e.dispatch();
+        var e = new vq.events.Event('render_complete','circvis',circle_vis);
+        e.dispatch();
 
-    return circle_vis;
+        return circle_vis;
 }
 
 
@@ -655,8 +680,15 @@ function wedge_plot(parsed_data,div) {
             }
         }
     };
+    return data;
+}
+
+function buildNetworkCircvis(data,div) {
+    re.display_options.circvis.rings.pairwise_scores.hidden=true;
     var circle_vis = new vq.CircVis();
-    var dataObject ={DATATYPE : "vq.models.CircVisData", CONTENTS : data };
+    var config = wedge_plot(data,div);
+    var obj = modifyCircvisObject(config);
+    var dataObject ={DATATYPE : "vq.models.CircVisData", CONTENTS : obj };
     circle_vis.draw(dataObject);
 
     var e = new vq.events.Event('render_complete','circvis',circle_vis);
@@ -1162,5 +1194,44 @@ function populateGraph(obj) {
 
         // set the style at initialisation
         visualStyle: visual_style });
-
 }
+
+
+function modifyCircvisObject(obj) {
+    if (re.display_options.circvis.ticks.wedge_width_manually) {
+        obj.PLOT.width=re.display_options.circvis.width;
+    }
+    if (re.display_options.circvis.ticks.wedge_width_manually) {
+        obj.PLOT.height=re.display_options.circvis.height;
+    }
+    var chrom_keys = re.display_options.circvis.chrom_keys;
+
+    var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrom_length);
+
+    if (re.display_options.circvis.ticks.tile_ticks_manually) {
+        obj.TICKS.OPTIONS.tile_ticks  = true;
+        obj.TICKS.OPTIONS.overlap_distance = re.display_options.circvis.ticks.tick_overlap_distance;
+    }
+//
+//    var plots = [];
+//
+//    var rings = re.display_options.circvis.rings;
+//
+////    Object.keys(rings).forEach(function(ring, index) {
+////        if (rings[ring].hidden !== true) {
+////            plots.push(obj.WEDGE[index]);
+////        }
+////    });
+//    obj.WEDGE = plots;
+
+    obj.PLOT.rotate_degrees = re.display_options.circvis.rotation;
+    if (re.display_options.circvis.ticks.wedge_width_manually) {
+        obj.TICKS.OPTIONS.wedge_width = re.display_options.circvis.ticks.wedge_width;
+    }
+    if (re.display_options.circvis.ticks.wedge_height_manually) {
+        obj.TICKS.OPTIONS.wedge_height = re.display_options.circvis.ticks.wedge_height;
+    }
+
+    return obj;
+}
+

@@ -715,7 +715,7 @@ Ext.onReady(function() {
                         width: 150,
                         border: false,
                         frame: false,
-                        x: 345,
+                        x: 330,
                         y: 450
                     }]
                 }, {

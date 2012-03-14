@@ -89,14 +89,17 @@ vq.utils.VisUtils.extend(re, {
         circvis: {
             rings: {
                 karyotype: {
-                    hidden: false
+                    hidden: false,
+                    radius: 28
                 },
                 cnvr: {
-                    hidden: false
+                    hidden: true,
+                    radius: 40
                 },
                 pairwise_scores: {
                     value_field: re.model.association.types[0].query.id,
-                    hidden: false,
+                    hidden: true,
+                    radius: 80,
 
                     manual_y_color_scale:false,
                                         min_y_color:'#0000FF',
