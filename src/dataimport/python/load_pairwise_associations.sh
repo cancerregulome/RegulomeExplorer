@@ -32,7 +32,7 @@ echo begin parsing and loading features and sample values $(date) for $feature_m
 /tools/bin/python2.7 parse_features_rfex.py $feature_matrix_file $dataset_label $config_file
 
 echo begin parsing and loading network relationships
-/tools/bin/python2.7 parse_associations_rfex.py $feature_matrix_file $associations_pw $dataset_label $config_file
+/tools/bin/python2.7 parse_associations_rfex.py $feature_matrix_file $associations_pw $dataset_label $config_file $method
 
 echo Processing pairwise associations - prepare schema for $dataset_label
 /tools/bin/python2.7 createSchemaFromTemplate.py $dataset_label ../sql/create_schema_pairwise_template.sql $config_file

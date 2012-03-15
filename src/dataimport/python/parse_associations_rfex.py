@@ -12,7 +12,7 @@ import ConfigParser
 import smtp
 import getRFACEInfo
 
-def process_associations_rfex(dataset_label, matrixfile, associationsfile, config):
+def process_associations_rfex(dataset_label, matrixfile, associationsfile, is_rf, config):
 	#config = db_util.getConfig(configfile)
 	mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
 	myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
@@ -63,9 +63,10 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 		f2alias = f2alias.replace('|', '_')
 		pvalue = columns[2]
 		importance = columns[3]
-		if (float(importance) < imp_cutoff):
-			impCut += 1
-			continue
+		if (is_rf == 1):
+			if (float(importance) < imp_cutoff):
+				impCut += 1
+				continue
 		correlation = columns[4]
 		patientct = columns[5]
 		if (db_util.isUnmappedAssociation(f1alias, f2alias)):
@@ -114,11 +115,11 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 	if (db_util.getDoSmtp(config) == 'yes'):
 		smtp.main("jlin@systemsbiology.net", contacts, "Notification - New RFAce " + dataset_label + " Associations Loaded for RegulomeExplorer", "New RFAce associations loaded for dataset " + dataset_label + "\n\nFeature matrix:" + matrixfile + "\nRF Associations:" + associationsfile + "\n\nParsed associations for db:" + tsvout.name + "\n\n" + str(pcc) + " Total Parsed Associations loaded\n" + str(unMapped) + " Total Unmapped Edges saved here:" + unmappedout.name)
 
-def main(dataset_label, featuresfile, associationsfile, configfile):
+def main(dataset_label, featuresfile, associationsfile, is_rf, configfile):
 	print "\n in parse_associations_rfex : dataset_label = <%s> \n" % dataset_label
 	#config = db_util.getConfig(configfile)
 	notify = db_util.getNotify(config)
-	process_associations_rfex(dataset_label, featuresfile, associationsfile, config)
+	process_associations_rfex(dataset_label, featuresfile, associationsfile, is_rf, config)
 
 
 if __name__ == "__main__":
@@ -127,15 +128,19 @@ if __name__ == "__main__":
 		print 'Usage is py2.6 parse_associations_rfex.py feature_matrix.tsv edges_matrix.tsv  dataset_label configfile'
 		sys.exit(1)
 	insert_features = 0
+	is_rf = 1
 	args = sys.argv
 	matrixfile = args[1]
 	associationsfile = args[2]
 	dataset_label = sys.argv[3]
 	configfile = args[4]
+	#check if it's pairwise workflow
+	if (len(sys.argv) > 5):
+		is_rf = 0
 	config = db_util.getConfig(configfile)
 	if (not os.path.isfile(associationsfile)):
         	print associationsfile + " does not exist; unrecoverable ERROR"
 		sys.exit(-1)
-	main(dataset_label, matrixfile, associationsfile, config)
+	main(dataset_label, matrixfile, associationsfile, is_rf, config)
 
 
