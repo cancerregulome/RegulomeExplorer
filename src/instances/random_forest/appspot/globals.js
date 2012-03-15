@@ -23,7 +23,7 @@ vq.utils.VisUtils.extend(re, {
         network_query: ''
     },
     node: {
-        uri: '/node',
+        uri: '/addama/proxies/node',
         services: {
             data: '/data',
             lookup:'/lookup/label/entrez'
