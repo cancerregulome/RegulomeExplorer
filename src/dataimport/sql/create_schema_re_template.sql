@@ -96,6 +96,8 @@ CREATE TABLE #REPLACE#_patients
 DROP VIEW IF EXISTS v_#REPLACE#_patients;
 create view v_#REPLACE#_patients as select barcode from #REPLACE#_patients;
 
+commit;
+/*
 DROP TABLE IF EXISTS #REPLACE#_networks;
 CREATE TABLE #REPLACE#_networks
 (
@@ -135,6 +137,9 @@ from #REPLACE#_features f1, #REPLACE#_networks n, #REPLACE#_features f2
 where f1.id = n.feature1id  
 and n.feature2id = f2.id;
 
+commit;
+*/
+/*
 DROP VIEW IF EXISTS v_#REPLACE#_feature_networks;
 
 create view v_#REPLACE#_feature_networks as 
@@ -146,4 +151,4 @@ from #REPLACE#_features f, #REPLACE#_networks n
 where f.id = n.feature1id;
 
 commit;
-
+*/

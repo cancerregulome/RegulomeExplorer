@@ -1,33 +1,37 @@
 DROP TABLE IF EXISTS mv_#REPLACE#_feature_networks;
-
-CREATE TABLE mv_#REPLACE#_feature_networks (
-   f1chr VARCHAR(10),
-f1start int,
-f1end int,
-f1type VARCHAR(1),
-f1source VARCHAR(11),
-f1label VARCHAR(100),
-f1label_desc VARCHAR(50),
-f2chr VARCHAR(10),
-f2start int,
-f2end int,
-f2type VARCHAR(1),
-f2source VARCHAR(11),
-f2label VARCHAR(100),
-f2label_desc VARCHAR(50),
-alias1 varchar(255),
-alias2 varchar(255),
-feature1id int,
-feature2id int,
-f1genescore double,
-f2genescore double,
-pvalue double,
-importance double,
-correlation double,
-patientct int,
-rho_score double
+CREATE TABLE mv_#REPLACE#_feature_networks
+(
+   alias1 varchar(255),
+   alias2 varchar(255),
+   pvalue double DEFAULT 0,
+   importance double DEFAULT 0,
+   correlation double,
+   patientct int,
+   feature1id int,
+   f1type varchar(1),
+   f1source varchar(11),
+   f1label varchar(100),
+   f1chr varchar(5),
+   f1start int,
+   f1end int,
+   f1strand int DEFAULT 0,   
+   f1label_desc varchar(50),
+   feature2id int,
+   f2type varchar(1),
+   f2source varchar(11),
+   f2label varchar(100),   
+   f2chr varchar(5),
+   f2start int,   
+   f2end int,
+   f2strand int DEFAULT 0,   
+   f2label_desc varchar(50),
+   f1genescore double DEFAULT 0,
+   f2genescore double DEFAULT 0,
+   rho_score double,
+   id int AUTO_INCREMENT PRIMARY KEY NOT NULL
 );
 
+CREATE INDEX #REPLACE#_f1_f2 ON mv_#REPLACE#_feature_networks(feature1id, feature2id);
 CREATE INDEX #REPLACE#_f1chr ON mv_#REPLACE#_feature_networks(f1chr);
 CREATE INDEX #REPLACE#_f1start ON mv_#REPLACE#_feature_networks(f1start);
 CREATE INDEX #REPLACE#_f1end ON mv_#REPLACE#_feature_networks(f1end);
@@ -45,12 +49,15 @@ CREATE INDEX #REPLACE#_feature1 ON mv_#REPLACE#_feature_networks(feature1id);
 CREATE INDEX #REPLACE#_feature2 ON mv_#REPLACE#_feature_networks(feature2id);
 CREATE INDEX #REPLACE#_rhoscore ON mv_#REPLACE#_feature_networks(rho_score);
 
-INSERT INTO mv_#REPLACE#_feature_networks 
-SELECT 
-f1chr, f1start, f1end, f1type, f1source, f1label, f1label_desc, 
-f2chr, f2start, f2end, f2type, f2source, f2label, f2label_desc,  
-alias1, alias2, feature1id, feature2id, f1genescore, f2genescore, pvalue, importance, correlation, patientct, rho_score
-from v_#REPLACE#_feature_networks;
+
+DROP VIEW IF EXISTS v_#REPLACE#_patient_values;
+
+create view v_#REPLACE#_patient_values as 
+select f1.id f1id, f1.alias f1alias, f1.patient_values_mean f1mean, f1.patient_values f1values, f2.id f2id, f2.alias f2alias, 
+f2.patient_values_mean f2mean, f2.patient_values f2values 
+from #REPLACE#_features f1, mv_#REPLACE#_feature_networks n, #REPLACE#_features f2 
+where f1.id = n.feature1id  
+and n.feature2id = f2.id;
 
 commit;
 
