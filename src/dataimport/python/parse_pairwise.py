@@ -68,6 +68,8 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
 		nodeB = nodeB.replace('|', '_')
 		if (parse_features_rfex.getFeatureId(tokens[0]) and parse_features_rfex.getFeatureId(tokens[1])):
 			if (not edges_hash.get(nodeA + "_" + nodeB) and not edges_hash.get(nodeA + "_" + nodeB)):
+				feature1id = str(parse_features_rfex.getFeatureId(tokens[0])) 
+				feature2id = str(parse_features_rfex.getFeatureId(tokens[1]))
 				edges_hash[nodeA + "_" + nodeB] = validEdgeId
 				validEdgeId += 1
 				dataA = process_feature_alias(nodeA)
@@ -97,7 +99,7 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
 				numnaf2 = tokens[9]
 				pvf2 = tokens[10]
 				rho = str(db_util.sign(float(correlation))*abs(float(pv)))
-				edges_out_re.write(nodeA + "\t" + "\t".join(dataA) + "\t" + nodeB + "\t" + "\t".join(dataB) + "\t" + correlation + "\t" + numna + "\t" + pv + "\t" + bonf + "\t" + pv_bonf + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\t" + rho + "\n")
+				edges_out_re.write(feature1id + "\t" + feature2id + "\t" + nodeA + "\t" + "\t".join(dataA) + "\t" + nodeB + "\t" + "\t".join(dataB) + "\t" + correlation + "\t" + numna + "\t" + pv + "\t" + bonf + "\t" + pv_bonf + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\t" + rho + "\n")
 				if (do_pubcrawl == "yes"):
 					#call andrea code
 					getPairwiseInfo.processLine(line, edges_out_pc)

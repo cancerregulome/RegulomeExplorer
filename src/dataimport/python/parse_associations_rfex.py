@@ -13,7 +13,6 @@ import smtp
 import getRFACEInfo
 
 def process_associations_rfex(dataset_label, matrixfile, associationsfile, is_rf, config):
-	#config = db_util.getConfig(configfile)
 	mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
 	myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
 	mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
@@ -26,8 +25,8 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, is_rf
 	if (not os.path.isfile(associationsfile)):
 		print associationsfile + " does not exist; unrecoverable ERROR"
 		sys.exit(-1)
-	associations_table = mydb + "." + dataset_label + "_networks"
-	features_table = mydb + "." + dataset_label + "_features"
+	associations_table = mydb + ".mv_" + dataset_label + "_feature_networks"
+	#features_table = mydb + "." + dataset_label + "_features"
 	do_pubcrawl = db_util.getDoPubcrawl(config)
 	print "Begin processing associations %s Applying processing_pubcrawl %s" %(time.ctime(), do_pubcrawl)
 	associations_in = open(associationsfile,'r')
@@ -85,15 +84,22 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, is_rf
 		f2genescore = ""
 		if (parse_features_rfex.getGeneInterestScore(f2alias) != None):
 			f2genescore = parse_features_rfex.getGeneInterestScore(f2alias)
-		f2data = f2alias.split(':')
+		f1data = f1alias.split(':')
+		if len(f1data) > 4:
+			f1data[3] = f1data[3][3:]
+		if len(f1data) == 7:
+			f1alias = f1alias + ":"
+			f1data.append("")
+		f2data = f2alias.split(':')		
 		if len(f2data) > 4:
 			f2data[3] = f2data[3][3:]
 		if len(f2data) == 7:
 			f2alias = f2alias + ":"
 			f2data.append("")
+		
 		if (pvalue == "-inf"):
 			pvalue = "-1000"		 
-		tsvout.write(str(lc) + "\t" + f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + str(parse_features_rfex.getFeatureId(columns[0])) + "\t" + str(parse_features_rfex.getFeatureId(columns[1])) + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\n")
+		tsvout.write(f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + str(parse_features_rfex.getFeatureId(columns[0])) + "\t" + "\t".join(f1data) + "\t" + str(parse_features_rfex.getFeatureId(columns[1])) + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\n")
 		edgeCount = edgeCount + 1
 		if (do_pubcrawl == "yes"):
 			getRFACEInfo.processLine(line, pubcrawl_tsvout)
