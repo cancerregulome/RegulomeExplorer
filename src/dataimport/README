@@ -23,13 +23,13 @@ RE db tables are using the MyISAM engine, versus InnoDB, since MyISAM is better 
 #SH
 From python dir, run sh:
 There should be corresponding sh files to the config files setup above, the commands required for the sh is:
-dataset_label feature_matrix_file associations_file dataset_comment dataset_description
+dataset_label feature_matrix_file associations_file dataset_comment dataset_description re_instance
 
 #RFACE analysis example:
-sh load_sandbox_rface_associations.sh test_gbm_rface /titan/cancerregulome3/TCGA/outputs/gbm/gbm.merge.u133a.31oct.hg18.tsv /titan/cancerregulome3/TCGA/outputs/gbm/rf.u133a.31oct.mask1.F/all_associations.out "BRCA Her2 subset" "59 Her2-classified patients"
+sh load_rface_associations.sh test_gbm_rface /titan/cancerregulome3/TCGA/outputs/gbm/gbm.merge.u133a.31oct.hg18.tsv /titan/cancerregulome3/TCGA/outputs/gbm/rf.u133a.31oct.mask1.F/all_associations.out "BRCA Her2 subset" "59 Her2-classified patients" internal
 
 #All Pairs example:
-sh load_sandbox_pairwise_associations.sh test_kirc_0206_pw /titan/cancerregulome3/TCGA/outputs/kirc/bigMerge.06feb12.hg18.tsv /titan/cancerregulome3/TCGA/outputs/kirc/bigMerge.06feb12.pwpv "Kidney" "Kidney sandbox"
+sh load_pairwise_associations.sh test_kirc_0206_pw /titan/cancerregulome3/TCGA/outputs/kirc/bigMerge.06feb12.hg18.tsv /titan/cancerregulome3/TCGA/outputs/kirc/bigMerge.06feb12.pwpv "Kidney" "Kidney sandbox" public
 
 Regarding processing time, we are averaging about 800,000-1 million edges per minute. It is recommended that you modify your /etc/my.cnf to have high memory settings as quite a number of views, indexes and buffers are used. 
 
