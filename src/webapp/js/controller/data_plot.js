@@ -329,12 +329,7 @@ function singlefeature_circvis(parsed_data,div) {
         e.dispatch();
     }
 
-    var karyotype_tooltip_items = {
-        'Cytogenetic Band' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
-        Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
-    },
-
-        scatterplot_data = parsed_data['features'];
+   var scatterplot_data = parsed_data['features'];
 
     var pairwise_settings = re.display_options.circvis.rings.pairwise_scores;
     var field = re.display_options.circvis.rings.pairwise_scores.value_field;
@@ -397,7 +392,7 @@ function singlefeature_circvis(parsed_data,div) {
                 stroke_style :stroke_style,
                 fill_style : function(tick) {return re.plot.colors.node_colors(tick.source); },
                 tooltip_items :  re.display_options.circvis.tooltips.feature,
-                tooltip_links : re.display_options.circvis.tooltips.links
+                tooltip_links : re.display_options.circvis.tooltips.feature_links
             }
         },
         PLOT: {
@@ -426,32 +421,8 @@ function singlefeature_circvis(parsed_data,div) {
                     legend_label : 'Cytogenetic Bands' ,
                     legend_description : 'Chromosomal Cytogenetic Bands',
                     outer_padding : 10,
-//                    fill_style : function(feature) { return feature.value;},
-//                    stroke_style : function(feature) { return feature.value;},
-                    tooltip_items : karyotype_tooltip_items
-//                    listener : wedge_listener
+                    tooltip_items : re.display_options.circvis.tooltips.karyotype_feature
                 }
-//            },{
-//                            PLOT : {
-//                                height : re.display_options.circvis.rings.cnvr.radius,
-//                                type :   'tile'
-//                            },
-//                            DATA:{
-//                                data_array : vq.utils.VisUtils.clone(scatterplot_data.filter(function(feature){return feature.source == 'CNVR';}))
-//                            },
-//                            OPTIONS: {
-//                                legend_label : 'Somatic Copy Number Variation' ,
-//                                legend_description : 'Somatic Copy Number Variation',
-//                                outer_padding : 10,
-//                                tile_padding: 4,
-//                                tile_height: 8,
-//                                tile_overlap_distance:1000000,
-//                                fill_style  : function(feature) {return re.plot.colors.node_colors(feature.source);  },
-//                                stroke_style  : function(feature) {return re.plot.colors.node_colors(feature.source);  },
-//                                tooltip_items : re.display_options.circvis.tooltips.feature,
-//                                tooltip_links :  re.display_options.circvis.tooltips.links,
-//                                listener : wedge_listener
-//                            }
                         },{
                 PLOT : {
                     height : ring_radius,
@@ -474,7 +445,7 @@ function singlefeature_circvis(parsed_data,div) {
                     fill_style  : function(feature) {return pairwise_settings.color_scale(feature[field]); },
                     stroke_style  : function(feature) {return pairwise_settings.color_scale(feature[field]); },
                     tooltip_items : re.display_options.circvis.tooltips.feature,
-                    tooltip_links : re.display_options.circvis.tooltips.links
+                    tooltip_links : re.display_options.circvis.tooltips.feature_links
                     // listener : initiateDetailsPopup
                 }
             }
@@ -518,37 +489,6 @@ function wedge_plot(parsed_data,div) {
         var e = new vq.events.Event('render_linearbrowser','circvis',{data:vq.utils.VisUtils.clone(parsed_data),chr:chr,start:start,range:range_length});
         e.dispatch();
     }
-
-    var ucsc_genome_url = 'http://genome.ucsc.edu/cgi-bin/hgTracks';
-
-    var link_tooltip_items = { };
-    link_tooltip_items[re.ui.feature1.label] = function(link) { return link.sourceNode.label+ ' ' + link.sourceNode.source + ' Chr' + link.sourceNode.chr + ' ' + link.sourceNode.start +
-        '-' + link.sourceNode.end + ' ' +link.sourceNode.label_mod;};
-
-    link_tooltip_items[re.ui.feature2.label] = function(link) { return link.targetNode.label+ ' ' + link.targetNode.source + ' Chr' + link.targetNode.chr + ' ' + link.targetNode.start +
-        '-' + link.targetNode.end + ' ' + link.targetNode.label_mod;};
-
-    var karyotype_tooltip_items = {
-        'Cytogenetic Band' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
-        Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
-    },
-        unlocated_tooltip_items = {};
-    unlocated_tooltip_items[re.ui.feature1.label] =  function(feature) { return feature.sourceNode.source + ' ' + feature.sourceNode.label +
-        (feature.sourceNode.chr ? ' Chr'+ feature.sourceNode.chr : '') +
-        (feature.sourceNode.start > -1 ? ' '+ feature.sourceNode.start : '') +
-        (!isNaN(feature.sourceNode.end) ? '-'+ feature.sourceNode.end : '')  + ' '+
-        feature.sourceNode.label_mod;};
-    unlocated_tooltip_items[re.ui.feature2.label] = function(feature) { return feature.targetNode.source + ' ' + feature.targetNode.label +
-        (feature.targetNode.chr ? ' Chr'+ feature.targetNode.chr : '') +
-        (feature.targetNode.start > -1 ? ' '+ feature.targetNode.start : '') +
-        (!isNaN(feature.targetNode.end) ? '-'+ feature.targetNode.end : '')  + ' ' +
-        feature.targetNode.label_mod;};
-
-    re.model.association.types.forEach( function(assoc) {
-        vq.utils.VisUtils.extend(link_tooltip_items, assoc.vis.tooltip.entry);
-        vq.utils.VisUtils.extend(unlocated_tooltip_items, assoc.vis.tooltip.entry);
-    });
-
 
     var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
     var ticks = vq.utils.VisUtils.clone(parsed_data['features']);
@@ -595,7 +535,7 @@ function wedge_plot(parsed_data,div) {
                 listener : wedge_listener,
                 stroke_style :stroke_style,
                 fill_style : function(tick) {return re.plot.colors.node_colors(tick.source); },
-              tooltip_links :re.display_options.circvis.tooltips.links,
+              tooltip_links :re.display_options.circvis.tooltips.feature_links,
                     tooltip_items :  re.display_options.circvis.tooltips.feature     //optional
             }
         },
@@ -627,7 +567,7 @@ function wedge_plot(parsed_data,div) {
                     outer_padding : 10,
 //                    fill_style : function(feature) { return feature.value;},
 //                    stroke_style : function(feature) { return feature.value;},
-                    tooltip_items : karyotype_tooltip_items
+                    tooltip_items : re.display_options.circvis.tooltips.karyotype_feature
 //                    listener : wedge_listener
                 }
             },{
@@ -651,7 +591,7 @@ function wedge_plot(parsed_data,div) {
                     fill_style  : function(feature) {return re.plot.colors.link_sources_colors([feature.sourceNode.source,feature.targetNode.source]); },
                     //stroke_style  : function(feature) {return link_sources_colors([feature.sourceNode.source,feature.targetNode.source]); },
                     stroke_style : stroke_style,
-                    tooltip_items : unlocated_tooltip_items,
+                    tooltip_items : re.display_options.circvis.tooltips.unlocated_feature,
                     listener : initiateDetailsPopup
                 }
             }
@@ -674,9 +614,9 @@ function wedge_plot(parsed_data,div) {
                     return re.plot.colors.link_sources_colors([link.sourceNode.source,link.targetNode.source]);},
                 constant_link_alpha : 0.7,
                 node_tooltip_items :   re.display_options.circvis.tooltips.feature,
-                node_tooltip_links : re.display_options.circvis.tooltips.links,
+                node_tooltip_links : re.display_options.circvis.tooltips.feature_links,
                 
-                link_tooltip_items :  link_tooltip_items
+                link_tooltip_items :  re.display_options.circvis.tooltips.edge
             }
         }
     };
@@ -713,12 +653,6 @@ function linear_plot(obj) {
         return false;
     };
 
-    var unlocated_tooltip_items = { };
-    unlocated_tooltip_items[re.ui.feature1.label] = function(tie) {
-        return tie.sourceNode.label + ' ' + tie.sourceNode.source};
-    unlocated_tooltip_items[re.ui.feature2.label] = function(tie) {
-        return tie.targetNode.label + ' ' + tie.targetNode.source };
-
     var located_tooltip_items = {
         Feature : function(tie) {
             return tie.label + ' ' + tie.source + ' Chr' +tie.chr + ' ' +
@@ -731,11 +665,6 @@ function linear_plot(obj) {
     inter_tooltip_items[re.ui.feature2.label] = function(tie) {
         return tie.targetNode.label + ' ' + tie.targetNode.source +
             ' Chr' + tie.targetNode.chr+ ' ' +tie.targetNode.start +'-'+tie.targetNode.end + ' ' + tie.targetNode.label_mod};
-
-    re.model.association.types.forEach( function(assoc) {
-        vq.utils.VisUtils.extend(unlocated_tooltip_items, assoc.vis.tooltip.entry);
-        vq.utils.VisUtils.extend(inter_tooltip_items, assoc.vis.tooltip.entry);
-    });
 
 
     var hit_map = parsed_data['unlocated'].filter(function(link) { return  link.node1.chr == chrom;})
@@ -849,7 +778,7 @@ function linear_plot(obj) {
                     track_stroke_style: pv.color('#000000')
                 },
                 OPTIONS: {
-                   tooltip_links :re.display_options.circvis.tooltips.links,
+                   tooltip_links :re.display_options.circvis.tooltips.feature_links,
                     tooltip_items :  re.display_options.circvis.tooltips.feature     //optional
                 },
                 data_array : locations
@@ -872,7 +801,7 @@ function linear_plot(obj) {
                     notifier:inter_chrom_click
                 },
                 OPTIONS: {
-                    tooltip_items : unlocated_tooltip_items
+                    tooltip_items : re.display_options.circvis.tooltips.unlocated_feature
                 },
                 data_array : hit_map
             },

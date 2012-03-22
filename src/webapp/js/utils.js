@@ -262,3 +262,41 @@ re.setRingHidden = function(ring, value) {
 re.isRingHidden = function(ring) {
     return re.display_options.circvis.rings[ring]['hidden'];
 };
+
+
+re.build_tooltips = function() {
+
+    re.display_options.circvis.tooltips.karyotype_feature = {
+           'Cytogenetic Band' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
+           Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
+       };
+    re.display_options.circvis.tooltips.unlocated_feature[re.ui.feature1.label] =  function(feature) { return feature.sourceNode.source + ' ' + feature.sourceNode.label +
+           (feature.sourceNode.chr ? ' Chr'+ feature.sourceNode.chr : '') +
+           (feature.sourceNode.start > -1 ? ' '+ feature.sourceNode.start : '') +
+           (!isNaN(feature.sourceNode.end) ? '-'+ feature.sourceNode.end : '')  + ' '+
+           feature.sourceNode.label_mod;};
+    re.display_options.circvis.tooltips.unlocated_feature[re.ui.feature2.label] = function(feature) { return feature.targetNode.source + ' ' + feature.targetNode.label +
+           (feature.targetNode.chr ? ' Chr'+ feature.targetNode.chr : '') +
+           (feature.targetNode.start > -1 ? ' '+ feature.targetNode.start : '') +
+           (!isNaN(feature.targetNode.end) ? '-'+ feature.targetNode.end : '')  + ' ' +
+           feature.targetNode.label_mod;};
+
+    re.model.association.types.forEach( function(assoc) {
+           vq.utils.VisUtils.extend(re.display_options.circvis.tooltips.unlocated_feature, assoc.vis.tooltip.entry);
+       });
+
+   re.display_options.circvis.tooltips.edge[re.ui.feature1.label] = function(link) { return link.sourceNode.label+ ' ' + link.sourceNode.source + ' Chr' + link.sourceNode.chr + ' ' + link.sourceNode.start +
+       '-' + link.sourceNode.end + ' ' +link.sourceNode.label_mod;};
+
+   re.display_options.circvis.tooltips.edge[re.ui.feature2.label] = function(link) { return link.targetNode.label+ ' ' + link.targetNode.source + ' Chr' + link.targetNode.chr + ' ' + link.targetNode.start +
+       '-' + link.targetNode.end + ' ' + link.targetNode.label_mod;};
+
+   re.model.association.types.forEach(function(assoc) {
+            vq.utils.VisUtils.extend(re.display_options.circvis.tooltips.edge, assoc.vis.tooltip.entry);
+       });
+
+   re.display_options.circvis.tooltips.link_objects.forEach(function(link) {
+       re.display_options.circvis.tooltips.feature_links[link.label] = link.config_object;
+   });
+
+};

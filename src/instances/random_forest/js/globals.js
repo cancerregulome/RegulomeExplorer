@@ -125,7 +125,9 @@ vq.utils.VisUtils.extend(re, {
                     },
                     Annotations: parseAnnotationList
                 },
-                edge: function(edge) {},
+                unlocated_feature : {},
+                karyotype_feature: {},
+                edge: {},
                 link_objects: [{
                     label: 'UCSC Genome Browser',
                     url: 'http://genome.ucsc.edu/cgi-bin/hgTracks',
@@ -176,13 +178,6 @@ vq.utils.VisUtils.extend(re, {
                         }
                         return 'http://www.ncbi.nlm.nih.gov/gene/' + 'zzzZZZzzz';
                     }
-                // },{
-                //     label: 'OMIM',
-                //     url: 'http://omim.org/search/',
-                //     uri: '?index=entry&start=1&limit=10&search=',
-                //     config_object: function(feature) {
-                //         return ['CNVR', 'MIRN'].indexOf(feature.source) < 0 ? 'http://omim.org/search?index=entry&start=1&limit=10&search=' + feature.label : null;
-                //     }
                 }, {
                     label: 'miRBase',
                     url: 'http://mirbase.org/cgi-bin/query.pl',
@@ -193,7 +188,8 @@ vq.utils.VisUtils.extend(re, {
                 }
                    ],
                 //link_objects
-                links: {}
+                edge_links: {},
+                feature_links : {}
             },
             ticks: {
                 tick_overlap_distance: null,
@@ -423,12 +419,7 @@ vq.utils.VisUtils.extend(re, {
             id: 'feature2'
         };
     }
-    re.display_options.circvis.tooltips.link_objects.forEach(function(link) {
-        re.display_options.circvis.tooltips.links[link.label] = link.config_object;
-    });
 
-    re.model.association.types.forEach(function(assoc) {
-         vq.utils.VisUtils.extend(re.display_options.circvis.tooltips.feature, assoc.vis.tooltip.entry);
-    });
+    re.build_tooltips();
 
 })();
