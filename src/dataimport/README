@@ -1,6 +1,9 @@
 #RE-Config and MySql Data Import notes and requirements
 #Requires python 2.5, 2.6, or 2.7 and libraries MySQLdb 
-First - set up the RE admin dependencies and set permissions by executing rfex_admin.sql with root on the mysql server:
+
+The python executable is explicitly set to /tools/bin/python2.7 in the sh scripts, update it as needed
+
+Set up the RE admin dependencies and set permissions by executing rfex_admin.sql with root on the mysql server:
 
 mysql -u root -ppassword < rfex_admin.sql
 
@@ -33,4 +36,11 @@ sh load_pairwise_associations.sh test_kirc_0206_pw /titan/cancerregulome3/TCGA/o
 
 Regarding processing time, we are averaging about 800,000-1 million edges per minute. It is recommended that you modify your /etc/my.cnf to have high memory settings as quite a number of views, indexes and buffers are used. 
 
-Please contact codefor@systemsbiology.net with any questions
+You can load multiple associations (right now limited to RFACE and pairwise) by using 
+start_load_feature_associations.sh
+
+ie
+sh start_load_feature_associations.sh test_gbm /titan/cancerregulome3/TCGA/outputs/gbm/gbm.merge.u133a.31oct.hg18.tsv /titan/cancerregulome3/TCGA/outputs/gbm/rf.u133a.31oct.mask1.F/all_associations.out "test new flow" "test" internal /titan/cancerregulome3/TCGA/outputs/gbm/bigMerge.06feb12.1e04_1e08_8_0.pwpv
+
+Please contact codefor@systemsbiology.net with any questions.
+Thanks
