@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS regulome_explorer_dataset
    dataset_date varchar(30),
    max_logged_pvalue float DEFAULT -1.0,
    input_files varchar(255)
-);
+) ENGINE=NDBCLUSTER;
 
 CREATE TABLE IF NOT EXISTS sample_meta (
   sample_key varchar(20) NOT NULL default "",
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS sample_meta (
   matrix_col_offset int(11) default NULL,
   meta_json text,
    PRIMARY KEY (sample_key, cancer_type, dataset_label)
-);
+) ENGINE=NDBCLUSTER;
 
 DROP TABLE IF EXISTS #REPLACE#_features;
 CREATE TABLE #REPLACE#_features
@@ -39,7 +39,7 @@ CREATE TABLE #REPLACE#_features
    patient_values longtext,
    patient_values_mean double,
    gene_interesting_score double
-);
+) ENGINE=NDBCLUSTER;
 
 CREATE INDEX CHR ON #REPLACE#_features(chr);
 CREATE INDEX ALIAS ON #REPLACE#_features(alias);
@@ -70,7 +70,7 @@ CREATE TABLE #REPLACE#_feature_pathways
    pathway_type varchar(30),
    pvalue double,
    id int PRIMARY KEY NOT NULL auto_increment
-);
+) ENGINE=NDBCLUSTER;
 
 CREATE INDEX pathway_featureid ON #REPLACE#_feature_pathways(featureid);
 CREATE INDEX pathway_alias ON #REPLACE#_feature_pathways(alias);
@@ -84,14 +84,14 @@ CREATE TABLE #REPLACE#_association_index
    associated_feature_type varchar(50) not null,
    associated_index double DEFAULT 0,
    id int PRIMARY KEY NOT NULL auto_increment
-);
+) ENGINE=NDBCLUSTER;
 CREATE INDEX association_index_featureid ON #REPLACE#_association_index(featureid);
 
 DROP TABLE IF EXISTS #REPLACE#_patients;
 CREATE TABLE #REPLACE#_patients
 (
    barcode longtext
-);
+) ENGINE=NDBCLUSTER;
 
 DROP VIEW IF EXISTS v_#REPLACE#_patients;
 create view v_#REPLACE#_patients as select barcode from #REPLACE#_patients;
@@ -119,7 +119,7 @@ CREATE TABLE #REPLACE#_networks
    f1genescore double DEFAULT 0,
    f2genescore double DEFAULT 0,
    rho_score double
-);
+) ENGINE=NDBCLUSTER;
 
 CREATE INDEX feature1 ON #REPLACE#_networks(feature1id);
 CREATE INDEX feature2 ON #REPLACE#_networks(feature2id);
