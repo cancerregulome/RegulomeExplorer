@@ -43,7 +43,8 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
         edges_out_re = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_re.tsv','w')
 	edges_out_pc = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_pc.tsv','w')
 	edges_meta_json = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_meta.json','w')
-	unmappedout = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_unmapped.tsv','w')
+	unmappedPath = results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_unmapped.tsv'
+	unmappedout = open(unmappedPath,'w')
 	validEdgeId = 1
 	invalidEdges = 0
 	dupeEdges = 0
@@ -108,9 +109,9 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
 				print "duplicated edge:" + nodeA + "_" + nodeB
 				dupeEdges += 1
 		else:
-			print "invalid edge:" + nodeA + "_" + nodeB
+			print "invalid edge nodeA and nodeB not in features:" + nodeA + "_" + nodeB
 			invalidEdges += 1
-	print "Valid Edges %i Duped %i cNAN %i unMapped %i Total %i max_pvalue %f max_pvalue_corr %f" %(validEdgeId-1, dupeEdges, cnan, unMapped, totalEdges, max_pv, max_pv_corr)	
+	print "Report: Valid Edges %i Duped %i cNAN %i \nunMapped %i Saved to %s \nTotal %i max_pvalue %f max_pvalue_corr %f" %(validEdgeId-1, dupeEdges, cnan, unMapped,unmappedPath, totalEdges, max_pv, max_pv_corr)	
 	edges_meta_json.write('{"max_logpv":%f}' %(max_pv))
 	edges_file.close()
 	edges_out_re.close()

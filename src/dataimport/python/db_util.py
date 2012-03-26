@@ -109,7 +109,7 @@ def isAntisense(gene):
 
 def isUnmappedAssociation(f1alias, f2alias):
         """
-        Must skip non CLIN SAMP features without chromosome position
+        Classify edges as unmapped if both nodes do not have chr positions
         """
         f1data = f1alias.split(":")
         if (len(f1data) < 5):
@@ -119,13 +119,18 @@ def isUnmappedAssociation(f1alias, f2alias):
         f2data = f2alias.split(":")
         f2source = f2data[1]
         f2chr = f2data[3]
-
+	
+	if (f1chr == "" and f2chr == ""):
+		return True
+	
+	"""
         if (f1chr == "" and (f1source != "CLIN" and f1source != "SAMP")):
                 if (f2source != "CLIN" and f2source != "SAMP"):
                         return True
         if (f2chr == "" and (f2source != "CLIN" and f2source != "SAMP")):
                 if (f1source != "CLIN" and f1source != "SAMP"):
                         return True
+	"""
         return False
 
 

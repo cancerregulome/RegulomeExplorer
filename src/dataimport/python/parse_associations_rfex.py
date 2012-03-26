@@ -39,7 +39,8 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, is_rf
 	fshout = open('./results/load_sql_associations_' + dataset_label + '.sh','w')
 	if (not os.path.exists(results_path + "/" + dataset_label)):
 		os.mkdir(results_path + "/" + dataset_label)
-	unmappedout = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_rface_unmapped.tsv','w')
+	unmappedPath = results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_rface_unmapped.tsv'
+	unmappedout = open(unmappedPath,'w')
 	tsvout = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_rface_re.tsv','w')
 	pubcrawl_tsvout = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_rface_pc.tsv','w')
 	lc = 0
@@ -112,7 +113,7 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, is_rf
 	unmappedout.close()
 	pubcrawl_tsvout.close()
 	fshout.close()
-	print "ValidEdges %i ImportanceCutoff %i edges filtered %i because unMapped %i" %(edgeCount, impCut, pvalueCutCount, unMapped)
+	print "\nReport: ValidEdges %i ImportanceCutoff %i edges filtered %i \nunMapped Edges %i Saved to %s" %(edgeCount, impCut, pvalueCutCount, unMapped, unmappedPath)
 	print "Begin bulk upload %s os.system sh %s" %(time.ctime(), fshout.name)
 	os.system("sh " + fshout.name)
 	if (do_pubcrawl == 'yes' and db_util.getDoSmtp(config) == 'yes'):

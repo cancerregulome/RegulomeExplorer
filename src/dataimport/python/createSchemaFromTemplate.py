@@ -21,7 +21,10 @@ def updateFromTemplate(label, template, configfile):
 	template_file = open(template)
 	schema_out_name = template_file.name.replace('template', label)
 	schema_out_name = schema_out_name.replace('sql', "sql_processing", 1)
-	print "schema_out_name " + schema_out_name + " label " + label
+	sql_processing_dir = "/".join(schema_out_name.split("/")[:-1])
+	if (not os.path.exists(sql_processing_dir)):
+	        os.system(sql_processing_dir)	
+	#print "schema_out_name " + schema_out_name + " label " + label
 	schema_file = open(schema_out_name,'w')
 	config = db_util.getConfig(configfile)
 	schema_file.write("use %s;\n" %(db_util.getDBSchema(config)))
