@@ -1164,3 +1164,8 @@ function modifyCircvisObject(obj) {
     return obj;
 }
 
+function plotFeatureDistribution(params) {
+    var data = params.data || re.plot.featureplot_data || {data:[]},
+        div = params.div || null;
+
+}
