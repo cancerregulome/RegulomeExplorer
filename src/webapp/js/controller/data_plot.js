@@ -1141,17 +1141,6 @@ function modifyCircvisObject(obj) {
         obj.TICKS.OPTIONS.tile_ticks  = true;
         obj.TICKS.OPTIONS.overlap_distance = re.display_options.circvis.ticks.tick_overlap_distance;
     }
-//
-//    var plots = [];
-//
-//    var rings = re.display_options.circvis.rings;
-//
-////    Object.keys(rings).forEach(function(ring, index) {
-////        if (rings[ring].hidden !== true) {
-////            plots.push(obj.WEDGE[index]);
-////        }
-////    });
-//    obj.WEDGE = plots;
 
     obj.PLOT.rotate_degrees = re.display_options.circvis.rotation;
     if (re.display_options.circvis.ticks.wedge_width_manually) {
