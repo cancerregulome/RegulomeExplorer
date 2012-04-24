@@ -1,3 +1,6 @@
+function isUnsignedInteger(s) {
+  return (s.toString().search(/^[0-9]+$/) == 0);
+}
 
 function registerPlotListeners() {
 
@@ -7,6 +10,7 @@ function registerPlotListeners() {
         generateColorScale();
         renderCircleData(data);
         renderCircleLegend('top-right');
+	renderPathwayMembers('below-top-right', data);
     });
     d.addListener('data_ready','sf_associations',function(data) {
         if (re.state.query_cancel) { return;}
@@ -33,6 +37,9 @@ function registerPlotListeners() {
     });
     d.addListener('data_ready','annotations',function(obj){
         re.plot.chrome_length = obj['chrom_leng'];
+    });
+    d.addListener('data_ready','pathways',function(obj){
+        re.plot.pw_name = obj['pw_name'];
     });
     d.addListener('render_scatterplot','details', function(obj){
         scatterplot_draw(obj);
@@ -145,6 +152,15 @@ function generateColorMaps(dataset_labels) {
 function renderCircleLegend(anchor) {
     legend_draw(document.getElementById('circle-legend-panel'),anchor);
 }
+
+function renderPathwayMembers(anchor, data) {
+    var memberCounts = {};
+    var networks = [];
+    if (data != null)
+	networks = data["network"]	
+    pathway_members_draw(document.getElementById('pathway-member-item'),anchor,networks);
+}
+
 function renderLinearLegend(anchor) {
     legend_draw(document.getElementById('linear-legend-panel'));
 }
@@ -184,7 +200,6 @@ function initiateDetailsPopup(link) {
 
 function colorscale_draw(association_obj, div) {
     var color_scale = re.display_options.circvis.rings.pairwise_scores.color_scale;
-
     var dom = color_scale.domain();
     var width = 240,
         scale_width = 160,
@@ -198,23 +213,19 @@ function colorscale_draw(association_obj, div) {
         .width(width)
         .strokeStyle(null)
         .canvas(div);
-
     var x_axis = pv.Scale.linear(start,end).range(0,scale_width);
     var legend = vis.add(pv.Panel)
         .left((width-scale_width)/2)
         .right((width-scale_width)/2)
         .strokeStyle('black')
-        .lineWidth(1)
+        //.lineWidth(1)
         .bottom(30)
         .height(30);
-
     legend.add(pv.Bar)
             .data(pv.range(start,end,step_size/steps))
             .width(box_width)
             .left(function() { return this.index * box_width;})
             .fillStyle(color_scale);
-
-
     legend.add(pv.Rule)
         .data(x_axis.ticks(2))
         .left(x_axis)
@@ -223,22 +234,167 @@ function colorscale_draw(association_obj, div) {
         .anchor('bottom').add(pv.Label)
         .font('10px bold Courier, monospace')
         .text(x_axis.tickFormat);
-
     vis.anchor('bottom').add(pv.Label)
         .text(association_obj.label);
-
     vis.render();
 
 }
+function pathway_members_draw(div,anchor,networks) {
+    var dataset_labels = re.ui.getDatasetLabels();
+    if (re.ui.getCurrentPathwayMembers() == null || re.ui.getCurrentPathwayMembers().length == 0)
+	//if (Ext.getCmp(""))
+	//Ext.Msg.alert("No results found");
+	return;	
+    var currentMemberList = re.ui.getCurrentPathwayMembers().split(",");
+    currentMemberList.sort();
+    var memberArray = [];
+    var memberCountArray = [];    	
+    for (var k = 0; k < currentMemberList.length; k++){
+	if (currentMemberList[k] == null || currentMemberList[k] == "")
+		continue;
+	var member = currentMemberList[k];
+    	var mobj = {};
+	mobj["shown"] = 0;
+        mobj["hidden"] = 0;
+	memberCountArray[member] = mobj;
+	memberArray.push(member);
+	var mcount = 0;
+        for (var n = 0; n < networks.length; n++){
+		//check filter type to define directionality
+		var label = networks[n].node1.label;
+		if (Ext.getCmp("filter_type").getValue() == re.ui.feature2.id )
+			label = networks[n].node2.label;
+		if (label == member)
+			mcount++; 
+	}
+	if (mcount > 0)
+		memberCountArray[member] = mcount;
+    }
+    var mc = re.ui.getPathwayMembersQueryCounts();
+    var sortedMembers = {};
+    var tuples = [];
+    for (var key in memberCountArray) tuples.push([key, memberCountArray[key]]);
+    tuples.sort(function(a, b) {
+       a = a[1];
+       b = b[1];
+       return b < a ? -1 : (b > a ? 1 : 0);
+    });
+    for (var i = 0; i < tuples.length; i++) {
+        var key = tuples[i][0];
+        var value = tuples[i][1];
+	if (key == "remove" || !isUnsignedInteger(value))
+		continue;
+        sortedMembers[key] = value;// .push(sobj);
+    }
+    var stuples = [];
+    for (var member in sortedMembers){
+    	stuples.push([member,sortedMembers[member]]);
+    }
+    for (var member in currentMemberList){
+    	var memberstr = currentMemberList[member];
+	var add = true;
+        for (var s =0; s < stuples.length; s++){
+        	if (memberstr == stuples[s][0]){
+			add = false;
+			break;
+		}
+        }
+	if (add && memberstr.length > 1){
+		stuples.push([memberstr, 0]);
+	}
+		
+    }
+    stuples.sort(function(a,b){
+    	return b[1] - a[1];
+    });
+    var source_map = pv.numerate(dataset_labels['feature_sources'], function(row) {return row.source;});
+    var current_locatable_data = stuples;//sortedMembers; //memberArray; 
+    var current_data = re.plot.all_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
+    var current_map = pv.numerate(current_data);
+    var anchor = anchor || 'top-right';
+    var width=800, height=800;
+    var legend_height = (30 + current_locatable_data.length * 13), legend_width = 400;
+    var top = 20, left = 0;
+        re.plot.colors.link_sources_colors = function(link) { return re.plot.link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
+var vis= new pv.Panel()
+        .left(left)
+        .top(top)
+        .width(legend_width)
+        .height(legend_height)
+        .canvas(div);
+    var drawPanel = vis.add(pv.Panel)
+        .top(0)
+        .left(0);
+    drawPanel.add(pv.Label)
+        .textAlign('left')
+        .top(15)
+        .left(12)
+        .text('Genes not in feature matrix')
+	.textStyle("red")
+        .font("12px helvetica");
+    var color_panel = drawPanel.add(pv.Panel)
+        .left(30)
+        .top(30);
+    var entry = color_panel.add(pv.Panel)
+        .data(stuples)
+        .top(function() { return this.index*12;})
+        .height(12);
+    var memberBars = entry.add(pv.Bar)
+        .left(35)
+        .width(function(d){
+		var w = d[1];
+		var scaled = 5;
+		if (w < 3)
+			scaled = 8;
+		return w*scaled;
+	})
+        .top(1)
+        .bottom(1)
+        .fillStyle(function(type) { return re.plot.colors.node_colors(type);})
+        .event("mouseover", function(obj){
+		var member = obj[0]; 
+		var nodes_array = re.circvis_obj.chromoData._network.nodes_array;
+                var mobj = null;
+                for (var n=0; n<nodes_array.length; n++){
+                        if (nodes_array[n]["label"] == member){
+                                mobj = nodes_array[n];
+                                break;
+                        }
+                }
+                re.ui.getPathwayBarBehavior()(mobj, n);
+	})
+	.event("mouseout", function(){
+		//pathway_behavior_reset();
+	})
+	.event("dblclick", function(member){
+		re.ui.getPathwayBarBehaviorReset()();
+        });
+     memberBars.anchor("right").add(pv.Label)
+    	.textStyle("white")
+	.font("8px helvetica")
+    	.text(function(d) { return d[1];});
+    entry.add(pv.Label)
+        .text(function(d) { return d[0];})
+        .bottom(0)
+        .left(-20)
+        .textAlign('left')
+        .textBaseline('bottom')
+        .textStyle(function(d){
+		var m = d[0];
+		if (mc[m] == 0)
+			return "red";
+		return "black";
+	})
+        .font("10px helvetica");
+   vis.render();
+}
 
 function legend_draw(div,anchor) {
-
     var dataset_labels = re.ui.getDatasetLabels();
     var source_map = pv.numerate(dataset_labels['feature_sources'], function(row) {return row.source;});
     var current_locatable_data = re.plot.locatable_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
     var current_data = re.plot.all_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
     var current_map = pv.numerate(current_data);
-
     var anchor = anchor || 'top-right';
     var width=800, height=800;
     var legend_height = (30 + current_locatable_data.length * 13), legend_width = 150;
@@ -252,37 +408,32 @@ function legend_draw(div,anchor) {
         case('top-right'):
             Ext.getCmp('circle-legend-panel').setPosition(880,20);
             Ext.getCmp('circle-legend-panel').doLayout();
+	    break;
+	case('below-top-right'):
+	    Ext.getCmp('pathway-legend-panel').setPosition(880,legend_height + 20);
+            Ext.getCmp('pathway-legend-panel').doLayout();	
         default:
             break;
     }
-
-
-
     //re.plot.colors.node_colors = function(source) { return re.plot.colors.source_color_scale(current_map[source]);};
     re.plot.colors.link_sources_colors = function(link) { return re.plot.link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
-
     var vis= new pv.Panel()
         .left(left)
         .top(top)
-
         .width(legend_width)
         .height(legend_height)
         .lineWidth(1)
         .strokeStyle('black')
         .canvas(div);
-
-
     var drawPanel = vis.add(pv.Panel)
         .top(20)
         .left(0);
-
     drawPanel.add(pv.Label)
         .textAlign('left')
         .top(10)
         .left(12)
         .text('Features')
         .font("14px helvetica");
-
     var color_panel = drawPanel.add(pv.Panel)
         .left(10)
         .top(10);
@@ -303,7 +454,6 @@ function legend_draw(div,anchor) {
         .textAlign('left')
         .textBaseline('bottom')
         .font("11px helvetica");
-
     vis.render();
 }
 
@@ -329,7 +479,12 @@ function singlefeature_circvis(parsed_data,div) {
         e.dispatch();
     }
 
-   var scatterplot_data = parsed_data['features'];
+    var karyotype_tooltip_items = {
+        'Cytogenetic Band' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
+        Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
+    },
+
+        scatterplot_data = parsed_data['features'];
 
     var pairwise_settings = re.display_options.circvis.rings.pairwise_scores;
     var field = re.display_options.circvis.rings.pairwise_scores.value_field;
@@ -392,7 +547,7 @@ function singlefeature_circvis(parsed_data,div) {
                 stroke_style :stroke_style,
                 fill_style : function(tick) {return re.plot.colors.node_colors(tick.source); },
                 tooltip_items :  re.display_options.circvis.tooltips.feature,
-                tooltip_links : re.display_options.circvis.tooltips.feature_links
+                tooltip_links : re.display_options.circvis.tooltips.links
             }
         },
         PLOT: {
@@ -421,8 +576,32 @@ function singlefeature_circvis(parsed_data,div) {
                     legend_label : 'Cytogenetic Bands' ,
                     legend_description : 'Chromosomal Cytogenetic Bands',
                     outer_padding : 10,
-                    tooltip_items : re.display_options.circvis.tooltips.karyotype_feature
+//                    fill_style : function(feature) { return feature.value;},
+//                    stroke_style : function(feature) { return feature.value;},
+                    tooltip_items : karyotype_tooltip_items
+//                    listener : wedge_listener
                 }
+//            },{
+//                            PLOT : {
+//                                height : re.display_options.circvis.rings.cnvr.radius,
+//                                type :   'tile'
+//                            },
+//                            DATA:{
+//                                data_array : vq.utils.VisUtils.clone(scatterplot_data.filter(function(feature){return feature.source == 'CNVR';}))
+//                            },
+//                            OPTIONS: {
+//                                legend_label : 'Somatic Copy Number Variation' ,
+//                                legend_description : 'Somatic Copy Number Variation',
+//                                outer_padding : 10,
+//                                tile_padding: 4,
+//                                tile_height: 8,
+//                                tile_overlap_distance:1000000,
+//                                fill_style  : function(feature) {return re.plot.colors.node_colors(feature.source);  },
+//                                stroke_style  : function(feature) {return re.plot.colors.node_colors(feature.source);  },
+//                                tooltip_items : re.display_options.circvis.tooltips.feature,
+//                                tooltip_links :  re.display_options.circvis.tooltips.links,
+//                                listener : wedge_listener
+//                            }
                         },{
                 PLOT : {
                     height : ring_radius,
@@ -445,7 +624,7 @@ function singlefeature_circvis(parsed_data,div) {
                     fill_style  : function(feature) {return pairwise_settings.color_scale(feature[field]); },
                     stroke_style  : function(feature) {return pairwise_settings.color_scale(feature[field]); },
                     tooltip_items : re.display_options.circvis.tooltips.feature,
-                    tooltip_links : re.display_options.circvis.tooltips.feature_links
+                    tooltip_links : re.display_options.circvis.tooltips.links
                     // listener : initiateDetailsPopup
                 }
             }
@@ -489,12 +668,39 @@ function wedge_plot(parsed_data,div) {
         var e = new vq.events.Event('render_linearbrowser','circvis',{data:vq.utils.VisUtils.clone(parsed_data),chr:chr,start:start,range:range_length});
         e.dispatch();
     }
+    var ucsc_genome_url = 'http://genome.ucsc.edu/cgi-bin/hgTracks';
+    var link_tooltip_items = { };
+    link_tooltip_items[re.ui.feature1.label] = function(link) { return link.sourceNode.label+ ' ' + link.sourceNode.source + ' Chr' + link.sourceNode.chr + ' ' + link.sourceNode.start +
+        '-' + link.sourceNode.end + ' ' +link.sourceNode.label_mod;};
+
+    link_tooltip_items[re.ui.feature2.label] = function(link) { return link.targetNode.label+ ' ' + link.targetNode.source + ' Chr' + link.targetNode.chr + ' ' + link.targetNode.start +
+        '-' + link.targetNode.end + ' ' + link.targetNode.label_mod;};
+
+    var karyotype_tooltip_items = {
+        'Cytogenetic Band' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
+        Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
+    },
+        unlocated_tooltip_items = {};
+    unlocated_tooltip_items[re.ui.feature1.label] =  function(feature) { return feature.sourceNode.source + ' ' + feature.sourceNode.label +
+        (feature.sourceNode.chr ? ' Chr'+ feature.sourceNode.chr : '') +
+        (feature.sourceNode.start > -1 ? ' '+ feature.sourceNode.start : '') +
+        (!isNaN(feature.sourceNode.end) ? '-'+ feature.sourceNode.end : '')  + ' '+
+        feature.sourceNode.label_mod;};
+    unlocated_tooltip_items[re.ui.feature2.label] = function(feature) { return feature.targetNode.source + ' ' + feature.targetNode.label +
+        (feature.targetNode.chr ? ' Chr'+ feature.targetNode.chr : '') +
+        (feature.targetNode.start > -1 ? ' '+ feature.targetNode.start : '') +
+        (!isNaN(feature.targetNode.end) ? '-'+ feature.targetNode.end : '')  + ' ' +
+        feature.targetNode.label_mod;};
+
+    re.model.association.types.forEach( function(assoc) {
+        vq.utils.VisUtils.extend(link_tooltip_items, assoc.vis.tooltip.entry);
+        vq.utils.VisUtils.extend(unlocated_tooltip_items, assoc.vis.tooltip.entry);
+    });
+
 
     var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
     var ticks = vq.utils.VisUtils.clone(parsed_data['features']);
-
     var types = re.model.association.types.map(function(assoc) { return assoc.query.id;});
-
     var unlocated_map = vq.utils.VisUtils.clone(parsed_data['unlocated']).filter(function(link) { return  link.node1.chr != '';})
         .map(function(link) {
             var node =  { chr:link.node1.chr, start:link.node1.start,end:link.node1.end, value: 0};
@@ -535,7 +741,7 @@ function wedge_plot(parsed_data,div) {
                 listener : wedge_listener,
                 stroke_style :stroke_style,
                 fill_style : function(tick) {return re.plot.colors.node_colors(tick.source); },
-              tooltip_links :re.display_options.circvis.tooltips.feature_links,
+              tooltip_links :re.display_options.circvis.tooltips.links,
                     tooltip_items :  re.display_options.circvis.tooltips.feature     //optional
             }
         },
@@ -567,7 +773,7 @@ function wedge_plot(parsed_data,div) {
                     outer_padding : 10,
 //                    fill_style : function(feature) { return feature.value;},
 //                    stroke_style : function(feature) { return feature.value;},
-                    tooltip_items : re.display_options.circvis.tooltips.karyotype_feature
+                    tooltip_items : karyotype_tooltip_items
 //                    listener : wedge_listener
                 }
             },{
@@ -591,7 +797,7 @@ function wedge_plot(parsed_data,div) {
                     fill_style  : function(feature) {return re.plot.colors.link_sources_colors([feature.sourceNode.source,feature.targetNode.source]); },
                     //stroke_style  : function(feature) {return link_sources_colors([feature.sourceNode.source,feature.targetNode.source]); },
                     stroke_style : stroke_style,
-                    tooltip_items : re.display_options.circvis.tooltips.unlocated_feature,
+                    tooltip_items : unlocated_tooltip_items,
                     listener : initiateDetailsPopup
                 }
             }
@@ -614,9 +820,9 @@ function wedge_plot(parsed_data,div) {
                     return re.plot.colors.link_sources_colors([link.sourceNode.source,link.targetNode.source]);},
                 constant_link_alpha : 0.7,
                 node_tooltip_items :   re.display_options.circvis.tooltips.feature,
-                node_tooltip_links : re.display_options.circvis.tooltips.feature_links,
+                node_tooltip_links : re.display_options.circvis.tooltips.links,
                 
-                link_tooltip_items :  re.display_options.circvis.tooltips.edge
+                link_tooltip_items :  link_tooltip_items
             }
         }
     };
@@ -653,6 +859,12 @@ function linear_plot(obj) {
         return false;
     };
 
+    var unlocated_tooltip_items = { };
+    unlocated_tooltip_items[re.ui.feature1.label] = function(tie) {
+        return tie.sourceNode.label + ' ' + tie.sourceNode.source};
+    unlocated_tooltip_items[re.ui.feature2.label] = function(tie) {
+        return tie.targetNode.label + ' ' + tie.targetNode.source };
+
     var located_tooltip_items = {
         Feature : function(tie) {
             return tie.label + ' ' + tie.source + ' Chr' +tie.chr + ' ' +
@@ -665,6 +877,11 @@ function linear_plot(obj) {
     inter_tooltip_items[re.ui.feature2.label] = function(tie) {
         return tie.targetNode.label + ' ' + tie.targetNode.source +
             ' Chr' + tie.targetNode.chr+ ' ' +tie.targetNode.start +'-'+tie.targetNode.end + ' ' + tie.targetNode.label_mod};
+
+    re.model.association.types.forEach( function(assoc) {
+        vq.utils.VisUtils.extend(unlocated_tooltip_items, assoc.vis.tooltip.entry);
+        vq.utils.VisUtils.extend(inter_tooltip_items, assoc.vis.tooltip.entry);
+    });
 
 
     var hit_map = parsed_data['unlocated'].filter(function(link) { return  link.node1.chr == chrom;})
@@ -778,7 +995,7 @@ function linear_plot(obj) {
                     track_stroke_style: pv.color('#000000')
                 },
                 OPTIONS: {
-                   tooltip_links :re.display_options.circvis.tooltips.feature_links,
+                   tooltip_links :re.display_options.circvis.tooltips.links,
                     tooltip_items :  re.display_options.circvis.tooltips.feature     //optional
                 },
                 data_array : locations
@@ -801,7 +1018,7 @@ function linear_plot(obj) {
                     notifier:inter_chrom_click
                 },
                 OPTIONS: {
-                    tooltip_items : re.display_options.circvis.tooltips.unlocated_feature
+                    tooltip_items : unlocated_tooltip_items
                 },
                 data_array : hit_map
             },
@@ -1141,6 +1358,17 @@ function modifyCircvisObject(obj) {
         obj.TICKS.OPTIONS.tile_ticks  = true;
         obj.TICKS.OPTIONS.overlap_distance = re.display_options.circvis.ticks.tick_overlap_distance;
     }
+//
+//    var plots = [];
+//
+//    var rings = re.display_options.circvis.rings;
+//
+////    Object.keys(rings).forEach(function(ring, index) {
+////        if (rings[ring].hidden !== true) {
+////            plots.push(obj.WEDGE[index]);
+////        }
+////    });
+//    obj.WEDGE = plots;
 
     obj.PLOT.rotate_degrees = re.display_options.circvis.rotation;
     if (re.display_options.circvis.ticks.wedge_width_manually) {
@@ -1153,8 +1381,3 @@ function modifyCircvisObject(obj) {
     return obj;
 }
 
-function plotFeatureDistribution(params) {
-    var data = params.data || re.plot.featureplot_data || {data:[]},
-        div = params.div || null;
-
-}

@@ -1,3 +1,58 @@
+//var data = pv.range(10).map(function(d) { return Math.random() + .1; });
+
+var plotChart = function(divid){
+//<!-- Data for bar chart: Two time-series, alternating to form a single series. Bar Color will switch back & forth -->
+var vis = new pv.Panel()
+    .width(150)
+    .height(200)
+  .add(pv.Bar)
+    .data([[.5, 1],[0, 1], [.5, 1.2], [.9, 1.7], [.2, 1.5], [.7, 2.2],[0, 2.2]])
+    .height(20)
+    .bottom(function(){ return this.index * 25;})
+    .width(function(d){ return (d[1] - d[0]) * 50;})
+    .left(function(d){ return d[0] * 50;}).canvas(divid);
+  //.root.render();
+
+
+vis.render();
+};
+/*
+var w = 400,
+    h = 250,
+    x = pv.Scale.linear(0, 1.1).range(0, w),
+    y = pv.Scale.ordinal(pv.range(10)).splitBanded(0, h, 4/5);
+var vis = new pv.Panel()
+    .width(w)
+    .height(h)
+    .bottom(20)
+    .left(20)
+    .right(10)
+    .top(5).canvas(divid);
+var bar = vis.add(pv.Bar)
+    .data(data)
+    .top(function() y(this.index))
+    .height(y.range().band)
+    .left(0)
+    .width(x);
+bar.anchor("right").add(pv.Label)
+    .textStyle("white")
+    .text(function(d) d.toFixed(1));
+bar.anchor("left").add(pv.Label)
+    .textMargin(5)
+    .textAlign("right")
+    .text(function() "ABCDEFGHIJK".charAt(this.index));
+vis.add(pv.Rule)
+    .data(x.ticks(5))
+    .left(x)
+    .strokeStyle(function(d) d ? "rgba(255,255,255,.3)" : "#000")
+  .add(pv.Rule)
+    .bottom(0)
+    .height(5)
+    .strokeStyle("#000")
+  .anchor("bottom").add(pv.Label)
+    .text(x.tickFormat);
+*/
+
 
 if (re === undefined) { re = {};}
 
@@ -8,8 +63,10 @@ vq.utils.VisUtils.extend(re.ui, {
                 collapsible: true,
                 floatable: true,
                 autoHide:false,
+		autoScroll: true,
                 split: true,
                 width: 280,
+		//height: 800,
                 id: 'filter_parent',
                 title: 'Filtering',
                 layout: {
@@ -25,7 +82,7 @@ vq.utils.VisUtils.extend(re.ui, {
                         xtype: 'panel', id:'associations_filter',
                         title : 'Filter Associations',
                         autoScroll : true,
-                        height : 250,
+                        height : 500,
                         tools: [{
                             id: 'help',
                             handler: function(event, toolEl, panel){
@@ -54,11 +111,24 @@ vq.utils.VisUtils.extend(re.ui, {
                                     {
                                         text: 'Filter',
                                         id:'re_filter_button',
-                                        formBind : true,
+					disabled: false,
+                                        //formBind : true,
                                         listeners : {
                                             click : function(button,e) {
-                                                manualFilterRequest();
-                                            }
+						if ((Ext.getCmp("t_type").getValue() == 'GEXP' && Ext.getCmp("p_type").getValue() != 'Pathway')
+						|| (Ext.getCmp("t_type").getValue() != 'Pathway' && Ext.getCmp("p_type").getValue() == 'GEXP')){
+							Ext.getCmp("pathway_member_panel").setTitle("Filtered member degrees");		
+						}
+						if (Ext.getCmp('t_label').getValue() != null && Ext.getCmp('t_label').getValue().indexOf(",") > -1) {
+                                                	re.ui.setCurrentPathwayMembers(Ext.getCmp('t_label').getValue());
+						} else if (Ext.getCmp('p_label').getValue() != null && Ext.getCmp('p_label').getValue().indexOf(",") > -1) {
+                                                	re.ui.setCurrentPathwayMembers(Ext.getCmp('p_label').getValue());
+						}
+						var ft = Ext.getCmp("filter_type").getValue();
+						if (ft != "association")
+							Ext.getCmp('pathway_member_panel').expand();
+                                            	manualFilterRequest();
+						}
                                         }
                                     },
                                     { text: 'Reset',
@@ -129,10 +199,17 @@ vq.utils.VisUtils.extend(re.ui, {
                                                             case('CLIN'):
                                                                 Ext.getCmp('f1_label_comp').setVisible(false);
                                                                 Ext.getCmp('t_clin').setVisible(true);
+								Ext.getCmp('t_pathway').setVisible(false);
                                                                 break;
-                                                            default:
+							    case('Pathway'):
+								Ext.getCmp('f1_label_comp').setVisible(false);
+                                                                Ext.getCmp('t_clin').setVisible(false);
+                                                                Ext.getCmp('t_pathway').setVisible(true);	
+                                                            	break;
+							    default:
                                                                 Ext.getCmp('f1_label_comp').setVisible(true);
                                                                 Ext.getCmp('t_clin').setVisible(false);
+								Ext.getCmp('t_pathway').setVisible(false);
                                                         }
                                                     }
                                                 }
@@ -151,7 +228,13 @@ vq.utils.VisUtils.extend(re.ui, {
                                                         selectOnFocus:true,
                                                         fieldLabel:'Label',
                                                         defaultValue : '',
-                                                        value : ''
+                                                        value : '',
+							listeners: {
+								change: function(t,o,n){
+									if (n.indexOf(",") != -1)
+										Ext.getCmp("filter_type").setValue(re.ui.feature1.id);	
+								}
+							}
                                                     },
                                                     {
                                                         xtype:'button',
@@ -190,6 +273,55 @@ vq.utils.VisUtils.extend(re.ui, {
                                                 emptyText:'CLIN Feature...',
                                                 defaultValue:'*',
                                                 value:'*'
+                                            }, {
+                                                name:'t_pathway',
+                                                mode:'local',
+                                                id:'t_pathway',
+                                                xtype:'combo',
+                                                allowBlank : false,
+                                                hidden:true,
+                                                store: new Ext.data.JsonStore({
+                                                    autoLoad : false,
+                                                    data: [],
+                                                    fields : ['value','label', "url"],
+                                                    idProperty:'value',
+                                                    storeId:'f1_pathway_list_store'
+                                                }),
+                                                listWidth:300,
+                                                fieldLabel:'Pathway',
+                                                selectOnFocus:true,
+                                                forceSelection : true,
+                                                triggerAction : 'all',
+                                                valueField:'value',
+                                                displayField:'value',
+                                                emptyText:'Select Pathway...',
+						listeners : {
+                                                    select : function(field,record,index) {
+                                                        Ext.getCmp("filter_type").setValue(re.ui.feature1.id);
+							Ext.getCmp('f1_label_comp').setVisible(true);
+							Ext.getCmp('t_label').setValue(record.json.label);
+							Ext.getCmp('limit').setValue('25');
+                                                    	re.ui.setCurrentPathwayMembers(record.json.label);
+                                                    	var memberDataArray = [];
+							var memberTokens = (record.json.label).split(",").sort();
+							for (var tk = 0; tk<memberTokens.length; tk++){
+								var mjson = {};
+								var member = memberTokens[tk];
+								if (member == null || member == "")
+									continue;		
+								mjson["pmember"] = member;
+								mjson["display_count"] = Math.floor(5*Math.random());
+								mjson["hidden_count"] = Math.floor(10*Math.random());
+								memberDataArray.push(mjson);
+								loadFeaturesInAFM(member);
+							}
+							renderPathwayMembers('below-top-right');
+							var url = record.json.value;
+							if (record.json.url != null && record.json.url.length > 1)
+								url = "<a href='" + record.json.url + "' target='_blank'>" + record.json.value  + "</a> ";
+							Ext.getCmp("pathway_member_panel").setTitle(url + memberDataArray.length + " Genes");	
+						    }
+                                                }
                                             },
                                             {
                                                 xtype:'combo', name:'t_chr',id:'t_chr',
@@ -291,7 +423,22 @@ vq.utils.VisUtils.extend(re.ui, {
                                                 listeners : {
                                                     select : function(field,record, index) {
                                                         switch(record.id)  {
-                                                            case('CLIN'):
+							    case('CLIN'):
+                                                                Ext.getCmp('f2_label_comp').setVisible(false);
+                                                                Ext.getCmp('p_clin').setVisible(true);
+                                                                Ext.getCmp('p_pathway').setVisible(false);
+                                                                break;
+                                                            case('Pathway'):
+                                                                Ext.getCmp('f2_label_comp').setVisible(false);
+                                                                Ext.getCmp('p_clin').setVisible(false);
+                                                                Ext.getCmp('p_pathway').setVisible(true);
+                                                                break;
+                                                            default:
+                                                                Ext.getCmp('f2_label_comp').setVisible(true);
+                                                                Ext.getCmp('p_clin').setVisible(false);
+                                                                Ext.getCmp('p_pathway').setVisible(false);
+
+                                                        /*    case('CLIN'):
                                                                 var label_cmp = Ext.getCmp('f2_label_comp'),
                                                                     clin_cmp = Ext.getCmp('p_clin');
                                                                 label_cmp.setVisible(false);
@@ -301,7 +448,7 @@ vq.utils.VisUtils.extend(re.ui, {
                                                                 var label_cmp = Ext.getCmp('f2_label_comp'),
                                                                     clin_cmp = Ext.getCmp('p_clin');
                                                                 label_cmp.setVisible(true);
-                                                                clin_cmp.setVisible(false);
+                                                                clin_cmp.setVisible(false);*/
                                                         }
                                                     }
                                                 }
@@ -320,7 +467,13 @@ vq.utils.VisUtils.extend(re.ui, {
                                                         selectOnFocus:true,
                                                         fieldLabel:'Label',
                                                         defaultValue : '',
-                                                        value : ''
+                                                        value : '',
+							listeners: {
+                                                                change: function(t,o,n){
+                                                                        if (n.indexOf(",") != -1)
+                                                                                Ext.getCmp("filter_type").setValue(re.ui.feature2.id);
+                                                                }
+                                                        }
                                                     },
                                                     {
                                                         xtype:'button',
@@ -359,6 +512,57 @@ vq.utils.VisUtils.extend(re.ui, {
                                                 emptyText:'CLIN Feature...',
                                                 defaultValue:'*',
                                                 value:'*'
+                                            },
+					    {
+                                                name:'p_pathway',
+                                                mode:'local',
+                                                id:'p_pathway',
+                                                xtype:'combo',
+                                                allowBlank : false,
+                                                hidden:true,
+                                                store: new Ext.data.JsonStore({
+                                                    autoLoad : false,
+                                                    data: [],
+                                                    fields : ['value','label', "url"],
+                                                    idProperty:'value',
+                                                    storeId:'f2_pathway_list_store'
+                                                }),
+                                                listWidth:300,
+                                                fieldLabel:'Pathway',
+                                                selectOnFocus:true,
+                                                forceSelection : true,
+                                                triggerAction : 'all',
+                                                valueField:'value',
+                                                displayField:'value',
+                                                emptyText:'Select Pathway...',
+                                                listeners : {
+                                                    select : function(field,record,index) {
+                                                        Ext.getCmp("filter_type").setValue(re.ui.feature2.id);
+                                                        Ext.getCmp('f2_label_comp').setVisible(true);
+                                                        Ext.getCmp('p_label').setValue(record.json.label);
+							//alert("purl:" + record.json.url);
+                                                        Ext.getCmp('limit').setValue('25');
+                                                        re.ui.setCurrentPathwayMembers(record.json.label);
+                                                        var memberDataArray = [];
+                                                        var memberTokens = (record.json.label).split(",");
+                                                        for (var tk = 0; tk<memberTokens.length; tk++){
+                                                                var mjson = {};
+                                                                var member = memberTokens[tk];
+                                                                if (member == null || member == "")
+                                                                        continue;
+                                                                mjson["pmember"] = member;
+                                                                mjson["display_count"] = Math.floor(5*Math.random());
+                                                                mjson["hidden_count"] = Math.floor(10*Math.random());
+                                                                memberDataArray.push(mjson);
+								loadFeaturesInAFM(member);
+                                                        }
+                                                        renderPathwayMembers('below-top-right');
+							var url = record.json.value;
+                                                        if (record.json.url != null && record.json.url.length > 1)
+                                                                url = "<a href='" + record.json.url + "' target='_blank'>" + record.json.value  + "</a> ";
+                                                        Ext.getCmp("pathway_member_panel").setTitle(url + memberDataArray.length + " Genes");
+                                                    }
+                                                }
                                             },
                                             { xtype:'combo', name:'p_chr',id:'p_chr',
                                                 mode:'local',
@@ -494,7 +698,77 @@ vq.utils.VisUtils.extend(re.ui, {
                                             ]
                                         }}]}
                         ]
+                    },
+/*	{xtype: 'panel', 
+	id:'pathway_member_panel',
+                        title : 'Pathway Gene Members',
+                        autoScroll : true,
+                        height : 500,
+			width: 400,
+			minWidth: 300,
+			collapsed:true,
+        		items: 
+			{xtype: 'stackedbarchart',
+			autoSize: true,
+		//	plugins: [new Ext.ux.plugin.VisibilityMode()],
+	    		boxMinHeight: 400,
+			animCollapse:false, animFloat:false,hideMode: 'offsets',	
+            		store: new Ext.data.JsonStore({
+            			autoLoad : false,
+                		data: [],
+                		fields : ['pmember','display_count', 'hidden_count'],
+                		storeId:'pathway_member_store'
+            		}),
+            		yField: 'pmember',    	
+            		xAxis: new Ext.chart.NumericAxis({
+                		stackingEnabled: true,
+                		labelRenderer: function(dd){
+					return dd;
+				}
+            		}),
+        	    series: [{
+                	xField: 'display_count',
+                	displayName: 'Shown',
+			style: {color:0x6238A7, size:8, spacing:8}
+            		},{
+                	xField: 'hidden_count',
+                	displayName: 'Hidden',
+			style: {color:"#C38EC7", size:8, spacing:8}
+            		}],
+		    extraStyle:{
+				legend: {display: 'right'}
+			},
+			listeners: { 
+                        	itemclick : function(obj) {
+                                var si = obj.seriesIndex;
+				if (si == 0)
+					 alert("highlight " + obj.item.hidden_count  + " hidden edges for " + obj.item.pmember);
+				if (si == 1)
+					alert("highlight " + obj.item.hidden_count + " hidden edges for " + obj.item.pmember)
+                        	}
+                	}
+        	}},*/
+ 		    {
+                        xtype: 'panel', id:'pathway_member_panel',
+                        title : 'Pathways/Groupings',
+                        autoScroll : true,
+                        collapsed: true,
+                        height : 250,
+                        tools: [{
+                            id: 'help',
+                            handler: function(event, toolEl, panel){
+                                openHelpWindow('Filtering',filteringHelpString);
+                            }}],//,
+			items: [{
+                        xtype: 'panel',
+                        id: 'pathway-member-item',
+                        width: 300,
+			height: 800,
+                        x: 20,
+                        y: 20
                     }]
+                    }
+		]
             }
 
         }

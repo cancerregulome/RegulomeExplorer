@@ -367,6 +367,11 @@ function loadListStores(dataset_labels) {
         value: '*',
         label: 'All'
     });
+    label_list.push({
+        value: 'Pathway',
+        label: 'Pathway'
+    });
+
     Ext.StoreMgr.get('f1_type_combo_store').loadData(label_list);
     Ext.getCmp('t_type').setValue('GEXP');
     Ext.StoreMgr.get('f2_type_combo_store').loadData(label_list);
@@ -387,6 +392,17 @@ function loadListStores(dataset_labels) {
     Ext.StoreMgr.get('f2_clin_list_store').loadData(clin_list);
     Ext.getCmp('p_clin').setValue('*');
     Ext.getCmp('p_clin').defaultValue = '*';
+   
+    var pathway_list = dataset_labels['pathways'].map(function(row) {
+        return {
+            value: row.pname + ":" + row.psource,
+            label: row.pmembers,
+	    url:   row.purl	
+        };
+    });
+    Ext.StoreMgr.get('f1_pathway_list_store').loadData(pathway_list);
+    Ext.StoreMgr.get('f2_pathway_list_store').loadData(pathway_list);
+
 }
 
 function loadDataTableStore(data) {
@@ -709,7 +725,17 @@ Ext.onReady(function() {
                         frame: false,
                         x: 880,
                         y: 20
-                    }, {
+                    }, /*{
+                        xtype: 'panel',
+                        id: 'pathway-legend-panel',
+                        width: 150,
+                        border: false,
+                        frame: false,
+			//autoScroll: true,
+                        x: 880,
+                        y: 100
+                    },*/
+			{
                         xtype: 'panel',
                         id: 'circle-colorscale-panel',
                         width: 150,

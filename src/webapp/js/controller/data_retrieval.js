@@ -3,6 +3,7 @@ function registerDataRetrievalListeners() {
     d.addListener('dataset_selected', function(obj) {
         selectDataset(obj);
         loadDatasetLabels();
+	//loadPathways();
     });
     d.addListener('data_request', 'associations', function(obj) {
         loadNetworkData(obj);
@@ -13,6 +14,9 @@ function registerDataRetrievalListeners() {
     d.addListener('data_request', 'annotations', function(obj) {
         loadAnnotations();
     });
+    //d.addListener('data_request', 'pathways', function(obj) {
+    //    loadPathways();
+    //});
     d.addListener('click_association', function(link) {
         loadFeatureData(link);
     });
@@ -26,19 +30,19 @@ function selectDataset(set_label) {
     re.tables.patient_uri = '/v_' + set_label + '_patients';
     re.tables.feature_data_uri = '/v_' + set_label + '_patient_values';
     re.tables.pathway_uri = '/' + set_label + '_feature_pathways';
+    re.tables.features_uri = '/' + set_label + '_features';
 }
 
 function loadDatasetLabels() {
-
     var dataset_labels = {
         feature_sources: null,
         clin_labels: null,
-        patients: null
+        patients: null,
+	pathways: null
     };
     var clin_label_query_str = '?' + re.params.query + 'select `label`' + re.params.json_out;
     var clin_label_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.clin_uri + re.rest.query + clin_label_query_str;
     var synchronizer = new vq.utils.SyncCallbacks(loadComplete, this);
-
     function clinicalLabelQueryHandler(response) {
         try {
             dataset_labels['clin_labels'] = Ext.decode(response.responseText);
@@ -46,17 +50,14 @@ function loadDatasetLabels() {
             throwQueryError('clin_labels', response);
         }
     }
-
     function loadComplete() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'dataset_labels', dataset_labels));
     }
-
     function loadFailed() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail', 'dataset_labels', {
             msg: 'Failed to load dataset labels.'
         }));
     }
-
     Ext.Ajax.request({
         url: clin_label_query,
         success: synchronizer.add(clinicalLabelQueryHandler,this),
@@ -64,10 +65,8 @@ function loadDatasetLabels() {
             queryFailed('dataset_labels', response);
         }
     });
-
     var sources_query_str = '?' + re.params.query + 'select source' + re.params.json_out;
     var sources_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.feature_uri + re.rest.query + sources_query_str;
-
     function featureSourceQueryHandler(response) {
         try {
             dataset_labels['feature_sources'] = Ext.decode(response.responseText);
@@ -75,7 +74,6 @@ function loadDatasetLabels() {
             throwQueryError('feature_sources', response);
         }
     }
-
     Ext.Ajax.request({
         url: sources_query,
         success: synchronizer.add(featureSourceQueryHandler,this),
@@ -83,10 +81,8 @@ function loadDatasetLabels() {
             queryFailed('feature_source', response);
         }
     });
-
     var patient_query_str = '?' + re.params.query + 'limit 1' + re.params.json_out;
     var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.patient_uri + re.rest.query + patient_query_str;
-
     function patientQueryHandle(response) {
         try {
             dataset_labels['patients'] = Ext.decode(response.responseText)[0]['barcode'].split(':');
@@ -94,7 +90,6 @@ function loadDatasetLabels() {
             throwQueryError('patients_barcode', response);
         }
     }
-
     Ext.Ajax.request({
         url: patient_query,
         success: synchronizer.add(patientQueryHandle,this),
@@ -102,14 +97,29 @@ function loadDatasetLabels() {
             queryFailed('patient_labels', response);
         }
     });
-
+    var pw_query_str = '?' + re.params.query + ('select pname, pmembers, purl, psource order by pname') + re.params.json_out;
+    var pw_query = re.databases.base_uri  + re.databases.metadata.uri + re.tables.pathways + re.rest.query + pw_query_str;
+    function handlePathwayQuery(response) {
+        try {
+            dataset_labels['pathways'] = Ext.decode(response.responseText);
+        } catch (err) {
+            throwQueryError('pathways', response);
+        }
+    }
+    Ext.Ajax.request({
+        url: pw_query,
+        success: synchronizer.add(handlePathwayQuery, this),
+        failure: function(response) {
+            queryFailed('pathways', response);
+        }
+    });
 }
 
 function lookupLabelPosition(label_obj) {
     var label = label_obj.label || '';
     var query_str = 'select chr, start, end, alias where alias = \'' + label + '\' limit 1';
     var position_query_str = '?' + re.params.query + query_str + re.params.json_out;
-    var position_url = re.databases.base_uri + re.databases.metadata.uri + re.tables.label_lookup + re.rest.query + position_query_str;
+    var position_url = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.label_lookup + re.rest.query + position_query_str;
     var position_array = [];
 
     function positionQueryHandle(response) {
@@ -189,17 +199,57 @@ function loadFeatureData(link) {
             queryFailed('features', response);
         }
     });
+}
 
+function loadFeaturesInAFM(label) {
+    function loadComplete(ct) {
+     	re.ui.setPathwayMembersQueryCounts(label,ct);
+   	vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'features', features));
+    }
+    var features = {
+        data: null
+    };
+    	var query_str = "select alias where `label` ='"  + label + "' limit 1";
+        var query_json = {
+        tq: query_str,
+        tqx: 'out:json_array'
+        };
+    	var patient_query_str = '?' + Ext.urlEncode(query_json);
+    	var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.features_uri + re.rest.query + patient_query_str;
+    	function mQueryHandle(response) {
+          try {
+	    var r = Ext.decode(response.responseText);
+            //features["data"] = r;
+	    re.ui.setPathwayMembersQueryCounts(label,r.length);
+	    //if (features['data'].length >= 1) {
+	//	loadComplete(r.length);
+          //  }else{
+	//	noResults('features');
+	  //  } 
+	  }catch (err) {
+            throwQueryError('features', response);
+           }
+	}
+    Ext.Ajax.request({
+        url: patient_query,
+        success: mQueryHandle,
+        failure: function(response) {
+            queryFailed('features', response);
+        }
+    });
+    function loadFailed() {
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail', 'features', {
+            msg: 'Retrieval Timeout'
+        }));
+    }
 }
 
 function loadAnnotations() {
-
     var annotations = {
         'chrom_leng': null
     };
     var chrom_query_str = '?' + re.params.query + ('select chr_name, chr_length') + re.params.json_out;
     var chrom_query = re.databases.base_uri + re.databases.metadata.uri + re.tables.chrom_info + re.rest.query + chrom_query_str;
-
     function handleChromInfoQuery(response) {
         try {
             annotations['chrom_leng'] = Ext.decode(response.responseText);
@@ -213,17 +263,14 @@ function loadAnnotations() {
             throwQueryError('annotations', response);
         }
     }
-
     function loadComplete() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'annotations', annotations));
     }
-
     function loadFailed() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail', 'annotations', {
             msg: 'Retrieval Timeout'
         }));
     }
-
     Ext.Ajax.request({
         url: chrom_query,
         success: handleChromInfoQuery,
@@ -232,7 +279,6 @@ function loadAnnotations() {
         }
     });
 }
-
 
 function loadNetworkData(response) {
     if (response['isolate']) {
@@ -318,8 +364,9 @@ function loadNetworkDataSingleFeature(params) {
 
 function loadNetworkDataByFeature(params) {
     var feature = params['filter_type'] == re.ui.feature1.id ? 't' : 'p';
+    if (params[feature + '_type'] && params[feature + '_type'] == 'Pathway')
+		params[feature + '_type'] = 'GEXP';
     var labels = parseLabelList(params[feature + '_label']);
-
     function loadComplete() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', responses));
     }
@@ -449,7 +496,6 @@ function loadUndirectedNetworkDataByAssociation(params) {
             msg: 'Retrieval Timeout'
         }));
     }
-
 
     re.state.network_query = buildGQLQuery(params);
     var association_query_str = '?' + re.params.query + re.state.network_query + re.params.json_out;
