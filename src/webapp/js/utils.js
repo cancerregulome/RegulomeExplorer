@@ -300,3 +300,8 @@ re.build_tooltips = function() {
    });
 
 };
+
+function isUnsignedInteger(s) {
+  return (s.toString().search(/^[0-9]+$/) == 0);
+}
+
