@@ -301,9 +301,7 @@ function getFilterSelections() {
     return packFilterSelections(
         type_1, label_1, Ext.getCmp('t_chr').getValue(), Ext.getCmp('t_start').getValue(), Ext.getCmp('t_stop').getValue(),
 
-        type_2, label_2, Ext.getCmp('p_chr').getValue(), Ext.getCmp('p_start').getValue(), Ext.getCmp('p_stop').getValue(), Ext.getCmp('order').getValue(), Ext.getCmp('limit').getValue(), Ext.getCmp('filter_type').getValue(),
-
-        Ext.getCmp('isolate').checked);
+        type_2, label_2, Ext.getCmp('p_chr').getValue(), Ext.getCmp('p_start').getValue(), Ext.getCmp('p_stop').getValue(), Ext.getCmp('order').getValue(), Ext.getCmp('limit').getValue(), Ext.getCmp('filter_type').getValue(), Ext.getCmp('isolate').checked, Ext.getCmp('t_pathway').getValue(), Ext.getCmp('p_pathway').getValue());
 }
 
 
@@ -322,7 +320,9 @@ function packFilterSelections() {
         order: arguments[10],
         limit: arguments[11],
         filter_type: arguments[12],
-        isolate: arguments[13]
+        isolate: arguments[13],
+	t_pathway: arguments[14],
+	p_pathway: arguments[15],
     };
 
     re.model.association.types.forEach(function(obj) {

@@ -3,7 +3,6 @@ function registerDataRetrievalListeners() {
     d.addListener('dataset_selected', function(obj) {
         selectDataset(obj);
         loadDatasetLabels();
-	//loadPathways();
     });
     d.addListener('data_request', 'associations', function(obj) {
         loadNetworkData(obj);
@@ -14,9 +13,6 @@ function registerDataRetrievalListeners() {
     d.addListener('data_request', 'annotations', function(obj) {
         loadAnnotations();
     });
-    //d.addListener('data_request', 'pathways', function(obj) {
-    //    loadPathways();
-    //});
     d.addListener('click_association', function(link) {
         loadFeatureData(link);
     });

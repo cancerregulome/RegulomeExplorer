@@ -1,59 +1,3 @@
-//var data = pv.range(10).map(function(d) { return Math.random() + .1; });
-
-var plotChart = function(divid){
-//<!-- Data for bar chart: Two time-series, alternating to form a single series. Bar Color will switch back & forth -->
-var vis = new pv.Panel()
-    .width(150)
-    .height(200)
-  .add(pv.Bar)
-    .data([[.5, 1],[0, 1], [.5, 1.2], [.9, 1.7], [.2, 1.5], [.7, 2.2],[0, 2.2]])
-    .height(20)
-    .bottom(function(){ return this.index * 25;})
-    .width(function(d){ return (d[1] - d[0]) * 50;})
-    .left(function(d){ return d[0] * 50;}).canvas(divid);
-  //.root.render();
-
-
-vis.render();
-};
-/*
-var w = 400,
-    h = 250,
-    x = pv.Scale.linear(0, 1.1).range(0, w),
-    y = pv.Scale.ordinal(pv.range(10)).splitBanded(0, h, 4/5);
-var vis = new pv.Panel()
-    .width(w)
-    .height(h)
-    .bottom(20)
-    .left(20)
-    .right(10)
-    .top(5).canvas(divid);
-var bar = vis.add(pv.Bar)
-    .data(data)
-    .top(function() y(this.index))
-    .height(y.range().band)
-    .left(0)
-    .width(x);
-bar.anchor("right").add(pv.Label)
-    .textStyle("white")
-    .text(function(d) d.toFixed(1));
-bar.anchor("left").add(pv.Label)
-    .textMargin(5)
-    .textAlign("right")
-    .text(function() "ABCDEFGHIJK".charAt(this.index));
-vis.add(pv.Rule)
-    .data(x.ticks(5))
-    .left(x)
-    .strokeStyle(function(d) d ? "rgba(255,255,255,.3)" : "#000")
-  .add(pv.Rule)
-    .bottom(0)
-    .height(5)
-    .strokeStyle("#000")
-  .anchor("bottom").add(pv.Label)
-    .text(x.tickFormat);
-*/
-
-
 if (re === undefined) { re = {};}
 
 vq.utils.VisUtils.extend(re.ui, {
@@ -66,7 +10,6 @@ vq.utils.VisUtils.extend(re.ui, {
 		autoScroll: true,
                 split: true,
                 width: 280,
-		//height: 800,
                 id: 'filter_parent',
                 title: 'Filtering',
                 layout: {
@@ -300,7 +243,7 @@ vq.utils.VisUtils.extend(re.ui, {
                                                         Ext.getCmp("filter_type").setValue(re.ui.feature1.id);
 							Ext.getCmp('f1_label_comp').setVisible(true);
 							Ext.getCmp('t_label').setValue(record.json.label);
-							Ext.getCmp('limit').setValue('25');
+							//Ext.getCmp('limit').setValue('25');
                                                     	re.ui.setCurrentPathwayMembers(record.json.label);
                                                     	var memberDataArray = [];
 							var memberTokens = (record.json.label).split(",").sort();
