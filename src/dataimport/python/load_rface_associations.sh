@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ $# -lt 6 ]
+if [ $# -lt 5 ]
 then
         echo "Requires dataset_label[unique cancer_type_label_desc] feature_matrix.tsv rface_associations.tsv desc comments reinstance[internal,tcga_gdac,public]"
         echo "ie sh start_load_feature_associations.sh brca-nomask_0914 /titan/cancerregulome3/TCGA/outputs/brca/brca.merge.agil.14sep.hg18.tsv /titan/cancerregulome9/workspaces/users/sreynolds/brca/rface/associations.out ov_description data_comments public"
@@ -10,8 +10,11 @@ feature_matrix_file=$2
 associations_pw=$3
 description=$4
 comments=$5
-config_file="none"
-re_instance=$6
+re_instance="public"
+if [ $# -gt 5 ]
+then
+	re_instance=$6
+fi
 config_file="none"
 if [ $re_instance = "internal" ]
 then
