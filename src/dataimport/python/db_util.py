@@ -77,6 +77,7 @@ def getPubcrawlContact(config):
 	return config.get("pubcrawl", "pubcrawl_contact").split(',')
 
 def executeInsert(config, sqlStr):
+	#print sqlStr
 	rc = getCursor(config).execute(sqlStr)
 	#print "executed %s rc %i" %(sqlStr, rc)
 	return rc
@@ -183,7 +184,7 @@ sign = lambda x: math.copysign(1, x)
 if __name__ == "__main__":	
 	configfile = sys.argv[1]
 	config = getConfig(configfile) #config.read(configfile)
-	
+	#executeSelect(config, "select * from tcga.regulome_explorer_dataset")	
 	"""
 	myhost = config.get("mysql_configs", "host")
 	myport = int(config.get("mysql_configs", "port"))
@@ -196,8 +197,3 @@ if __name__ == "__main__":
 	dosmtp = config.get("results", "dosmtp")
 	pubcrawlContact = config.get("results", "pubcrawl_contact").split(',')
 	"""
-	#print transGeneFeature(gene)
-	#print transComplement(sys.argv[1])
-	#x = np.random.random_integers(0,100,10000)
-	#y = np.random.random_integers(0,100,10000)
-	#print(calculateMutualInformation(x,y,(1,101),(1,101)))

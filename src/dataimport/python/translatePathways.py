@@ -1,4 +1,4 @@
-pf = open("../networks/consolidated_pathway_list.tsv", "r")
+pf = open("./inputs/consolidated_pathway_list.tsv", "r")
 out_pf = open("./pw_results2/out_pathway_members_list.tsv", "w")
 all_members_out_pf = open("./pw_results2/out_pathway_all_list.tsv", "w")
 shortc = 0

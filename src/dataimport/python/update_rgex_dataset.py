@@ -30,6 +30,7 @@ def addDataset(label, feature_matrix, associations, method, description, comment
 			description = description
 		elif (label.find("mask") != -1):
 			description = description + " filtered"
+		
 	if (comments == ""):
 		comments = "{matrix:"+feature_matrix+",associations:"+associations+"}"
 	inputfiles = "{matrix:"+feature_matrix+",associations:"+associations+"}"
@@ -37,7 +38,7 @@ def addDataset(label, feature_matrix, associations, method, description, comment
 	config = db_util.getConfig(configfile)
 	results_path = db_util.getResultsPath(config)
 	max_logpv = -1.0
-	contact = "Sheila Reynolds sreynolds@systemsbiology.org"
+	contact = "cbm - tut"
 	if (label.find('gbm') != -1):
 		contact = "Brady Bernard bbernard@systemsbiology.org"
 	if (label.find('coad') != -1):

@@ -14,15 +14,6 @@ dataset_label = ""
 feature_table = ""
 sample_table = ""
 
-"""
-def is_numeric(val):
-	try:
-		float(val)
-	except ValueError, e:
-		return False
-	return True
-"""
-
 if (not os.path.exists("./results")):
 	os.system("mkdir results")
 
@@ -48,40 +39,78 @@ def populate_sample_meta(sampleList, config):
 		samColIndex += 1
 	print "Done populating sample list for " + dataset_label
 
-def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, config):	
+def process_feature_annotations(annotation_path):
+	annotation_hash = {}
+	if (annotation_path == ""):
+		return annotation_hash
+	anno_file = open(annotation_path, "r")
+        #line 1 is headers
+	lc = 0
+	for l in anno_file.readlines():
+		if (lc == 0):
+			lc += 1
+			continue
+		tk = l.strip().split("\t")
+		
+		if (len(tk) >= 4 and len(tk[3]) < 3):
+			tk[3] = "chr" + tk[3]
+		annotation_hash[tk[0]] = l[0:1] + "\t" + "\t".join(tk[1:]) + "\t" + str(lc)
+		lc += 1
+	anno_file.close()
+	return annotation_hash
+
+def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, config, annotations=""):	
 	global features_hash
-	#config = db_util.getConfig(configfile)
-	mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
-	myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
-	mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
-	myhost = db_util.getDBHost(config) #config.get("mysql_jdbc_configs", "host")
+	features_hash = {}
+	mydb = db_util.getDBSchema(config) 
+	myuser = db_util.getDBUser(config) 
+	mypw = db_util.getDBPassword(config)
+	myhost = db_util.getDBHost(config)
 	myport = db_util.getDBPort(config)
 	if (not os.path.isfile(matrix_file)):
-	        print matrix_file + " does not exist; unrecoverable ERROR"
+	        print "ERROR\n" + matrix_file + " does not exist; unrecoverable ERROR"
 		sys.exit(-1)
-	feature_matrix_file = open(matrix_file)
+	feature_matrix_file = open(matrix_file, "r")
 	feature_table = mydb + "." + dataset_label + "_features"
 	sample_table = mydb + "." + dataset_label + "_patients"
 	fshout = open('./results/load_features_' + dataset_label + '.sh','w')
 	outfile = open('./results/features_out_' + dataset_label + '.tsv','w')
 	sampleOutfile = open('./results/sample_values_out_' + dataset_label + '.tsv','w')
 	featureId = 0
+	#processed annotations file
+	annotation_hash = process_feature_annotations(annotations)
 	for line in feature_matrix_file:
 		line = line.strip()	
 		tokens = line.split('\t')
-		if (featureId == 0 and persist_sample_meta == 1):                
-                	sampleIds = ":".join(tokens[1:len(tokens)-1])
-			populate_sample_meta(sampleIds.split(":"), config)				
+		if (featureId == 0):                
+                	sampleIds = ":".join(tokens[0:len(tokens)-1])
+			#print "%i samples/patients in afm %s \n%s" %(len(sampleIds.split(":")), matrix_file, sampleIds)
+			if (persist_sample_meta == 1):
+				populate_sample_meta(sampleIds.split(":"), config)				
 			sampleOutfile.write(sampleIds + "\n");
 			featureId += 1
 			continue
-		if (not features_hash.get(tokens[0])):
+		if (not features_hash.get(tokens[0]) and len(tokens[0]) > 1):
 			valuesArray = []
 			alias = tokens[0]
+			if (len(alias.split(":")) < 3):
+				#use annotations hash
+				annotated_feature = annotation_hash.get(alias)
+				if (annotated_feature == None):
+					print "ERROR: afm feature %s is not in annotation" %(alias)
+					continue
+				alias = annotated_feature.replace("\t", ":")
 			alias = alias.replace('|', '_')
 			features_hash[tokens[0]] = featureId
 			data = alias.split(':')
-			if len(data) > 4 and len(data[3]) > 3:
+			if (len(data) < 7):
+				if (data[1] == 'CLIN' or data[1] == 'SAMP'):
+					alias = ":".join(data[0:3]) + "::::"
+					data = alias.split(':')
+				else: 
+					print "Skipping %s feature matrix annotation string missing required token lengths Category:Type:Name:Chr:Start:Stop:Strand" %(alias)
+					continue
+			if len(data[3]) > 3:
 				data[3] = data[3][3:]
 			if (len(data) == 7):
 				alias = alias + ":"
@@ -94,6 +123,7 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 					valuesArray.append(0.0)
 			patient_value_mean = sum(valuesArray)/len(valuesArray)
 			outfile.write(str(featureId) + "\t" + alias + "\t" + "\t".join(data) + "\t" + patient_values + "\t" + str(patient_value_mean) + "\n")
+			#featureId += 1
 		else:
 			print "duplicated feature in feature set:" + tokens[0]
 		featureId += 1 
@@ -102,16 +132,22 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 	sampleOutfile.close()
 	fshout.write("#!/bin/bash\n")
 	fshout.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
-	fshout.write("load data local infile '" + './results/features_out_' + dataset_label + '.tsv' + "' replace INTO TABLE " + feature_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
-	fshout.write("load data local infile '" + './results/sample_values_out_' + dataset_label + '.tsv' + "' replace INTO TABLE " + sample_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
-	fshout.write("\ncommit;")
-	fshout.write("\nEOFMYSQL")
+	fshout.write("load data local infile '" + outfile.name + "' replace INTO TABLE " + feature_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
+	#fshout.write("load data local infile '" + './results/features_out_' + dataset_label + '.tsv' + "' replace INTO TABLE " + feature_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
+	fshout.write("load data local infile '" + sampleOutfile.name + "' replace INTO TABLE " + sample_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
+	#fshout.write("load data local infile '" + './results/sample_values_out_' + dataset_label + '.tsv' + "' replace INTO TABLE " + sample_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
+	fshout.write("\ncommit;\nEOFMYSQL")
 	fshout.close()
-	print "processing done, running bulk load feature data to mysql %s" %time.ctime()
-	return fshout
+	print "processing done, running bulk load on %i features  %s" %(len(features_hash), time.ctime())
+	if (persist_sample_meta == 1):
+		os.system("sh " + fshout.name)
+	return annotation_hash
+
+def getFeatures():
+	return features_hash
 
 def getFeatureId(featureStr):
-	global features_hash
+	#global features_hash
         return features_hash.get(featureStr)
 
 def getGeneInterestScore(featureStr):
@@ -256,12 +292,14 @@ if __name__ == "__main__":
         	print 'Usage is py2.6 parse_features_rfex.py data_matrix.tsv dataset_label'
         	sys.exit(1)
 	dataset_label = sys.argv[2]
-	
 	print "\nin parse_features_rfex : dataset_label = <%s>\n" % dataset_label
 	configfile = sys.argv[3]
 	config = db_util.getConfig(configfile)
-	sh = process_feature_matrix(dataset_label, sys.argv[1], 1, config)	
-	os.system("sh " + sh.name)
+	annotations = ""
+	if (len(sys.argv) == 5):
+		annotations = sys.argv[4]
+	process_feature_matrix(dataset_label, sys.argv[1], 1, config, annotations)	
+	#os.system("sh " + sh.name)
 	path = sys.argv[2].rsplit("/", 1)[0] 
 	if (os.path.exists(path + "/GEXP_interestingness.tsv")):
 		sh = process_gexp_interest_score(path + "/GEXP_interestingness.tsv", configfile)	

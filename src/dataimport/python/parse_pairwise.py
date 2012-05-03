@@ -20,7 +20,7 @@ def process_feature_alias(alias):
 		data[3] = data[3][3:]
 	return data
 
-def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
+def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config, annotations)
 	"""
 	Include edges where nodes are in original set, direction does not matter so do not populate edge if A->B if B->A are in hash
 	Expected tab delimited columns are nodeA nodeB pvalue correlation numNonNA	
@@ -36,7 +36,7 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
 	do_pubcrawl = db_util.getDoPubcrawl(config)
 	results_path = db_util.getResultsPath(config)
 	edges_file = open(pairwised_file)
-	parse_features_rfex.process_feature_matrix(dataset_label, matrixfile, 0, config)
+	annotation_hash = parse_features_rfex.process_feature_matrix(dataset_label, matrixfile, 0, config, annotations)
 	print "\nBegin processing pairwise edges\n\n"
 	edge_table = mydb + ".mv_" + dataset_label + "_feature_networks" 
         efshout = open('./results/load_edges_' + dataset_label + '.sh','w')
@@ -57,10 +57,22 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
 		line = line.strip()
 		tokens = line.split('\t')
 		if (len(tokens) != 11):
-			print "not enough tokens:" + line
+			print "ERROR: not enough tokens:" + line
 			continue
 		nodeA = tokens[0]
+		if (len(nodeA.split(":")) < 3):
+                        annotated_feature = annotation_hash.get(nodeA)
+                        if (annotated_feature == None):
+                                print "ERROR: Target feature %s is not in afm/annotation" %(f1alias)
+                                continue
+                        nodeA = annotated_feature.replace("\t", ":")		
 		nodeB = tokens[1]
+		if (len(nodeB.split(":")) < 3):
+			annotated_feature = annotation_hash.get(nodeB)
+			if (annotated_feature == None):
+				print "ERROR: Target feature %s is not in afm/annotation" %(f1alias)
+				continue
+			nodeB = annotated_feature.replace("\t", ":")
 		if (db_util.isUnmappedAssociation(nodeA, nodeB)):
 	                unmappedout.write(nodeA + "\t" + nodeB + "\n")
         	        unMapped += 1
@@ -131,18 +143,15 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
 	if (db_util.getDoSmtp(config) == 'yes'):
 		smtp.main("jlin@systemsbiology.net", notify, "Notification - New Pairwise Associations loaded for All Pairs Significance Test", "New pairwise associations loaded into All Pairs Significance Test for " + pw_label + "\n\n" + str(totalEdges) + " Total Edges\n\nFeature matrix file:" + feature_matrix + "\nPairwise associations file:" + associations + "\n")
 
-def main(dataset_label, feature_matrix, associations, configfile, insert_features):
+def main(dataset_label, feature_matrix, associations, configfile, insert_features, annotations):
 	print "\n in parse_pairwise : dataset_label = <%s> \n" % dataset_label
 	config = db_util.getConfig(configfile)
 	results_path = db_util.getResultsPath(config)
 	notify = db_util.getNotify(config)
 	if (not os.path.exists(results_path + "/" + dataset_label)):
 		os.mkdir(results_path + "/" + dataset_label)
-	#features_sh = process_feature_matrix(feature_matrix, config)
-	#if (insert_features == 1):
-	#	os.system("sh " + features_sh.name)
 	print "Done with processing features, processing pairwise edges %s " %(time.ctime())
-	process_pairwise_edges(dataset_label, feature_matrix, associations, config)
+	process_pairwise_edges(dataset_label, feature_matrix, associations, config, annotations)
 	print "Done with processing pairwise edges %s " %(time.ctime())
 
 if __name__ == "__main__":
@@ -151,6 +160,9 @@ if __name__ == "__main__":
         	print 'Usage is py2.6 parse_pairwise.py feature_matrix.tsv edges_matrix.tsv  dataset_label configfile optional[insert_features]'
         	sys.exit(1)
 	insert_features = 0
+	annotations = ""
+	if (len(sys.argv) == 6):
+		annotations = args[5]
 	dataset_label = sys.argv[3]
-	main(dataset_label, sys.argv[1], sys.argv[2], sys.argv[4], insert_features)
+	main(dataset_label, sys.argv[1], sys.argv[2], sys.argv[4], insert_features, annotations)
 
