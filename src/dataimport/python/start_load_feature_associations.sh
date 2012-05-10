@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ $# -lt 6 ]
+if [ $# -lt 5 ]
 then
         echo "Requires dataset_label[unique cancer_type_label_desc] feature_matrix.tsv rface_associations.tsv desc comments reinstance[internal,tcga_gdac,public] optional[allpairs_associations.tsv]"
         echo "ie load rface only ie sh start_load_feature_associations.sh brca-nomask_0914 /path/features.tsv /path/rf-ace-associations.out ov_
@@ -12,9 +12,8 @@ feature_matrix_file=$2
 associations_pw=$3
 description=$4
 comments=$5
-config_file="none"
 re_instance=$6
-config_file="none"
+config_file=../config/rfex_sql.config
 if [ $re_instance = "internal" ]
 then
         echo "set config file to internal sandbox instance"
