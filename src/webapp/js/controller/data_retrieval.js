@@ -6,6 +6,9 @@ function registerDataRetrievalListeners() {
     });
     d.addListener('data_request', 'associations', function(obj) {
         loadNetworkData(obj);
+	if (Ext.getCmp('t_label').getValue().indexOf(",") > -1){
+        	Ext.getCmp('pathway_member_panel').expand();
+   	}
     });
     d.addListener('data_request', 'label_position', function(obj) {
         lookupLabelPosition(obj);

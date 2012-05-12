@@ -60,7 +60,7 @@ vq.utils.VisUtils.extend(re.ui, {
                                             click : function(button,e) {
 						if ((Ext.getCmp("t_type").getValue() == 'GEXP' && Ext.getCmp("p_type").getValue() != 'Pathway')
 						|| (Ext.getCmp("t_type").getValue() != 'Pathway' && Ext.getCmp("p_type").getValue() == 'GEXP')){
-							Ext.getCmp("pathway_member_panel").setTitle("Filtered member degrees");		
+							//Ext.getCmp("pathway_member_panel").setTitle("Filtered member degrees");		
 						}
 						if (Ext.getCmp('t_label').getValue() != null && Ext.getCmp('t_label').getValue().indexOf(",") > -1) {
                                                 	re.ui.setCurrentPathwayMembers(Ext.getCmp('t_label').getValue());
@@ -243,7 +243,7 @@ vq.utils.VisUtils.extend(re.ui, {
                                                         Ext.getCmp("filter_type").setValue(re.ui.feature1.id);
 							Ext.getCmp('f1_label_comp').setVisible(true);
 							Ext.getCmp('t_label').setValue(record.json.label);
-							//Ext.getCmp('limit').setValue('25');
+							Ext.getCmp('limit').setValue('25');
                                                     	re.ui.setCurrentPathwayMembers(record.json.label);
                                                     	var memberDataArray = [];
 							var memberTokens = (record.json.label).split(",").sort();
@@ -262,7 +262,7 @@ vq.utils.VisUtils.extend(re.ui, {
 							var url = record.json.value;
 							if (record.json.url != null && record.json.url.length > 1)
 								url = "<a href='" + record.json.url + "' target='_blank'>" + record.json.value  + "</a> ";
-							Ext.getCmp("pathway_member_panel").setTitle(url + memberDataArray.length + " Genes");	
+							Ext.getCmp("pathway_member_panel").setTitle(url + " " + memberDataArray.length + " Genes");	
 						    }
                                                 }
                                             },
@@ -324,6 +324,7 @@ vq.utils.VisUtils.extend(re.ui, {
                                         title:re.ui.feature2.label,
                                         checkboxToggle:false,
                                         maskDisabled:true,
+					collapsed: true,
                                         collapsible: true,
                                         defaults:{anchor:'100%'},
                                         labelWidth: 70,
@@ -483,7 +484,6 @@ vq.utils.VisUtils.extend(re.ui, {
                                                         Ext.getCmp("filter_type").setValue(re.ui.feature2.id);
                                                         Ext.getCmp('f2_label_comp').setVisible(true);
                                                         Ext.getCmp('p_label').setValue(record.json.label);
-							//alert("purl:" + record.json.url);
                                                         Ext.getCmp('limit').setValue('25');
                                                         re.ui.setCurrentPathwayMembers(record.json.label);
                                                         var memberDataArray = [];

@@ -11,15 +11,15 @@ re.model.association =  {
                                                 id:'importance',
                                                 name :'importance',
                                                 allowNegative: false,
-                                                decimalPrecision : 2,
+                                                decimalPrecision : 10,
                                                 emptyText : 'Input value...',
                                                 invalidText:'This value is not valid.',
                                                 minValue:0,
                                                 tabIndex : 1,
                                                 validateOnBlur : true,
                                                 fieldLabel : 'Importance >=',
-                                                defaultValue : 0.01,
-                                                value : 0.01
+                                                defaultValue : 0.00001,
+                                                value : 0.00001
                                             }
 			},
 			grid : {
@@ -66,8 +66,8 @@ re.model.association =  {
                                                 tabIndex : 1,
                                                 validateOnBlur : true,
                                                 fieldLabel : 'logged Pvalue <=',
-                                                defaultValue : -2,
-                                                value : -2
+                                                defaultValue : -1,
+                                                value : -1
                                             }
 			},
 			grid : {

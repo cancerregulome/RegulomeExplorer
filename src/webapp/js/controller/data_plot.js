@@ -156,8 +156,10 @@ function renderCircleLegend(anchor) {
 function renderPathwayMembers(anchor, data) {
     var memberCounts = {};
     var networks = [];
-    if (data != null)
-	networks = data["network"]	
+    if (data != null){
+	networks = data["network"];
+        document.getElementById("pathway-member-item").innerHTML = "";
+    }	
     pathway_members_draw(document.getElementById('pathway-member-item'),anchor,networks);
 }
 
@@ -242,31 +244,63 @@ function colorscale_draw(association_obj, div) {
 function pathway_members_draw(div,anchor,networks) {
     var dataset_labels = re.ui.getDatasetLabels();
     if (re.ui.getCurrentPathwayMembers() == null || re.ui.getCurrentPathwayMembers().length == 0)
-	//if (Ext.getCmp(""))
-	//Ext.Msg.alert("No results found");
 	return;	
     var currentMemberList = re.ui.getCurrentPathwayMembers().split(",");
     currentMemberList.sort();
-    var memberArray = [];
-    var memberCountArray = [];    	
+    var memberSourceCountArray = {};
+    var memberCountArray = [];  
     for (var k = 0; k < currentMemberList.length; k++){
 	if (currentMemberList[k] == null || currentMemberList[k] == "")
 		continue;
 	var member = currentMemberList[k];
     	var mobj = {};
-	mobj["shown"] = 0;
-        mobj["hidden"] = 0;
-	memberCountArray[member] = mobj;
-	memberArray.push(member);
 	var mcount = 0;
+	var gexpcount = 0;
+	var methcount = 0;
+	var cnvrcount = 0;
+        var mirncount = 0;
+        var gnabcount = 0;
+        var prdmcount = 0;
+        var rppacount = 0;
+	var clincount = 0;
+	var sampcount = 0;
         for (var n = 0; n < networks.length; n++){
-		//check filter type to define directionality
 		var label = networks[n].node1.label;
+		var psource = networks[n].node2.source;
 		if (Ext.getCmp("filter_type").getValue() == re.ui.feature2.id )
 			label = networks[n].node2.label;
-		if (label == member)
+		if (label == member){
 			mcount++; 
+			if (psource == 'GEXP')
+				gexpcount++;
+			if (psource == 'METH')
+				methcount++;
+			if (psource == 'CNVR')
+				cnvrcount++;
+			if (psource == 'MIRN')
+				mirncount++;
+			if (psource == 'GNAB')
+				gnabcount++;
+			if (psource == 'PRDM')
+				prdmcount++;
+			if (psource == 'RPPA')
+				rppacount++;
+			if (psource == 'CLIN')
+				clincount++;
+			if (psource == 'SAMP')
+				sampcount++;	
+		}
 	}
+	mobj["GEXP"] = gexpcount;
+        mobj["METH"] = methcount;
+        mobj["CNVR"] = cnvrcount;
+	mobj["MIRN"] = mirncount;
+	mobj["GNAB"] = gnabcount;
+	mobj["PRDM"] = prdmcount;
+	mobj["RPPA"] = rppacount;
+	mobj["CLIN"] = clincount;
+	mobj["SAMP"] = sampcount;
+	memberSourceCountArray[member] = mobj;
 	if (mcount > 0)
 		memberCountArray[member] = mcount;
     }
@@ -284,7 +318,7 @@ function pathway_members_draw(div,anchor,networks) {
         var value = tuples[i][1];
 	if (key == "remove" || !isUnsignedInteger(value))
 		continue;
-        sortedMembers[key] = value;// .push(sobj);
+        sortedMembers[key] = value;
     }
     var stuples = [];
     for (var member in sortedMembers){
@@ -302,13 +336,12 @@ function pathway_members_draw(div,anchor,networks) {
 	if (add && memberstr.length > 1){
 		stuples.push([memberstr, 0]);
 	}
-		
     }
     stuples.sort(function(a,b){
     	return b[1] - a[1];
     });
     var source_map = pv.numerate(dataset_labels['feature_sources'], function(row) {return row.source;});
-    var current_locatable_data = stuples;//sortedMembers; //memberArray; 
+    var current_locatable_data = stuples; 
     var current_data = re.plot.all_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
     var current_map = pv.numerate(current_data);
     var anchor = anchor || 'top-right';
@@ -316,41 +349,76 @@ function pathway_members_draw(div,anchor,networks) {
     var legend_height = (30 + current_locatable_data.length * 13), legend_width = 400;
     var top = 20, left = 0;
         re.plot.colors.link_sources_colors = function(link) { return re.plot.link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
-var vis= new pv.Panel()
+    var vis= new pv.Panel()
         .left(left)
-        .top(top)
+        .top(0)
         .width(legend_width)
         .height(legend_height)
         .canvas(div);
     var drawPanel = vis.add(pv.Panel)
         .top(0)
         .left(0);
-    drawPanel.add(pv.Label)
-        .textAlign('left')
-        .top(15)
-        .left(12)
-        .text('Genes not in feature matrix')
-	.textStyle("red")
-        .font("12px helvetica");
     var color_panel = drawPanel.add(pv.Panel)
         .left(30)
-        .top(30);
+        .top(20);
     var entry = color_panel.add(pv.Panel)
         .data(stuples)
         .top(function() { return this.index*12;})
         .height(12);
-    var memberBars = entry.add(pv.Bar)
-        .left(35)
+    var scaled = 5;
+    var offsetwidth = 0;
+    var x_rules = pv.Scale.linear(0, 50*4).range(0, legend_width);	
+    var xticks = x_rules.ticks();	
+    vis.add(pv.Rule)
+    .data(x_rules.ticks())
+    .strokeStyle("#eee")
+    .left(function(x){
+	return x*scaled + 65;
+     })
+    .anchor("top").add(pv.Label)
+    .top(20)
+    .text(x_rules.tickFormat);
+
+    entry.add(pv.Bar)
+        .left(function(m){
+		return 35; 
+	})
         .width(function(d){
-		var w = d[1];
-		var scaled = 5;
-		if (w < 3)
-			scaled = 8;
+                var member = d[0];
+                var w = memberSourceCountArray[member]['GEXP'];
+		memberSourceCountArray[member]['gwidth'] = w*scaled;
+                return w*scaled;
+        })
+        .top(1)
+        .bottom(1)
+        .fillStyle(function(type) { return re.plot.colors.node_colors("GEXP");})
+        .event("mouseover", function(obj){
+                var member = obj[0];
+                var nodes_array = re.circvis_obj.chromoData._network.nodes_array;
+                var mobj = null;
+                for (var n=0; n<nodes_array.length; n++){                        
+			if (nodes_array[n]["label"] == member){                                
+				mobj = nodes_array[n];
+                                break;
+                        }
+                }
+                re.ui.getPathwayBarBehavior()(mobj, n);
+        })
+        .event("dblclick", function(member){
+                re.ui.getPathwayBarBehaviorReset()();
+        });
+     entry.add(pv.Bar)
+        .left(function(m) {return 35 + memberSourceCountArray[m[0]]['gwidth'];
+	})
+        .width(function(d){
+		var member = d[0];
+		var w = memberSourceCountArray[member]['METH'];
+		memberSourceCountArray[member]['mwidth'] = w*scaled;
 		return w*scaled;
 	})
         .top(1)
         .bottom(1)
-        .fillStyle(function(type) { return re.plot.colors.node_colors(type);})
+        .fillStyle(function(type) { return re.plot.colors.node_colors("METH");})
         .event("mouseover", function(obj){
 		var member = obj[0]; 
 		var nodes_array = re.circvis_obj.chromoData._network.nodes_array;
@@ -363,29 +431,229 @@ var vis= new pv.Panel()
                 }
                 re.ui.getPathwayBarBehavior()(mobj, n);
 	})
-	.event("mouseout", function(){
-		//pathway_behavior_reset();
-	})
 	.event("dblclick", function(member){
 		re.ui.getPathwayBarBehaviorReset()();
         });
-     memberBars.anchor("right").add(pv.Label)
-    	.textStyle("white")
-	.font("8px helvetica")
-    	.text(function(d) { return d[1];});
-    entry.add(pv.Label)
-        .text(function(d) { return d[0];})
-        .bottom(0)
-        .left(-20)
+  entry.add(pv.Bar)
+        .left(function(m) {return 35 + memberSourceCountArray[m[0]]['gwidth'] + memberSourceCountArray[m[0]]['mwidth'];})
+        .width(function(d){
+                var member = d[0];
+                var w = memberSourceCountArray[member]['CNVR'];
+                memberSourceCountArray[member]['cwidth'] = w*scaled;
+                return w*scaled;
+        })
+        .top(1)
+        .bottom(1)
+        .fillStyle(function(type) { return re.plot.colors.node_colors("CNVR");})
+        .event("mouseover", function(obj){
+                var member = obj[0];
+                var nodes_array = re.circvis_obj.chromoData._network.nodes_array;
+                var mobj = null;
+                for (var n=0; n<nodes_array.length; n++){
+                        if (nodes_array[n]["label"] == member){
+                                mobj = nodes_array[n];
+                                break;
+                        }
+                }
+                re.ui.getPathwayBarBehavior()(mobj, n);
+        })
+        .event("dblclick", function(member){
+                re.ui.getPathwayBarBehaviorReset()();
+        });      
+     entry.add(pv.Bar)
+        .left(function(m) {return 35 + memberSourceCountArray[m[0]]['gwidth'] + memberSourceCountArray[m[0]]['mwidth'] + memberSourceCountArray[m[0]]['cwidth'];})
+        .width(function(d){
+                var w = memberSourceCountArray[d[0]]['MIRN'];
+                memberSourceCountArray[d[0]]['mirnwidth'] = w*scaled;
+                return w*scaled;
+        })
+        .top(1)
+        .bottom(1)
+        .fillStyle(function(type) { return re.plot.colors.node_colors("MIRN");})
+        .event("mouseover", function(obj){
+                var member = obj[0];
+                var nodes_array = re.circvis_obj.chromoData._network.nodes_array;
+                var mobj = null;
+                for (var n=0; n<nodes_array.length; n++){
+                        if (nodes_array[n]["label"] == member){
+                                mobj = nodes_array[n];
+                                break;
+                        }
+                }
+                re.ui.getPathwayBarBehavior()(mobj, n);
+        })
+        .event("dblclick", function(member){
+                re.ui.getPathwayBarBehaviorReset()();
+        });
+     entry.add(pv.Bar)
+        .left(function(m) {return 35 + memberSourceCountArray[m[0]]['gwidth'] + memberSourceCountArray[m[0]]['mwidth'] + memberSourceCountArray[m[0]]['cwidth'] + memberSourceCountArray[m[0]]['mirnwidth'];})
+        .width(function(d){
+                var w = memberSourceCountArray[d[0]]['GNAB'];
+                memberSourceCountArray[d[0]]['gnabwidth'] = w*scaled;
+                return w*scaled;
+        })
+        .top(1)
+        .bottom(1)
+        .fillStyle(function(type) { return re.plot.colors.node_colors("GNAB");})
+        .event("mouseover", function(obj){
+                var member = obj[0];
+                var nodes_array = re.circvis_obj.chromoData._network.nodes_array;
+                var mobj = null;
+                for (var n=0; n<nodes_array.length; n++){
+                        if (nodes_array[n]["label"] == member){
+                                mobj = nodes_array[n];
+                                break;
+                        }
+                }
+                re.ui.getPathwayBarBehavior()(mobj, n);
+        })
+        .event("dblclick", function(member){
+                re.ui.getPathwayBarBehaviorReset()();
+        });
+      entry.add(pv.Bar)
+        .left(function(m) {return 35 + memberSourceCountArray[m[0]]['gwidth'] + memberSourceCountArray[m[0]]['mwidth'] + memberSourceCountArray[m[0]]['cwidth'] + memberSourceCountArray[m[0]]['mirnwidth'] + memberSourceCountArray[m[0]]['gnabwidth'];})
+        .width(function(d){
+                var w = memberSourceCountArray[d[0]]['PRDM'];
+                memberSourceCountArray[d[0]]['prdmwidth'] = w*scaled;
+                return w*scaled;
+        })
+        .top(1)
+        .bottom(1)
+        .fillStyle(function(type) { return re.plot.colors.node_colors("PRDM");})
+        .event("mouseover", function(obj){
+                var member = obj[0];
+                var nodes_array = re.circvis_obj.chromoData._network.nodes_array;
+                var mobj = null;
+                for (var n=0; n<nodes_array.length; n++){
+                        if (nodes_array[n]["label"] == member){
+                                mobj = nodes_array[n];
+                                break;
+                        }
+                }
+                re.ui.getPathwayBarBehavior()(mobj, n);
+        })
+        .event("dblclick", function(member){
+                re.ui.getPathwayBarBehaviorReset()();
+        });
+      entry.add(pv.Bar)
+        .left(function(m) {return 35 + memberSourceCountArray[m[0]]['gwidth'] + memberSourceCountArray[m[0]]['mwidth'] + memberSourceCountArray[m[0]]['cwidth'] + memberSourceCountArray[m[0]]['mirnwidth'] + memberSourceCountArray[m[0]]['gnabwidth'] + memberSourceCountArray[m[0]]['prdmwidth'];})
+        .width(function(d){
+                var w = memberSourceCountArray[d[0]]['CLIN'];
+                memberSourceCountArray[d[0]]['clinwidth'] = w*scaled;
+                return w*scaled;
+        })
+        .top(1)
+        .bottom(1)
+        .fillStyle(function(type) { return re.plot.colors.node_colors("CLIN");})
+        .event("mouseover", function(obj){
+                var member = obj[0];
+                var nodes_array = re.circvis_obj.chromoData._network.nodes_array;
+                var mobj = null;
+                for (var n=0; n<nodes_array.length; n++){
+                        if (nodes_array[n]["label"] == member){
+                                mobj = nodes_array[n];
+                                break;
+                        }
+                }
+                re.ui.getPathwayBarBehavior()(mobj, n);
+        })
+        .event("dblclick", function(member){
+                re.ui.getPathwayBarBehaviorReset()();
+        });
+       entry.add(pv.Bar)
+        .left(function(m) {return 35 + memberSourceCountArray[m[0]]['gwidth'] + memberSourceCountArray[m[0]]['mwidth'] + memberSourceCountArray[m[0]]['cwidth'] + memberSourceCountArray[m[0]]['mirnwidth'] + memberSourceCountArray[m[0]]['gnabwidth'] + memberSourceCountArray[m[0]]['prdmwidth'] + memberSourceCountArray[m[0]]['clinwidth'];})
+        .width(function(d){
+                var w = memberSourceCountArray[d[0]]['SAMP'];
+                memberSourceCountArray[d[0]]['sampwidth'] = w*scaled;
+                return w*scaled;
+        })
+        .top(1)
+        .bottom(1)
+        .fillStyle(function(type) { return re.plot.colors.node_colors("SAMP");})
+        .event("mouseover", function(obj){
+                var member = obj[0];
+                var nodes_array = re.circvis_obj.chromoData._network.nodes_array;
+                var mobj = null;
+                for (var n=0; n<nodes_array.length; n++){
+                        if (nodes_array[n]["label"] == member){
+                                mobj = nodes_array[n];
+                                break;
+                        }
+                }
+                re.ui.getPathwayBarBehavior()(mobj, n);
+        })
+        .event("dblclick", function(member){
+                re.ui.getPathwayBarBehaviorReset()();
+        });
+       entry.add(pv.Bar)
+        .left(function(m) {return 35 + memberSourceCountArray[m[0]]['gwidth'] + memberSourceCountArray[m[0]]['mwidth'] + memberSourceCountArray[m[0]]['cwidth'] + memberSourceCountArray[m[0]]['mirnwidth'] + memberSourceCountArray[m[0]]['gnabwidth'] + memberSourceCountArray[m[0]]['prdmwidth'] + memberSourceCountArray[m[0]]['clinwidth'] + memberSourceCountArray[m[0]]['sampwidth'];})
+        .width(function(d){
+                var w = memberSourceCountArray[d[0]]['RPPA'];
+                memberSourceCountArray[d[0]]['rppawidth'] = w*scaled;
+                return w*scaled;
+        })
+        .top(1)
+        .bottom(1)
+        .fillStyle(function(type) { return re.plot.colors.node_colors("RPPA");})
+        .event("mouseover", function(obj){
+                var member = obj[0];
+                var nodes_array = re.circvis_obj.chromoData._network.nodes_array;
+                var mobj = null;
+                for (var n=0; n<nodes_array.length; n++){
+                        if (nodes_array[n]["label"] == member){
+                                mobj = nodes_array[n];
+                                break;
+                        }
+                }
+                re.ui.getPathwayBarBehavior()(mobj, n);
+        })
+        .event("dblclick", function(member){
+                re.ui.getPathwayBarBehaviorReset()();
+        });
+
+     entry.add(pv.Bar)
+	.left(-20)
+	.width(50)
+	.fillStyle(function(){return "white";})
+	.event("dblclick", function(d){
+		var url = 'http://www.genecards.org/cgi-bin/carddisp.pl?gene=' + d[0];		
+		var newwindow=window.open(url,"Gene Card:" + d[0],'height=500,width=800');
+		if (window.focus) {newwindow.focus()}
+			return false;
+        })
+	.anchor("left").add(pv.Label)
+	.textStyle(function(d)
+		{
+		 var m = d[0];
+                if (mc[m] == 0)
+                        return "red";
+                return "black";
+		}
+	)
+	.text(function(d) { 
+		return d[0];
+	});
+      
+    /*entry.add(pv.Bar)
+        .left(function(m){
+		return 36 + memberSourceCountArray[m[0]]['gwidth'] + memberSourceCountArray[m[0]]['mwidth'] + memberSourceCountArray[m[0]]['cwidth'] ;})
+        .width(15)
+        .fillStyle(function(){return "white";})
+        .anchor("right").add(pv.Label)
+        .textStyle(function(d)
+                {
+                return "black";}
+        )
+        .text(function(d) { return (d[1]==0)?"":d[1];});
+*/
+    drawPanel.add(pv.Label)
         .textAlign('left')
-        .textBaseline('bottom')
-        .textStyle(function(d){
-		var m = d[0];
-		if (mc[m] == 0)
-			return "red";
-		return "black";
-	})
-        .font("10px helvetica");
+        .top(function(){
+		return (re.ui.getCurrentPathwayMembers().split(",").length - 1)*12 + 50;})
+        .left(12)
+        .text('Genes not in feature matrix')
+        .textStyle("red")
+        .font("12px helvetica");
    vis.render();
 }
 
@@ -420,8 +688,8 @@ function legend_draw(div,anchor) {
     var vis= new pv.Panel()
         .left(left)
         .top(top)
-        .width(legend_width)
-        .height(legend_height)
+        .width(legend_width + 100)
+        .height(legend_height + 20)
         .lineWidth(1)
         .strokeStyle('black')
         .canvas(div);
