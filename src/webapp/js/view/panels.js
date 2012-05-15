@@ -145,7 +145,7 @@ vq.utils.VisUtils.extend(re.ui, {
 								Ext.getCmp('t_pathway').setVisible(false);
                                                                 break;
 							    case('Pathway'):
-								Ext.getCmp('f1_label_comp').setVisible(false);
+								//Ext.getCmp('f1_label_comp').setVisible(false);
                                                                 Ext.getCmp('t_clin').setVisible(false);
                                                                 Ext.getCmp('t_pathway').setVisible(true);	
                                                             	break;
