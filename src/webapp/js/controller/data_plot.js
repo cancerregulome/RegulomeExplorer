@@ -782,6 +782,9 @@ function singlefeature_circvis(parsed_data,div) {
 
     var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
     var ticks = vq.utils.VisUtils.clone(parsed_data['features']);
+    //var meth_filtered_list = ticks.filter(function(f){
+    //	return f['source'] == 'METH';
+    //});
 
     var data = {
         GENOME: {
@@ -915,7 +918,7 @@ function wedge_plot(parsed_data,div) {
         Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
     },
     methband_tooltip_items = {
-        Location :  function(feature) { return feature.label;}
+        FeatureQuantile :  function(feature) { return feature.label + " " + feature.qtinfo;}
     },
         unlocated_tooltip_items = {};
     unlocated_tooltip_items[re.ui.feature1.label] =  function(feature) { return feature.sourceNode.source + ' ' + feature.sourceNode.label +
@@ -956,6 +959,49 @@ function wedge_plot(parsed_data,div) {
             return node;
         }));
 
+    var meth_filtered_list = ticks.filter(function(f){        
+	return f['source'] == 'METH';
+    });
+    var gexp_filtered_list = ticks.filter(function(f){
+        return f['source'] == 'GEXP';
+    });
+    var cnvr_filtered_list = ticks.filter(function(f){
+        return f['source'] == 'CNVR';
+    });
+    var qoffset = 750000;	
+    var meth_qvalue_dic = {"Q1":"#33FF33", "Q2":"#00FF00","Q3":"#009900","Q4":"#006600"};
+    for (var mi = 0; mi < meth_filtered_list.length; mi++){
+        var methfeature = meth_filtered_list[mi];		
+	var qistr = methfeature["qtinfo"];
+	if (qistr != null && qistr.indexOf("_") != -1){
+		methfeature["value"] = meth_qvalue_dic[qistr.split("_")[1]];
+		methfeature["start"] = methfeature["start"] - qoffset;
+		methfeature["end"] = methfeature["end"] + qoffset;
+		meth_filtered_list[mi] = methfeature;
+	}	
+    };
+    var gexp_qvalue_dic = {"Q1":"#AD85FF", "Q2":"#9966FF","Q3":"#5C3D99","Q4":"#3D2966"};
+    for (var mi = 0; mi < gexp_filtered_list.length; mi++){
+        var methfeature = gexp_filtered_list[mi];
+        var qistr = methfeature["qtinfo"];
+        if (qistr != null && qistr.indexOf("_") != -1){
+                methfeature["value"] = gexp_qvalue_dic[qistr.split("_")[1]];
+                methfeature["start"] = methfeature["start"] - qoffset;
+                methfeature["end"] = methfeature["end"] + qoffset;
+                gexp_filtered_list[mi] = methfeature;
+        }
+    };
+    var cnvr_qvalue_dic = {"Q1":"#FF3333", "Q2":"#FF0000","Q3":"#B20000","Q4":"#800000"};
+    for (var mi = 0; mi < cnvr_filtered_list.length; mi++){
+        var methfeature = cnvr_filtered_list[mi];
+        var qistr = methfeature["qtinfo"];
+        if (qistr != null && qistr.indexOf("_") != -1){
+                methfeature["value"] = gexp_qvalue_dic[qistr.split("_")[1]];
+                methfeature["start"] = methfeature["start"] - qoffset;
+                methfeature["end"] = methfeature["end"] + qoffset;
+                cnvr_filtered_list[mi] = methfeature;
+        }
+    };		
     var data = {
         GENOME: {
             DATA:{
@@ -1010,17 +1056,18 @@ function wedge_plot(parsed_data,div) {
                     outer_padding : 6,
                     tooltip_items : karyotype_tooltip_items
                 }
-            },{
+            },
+	    {
                 PLOT : {
                     height : ring_radius/4,
                     type :   'karyotype'
                 },
                 DATA:{
-                    data_array : methcbmband
+                    data_array : meth_filtered_list//methcbmband
                 },
                 OPTIONS: {
-                    legend_label : 'Top Methylation Region' ,
-                    legend_description : 'Top Methylation Region',
+                    legend_label : 'Methylation FQI' ,
+                    legend_description : 'Methylation FQI',
                     outer_padding : 6,
                     tooltip_items : methband_tooltip_items
                 }
@@ -1033,12 +1080,28 @@ function wedge_plot(parsed_data,div) {
                     data_array : cnvrcbmband
                 },
                 OPTIONS: {
-                    legend_label : 'Top CNVR Region' ,
-                    legend_description : 'Top CNVR Region',
+                    legend_label : 'CNVR FQI' ,
+                    legend_description : 'CNVR FQI',
                     outer_padding : 6,
                     tooltip_items : methband_tooltip_items
                 }
-            },{
+            },
+	    {
+                PLOT : {
+                    height : ring_radius/4,
+                    type :   'karyotype'
+                },
+                DATA:{
+                    data_array : gexp_filtered_list
+                },
+                OPTIONS: {
+                    legend_label : 'GEXP FQI' ,
+                    legend_description : 'GEXP FQI',
+                    outer_padding : 6,
+                    tooltip_items : methband_tooltip_items
+                }
+            },
+            {
                 PLOT : {
                     height : ring_radius/3,
                     type :   'scatterplot'

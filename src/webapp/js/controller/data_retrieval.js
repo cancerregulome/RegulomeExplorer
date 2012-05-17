@@ -574,7 +574,7 @@ function flipParams(params) {
 };
 
 function buildGQLQuery(args) {
-    var query = 'select alias1, alias2';
+    var query = 'select alias1, alias2, f1qtinfo, f2qtinfo';
     re.model.association.types.forEach(function(obj) {
         query += ', ' + obj.query.id;
     });
