@@ -900,7 +900,8 @@ Ext.onReady(function() {
                             dataIndex: 'source_stop',
                             groupName: 'Source'
                         }].concat(re.model.association.types.map(function(obj) {
-                            return obj.ui.grid.column;
+                            if (obj.ui != null)
+					return obj.ui.grid.column;
                         })),
                         defaults: {
                             sortable: true,
@@ -1023,7 +1024,26 @@ Ext.onReady(function() {
                         checked: false,
                         group: 'networklayout_group'
                     }]
-                }, {
+                }, 
+		{
+                    id: 'fqiMenu',
+                    text: 'Data Ring',
+                    labelStyle: 'font-weight:bold;',
+                    menu: [{
+                        checked: true,
+                        text: 'Dynamic',
+                        xtype: 'menucheckitem',
+                        handler: networkLayoutHandler,
+                        group: 'fqilayout_group'
+                    }, {
+                        text: 'Global/Static',
+                        xtype: 'menucheckitem',
+                        handler: networkLayoutHandler,
+                        checked: false,
+                        group: 'fqilayout_group'
+                    }]
+                }, 
+		{
                     text: 'Circular Plot',
                     menu: [{
                         text: 'Outer Ticks:',
