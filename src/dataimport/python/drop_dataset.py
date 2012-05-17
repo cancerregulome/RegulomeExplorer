@@ -32,7 +32,7 @@ def loadConfig(env):
 	configFile = ""
 	if (env == "internal"):
 		configFile = "../config/rfex_sql_sandbox.config"
-	elif (env == "public"):
+	elif (env == "tut"):
 		configFile = "../config/rfex_sql.config"
 	elif (env == "gdac"):
 		configFile = "../config/rfex_sql_gdac.config"
@@ -46,7 +46,7 @@ def loadConfig(env):
 
 
 if __name__=="__main__":
-	ds_env = raw_input("Deleting datasets, Please enter one of the following: [internal, gdac, public]\n")	
+	ds_env = raw_input("Deleting datasets, Please enter one of the following: [internal(isb), gdac(isb), tut]\n")	
 	config = (loadConfig(ds_env))
 	list = getDatasets(config)
 	if (list != None):

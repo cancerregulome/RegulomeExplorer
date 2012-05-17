@@ -15,6 +15,7 @@ if [ $# -gt 5 ]
 then
 	re_instance=$6
 fi
+#re_instance=$6
 config_file="none"
 if [ $re_instance = "internal" ]
 then

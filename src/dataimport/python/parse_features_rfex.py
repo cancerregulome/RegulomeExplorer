@@ -7,6 +7,7 @@ import db_util
 import sys
 import os
 import time
+import compute_quantiles
 
 features_hash = {}
 gene_interesting_hash = {}
@@ -40,27 +41,33 @@ def populate_sample_meta(sampleList, config):
 	print "Done populating sample list for " + dataset_label
 
 def process_feature_annotations(annotation_path):
+	print "\nProcessing annotations %s \n" %(annotation_path) 
 	annotation_hash = {}
-	if (annotation_path == ""):
+	if (annotation_path == "" or (not os.path.isfile(annotation_path))):
+		print "annotations path %s not defined or not a file " %(annotation_path)
 		return annotation_hash
 	anno_file = open(annotation_path, "r")
         #line 1 is headers
 	lc = 0
+	feature_types = {}
 	for l in anno_file.readlines():
 		if (lc == 0):
 			lc += 1
 			continue
-		tk = l.strip().split("\t")
-		
+		tk = l.strip().split("\t")		
 		if (len(tk) >= 4 and len(tk[3]) < 3):
 			tk[3] = "chr" + tk[3]
 		annotation_hash[tk[0]] = l[0:1] + "\t" + "\t".join(tk[1:]) + "\t" + str(lc)
+		if (feature_types.get(tk[1]) == None):			
+			feature_types[tk[1]] = 1;
 		lc += 1
 	anno_file.close()
-	return annotation_hash
+	return (annotation_hash, feature_types)
 
-def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, config, annotations=""):	
+def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, config, annotations="", quantileFeatures=""):	
 	global features_hash
+	print ("processing feature set: matrix file %s annotation file %s"%(matrix_file, annotations))
+	out_hash = {}
 	features_hash = {}
 	mydb = db_util.getDBSchema(config) 
 	myuser = db_util.getDBUser(config) 
@@ -73,18 +80,25 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 	feature_matrix_file = open(matrix_file, "r")
 	feature_table = mydb + "." + dataset_label + "_features"
 	sample_table = mydb + "." + dataset_label + "_patients"
-	fshout = open('./results/load_features_' + dataset_label + '.sh','w')
-	outfile = open('./results/features_out_' + dataset_label + '.tsv','w')
-	sampleOutfile = open('./results/sample_values_out_' + dataset_label + '.tsv','w')
+	fshout = open('./results/' + dataset_label + '_load_features.sh','w')
+	outfile = open('./results/' + dataset_label + '_features_out.tsv','w')
+	sampleOutfile = open('./results/' + dataset_label + '_sample_values_out.tsv','w')
 	featureId = 0
-	#processed annotations file
-	annotation_hash = process_feature_annotations(annotations)
+	annotation_hash, ftypes = process_feature_annotations(annotations)
+	sub_afm_out = {}
+	#for k in ftypes.keys():		
+	#	sub_afm_out[k] = open('./results/' + dataset_label + '_' + k + '.afm','w')
+	#if (len(sub_afm_out) == 0):
+	#implies that annotations are not used, define out files for feature types from config
+	for q in quantileFeatures.split(","):
+		sub_afm_out[q] = open('./results/' + dataset_label + '_' + q + '.afm','w')
+	
 	for line in feature_matrix_file:
 		line = line.strip()	
 		tokens = line.split('\t')
+		afmid = ""
 		if (featureId == 0):                
                 	sampleIds = ":".join(tokens[0:len(tokens)-1])
-			#print "%i samples/patients in afm %s \n%s" %(len(sampleIds.split(":")), matrix_file, sampleIds)
 			if (persist_sample_meta == 1):
 				populate_sample_meta(sampleIds.split(":"), config)				
 			sampleOutfile.write(sampleIds + "\n");
@@ -93,13 +107,19 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 		if (not features_hash.get(tokens[0]) and len(tokens[0]) > 1):
 			valuesArray = []
 			alias = tokens[0]
+			afmid = alias
 			if (len(alias.split(":")) < 3):
-				#use annotations hash
+				#afmid = alias
 				annotated_feature = annotation_hash.get(alias)
 				if (annotated_feature == None):
-					print "ERROR: afm feature %s is not in annotation" %(alias)
-					continue
+					print "ERROR: AFM feature %s is not in annotation" %(alias)
+					sys.exit(-1)
+				#put features in sub afm files for quantile calculation
+				ftype = annotated_feature.split("\t")[1]
+				if (sub_afm_out.get(ftype) != None):
+					sub_afm_out[ftype].write(line + "\n")				
 				alias = annotated_feature.replace("\t", ":")
+			
 			alias = alias.replace('|', '_')
 			features_hash[tokens[0]] = featureId
 			data = alias.split(':')
@@ -122,20 +142,42 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 				else:
 					valuesArray.append(0.0)
 			patient_value_mean = sum(valuesArray)/len(valuesArray)
-			outfile.write(str(featureId) + "\t" + alias + "\t" + "\t".join(data) + "\t" + patient_values + "\t" + str(patient_value_mean) + "\n")
-			#featureId += 1
+			#outfile.write(str(featureId) + "\t" + alias + "\t" + "\t".join(data) + "\t" + patient_values + "\t" + str(patient_value_mean) + "\n")
+			out_hash[afmid] = str(featureId) + "\t" + alias + "\t" + "\t".join(data) + "\t" + patient_values + "\t" + str(patient_value_mean)
 		else:
 			print "duplicated feature in feature set:" + tokens[0]
-		featureId += 1 
+		featureId += 1
+	quantiles_out = {} 
+	for ftype in sub_afm_out.keys():
+                        sub_afm_out[ftype].close()
+			q_out = "./results/" + dataset_label + "_" + ftype + "_qo.tsv"
+			#get quantile from timo and add back to alias string and then write
+			compute_quantiles.compute_quantiles(sub_afm_out[ftype].name, q_out)
+			quantiles_out[ftype] = open(q_out, "r")
+			#featureId\tval\tQX
+			qdic = {}
+			for ql in quantiles_out[ftype].readlines():
+				qtk = ql.strip().split("\t")
+				afmkey = qtk[0]
+				fv = qtk[1]
+				fq = qtk[2]
+				qdic[afmkey] = fv + "\t" + fq  
+				fline = out_hash.get(afmkey)
+				if (fline != None):
+					out_hash[afmkey] = fline + "\t" + fv + "\t" + fq
+				#need to confirm and make sure that the new two columns in schema is defined with initial value of NULL
+				#else:
+				#	out_hash[afmkey] = fline + "\t" + "\t"		
+	for val in out_hash.values():
+		outfile.write(val + "\n")					
+		
 	feature_matrix_file.close()
 	outfile.close()
 	sampleOutfile.close()
 	fshout.write("#!/bin/bash\n")
 	fshout.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
 	fshout.write("load data local infile '" + outfile.name + "' replace INTO TABLE " + feature_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
-	#fshout.write("load data local infile '" + './results/features_out_' + dataset_label + '.tsv' + "' replace INTO TABLE " + feature_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
 	fshout.write("load data local infile '" + sampleOutfile.name + "' replace INTO TABLE " + sample_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
-	#fshout.write("load data local infile '" + './results/sample_values_out_' + dataset_label + '.tsv' + "' replace INTO TABLE " + sample_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';\n")
 	fshout.write("\ncommit;\nEOFMYSQL")
 	fshout.close()
 	print "processing done, running bulk load on %i features  %s" %(len(features_hash), time.ctime())
@@ -147,7 +189,6 @@ def getFeatures():
 	return features_hash
 
 def getFeatureId(featureStr):
-	#global features_hash
         return features_hash.get(featureStr)
 
 def getGeneInterestScore(featureStr):
@@ -219,7 +260,6 @@ def process_pathway_associations(gsea_file_path, configfile):
 			pathway_type = ""
 			pathway_name = pathway
 		gsea_tsv_out.write(str(features_hash.get(feature)) + "\t" + feature + "\t" + pathway_name + "\t" + pathway_type + "\t" + pvalue + "\n")
-	#print "%i Unique pathways" %(len(pathway_hash))				
 	gsea_file.close()
 	gsea_tsv_out.close()
 	gsea_sh.write("#!/bin/bash\n")
@@ -296,9 +336,12 @@ if __name__ == "__main__":
 	configfile = sys.argv[3]
 	config = db_util.getConfig(configfile)
 	annotations = ""
-	if (len(sys.argv) == 5):
+	if (len(sys.argv) >= 5):
 		annotations = sys.argv[4]
-	process_feature_matrix(dataset_label, sys.argv[1], 1, config, annotations)	
+	quantileFeatures = ""
+	if (len(sys.argv) >= 6):
+		quantileFeatures = sys.argv[5]
+	process_feature_matrix(dataset_label, sys.argv[1], 1, config, annotations, quantileFeatures)	
 	#os.system("sh " + sh.name)
 	path = sys.argv[2].rsplit("/", 1)[0] 
 	if (os.path.exists(path + "/GEXP_interestingness.tsv")):
