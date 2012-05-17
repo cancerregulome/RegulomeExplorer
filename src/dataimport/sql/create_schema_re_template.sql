@@ -30,7 +30,7 @@ CREATE TABLE #REPLACE#_features
    alias varchar(255) NOT NULL,
    type varchar(1) NOT NULL,
    source varchar(11) NOT NULL,
-   label varchar(30),
+   label varchar(100),
    chr varchar(10),
    start int,
    end int,
@@ -38,6 +38,8 @@ CREATE TABLE #REPLACE#_features
    label_desc varchar(50),
    patient_values longtext,
    patient_values_mean double,
+   quantile_val double DEFAULT NULL,
+   quantile varchar(3) DEFAULT NULL,
    gene_interesting_score double
 );
 
@@ -65,7 +67,7 @@ DROP TABLE IF EXISTS #REPLACE#_feature_pathways;
 CREATE TABLE #REPLACE#_feature_pathways
 (
    featureid int not null,   
-   alias varchar(100) not null,
+   alias varchar(255) not null,
    pathway_name varchar(50) not null,
    pathway_type varchar(30),
    pvalue double,
@@ -80,7 +82,7 @@ DROP TABLE IF EXISTS #REPLACE#_association_index;
 CREATE TABLE #REPLACE#_association_index
 (
    featureid int not null,   
-   alias varchar(50) not null,
+   alias varchar(255) not null,
    associated_feature_type varchar(50) not null,
    associated_index double DEFAULT 0,
    id int PRIMARY KEY NOT NULL auto_increment

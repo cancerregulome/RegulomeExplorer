@@ -27,7 +27,9 @@ CREATE TABLE mv_#REPLACE#_feature_networks
    f2label_desc varchar(50),
    f1genescore double DEFAULT 0,
    f2genescore double DEFAULT 0,
-   rho_score double,
+   f1qtinfo varchar(20) DEFAULT NULL,
+   f2qtinfo varchar(20) DEFAULT NULL,
+   rho_score double DEFAULT 0,
    id int AUTO_INCREMENT PRIMARY KEY NOT NULL
 );
 

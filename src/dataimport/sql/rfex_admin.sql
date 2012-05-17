@@ -50,13 +50,21 @@ CREATE TABLE `random_forest`.`refgene`
    build varchar(20) default 'hg18'
 );
 
-GRANT Select ON *.* TO visquick_ro@"localhost" IDENTIFIED BY 'v15qu1ck_r0';
-GRANT Select ON *.* TO visquick_ro@"giza.systemsbiology.net" IDENTIFIED BY 'v15qu1ck_r0';
-GRANT Select ON *.* TO visquick_ro@"%" IDENTIFIED BY 'v15qu1ck_r0';
+GRANT Select ON tcga.* TO visquick_ro@"localhost" IDENTIFIED BY 'v15qu1ck_r0';
+GRANT Select ON tcga.* TO visquick_ro@"intianjora.cs.tut.fi" IDENTIFIED BY 'v15qu1ck_r0';
+GRANT Select ON tcga.* TO visquick_ro@"%" IDENTIFIED BY 'v15qu1ck_r0';
 
-GRANT ALL ON *.* TO visquick_rw@"localhost" IDENTIFIED BY 'r34dwr1t3';
-GRANT ALL ON *.* TO visquick_rw@"giza.systemsbiology.net" IDENTIFIED BY 'r34dwr1t3';
-GRANT ALL ON *.* TO visquick_rw@"%" IDENTIFIED BY 'r34dwr1t3';
+GRANT ALL ON tcga.* TO visquick_rw@"localhost" IDENTIFIED BY 'v1sr3ad';
+GRANT ALL ON tcga.* TO visquick_rw@"intianjora.cs.tut.fi" IDENTIFIED BY 'v1sr3ad';
+GRANT ALL ON tcga.* TO visquick_rw@"%" IDENTIFIED BY 'v1sr3ad';
+
+GRANT Select ON random_forest.* TO visquick_ro@"localhost" IDENTIFIED BY 'v15qu1ck_r0';
+GRANT Select ON random_forest.* TO visquick_ro@"intianjora.cs.tut.fi" IDENTIFIED BY 'v15qu1ck_r0';
+GRANT Select ON random_forest.* TO visquick_ro@"%" IDENTIFIED BY 'v15qu1ck_r0';
+
+GRANT ALL ON random_forest.* TO visquick_rw@"localhost" IDENTIFIED BY 'v1sr3ad';
+GRANT ALL ON random_forest.* TO visquick_rw@"intianjora.cs.tut.fi" IDENTIFIED BY 'v1sr3ad';
+GRANT ALL ON random_forest.* TO visquick_rw@"%" IDENTIFIED BY 'v1sr3ad';
 
 INSERT INTO `random_forest`.`chrom_info` (chr_name,chr_length) VALUES ('1',247249719);
 INSERT INTO `random_forest`.`chrom_info` (chr_name,chr_length) VALUES ('10',135374737);

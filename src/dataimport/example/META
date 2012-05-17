@@ -1,0 +1,19 @@
+#” sh /home/csbgroup/public_html/RE/dataimport/python/load_rface_associations.sh tcga_coadread_nov10 /home/csbgroup/tcga/rf-ace/coadread/coadread.nov10.tsv /home/csbgroup/tcga/rf-ace/coadread/coadread.nov10.associations.filtered.tsv "TCGA Colorectal" "466 patients" public ”
+#
+[build]
+afm=/home/csbgroup/re_data/nykter_pc/CNVR_GEXP_METH_merged.afm
+#matrix_methylation_top.afm
+#Gene_exp_matrix.afm
+#CNV_matrix.afm
+annotations=/home/csbgroup/re_data/nykter_pc/CNVR_GEXP_METH_merged.annotation
+quantile_features=GEXP,METH
+#Gene_exp_matrix.features.annotation
+#CNV_matrix.features.annotation
+associations=/home/csbgroup/re_data/nykter_pc/CNVR_GEXP_METH_associations_filtered.rface
+#collapse_edge_directions=1 implies taking the rf-ace higher important (A->B, B->A) set 
+collapse_edge_directions=1
+afm_description=Collapsed directionaly TUT Prostate AFM 54476 features 61 samples
+comment=Collapsed directionality Initial load for CBM
+dataset_label=testq_pc_cbm_0507
+results_dir=./results
+
