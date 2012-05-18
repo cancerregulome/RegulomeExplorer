@@ -49,13 +49,13 @@ vq.utils.VisUtils.extend(re, {
         solr: {
             uri: '/solr',
             select: '/select/'
-
         }
     },
     tables: {
         dataset: '/regulome_explorer_dataset',
         label_lookup: '/refgene',
         chrom_info: '/chrom_info',
+        entrez_gene: '/entrez_gene',
         current_data: '',
         network_uri: '',
         feature_uri: '',
@@ -89,15 +89,17 @@ vq.utils.VisUtils.extend(re, {
         circvis: {
             rings: {
                 karyotype: {
-                    hidden: false
+                    hidden: false,
+                    radius: 28
                 },
                 cnvr: {
-                    hidden: false
+                    hidden: true,
+                    radius: 40
                 },
                 pairwise_scores: {
                     value_field: re.model.association.types[0].query.id,
                     hidden: false,
-
+                    radius: 80,
                     manual_y_color_scale:false,
                     min_y_color:'#0000FF',
                     max_y_color:'#FF0000',
@@ -107,87 +109,87 @@ vq.utils.VisUtils.extend(re, {
                 }
             },
             tooltips: {
-                            feature: {
-                                Feature: function(node) {
-                                    var pos = node.label.indexOf('_');
-                                    var label = (pos > 0 ? node.label.slice(0, pos) : node.label);
-                                    label = (label == 'GisticArm' ? "Arm " + node.label.split('_')[1] : label);
-                                    return label;
-                                },
-                                Source: function(node) {
-                                    return re.label_map[node.source]
-                                },
-                                'Location': function(node) {
-                                    return 'Chr' + node.chr + ' ' + node.start + (node.end == '' ? '' : '-' + node.end) + ' ';
-                                },
-                                Annotations: parseAnnotationList
-                            },
-                            unlocated_feature : {},
-                            karyotype_feature: {},
-                            edge: {},
-                            link_objects: [{
-                                label: 'UCSC Genome Browser',
-                                url: 'http://genome.ucsc.edu/cgi-bin/hgTracks',
-                                uri: '?db=hg18&position=chr',
-                                config_object: function(feature) {
-                                    return 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg18&position=chr' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
-                                }
-                            }, //ucsc_genome_browser
-                            {
-                                label: 'Ensemble',
-                                url: 'http://uswest.ensembl.org/Homo_sapiens/Location/View',
-                                uri: '?r=',
-                                config_object: function(feature) {
-                                    return 'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
-                                }
-                            }, //ensemble
-                            {
-                                label: 'Cosmic',
-                                url: 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic',
-                                uri: '?action=bygene&ln=',
-                                config_object: function(feature) {
-                                    return ['CNVR', 'MIRN','METH'].indexOf(feature.source) < 0 ? 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label : null;
-                                }
-                           },  {
-                                label: 'NCBI',
-                                url: 'http://www.ncbi.nlm.nih.gov/gene/',
-                                uri: '',
-                                selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
-                                config_object: function(feature) {
-                                    if (['CNVR', 'MIRN','METH'].indexOf(feature.source) >= 0) return null;
-                                    Ext.Ajax.request({url:re.node.uri + re.node.services.lookup+'/'+feature.label,success:entrezHandler, failure: lookupFailed});
+                feature: {
+                    Feature: function(node) {
+                        var pos = node.label.indexOf('_');
+                        var label = (pos > 0 ? node.label.slice(0, pos) : node.label);
+                        label = (label == 'GisticArm' ? "Arm " + node.label.split('_')[1] : label);
+                        return label;
+                    },
+                    Source: function(node) {
+                        return re.label_map[node.source]
+                    },
+                    'Location': function(node) {
+                        return 'Chr' + node.chr + ' ' + node.start + (node.end == '' ? '' : '-' + node.end) + ' ';
+                    },
+                    Annotations: parseAnnotationList
+                },
+                unlocated_feature : {},
+                karyotype_feature: {},
+                edge: {},
+                link_objects: [{
+                    label: 'UCSC Genome Browser',
+                    url: 'http://genome.ucsc.edu/cgi-bin/hgTracks',
+                    uri: '?db=hg18&position=chr',
+                    config_object: function(feature) {
+                        return 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg18&position=chr' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
+                    }
+                }, //ucsc_genome_browser
+                {
+                    label: 'Ensemble',
+                    url: 'http://uswest.ensembl.org/Homo_sapiens/Location/View',
+                    uri: '?r=',
+                    config_object: function(feature) {
+                        return 'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
+                    }
+                }, //ensemble
+                {
+                    label: 'Cosmic',
+                    url: 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic',
+                    uri: '?action=bygene&ln=',
+                    config_object: function(feature) {
+                        return ['CNVR', 'MIRN','METH'].indexOf(feature.source) < 0 ? 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label : null;
+                    }
+               },  {
+                    label: 'NCBI',
+                    url: 'http://www.ncbi.nlm.nih.gov/gene/',
+                    uri: '',
+                    selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
+                    config_object: function(feature) {
+                        if (['CNVR', 'MIRN','METH'].indexOf(feature.source) >= 0) return null;
+                        Ext.Ajax.request({url:re.node.uri + re.node.services.lookup+'/'+feature.label,success:entrezHandler, failure: lookupFailed});
 
-                                    function lookupFailed() {
-                                        var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
-                                          node.setAttribute('href','http://www.ncbi.nlm.nih.gov/gene?term='+feature.label);
-                                    }
+                        function lookupFailed() {
+                            var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
+                              node.setAttribute('href','http://www.ncbi.nlm.nih.gov/gene?term='+feature.label);
+                        }
 
-                                    function entrezHandler(response) {
-                                        var gene,entrez;
-                                        var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
-                                        try {
-                                            gene = Ext.decode(response.responseText);
-                                            entrez = gene[Object.keys(gene)[0]];
-                                            node.setAttribute('href',node.getAttribute('href').replace('zzzZZZzzz',entrez));
-                                        } catch (err) {
-                                            lookupFailed();
-                                        }
-                                    }
-                                    return 'http://www.ncbi.nlm.nih.gov/gene/' + 'zzzZZZzzz';
-                                }
-                            }, {
-                                label: 'miRBase',
-                                url: 'http://mirbase.org/cgi-bin/query.pl',
-                                uri: '?terms=',
-                                config_object: function(feature) {
-                                    return feature.source == 'MIRN' ? 'http://www.mirbase.org/cgi-bin/query.pl?terms=' + feature.label : null;
-                                }
+                        function entrezHandler(response) {
+                            var gene,entrez;
+                            var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
+                            try {
+                                gene = Ext.decode(response.responseText);
+                                entrez = gene[Object.keys(gene)[0]];
+                                node.setAttribute('href',node.getAttribute('href').replace('zzzZZZzzz',entrez));
+                            } catch (err) {
+                                lookupFailed();
                             }
-                               ],
-                            //link_objects
-                            edge_links: {},
-                            feature_links : {}
-                        },
+                        }
+                        return 'http://www.ncbi.nlm.nih.gov/gene/' + 'zzzZZZzzz';
+                    }
+                }, {
+                    label: 'miRBase',
+                    url: 'http://mirbase.org/cgi-bin/query.pl',
+                    uri: '?terms=',
+                    config_object: function(feature) {
+                        return feature.source == 'MIRN' ? 'http://www.mirbase.org/cgi-bin/query.pl?terms=' + feature.label : null;
+                    }
+                }
+                   ],
+                //link_objects
+                edge_links: {},
+                feature_links : {}
+            },
             ticks: {
                 tick_overlap_distance: null,
                 tile_ticks_manually: false,
@@ -396,7 +398,6 @@ vq.utils.VisUtils.extend(re, {
             label: obj.label
         });
     });
-
 
     if (re.analysis.directed_association) {
         re.ui.feature1 = {
