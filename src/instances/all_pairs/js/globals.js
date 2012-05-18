@@ -59,6 +59,7 @@ vq.utils.VisUtils.extend(re, {
         current_data: '',
         network_uri: '',
         feature_uri: '',
+        features_uri: '',
         clin_uri: '',
         patient_uri: '',
         feature_data_uri: '',
@@ -257,6 +258,34 @@ vq.utils.VisUtils.extend(re, {
         },
         setDatasetLabels: function(obj) {
             re.ui.dataset_labels = obj;
+        },
+        current_pathway_members: [],
+        getCurrentPathwayMembers: function() {
+            return re.ui.current_pathway_members;
+        },
+        setCurrentPathwayMembers: function(obj) {
+            re.ui.current_pathway_members = obj;
+        },
+        pathway_members_query_counts: {},
+        getPathwayMembersQueryCounts: function() {
+            return re.ui.pathway_members_query_counts;
+        },
+        setPathwayMembersQueryCounts: function(obj, ct) {
+            re.ui.pathway_members_query_counts[obj] = ct;
+        },
+	    pathway_bar_mouseover_behavior: {},
+	    getPathwayBarBehavior: function() {
+            return re.ui.pathway_bar_mouseover_behavior;
+        },
+        setPathwayBarBehavior: function(obj) {
+            re.ui.pathway_bar_mouseover_behavior = obj;
+        },
+	    pathway_bar_mouseover_behavior_reset: {},
+        getPathwayBarBehaviorReset: function() {
+            return re.ui.pathway_bar_mouseover_behavior_reset;
+        },
+        setPathwayBarBehaviorReset: function(obj) {
+            re.ui.pathway_bar_mouseover_behavior_reset = obj;
         },
         /*
          *        Order combo list
