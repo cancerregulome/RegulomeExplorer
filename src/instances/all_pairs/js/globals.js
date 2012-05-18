@@ -62,7 +62,9 @@ vq.utils.VisUtils.extend(re, {
         clin_uri: '',
         patient_uri: '',
         feature_data_uri: '',
-        pathway_uri: ''
+        pathway_uri: '',
+        pathways: '/pathways',
+        pathway_members: '/pathway_members'
     },
     /*
      *        URL's
