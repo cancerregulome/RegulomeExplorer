@@ -4,7 +4,7 @@ import db_util
 import os
 
 def getDatasets(config):
-	rows = db_util.executeSelect(config, "select label, method, comments from regulome_explorer_dataset")
+	rows = db_util.executeSelect(config, "select label, method, dataset_date, comments from regulome_explorer_dataset")
 	return rows
 
 
@@ -48,12 +48,12 @@ def loadConfig(env):
 if __name__=="__main__":
 	ds_env = raw_input("Deleting datasets, Please enter one of the following: [internal(isb), gdac(isb), tut]\n")	
 	config = (loadConfig(ds_env))
-	list = getDatasets(config)
-	if (list != None):
-		print "\nHere are the available datasets\nds_label\tmethod\tcomments"
+	datasets = getDatasets(config)
+	if (datasets != None):
+		print "\nHere are the available datasets\nds_label\tmethod\tdate\tcomments"
 		mylist = []
-		for l in list:
-			print "\t".join(l[0:3]) 
+		for l in datasets:
+			print "\t".join(l[0:4]) 
 			mylist.append(l[0])
 		ds = raw_input("Enter dataset label to drop from db, for > 1 separate the datasets by comma\n")
 		if (ds != None and len(ds) > 1):

@@ -119,7 +119,7 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 				if (sub_afm_out.get(ftype) != None):
 					sub_afm_out[ftype].write(line + "\n")				
 				alias = annotated_feature.replace("\t", ":")
-			
+				featureId = int(alias.split(":")[-1])	
 			alias = alias.replace('|', '_')
 			features_hash[tokens[0]] = featureId
 			data = alias.split(':')
