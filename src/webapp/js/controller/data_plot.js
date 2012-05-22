@@ -436,10 +436,11 @@ function pathway_members_draw(div,anchor,networks) {
                 for (var n=0; n<nodes_array.length; n++){                        
 			if (nodes_array[n]["label"] == member){                                
 				mobj = nodes_array[n];
-                                break;
+				re.ui.getPathwayBarBehavior()(mobj, n);
+                                //break;
                         }
                 }
-                re.ui.getPathwayBarBehavior()(mobj, n);
+                //re.ui.getPathwayBarBehavior()(mobj, n);
         })
         .event("dblclick", function(member){
                 re.ui.getPathwayBarBehaviorReset()();
@@ -462,10 +463,11 @@ function pathway_members_draw(div,anchor,networks) {
                 for (var n=0; n<nodes_array.length; n++){
                         if (nodes_array[n]["label"] == member){
                                 mobj = nodes_array[n];
-                                break;
+                                re.ui.getPathwayBarBehavior()(mobj, n);
+				//break;
                         }
                 }
-                re.ui.getPathwayBarBehavior()(mobj, n);
+                //re.ui.getPathwayBarBehavior()(mobj, n);
 	})
 	.event("dblclick", function(member){
 		re.ui.getPathwayBarBehaviorReset()();
@@ -487,10 +489,10 @@ function pathway_members_draw(div,anchor,networks) {
                 for (var n=0; n<nodes_array.length; n++){
                         if (nodes_array[n]["label"] == member){
                                 mobj = nodes_array[n];
-                                break;
+                                re.ui.getPathwayBarBehavior()(mobj, n);//break;
                         }
                 }
-                re.ui.getPathwayBarBehavior()(mobj, n);
+                //re.ui.getPathwayBarBehavior()(mobj, n);
         })
         .event("dblclick", function(member){
                 re.ui.getPathwayBarBehaviorReset()();
@@ -511,10 +513,10 @@ function pathway_members_draw(div,anchor,networks) {
                 for (var n=0; n<nodes_array.length; n++){
                         if (nodes_array[n]["label"] == member){
                                 mobj = nodes_array[n];
-                                break;
+                                re.ui.getPathwayBarBehavior()(mobj, n);//break;
                         }
                 }
-                re.ui.getPathwayBarBehavior()(mobj, n);
+                //re.ui.getPathwayBarBehavior()(mobj, n);
         })
         .event("dblclick", function(member){
                 re.ui.getPathwayBarBehaviorReset()();
@@ -535,10 +537,10 @@ function pathway_members_draw(div,anchor,networks) {
                 for (var n=0; n<nodes_array.length; n++){
                         if (nodes_array[n]["label"] == member){
                                 mobj = nodes_array[n];
-                                break;
+                                re.ui.getPathwayBarBehavior()(mobj, n);//break;
                         }
                 }
-                re.ui.getPathwayBarBehavior()(mobj, n);
+                //re.ui.getPathwayBarBehavior()(mobj, n);
         })
         .event("dblclick", function(member){
                 re.ui.getPathwayBarBehaviorReset()();
@@ -559,10 +561,10 @@ function pathway_members_draw(div,anchor,networks) {
                 for (var n=0; n<nodes_array.length; n++){
                         if (nodes_array[n]["label"] == member){
                                 mobj = nodes_array[n];
-                                break;
+                                re.ui.getPathwayBarBehavior()(mobj, n);//break;
                         }
                 }
-                re.ui.getPathwayBarBehavior()(mobj, n);
+                //re.ui.getPathwayBarBehavior()(mobj, n);
         })
         .event("dblclick", function(member){
                 re.ui.getPathwayBarBehaviorReset()();
@@ -583,10 +585,10 @@ function pathway_members_draw(div,anchor,networks) {
                 for (var n=0; n<nodes_array.length; n++){
                         if (nodes_array[n]["label"] == member){
                                 mobj = nodes_array[n];
-                                break;
+                                re.ui.getPathwayBarBehavior()(mobj, n);//break;
                         }
                 }
-                re.ui.getPathwayBarBehavior()(mobj, n);
+                //re.ui.getPathwayBarBehavior()(mobj, n);
         })
         .event("dblclick", function(member){
                 re.ui.getPathwayBarBehaviorReset()();
@@ -607,10 +609,10 @@ function pathway_members_draw(div,anchor,networks) {
                 for (var n=0; n<nodes_array.length; n++){
                         if (nodes_array[n]["label"] == member){
                                 mobj = nodes_array[n];
-                                break;
+                                re.ui.getPathwayBarBehavior()(mobj, n);//break;
                         }
                 }
-                re.ui.getPathwayBarBehavior()(mobj, n);
+                //re.ui.getPathwayBarBehavior()(mobj, n);
         })
         .event("dblclick", function(member){
                 re.ui.getPathwayBarBehaviorReset()();
@@ -631,10 +633,10 @@ function pathway_members_draw(div,anchor,networks) {
                 for (var n=0; n<nodes_array.length; n++){
                         if (nodes_array[n]["label"] == member){
                                 mobj = nodes_array[n];
-                                break;
+                                re.ui.getPathwayBarBehavior()(mobj, n);//break;
                         }
                 }
-                re.ui.getPathwayBarBehavior()(mobj, n);
+                //re.ui.getPathwayBarBehavior()(mobj, n);
         })
         .event("dblclick", function(member){
                 re.ui.getPathwayBarBehaviorReset()();
@@ -681,7 +683,7 @@ function legend_draw(div,anchor) {
     var current_map = pv.numerate(current_data);
     var anchor = anchor || 'top-right';
     var width=800, height=800;
-    var legend_height = (30 + current_locatable_data.length * 13), legend_width = 150;
+    var legend_height = (30 + current_locatable_data.length * 13 * 3), legend_width = 150;
     var top = 20, left = 0;
     if (arguments[1] != undefined) {anchor = arguments[1];}
     switch(anchor) {
@@ -704,7 +706,7 @@ function legend_draw(div,anchor) {
         .left(left)
         .top(top)
         .width(legend_width + 100)
-        .height(legend_height + 20)
+        .height(legend_height + 120)
         .lineWidth(1)
         .strokeStyle('black')
         .canvas(div);
@@ -737,7 +739,75 @@ function legend_draw(div,anchor) {
         .textAlign('left')
         .textBaseline('bottom')
         .font("11px helvetica");
-    vis.render();
+
+     var ringPanel = vis.add(pv.Panel)
+        .top(function(){ return current_locatable_data.length*12;})
+        .left(0);
+
+     ringPanel.add(pv.Label)
+        .textAlign('left')
+        .top(function(){ return current_locatable_data.length*12 + 22;})
+        .left(12)
+        .text('Data Rings')
+        .font("14px helvetica");
+
+     var datarings =  ringPanel.add(pv.Panel)
+        .data(['Cytogenetic','Gene Expression','Methylation','Copy Number','Unmapped'])
+        .top(function() { return this.index*12 + 66;})
+        .height(12);
+	datarings.add(pv.Label)
+        .textAlign('left')
+        .left(10)
+        .text(function (d){return d;})
+	.textBaseline('bottom')
+        .font("11px helvetica");
+
+     var quantPanel = vis.add(pv.Panel)
+        .top(function(){ return current_locatable_data.length*12 + 88;})
+        .left(0);
+
+     ringPanel.add(pv.Label)
+        .textAlign('left')
+        .top(function(){ return current_locatable_data.length*12 + 105;})
+        .left(12)
+        .text('Quantile colors')
+        .font("14px helvetica");
+
+     var qrings =  ringPanel.add(pv.Panel)
+        .data(Object.keys(re.plot.colors.quants))
+        .top(function() { return this.index*12 + 145;})
+        .height(12);
+
+       /* datarings.add(pv.Label)
+        .textAlign('left')
+        .left(25)
+        .text(function (d){return d;})
+        .textBaseline('bottom')
+        .font("11px helvetica");
+      */
+       qrings.add(pv.Bar)
+        .left(10)
+        .width(12)
+        .top(1)
+        .bottom(1)
+        .fillStyle(function(type) { 
+		return re.plot.colors.quants[type];
+	})
+	qrings.add(pv.Label)
+        .text(function(q) { return q + " " + re.plot.colors.quantinfo[q];})
+        .bottom(0)
+        .left(20)
+        .textAlign('left')
+        .textBaseline('bottom')
+        .font("11px helvetica");
+
+	/*datarings.add(pv.Label)
+        .font('11px helvetica')
+	.left(30)
+	.textBaseline
+        .text(function(d){return d;});;
+	*/
+   vis.render();
 }
 
 function singlefeature_circvis(parsed_data,div) {
@@ -937,6 +1007,17 @@ function wedge_plot(parsed_data,div) {
         vq.utils.VisUtils.extend(unlocated_tooltip_items, assoc.vis.tooltip.entry);
     });
 
+    function parse_qt_info(feature, filtered_list, qvalue_dic){
+        var feature = filtered_list[mi];
+        var qistr = feature["qtinfo"];
+        if (qistr != null && qistr.indexOf("_") != -1){
+                feature["value"] = qvalue_dic[qistr.split("_")[1]];
+                feature["start"] = feature["start"] - qoffset;
+                feature["end"] = feature["end"] + qoffset;
+                //filtered_list[mi] = feature;
+        }
+	return feature;
+    };
 
     var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
     var ticks = vq.utils.VisUtils.clone(parsed_data['features']);
@@ -969,39 +1050,28 @@ function wedge_plot(parsed_data,div) {
         return f['source'] == 'CNVR';
     });
     var qoffset = 750000;	
+    //re.plot.colors.quants
     var meth_qvalue_dic = {"Q1":"#33FF33", "Q2":"#00FF00","Q3":"#009900","Q4":"#006600"};
     for (var mi = 0; mi < meth_filtered_list.length; mi++){
-        var methfeature = meth_filtered_list[mi];		
+        meth_filtered_list[mi] = parse_qt_info(mi, meth_filtered_list, meth_qvalue_dic);
+	/*var methfeature = meth_filtered_list[mi];		
 	var qistr = methfeature["qtinfo"];
 	if (qistr != null && qistr.indexOf("_") != -1){
 		methfeature["value"] = meth_qvalue_dic[qistr.split("_")[1]];
 		methfeature["start"] = methfeature["start"] - qoffset;
 		methfeature["end"] = methfeature["end"] + qoffset;
 		meth_filtered_list[mi] = methfeature;
-	}	
-    };
+	}*/	
+    }
+
     var gexp_qvalue_dic = {"Q1":"#AD85FF", "Q2":"#9966FF","Q3":"#5C3D99","Q4":"#3D2966"};
     for (var mi = 0; mi < gexp_filtered_list.length; mi++){
-        var methfeature = gexp_filtered_list[mi];
-        var qistr = methfeature["qtinfo"];
-        if (qistr != null && qistr.indexOf("_") != -1){
-                methfeature["value"] = gexp_qvalue_dic[qistr.split("_")[1]];
-                methfeature["start"] = methfeature["start"] - qoffset;
-                methfeature["end"] = methfeature["end"] + qoffset;
-                gexp_filtered_list[mi] = methfeature;
-        }
-    };
+        gexp_filtered_list[mi] = parse_qt_info(mi, gexp_filtered_list, gexp_qvalue_dic);
+    }
     var cnvr_qvalue_dic = {"Q1":"#FF3333", "Q2":"#FF0000","Q3":"#B20000","Q4":"#800000"};
     for (var mi = 0; mi < cnvr_filtered_list.length; mi++){
-        var methfeature = cnvr_filtered_list[mi];
-        var qistr = methfeature["qtinfo"];
-        if (qistr != null && qistr.indexOf("_") != -1){
-                methfeature["value"] = gexp_qvalue_dic[qistr.split("_")[1]];
-                methfeature["start"] = methfeature["start"] - qoffset;
-                methfeature["end"] = methfeature["end"] + qoffset;
-                cnvr_filtered_list[mi] = methfeature;
-        }
-    };		
+        cnvr_filtered_list[mi] = parse_qt_info(mi, cnvr_filtered_list, cnvr_qvalue_dic);
+    }	
     var data = {
         GENOME: {
             DATA:{
@@ -1036,8 +1106,8 @@ function wedge_plot(parsed_data,div) {
             container : div,
             enable_pan : false,
             enable_zoom : false,
-            show_legend: true,
-            legend_include_genome : true,
+            show_legend: false,
+            legend_include_genome : false,
             legend_corner : 'ne',
             legend_radius  : width / 15
         },
@@ -1077,7 +1147,7 @@ function wedge_plot(parsed_data,div) {
                     type :   'karyotype'
                 },
                 DATA:{
-                    data_array : cnvrcbmband
+                    data_array : cnvr_filtered_list//cnvrcbmband
                 },
                 OPTIONS: {
                     legend_label : 'CNVR FQI' ,
@@ -1103,7 +1173,7 @@ function wedge_plot(parsed_data,div) {
             },
             {
                 PLOT : {
-                    height : ring_radius/3,
+                    height : ring_radius/4,
                     type :   'scatterplot'
                 },
                 DATA:{
@@ -1112,7 +1182,7 @@ function wedge_plot(parsed_data,div) {
                 OPTIONS: {
                     legend_label : 'Unmapped Feature Correlates' ,
                     legend_description : 'Feature Correlates with No Genomic Position',
-                    outer_padding : 10,
+                    outer_padding : 6,
                     base_value : 0,
                     min_value : -1,
                     max_value : 1,
@@ -1133,7 +1203,7 @@ function wedge_plot(parsed_data,div) {
                 data_array : parsed_data['network']
             },
             OPTIONS: {
-                outer_padding : 15,
+                outer_padding : 6,
                 node_highlight_mode : 'isolate',
                 node_fill_style : 'ticks',
                 node_stroke_style : stroke_style,
@@ -1148,7 +1218,8 @@ function wedge_plot(parsed_data,div) {
                 constant_link_alpha : 0.7,
                 node_tooltip_items :   re.display_options.circvis.tooltips.feature,
                 node_tooltip_links : re.display_options.circvis.tooltips.links,
-                
+                tile_nodes: true,
+                node_overlap_distance : 10000,
                 link_tooltip_items :  link_tooltip_items
             }
         }

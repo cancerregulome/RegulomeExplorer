@@ -418,8 +418,9 @@ vq.CircVis.prototype._add_wedge = function(index,outerRadius) {
             .outerRadius(outerPlotRadius)
             .angle(function(d) { return dataObj.normalizedLength[d] * 2 * Math.PI;} )
             .startAngle(function(d) { return dataObj.startAngle_map[d]; } )
-            .fillStyle("#ddd")
-            .strokeStyle("#444")
+            //.fillStyle("#ddd")
+	    .fillStyle("#F8F8F8")	
+            //.strokeStyle("#444")
             .lineWidth(1)
             .overflow("hidden")
             .add(pv.Wedge)
@@ -1207,33 +1208,33 @@ vq.models.CircVisData.prototype._setupData =  function() {
             if (nodes[d.node1.chr] != undefined){
                 if (nodes[d.node1.chr][d.node1.start] === undefined ){
                     nodes[d.node1.chr][d.node1.start] = {};
-                    if (nodes[d.node1.chr][d.node1.start][d.node1.end] === undefined ) {
+                    if (nodes[d.node1.chr][d.node1.start][d.node1.source] === undefined ) {
                         var temp_node = d.node1;
                         temp_node.nodeName = d.node1.chr;
                         length = node_array.push(temp_node);
                         index1 = length - 1;
-                        nodes[d.node1.chr][d.node1.start][d.node1.end] = index1;
+                        nodes[d.node1.chr][d.node1.start][d.node1.source] = index1;
                     } else {
-                        index1 = nodes[d.node1.chr][d.node1.start][d.node1.end];
+                        index1 = nodes[d.node1.chr][d.node1.start][d.node1.source];
                     }
                 } else {
-                    index1 = nodes[d.node1.chr][d.node1.start][d.node1.end];
+                    index1 = nodes[d.node1.chr][d.node1.start][d.node1.source];
                 }
             }
             if (nodes[d.node2.chr] != undefined) {
                 if (nodes[d.node2.chr][d.node2.start] === undefined ) {
                     nodes[d.node2.chr][d.node2.start] = {};
-                    if (nodes[d.node2.chr][d.node2.start][d.node2.end] === undefined ) {
+                    if (nodes[d.node2.chr][d.node2.start][d.node2.source] === undefined ) {
                         var temp_node = d.node2;
                         temp_node.nodeName = d.node2.chr;
                         length = node_array.push(temp_node);
                         index2 = length - 1;
-                        nodes[d.node2.chr][d.node2.start][d.node2.end] = index2;
+                        nodes[d.node2.chr][d.node2.start][d.node2.source] = index2;
                     } else {
-                        index2 = nodes[d.node2.chr][d.node2.start][d.node2.end];
+                        index2 = nodes[d.node2.chr][d.node2.start][d.node2.source];
                     }
                 } else {
-                    index2 = nodes[d.node2.chr][d.node2.start][d.node2.end];
+                    index2 = nodes[d.node2.chr][d.node2.start][d.node2.source];
                 }
             }
 

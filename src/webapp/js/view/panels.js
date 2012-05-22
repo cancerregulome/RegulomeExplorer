@@ -68,7 +68,7 @@ vq.utils.VisUtils.extend(re.ui, {
                                                 	re.ui.setCurrentPathwayMembers(Ext.getCmp('p_label').getValue());
 						}
 						var ft = Ext.getCmp("filter_type").getValue();
-						if (ft != "association")
+						if (ft != "association" && Ext.getCmp('t_label').getValue().indexOf(",") != -1)
 							Ext.getCmp('pathway_member_panel').expand();
                                             	manualFilterRequest();
 						}
