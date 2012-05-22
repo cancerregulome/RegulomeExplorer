@@ -18,8 +18,8 @@ re.model.association =  {
                                                 tabIndex : 1,
                                                 validateOnBlur : true,
                                                 fieldLabel : 'Importance >=',
-                                                defaultValue : 0.00001,
-                                                value : 0.00001
+                                                defaultValue : 0.01,
+                                                value : 0.01
                                             }
 			},
 			grid : {
@@ -67,7 +67,7 @@ re.model.association =  {
                                                 validateOnBlur : true,
                                                 fieldLabel : 'logged Pvalue <=',
                                                 defaultValue : -1,
-                                                value : -1
+                                                value : -3
                                             }
 			},
 			grid : {

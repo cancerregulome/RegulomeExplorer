@@ -13,7 +13,7 @@ if (re === undefined) {
 
 vq.utils.VisUtils.extend(re, {
 
-    title: 'Random Forest Associations Explorer',
+    title: 'CBM Integrative Prostate Cancer Explorer',
     google: {
         analytics_id: 'UA-20488457-2'
     },
@@ -427,6 +427,10 @@ vq.utils.VisUtils.extend(re, {
         'SAMP': '#bcbd22'
         //#17becf
     };
+    //dark blue to light blue to grey to light red to dark red
+    re.plot.colors.quants = {"Q1":"#000099", "Q2":"#0066FF","Q3":"#66A3FF","Q4":"#D6EBFF","Q5":"#FF8080","Q6":"#FF0000","Q7":"#800000"}; 
+
+   re.plot.colors.quantinfo = {"Q1":"<5%", "Q2":"5-10%","Q3":"10-30%","Q4":"30-70%","Q5":"70-90%","Q6":"90-95%","Q7":">95%"}; 
 
     re.plot.colors.node_colors = function(source) {
         if (source in re.plot.colors.features) {
