@@ -752,7 +752,7 @@ function legend_draw(div,anchor) {
         .font("14px helvetica");
 
      var datarings =  ringPanel.add(pv.Panel)
-        .data(['Cytogenetic','Gene Expression','Methylation','Copy Number','Unmapped'])
+        .data(['Cytogenetic','Gene Expression','Methylation','Copy Number','Unmapped Associations'])
         .top(function() { return this.index*12 + 66;})
         .height(12);
 	datarings.add(pv.Label)
@@ -1133,11 +1133,10 @@ function wedge_plot(parsed_data,div) {
                     type :   'karyotype'
                 },
                 DATA:{
-                    data_array : meth_filtered_list//methcbmband
+                    data_array : gexp_filtered_list//methcbmband
                 },
                 OPTIONS: {
-                    legend_label : 'Methylation FQI' ,
-                    legend_description : 'Methylation FQI',
+                    legend_label : 'GEX FQI' ,
                     outer_padding : 6,
                     tooltip_items : methband_tooltip_items
                 }
@@ -1147,11 +1146,10 @@ function wedge_plot(parsed_data,div) {
                     type :   'karyotype'
                 },
                 DATA:{
-                    data_array : cnvr_filtered_list//cnvrcbmband
+                    data_array : meth_filtered_list//cnvrcbmband
                 },
                 OPTIONS: {
-                    legend_label : 'CNVR FQI' ,
-                    legend_description : 'CNVR FQI',
+                    legend_label : 'METH FQI' ,
                     outer_padding : 6,
                     tooltip_items : methband_tooltip_items
                 }
@@ -1162,11 +1160,10 @@ function wedge_plot(parsed_data,div) {
                     type :   'karyotype'
                 },
                 DATA:{
-                    data_array : gexp_filtered_list
+                    data_array : cnvr_filtered_list
                 },
                 OPTIONS: {
-                    legend_label : 'GEXP FQI' ,
-                    legend_description : 'GEXP FQI',
+                    legend_label : 'CNVR FQI' ,
                     outer_padding : 6,
                     tooltip_items : methband_tooltip_items
                 }
