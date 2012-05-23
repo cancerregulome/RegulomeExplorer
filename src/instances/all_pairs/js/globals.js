@@ -70,10 +70,11 @@ vq.utils.VisUtils.extend(re, {
      */
     help: {
         links: {
-            user_guide: '/help/crc_agg/user_guide.html',
-            quick_start: '/help/crc_agg/quick_start.html',
-            contact_us: '/help/crc_agg/contact_us.html',
-            analysis_summary: '/help/crc_agg/analysis/analysis_summary.html',
+            user_guide: 'http://cdn.cancerregulome.org/help/msae/user_guide.html',
+            quick_start: 'http://cdn.cancerregulome.org/help/msae/quick_start.html',
+            contact_us: 'http://cdn.cancerregulome.org/help/msae/contact_us.html',
+            /* TODO RE analysis summary */
+            analysis_summary: 'http://explorer.cancerregulome.org',
             bug_report: 'http://code.google.com/p/regulome-explorer/issues/entry',
             user_group: 'http://groups.google.com/group/regulome-explorer'
         }

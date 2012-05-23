@@ -767,10 +767,10 @@ function linear_plot(obj) {
                 CONFIGURATION: {
                     fill_style : function(node) { return re.plot.colors.node_colors(node.source);},          //required
                     stroke_style : function(node) { return re.plot.colors.node_colors(node.source);},          //required
-                    track_height : 50,           //required
-                    tile_height:20,                //required
+                    track_height : 60,           //required
+                    tile_height:10,                //required
                     track_padding: 20,             //required
-                    tile_padding:6,              //required
+                    tile_padding:5,              //required
                     tile_overlap_distance:1 * re.MILLION,
                     notifier:tile_listener,         //optional
                     track_fill_style : pv.color('#EEDEDD'),
@@ -783,7 +783,7 @@ function linear_plot(obj) {
                 },
                 data_array : locations
             },  { type: 'glyph',
-                label : 'Unmapped Feature Correlates',
+                label : 'Associations lacking Genomic Coordinates',
                 description : '',
                 CONFIGURATION: {
                     fill_style : function(hit) { return re.plot.colors.node_colors(hit.source);},
@@ -806,7 +806,7 @@ function linear_plot(obj) {
                 data_array : hit_map
             },
             { type: 'glyph',
-                label : 'Proximal Feature Predictors',
+                label : 'Proximal Feature Associations',
                 description : '',
                 CONFIGURATION: {
                     fill_style : function(link) { return re.plot.colors.link_sources_colors([link.sourceNode.source,link.targetNode.source])},
@@ -829,7 +829,7 @@ function linear_plot(obj) {
                 data_array : neighbor_map
             },
             { type: 'tile',
-                label : 'Distal Intra-Chromosomal Correlates',
+                label : 'Distal Intra-Chromosomal Associations',
                 description : '',
                 CONFIGURATION: {
                     fill_style :  function(link) { return re.plot.colors.link_sources_colors([link.sourceNode.source,link.targetNode.source]);},
