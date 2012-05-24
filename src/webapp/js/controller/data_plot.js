@@ -176,7 +176,6 @@ function renderSFCircleData(data) {
     buildSFCircvis(data, document.getElementById('circle-panel'));
     var field = re.display_options.circvis.rings.pairwise_scores.value_field;
     var association  = re.model.association.types[re.model.association_map[field]];
-
     colorscale_draw( association,'circle-colorscale-panel');
 }
 
@@ -197,8 +196,6 @@ function initiateDetailsPopup(link) {
     var e =new vq.events.Event('click_association','vis',link);
     e.dispatch();
 }
-
-
 
 function colorscale_draw(association_obj, div) {
     var color_scale = re.display_options.circvis.rings.pairwise_scores.color_scale;
@@ -664,7 +661,7 @@ function pathway_members_draw(div,anchor,networks) {
 		return d[0];
 	});
       
-    drawPanel.add(pv.Label)
+    /*drawPanel.add(pv.Label)
         .textAlign('left')
         .top(function(){
 		return (re.ui.getCurrentPathwayMembers().split(",").length)*13 + 20;})
@@ -672,6 +669,7 @@ function pathway_members_draw(div,anchor,networks) {
         .text('Genes not in feature matrix')
         .textStyle("red")
         .font("12px helvetica");
+    */
    vis.render();
 }
 
@@ -683,7 +681,20 @@ function legend_draw(div,anchor) {
     var current_map = pv.numerate(current_data);
     var anchor = anchor || 'top-right';
     var width=800, height=800;
-    var legend_height = (30 + current_locatable_data.length * 13 * 3), legend_width = 150;
+	var padding = 20;
+	var indent = 12;
+	var lineHeight = 12;
+	var nFeatureTypes = current_locatable_data.length;
+
+	var variableTypeBoxHeight = padding + 5 + nFeatureTypes * lineHeight;
+
+	var dataRingTypes = ['Cytogenetic','Gene Expression','Methylation','Copy Number','Unmapped Associations'];
+
+	var dataRingBoxHeight = padding + dataRingTypes.length * lineHeight;
+	var quantileBoxHeight = padding + Object.keys(re.plot.colors.quantinfo).length * lineHeight;
+	// Three legend boxes on top of each other
+    var legend_height = variableTypeBoxHeight + dataRingBoxHeight + quantileBoxHeight + 3 * 5;
+	var legend_width = 150;
     var top = 20, left = 0;
     if (arguments[1] != undefined) {anchor = arguments[1];}
     switch(anchor) {
@@ -702,111 +713,102 @@ function legend_draw(div,anchor) {
             break;
     }
     re.plot.colors.link_sources_colors = function(link) { return re.plot.link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
+	// Container for all sub-legends (variable types, data rings, and quantiles)
     var vis= new pv.Panel()
         .left(left)
         .top(top)
-        .width(legend_width + 100)
-        .height(legend_height + 120)
+        .width(legend_width)
+        .height(legend_height)
         .lineWidth(1)
         .strokeStyle('black')
         .canvas(div);
+
+	// Create variable type sub-legend box
     var drawPanel = vis.add(pv.Panel)
-        .top(20)
-        .left(0);
+
+	// Draw title for variable type sub-legend box:
+	// Take it 5px away from top and 12px away from the left 
     drawPanel.add(pv.Label)
         .textAlign('left')
-        .top(10)
-        .left(12)
-        .text('Features')
-        .font("14px helvetica");
+        .left(indent)
+		.top(padding)
+        .text('Variable Types')
+        .font("15px helvetica"); // Title that starts from 5px from the top and extends to 20px from the top
+
     var color_panel = drawPanel.add(pv.Panel)
-        .left(10)
-        .top(10);
-    var entry =  color_panel.add(pv.Panel)
+		.top(padding)        
+		.left(indent);
+
+    var entry = color_panel.add(pv.Panel)
         .data(current_locatable_data)
-        .top(function() { return this.index*12;})
-        .height(12);
+        .top(function() { return this.index * lineHeight;})
+        .height(lineHeight);
     entry.add(pv.Bar)
         .left(0)
-        .width(12)
+        .width(lineHeight)
         .top(1)
-        .bottom(1)
+        .bottom(0)
         .fillStyle(function(type) { return re.plot.colors.node_colors(type);});
     entry.add(pv.Label)
         .text(function(id) { return re.label_map[id] || id;})
         .bottom(0)
-        .left(20)
+        .left(lineHeight)
         .textAlign('left')
         .textBaseline('bottom')
         .font("11px helvetica");
 
      var ringPanel = vis.add(pv.Panel)
-        .top(function(){ return current_locatable_data.length*12;})
-        .left(0);
+        .top(variableTypeBoxHeight)
+        .left(0); // .top(function(){ return current_locatable_data.length*12;})
 
      ringPanel.add(pv.Label)
         .textAlign('left')
-        .top(function(){ return current_locatable_data.length*12 + 22;})
-        .left(12)
+        .top(padding) // 22
+        .left(indent)
         .text('Data Rings')
-        .font("14px helvetica");
+        .font("15px helvetica");
 
-     var datarings =  ringPanel.add(pv.Panel)
-        .data(['Cytogenetic','Gene Expression','Methylation','Copy Number','Unmapped Associations'])
-        .top(function() { return this.index*12 + 66;})
-        .height(12);
+     var datarings = ringPanel.add(pv.Panel)
+        .data(dataRingTypes)
+        .top(function() { return padding + 5 + this.index * lineHeight;})
+        .height(lineHeight);
 	datarings.add(pv.Label)
         .textAlign('left')
-        .left(10)
+        .left(indent)
         .text(function (d){return d;})
 	.textBaseline('bottom')
         .font("11px helvetica");
 
      var quantPanel = vis.add(pv.Panel)
-        .top(function(){ return current_locatable_data.length*12 + 88;})
+        .top(variableTypeBoxHeight + dataRingBoxHeight)
         .left(0);
 
-     ringPanel.add(pv.Label)
+     quantPanel.add(pv.Label)
         .textAlign('left')
-        .top(function(){ return current_locatable_data.length*12 + 105;})
-        .left(12)
+        .top(padding)
+        .left(indent)
         .text('Quantile colors')
-        .font("14px helvetica");
+        .font("15px helvetica");
 
-     var qrings =  ringPanel.add(pv.Panel)
+     var qrings =  quantPanel.add(pv.Panel)
         .data(Object.keys(re.plot.colors.quants))
-        .top(function() { return this.index*12 + 145;})
-        .height(12);
-
-       /* datarings.add(pv.Label)
-        .textAlign('left')
-        .left(25)
-        .text(function (d){return d;})
-        .textBaseline('bottom')
-        .font("11px helvetica");
-      */
+        .top(function() { return padding + this.index * lineHeight;})
+        .height(lineHeight);
        qrings.add(pv.Bar)
-        .left(10)
-        .width(12)
+        .left(indent)
+        .width(lineHeight)
         .top(1)
-        .bottom(1)
+        .bottom(0)
         .fillStyle(function(type) { 
 		return re.plot.colors.quants[type];
 	})
 	qrings.add(pv.Label)
         .text(function(q) { return q + " " + re.plot.colors.quantinfo[q];})
         .bottom(0)
-        .left(20)
+        .left(25)
         .textAlign('left')
         .textBaseline('bottom')
         .font("11px helvetica");
-
-	/*datarings.add(pv.Label)
-        .font('11px helvetica')
-	.left(30)
-	.textBaseline
-        .text(function(d){return d;});;
-	*/
    vis.render();
 }
 
@@ -832,7 +834,9 @@ function singlefeature_circvis(parsed_data,div) {
     }
 
     var karyotype_tooltip_items = {
-        'Cytogenetic Band' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
+        'Cytogenetic Band' : function(feature) { 
+		return  vq.utils.VisUtils.options_map(feature)['label'];
+	},
         Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
     },
 
@@ -984,7 +988,8 @@ function wedge_plot(parsed_data,div) {
         '-' + link.targetNode.end + ' ' + link.targetNode.label_mod;};
 
     var karyotype_tooltip_items = {
-        'Cytogenetic Band' : function(feature) { return  vq.utils.VisUtils.options_map(feature)['label'];},
+        'Cytogenetic Band' : function(feature) { 
+		return  vq.utils.VisUtils.options_map(feature)['label'];},
         Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
     },
     methband_tooltip_items = {
@@ -1014,7 +1019,6 @@ function wedge_plot(parsed_data,div) {
                 feature["value"] = qvalue_dic[qistr.split("_")[1]];
                 feature["start"] = feature["start"] - qoffset;
                 feature["end"] = feature["end"] + qoffset;
-                //filtered_list[mi] = feature;
         }
 	return feature;
     };
@@ -1050,27 +1054,17 @@ function wedge_plot(parsed_data,div) {
         return f['source'] == 'CNVR';
     });
     var qoffset = 750000;	
-    //re.plot.colors.quants
-    var meth_qvalue_dic = {"Q1":"#33FF33", "Q2":"#00FF00","Q3":"#009900","Q4":"#006600"};
+    //var meth_qvalue_dic = {"Q1":"#33FF33", "Q2":"#00FF00","Q3":"#009900","Q4":"#006600"};
     for (var mi = 0; mi < meth_filtered_list.length; mi++){
-        meth_filtered_list[mi] = parse_qt_info(mi, meth_filtered_list, meth_qvalue_dic);
-	/*var methfeature = meth_filtered_list[mi];		
-	var qistr = methfeature["qtinfo"];
-	if (qistr != null && qistr.indexOf("_") != -1){
-		methfeature["value"] = meth_qvalue_dic[qistr.split("_")[1]];
-		methfeature["start"] = methfeature["start"] - qoffset;
-		methfeature["end"] = methfeature["end"] + qoffset;
-		meth_filtered_list[mi] = methfeature;
-	}*/	
+        meth_filtered_list[mi] = parse_qt_info(mi, meth_filtered_list, re.plot.colors.quants);
     }
-
-    var gexp_qvalue_dic = {"Q1":"#AD85FF", "Q2":"#9966FF","Q3":"#5C3D99","Q4":"#3D2966"};
+    //var gexp_qvalue_dic = {"Q1":"#AD85FF", "Q2":"#9966FF","Q3":"#5C3D99","Q4":"#3D2966"};
     for (var mi = 0; mi < gexp_filtered_list.length; mi++){
-        gexp_filtered_list[mi] = parse_qt_info(mi, gexp_filtered_list, gexp_qvalue_dic);
+        gexp_filtered_list[mi] = parse_qt_info(mi, gexp_filtered_list, re.plot.colors.quants);
     }
-    var cnvr_qvalue_dic = {"Q1":"#FF3333", "Q2":"#FF0000","Q3":"#B20000","Q4":"#800000"};
+    //var cnvr_qvalue_dic = {"Q1":"#FF3333", "Q2":"#FF0000","Q3":"#B20000","Q4":"#800000"};
     for (var mi = 0; mi < cnvr_filtered_list.length; mi++){
-        cnvr_filtered_list[mi] = parse_qt_info(mi, cnvr_filtered_list, cnvr_qvalue_dic);
+        cnvr_filtered_list[mi] = parse_qt_info(mi, cnvr_filtered_list, re.plot.colors.quants);
     }	
     var data = {
         GENOME: {
