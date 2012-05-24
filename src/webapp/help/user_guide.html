@@ -1,0 +1,598 @@
+<html>
+<head><title>User Guide - Multi-Scale Association
+    Explorer</title>
+    <style
+            type="text/css">ol {
+        margin: 0;
+        padding: 0
+    }
+
+    p {
+        margin: 0
+    }
+
+    .c2 {
+        vertical-align: top;
+        width: 230.4pt;
+        border-style: solid;
+        border-color: #000000;
+        border-width: 1pt;
+        padding: 5pt 5pt 5pt 5pt
+    }
+
+    .c7 {
+        vertical-align: top;
+        width: 118.8pt;
+        border-style: solid;
+        border-color: #000000;
+        border-width: 1pt;
+        padding: 5pt 5pt 5pt 5pt
+    }
+
+    .c16 {
+        vertical-align: top;
+        width: 117pt;
+        border-style: solid;
+        border-color: #000000;
+        border-width: 1pt;
+        padding: 5pt 5pt 5pt 5pt
+    }
+
+    .c15 {
+        vertical-align: top;
+        width: 351pt;
+        border-style: solid;
+        border-color: #000000;
+        border-width: 1pt;
+        padding: 5pt 5pt 5pt 5pt
+    }
+
+    .c8 {
+        list-style-type: circle;
+        margin: 0;
+        padding: 0
+    }
+
+    .c11 {
+        max-width: 468pt;
+        background-color: #ffffff;
+        padding: 72pt 72pt 72pt 72pt
+    }
+
+    .c14 {
+        list-style-type: disc;
+        margin: 0;
+        padding: 0
+    }
+
+    .c10 {
+        padding-left: 0pt;
+        margin-left: 36pt
+    }
+
+    .c18 {
+        color: #1155cc;
+        text-decoration: underline
+    }
+
+    .c0 {
+        height: 11pt;
+        direction: ltr
+    }
+
+    .c6 {
+        color: inherit;
+        text-decoration: inherit
+    }
+
+    .c5 {
+        padding-left: 0pt;
+        margin-left: 72pt
+    }
+
+    .c4 {
+        line-height: 1.0
+    }
+
+    .c13 {
+        font-size: 14pt
+    }
+
+    .c19 {
+        text-align: center
+    }
+
+    .c12 {
+        font-style: italic
+    }
+
+    .c17 {
+        margin-left: 36pt
+    }
+
+    .c3 {
+        font-weight: bold
+    }
+
+    .c1 {
+        direction: ltr
+    }
+
+    .c9 {
+        border-collapse: collapse
+    }
+
+    .title {
+        padding-top: 24pt;
+        line-height: 1.15;
+        text-align: left;
+        color: #000000;
+        font-size: 36pt;
+        font-family: Arial;
+        font-weight: bold;
+        padding-bottom: 6pt
+    }
+
+    .subtitle {
+        padding-top: 18pt;
+        line-height: 1.15;
+        text-align: left;
+        color: #666666;
+        font-style: italic;
+        font-size: 24pt;
+        font-family: Georgia;
+        padding-bottom: 4pt
+    }
+
+    body {
+        color: #000000;
+        font-size: 11pt;
+        font-family: Arial
+    }
+
+    h1 {
+        padding-top: 24pt;
+        line-height: 1.15;
+        text-align: left;
+        color: #000000;
+        font-size: 24pt;
+        font-family: Arial;
+        font-weight: bold;
+        padding-bottom: 6pt
+    }
+
+    h2 {
+        padding-top: 18pt;
+        line-height: 1.15;
+        text-align: left;
+        color: #000000;
+        font-size: 18pt;
+        font-family: Arial;
+        font-weight: bold;
+        padding-bottom: 4pt
+    }
+
+    h3 {
+        padding-top: 14pt;
+        line-height: 1.15;
+        text-align: left;
+        color: #000000;
+        font-size: 14pt;
+        font-family: Arial;
+        font-weight: bold;
+        padding-bottom: 4pt
+    }
+
+    h4 {
+        padding-top: 12pt;
+        line-height: 1.15;
+        text-align: left;
+        color: #000000;
+        font-size: 12pt;
+        font-family: Arial;
+        font-weight: bold;
+        padding-bottom: 2pt
+    }
+
+    h5 {
+        padding-top: 11pt;
+        line-height: 1.15;
+        text-align: left;
+        color: #000000;
+        font-size: 11pt;
+        font-family: Arial;
+        font-weight: bold;
+        padding-bottom: 2pt
+    }
+
+    h6 {
+        padding-top: 10pt;
+        line-height: 1.15;
+        text-align: left;
+        color: #000000;
+        font-size: 10pt;
+        font-family: Arial;
+        font-weight: bold;
+        padding-bottom: 2pt
+    }</style>
+</head>
+<body
+        class="c11"><p class="c1"><span class="c13 c3">User Guide for Multi-Scale Association
+Explorer </span></p>
+
+<p class="c0"><span class="c13 c3"></span></p>
+
+<p
+        class="c1"><span>The Multi-Scale Association Explorer (MSAE) is a visualization tool that
+allows exploration of analytically-derived associations among a set of features. &nbsp;The primary context of the visualization
+     is the genomic coordinates of the features. Features that do not possess a genomic location are represented,
+    as well.  The data most often includes a combination of:
+    <ul><li>Genomic: gene expression, mutation calls, copy number variation, methylation, microRNA</li>
+        <li>Clinical: patient attributes, patient diagnosis, clinical notations</li>
+        <li>Pathological: tissue sample analysis, blood sample analysis, tumor analysis</li>
+        </ul>
+&nbsp;</span></p>
+
+<p class="c0"><span></span></p>
+
+
+<p class="c1"><span>The association value may be any numerical, categorical, or statistical value that gives some evidence
+    for an association
+between a pair of feature variables. &nbsp;The precise meaning of the value depends on the analysis used to derive the association.</span></p>
+
+<p
+        class="c0"><span></span></p>
+
+<p class="c1"><span>The MSAE
+consists of a Genome-level View in the left pane and a Filter Associations
+window in the right pane.</span></p>
+
+<p class="c0"><span></span></p>
+
+<p
+        class="c1"><img src="images/msae_start.png"></p>
+
+<p
+        class="c0"><span></span></p>
+
+<p class="c1"><span class="c3">Genome-level
+View</span></p>
+
+<p class="c0"><span class="c3"></span></p>
+
+<p class="c1"><span>The
+human genome is displayed in circular format with the chromosomes designated by
+gray circular labels with black print. &nbsp;The data is overlaid on this genome
+as a series of &nbsp;three concentric rings:</span></p>
+
+<p
+        class="c0"><span></span></p>
+
+<p class="c1"><span
+        class="c3">Features</span><span>&nbsp;- (Outermost ring) color-coded ticks
+represent different molecular features</span></p>
+
+<p
+        class="c0"><span></span></p>
+
+<p class="c1"><span class="c3">Cytogenetic Bands
+</span><span>- (Middle ring) Genome labeled with cytogenetic bands</span></p>
+
+<p
+        class="c0"><span></span></p>
+
+<p class="c1"><span class="c3">Associations lacking genomic coordinates</span><span>&nbsp;- (Inner ring) A display of associations in
+    which one feature possesses genomic coordinates (the location of the displayed association) and the second feature does not.
+ </span></p>
+
+<p class="c0"><span></span></p>
+
+<p class="c1"><img
+        src="images/msae_circvis.png"></p>
+
+<p class="c0"><span class="c13
+c3"></span></p>
+
+<p class="c1"><span class="c13 c3">Features </span></p>
+
+<p
+        class="c1"><span>The outer ring consists of ticks which are color-coded to
+represent the various feature types used in the analysis.
+&nbsp;For example, green represents DNA methylation data. &nbsp;</span></p>
+
+<p
+        class="c0"><span></span></p>
+
+<p class="c1"><span class="c3"><a id="info_card">Information
+    Card</a></span></p>
+
+<p class="c1"><span>Hovering over a tick displays a small
+information card. &nbsp;This card includes Feature, Source, Location,
+Annotation, and Aggressiveness fields as well as links to external public
+resources.  This card can be moved on the display with your mouse by
+placing the pointer on the black rectangle in the upper left corner. &nbsp;The
+card can be pinned to the display by clicking on the &ldquo;T&rdquo; in the
+upper left corner, which switches over to an &ldquo;O&rdquo; on pinning.
+&nbsp;Multiple cards can be pinned to the display in order to compare data from
+different molecular features.</span></p>
+
+<p class="c0"><span class="c3"></span></p>
+
+<p class="c3"><span>
+<a href="/help/msae/video/tooltips.html">Video tutorial on information cards.</a>
+</span></p>
+
+<p class="c1"><span>&nbsp;</span></p>
+
+<p
+        class="c1"><span>Example of (pinned) information cards:</span><br><br></p>
+
+<p
+        class="c1"><img src="images/msae_infocard.png"></p>
+
+<p
+        class="c0"><span></span></p>
+
+<p class="c1"><span>Clicking a tick brings up a
+chromosome-level view with a zoom-in on the designated region (see more
+information under </span><span class="c3"><a href="#chromosome">Chromosome-level
+    View</a></span><span>).</span></p>
+
+<p class="c0"><span></span></p>
+
+<p class="c1"><span
+        class="c3 c13">Cytogenetic Bands</span></p>
+
+<p class="c1"><span>The middle ring
+displays the genome with cytogenetic bands.</span></p>
+
+<p
+        class="c0"><span></span></p>
+
+<p class="c1"><span>Hovering over a band displays a
+small information card which can be moved and pinned to the display as described
+under </span><span class="c3"><a href="#info_card">Information Card</a></span><span>. &nbsp;This
+information card includes the cytogenetic band and location
+information.</span></p>
+
+<p class="c0"><span></span></p>
+
+<p class="c1"><span
+        class="c13 c3">Association Value</span></p>
+
+<p
+        class="c1"><span>Hovering over a graph edge or unlocated association (inner ring) displays a small information card which can
+be moved and pinned to the display as described under </span><span
+        class="c3"><a href="#info_card">Information Card</a></span><span>. </span></p>
+
+<p class="c0"><span></span></p>
+
+<p class="c1"><span class="c3"><a id="chromosome">Chromosome-level View</a></span></p>
+
+<p class="c1"><span>After clicking on
+a feature tick, graph node, or chromosome label, the chromosome-level view is shown at
+the bottom of the screen. &nbsp;The linear browser displays several tracks mapped to chromosomal position:
+    <ul>
+    <li>Bottom-most: the position and length of each feature tick in the current query result.</li>
+    <li>Second from Bottom: associations possessing one feature that has no genomic coordinate.  The location of the
+    association corresponds to the feature possessing a genomic location.</li>
+        <li>Second from Top: associations between proximal features.  Associated genomic features that are located in
+        close proximity are displayed as a single dot.</li>
+        <li>Top-most: associations between distal features.  Associated genomic features that are located on the same chromosome, but
+        at a distance such that a line/edge is displayed.</li>
+        </ul>
+    &nbsp;A full-chromosome map
+is at the bottom of this view.</span></p>
+
+<p class="c0"><span class="c3"></span></p>
+
+<p class="c3"><span>
+<a href="/help/msae/video/linear_browser.html">Video tutorial on the chromosome-level view</a>
+</span></p>
+
+<p class="c0"><span></span></p>
+
+<p class="c1"><span>Below is an example of a zoomed-in region on chromosome Y.
+
+<p class="c0"><span class="c3"></span></p>
+
+<p class="c1"><img src="images/msae_linear_intro.png"></p>
+
+<p class="c0"><span></span></p>
+
+<p class="c1"><span>Hovering over
+a feature type or association displays a small information card which
+can be moved and pinned to the display as described under </span><span
+        class="c3"><a href="#info_card">Information Card</a></span><span>. </span></p>
+
+<p
+        class="c0"><span></span></p>
+
+<p class="c1"><span>A pink scaling window is present
+at the bottom of this view. &nbsp;Clicking on the window and moving it with your
+mouse allows different regions to be shown in the display. &nbsp;In addition,
+the pink scaling window can be resized to display larger or smaller regions by
+clicking on the edge of the window and dragging to the desired
+size.</span></p>
+
+<p class="c0"><span></span></p>
+
+<p class="c1"><span>Rescaling in
+the association and feature types panels can be done by clicking on
+the association or feature types panels. &nbsp;A purple scaling window
+will appear and this can be resized to zoom-in on the region of
+interest</span><span>.
+<p class="c0"><span></span></p><p
+            class="c0"><span></span></p><p class="c1"><span class="c3"><a id="filtering">Filter Associations
+        Window</a></span></p><p class="c0"><span class="c3"></span></p><p
+            class="c1"><span>You </span><span>can look at data of interest by using the
+filter window. &nbsp;You create a filter and then press Filter to run the
+filter. &nbsp;The genome-level view will then reflect the filter results.
+&nbsp;Reset resets the filter but does not reset the genome-level view.
+&nbsp;</span><span>To return to a default view, click on Reset and then click on
+Filter.</span>
+<p class="c0"><span></span></p><p class="c1"><span>There are several filter fields
+under two subheadings - Molecular Feature and Association</span></p><p
+            class="c0"><span></span></p><p class="c1"><span>Molecular Feature</span></p><ol
+            class="c14" start="1">
+        <li class="c10 c1"><span>Type allows filtering by a
+specific type of experimental feature (for example, gene expression). &nbsp;The
+default is All.</span></li>
+        <li class="c10 c1"><span>Label allows filtering by
+gene symbol (ex. SCN5A). &nbsp;This field allows inclusion of an asterisk for
+wildcard matching (ex. APC*)</span></li>
+        <li class="c10 c1"><span>Lookup finds a
+chromosomal location for a particular gene symbol. &nbsp;For example, you can
+type SCN5A in the Label field and press Lookup. &nbsp;The result is the
+chromosomal coordinates for this gene.</span></li>
+        <li class="c10
+c1"><span>Chromosome allows filtering by chromosome number. </span></li>
+        <li
+                class="c10 c1"><span>Start and Stop allow filtering by genomic coordinates.
+&nbsp;</span></li>
+    </ol><p class="c0"><span></span></p><p
+            class="c1"><span>Association</span></p><ol class="c14" start="6">
+        <li class="c10
+c1"><span>The association type (if there are multiple types) can be selected such that the query results are ordered by that value.
+            &nbsp;You can
+select a numeric operation and a specific numeric association value.  Depending on the value type, the filter field is displayed
+            in a variety of manners.  The range-type field allows the user to filter the value in a variety of manners using a pull-down window.
+&nbsp;There are 4 numeric options in the pull-down window:
+&nbsp;</span></li>
+    </ol><p class="c0"><span></span></p><ol class="c8"
+                                            start="1">
+        <li class="c5 c1"><span>&gt;= greater than or equal to a specific
+value &nbsp; &nbsp;</span></li>
+        <li class="c1 c5"><span>&lt;= less than or equal
+to a specific value &nbsp; </span></li>
+        <li class="c5 c1"><span>Abs is Absolute
+value. &nbsp;For example, Abs=0.5 means displays association values &gt;= 0.5
+and &lt;=-0.5. &nbsp; The default value is Abs=0.</span></li>
+        <li class="c5
+c1"><span>Btw is Between. &nbsp;For example, Btw=0.5 means display
+ association values between -0.5 and 0.5.</span></li>
+    </ol><p class="c0
+c17"><span></span></p><ol class="c14" start="1">
+        <li class="c10 c1"><span>Maximum
+Results specifies the maximum number of results to display in the genome-level
+view. &nbsp;Please note that the time required to load the display is dependent
+on the maximum number of results that need to be loaded.
+&nbsp;</span></li>
+    </ol><p class="c0"><span></span></p><p
+            class="c0"><span></span></p><p class="c1"><span>Here are a few examples of
+filtering associations:</span></p><p class="c0"><span></span></p><p
+            class="c1"><span>1. Gene Expression Gene Search - RPS4Y1</span></p><p
+            class="c1"><span>Go to the dataset at <a target="_blank" href="http://explorer.cancerregulome.org/re/?dataset=gbm_1006_nomask&t_label=RPS4Y1">
+        http://explorer.cancerregulome.org/re/?dataset=gbm_1006_nomask&t_label=RPS4Y1</a>.  Click on reset if you have already used the
+filter.</span></p><p class="c1"><span>Target Type - Gene Expression</span></p><p
+            class="c1"><span>Target Label - RPS4Y1</span></p><p class="c1"><span>Click on
+Filter</span></p><p class="c0"><span></span></p><p class="c1"><img src="images/msae_gene_filter.png"></p><p class="c0">
+        <span></span></p><p
+            class="c0"><span></span></p><p class="c0"><span></span></p><p
+            class="c0"><span></span></p><p class="c1"><span>2. Methylation Search -
+MLH1</span></p><p class="c1"><span>Click on reset if you have already used the
+filter.</span></p><p class="c1"><span>Target Type - microRNA</span></p><p
+                class="c1"><span>Target Label- hsa-miR-650</span></p><p class="c1"><span>Click on
+Filter</span></p><p class="c0"><span></span></p><p class="c1"><img src="images/msae_type_label.png"></p><p class="c0"><span></span>
+    </p><p
+            class="c1"><span>3. Gene Aberration Search</span></p><p class="c1"><span>Click
+on reset if you have already used the filter.</span></p><p class="c1"><span>Target Type
+- Gene Aberration</span></p><p class="c1"><span>Click on Filter.</span></p><p
+            class="c0"><span></span></p><p class="c1"><img
+            src="images/msae_gene_aberration.png"></p><p class="c0"><span></span></p><p
+            class="c0"><span></span></p><p class="c1"><span>4. Chromosome Search -
+20</span></p><p class="c1"><span>Click on reset if you have already used the
+filter.</span></p><p class="c1"><span>Type - All</span></p><p
+            class="c1"><span>Target Chromosome - 20</span></p><p class="c1"><span>Click on
+Filter</span></p><p class="c0"><span></span></p><p class="c1"><img
+            src="images/msae_chromosome.png"></p><p class="c0"><span
+            class="c3"></span></p><p class="c0"><span class="c3"></span></p><p
+            class="c0"><span></span></p><p class="c1"><span>5. &nbsp;Association Values -
+pvalue<= 0.01.</span></p><p
+            class="c1"><span>Click on reset if you have already used the
+            filter.</span></p><p class="c1"><span>Target Type - Gene Expression</span></p><p
+            class="c1"><span>In the Association subpanel, set the pvalue <= 0.001</span>
+    <span>
+        Order By - Pvalue
+    </span></p><p class="c1"><span>Click on Filter</span></p><p
+            class="c0"><span></span></p><p class="c1"><img src="images/msae_pvalue.png"></p><p class="c0"><span
+            class="c3"></span></p><p class="c0"><span class="c3"></span></p><p
+            class="c1"><span class="c3">Display Data and Saving Data</span></p><p
+            class="c1"><span>Data Table</span></p><p class="c1"><span>A table of the data
+being displayed graphically can be seen under the Data Table tab. &nbsp;The data
+in the table can be sorted in terms of each column by clicking on the column
+label.</span></p><p class="c0"><span></span></p><p class="c1"><span>Saving
+Data</span></p><p class="c1"><span>Data can be saved by using the Data menu and
+selecting Export. &nbsp;Data tables can be saved with the TSV or CSV option.
+&nbsp;Visualizations of the genome-level view and chromosome-level view can be
+saved with the SVG or PNG option. &nbsp;</span></p><p
+            class="c0"><span></span></p>
+
+<p class="c1"><span class="c3">Advanced
+Options</span></p><p class="c1"><span>Under the Display menu, there are several
+options to customize the genome-level view. &nbsp;</span></p><ol class="c14"
+                                                                 start="1">
+        <li class="c1 c10"><span>Outer Ticks allows you to modify Overlap
+Distance, Wedge Height, and Wedge Width.</span></li>
+        <li class="c10
+c1"><span>Rotate Clockwise allows you to rotate the genome-level view by a
+specified number of degrees.</span></li>
+        <li class="c10 c1"><span>Rings allows
+you to turn rings on and off. &nbsp;The default is to display Cytogenetic Bands
+and Aggressiveness Scores. &nbsp;</span></li>
+    </ol><p
+            class="c0"><span></span></p><p class="c1"><span>Under the Mode menu, selecting
+Circular Plot allows you to select one of two options to interact with the
+genome-level view. &nbsp;Explore fixes the view on the window. &nbsp;This is the
+default. &nbsp;Navigate allows you to move the view so you can focus on one area
+of the genome. &nbsp;If you select Navigate, you can then click on any region of
+the concentric circles and drag the entire circle to a different location.
+&nbsp;Changing the mode back to Explore fixes the view on the window
+again.</span></p>
+
+<p class="c0"><span class="c3"></span></p>
+<p class="c3"><span>
+<a href="/help/msae/video/display_options.html">Video tutorial advanced display options.</a>
+</span></p>
+
+<p class="c0"><span></span></p><p class="c1"><span
+            class="c3">Walk-through for One Feature </span></p><p class="c0"><span
+            class="c3"></span></p><p class="c1"><span>1. Gene Search for Gene Expression -
+RPS4Y1</span></p><p class="c1"><span>Go to the dataset at <a target="_blank" href="http://explorer.cancerregulome.org/re/?dataset=gbm_1006_nomask&t_label=RPS4Y1">
+        http://explorer.cancerregulome.org/re/?dataset=gbm_1006_nomask&t_label=RPS4Y1</a>.
+        In the Target filter window, select Gene Expression
+under Type. &nbsp;Then type RPS4Y1 in the Target Label Box. &nbsp;
+        Click on Filter.</span></p><p class="c0"><span></span></p><p class="c1"><img src="images/msae_gene_filterpanel.png"></p><p class="c0">
+        <span></span></p><p
+            class="c1"><span>2. Use your mouse to place the arrow over the blue tick
+representing RPS4Y1 gene expression ( to see the information card.)  It is the left-most blue tick on Chromosome Y.</span></p><p
+            class="c0"><span></span></p><p class="c1"><span>3. Pin the information card to
+the window. &nbsp;To do this, click on the &ldquo;T&rdquo; in the upper left
+corner. &nbsp;The T will switch over to an &ldquo;O&rdquo; after pinning.
+</span></p><p class="c1"><br><img src="images/msae_gene_infocard.png"></p><p class="c0"><span></span></p><p
+            class="c1"><span>4. To see
+additional information about this gene, click on one of the links at the bottom
+of the information card.</span></p><p class="c0"><span></span></p><p
+            class="c1"><span>5. Click on the blue tick to open the RPS4Y1 feature in the
+chromosome-level view.</span></p><p class="c0"><span></span></p><p
+            class="c1"><span>6. In the chromosome-level view, you can see the RPS4Y1 feature
+on the feature types panel and associations on the association panels above.</span></p><p
+            class="c1"><br><img src="images/msae_linear_gene.png"></p><p
+            class="c0"><span>7. Hover over the dot in the "Proximal Feature Predictors" track above the RPS4Y1 gene expression feature.
+        An information card displays the association with a copy number variation region feature on Chromosome Y.  This is
+        the large orange tile displayed in the feature track.
+    </span></p><p
+            class="c1"><br><img src="images/msae_linear_proximal.png"></p><p class="c0"><span>8. Click on the dot representing the above-described association.  A plot appears in a new window.
+    The distribution of association values is shown between the two features in the selected association.</span></p><p
+            class="c0"><span></span></p>
+    <p
+            class="c1"><br><img src="images/msae_scatterplot.png"></p><p class="c0"><span>
+        9.  In the new Details Window, click on the tab at the top marked "MEDLINE".  An article in the PubMed database is
+        displayed which relates to the expression of RPS4Y1 and chromosomal abnormalities on sex chromsomes.   The article is displayed
+        when the PMID is clicked on (blue link.)
+            </span></p><p
+            class="c0"><span></span></p>
+    <p
+            class="c1"><br><img src="images/msae_medline.png"></p><p class="c0"><span></span></p>
+</body>
+</html>
