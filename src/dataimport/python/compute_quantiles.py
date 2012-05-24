@@ -59,21 +59,17 @@ def compute_quantiles(afmFile,quantileFile):
 
 	fullData.sort()
 
-	QT = [percentile(fullData,0.5),percentile(fullData,0.7),percentile(fullData,0.95)]
+	QT = [fullData[0],percentile(fullData,0.05),percentile(fullData,0.25),percentile(fullData,0.75),percentile(fullData,0.95),fullData[-1]]
     
 	for line in quantiles:
 
 		q = line[1]	
 
-		if q < QT[0]:
-			line[2] = 'Q1'
-		elif QT[0] <= q and q < QT[1]:
-			line[2] = 'Q2'
-		elif QT[1] <= q and q < QT[2]:
-			line[2] = 'Q3'
-		else: 
-			line[2] = 'Q4'
- 
+		for i in range(0,len(QT)-1):
+			if QT[i] <= q and q <= QT[i+1]:
+				line[2] = 'Q'+str(i+1)
+				break
+		
 		quantileWriter.writerow(line)
 
 def main(afmFile,quantileFile):

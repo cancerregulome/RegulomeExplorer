@@ -18,6 +18,9 @@ def getAfmDescription(config):
 def getCollapseEdgeDirection(config):
 	return config.get("build", "collapse_edge_directions")
 
+def getReverseDirection(config):
+	return config.get("build", "reverse_directions")
+
 def getBuildComment(config):
         return config.get("build", "comment")
 
@@ -60,7 +63,8 @@ def buildMeta(metaf, reinstance="tut"):
 	os.system(rf_schema_cmd)	
 	#process associations
 	collapseDirection = getCollapseEdgeDirection(config)
-	process_rf_associations_cmd = "python parse_associations_rfex.py %s %s %s %s %s %s" %(afm, associations, dslabel, config_file, annotations, collapseDirection)
+	reverseDirection = getReverseDirection(config)
+	process_rf_associations_cmd = "python parse_associations_rfex.py %s %s %s %s %s %s %s" %(afm, associations, dslabel, config_file, annotations, collapseDirection, reverseDirection)
 	print process_rf_associations_cmd
 	os.system(process_rf_associations_cmd)
 	

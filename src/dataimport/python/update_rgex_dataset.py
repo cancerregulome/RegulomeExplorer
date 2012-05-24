@@ -56,7 +56,7 @@ def addDataset(label, feature_matrix, associations, method, description, comment
 				print "Unexpected error:", sys.exc_info()[0]
 				raise
 		meta_json_file.close()		
-	insertSql = "replace into regulome_explorer_dataset (label,method,source,contact,comments,dataset_date,description,max_logged_pvalue, input_files) values ('%s', '%s', 'TCGA', '%s', '%s', '%s', '%s', %f, '%s');" %(label, method, contact, comments,currentDate,description, max_logpv, inputfiles)
+	insertSql = "replace into regulome_explorer_dataset (label,method,source,contact,comments,dataset_date,description,max_logged_pvalue, input_files, default_display) values ('%s', '%s', 'Visakorpi/Nykte', 'TUT-CSB', '%s', '%s', '%s', %f, '%s', '%i');" %(label, method, comments,currentDate,description, max_logpv, inputfiles, 1)
 	db_util.executeInsert(config, insertSql)
 
 if __name__=="__main__":

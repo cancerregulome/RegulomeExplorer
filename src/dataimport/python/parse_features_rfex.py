@@ -56,8 +56,11 @@ def process_feature_annotations(annotation_path):
 			continue
 		tk = l.strip().split("\t")		
 		if (len(tk) >= 4 and len(tk[3]) < 3):
-			tk[3] = "chr" + tk[3]
+			tk[3] = "chr" + tk[3]		
 		annotation_hash[tk[0]] = l[0:1] + "\t" + "\t".join(tk[1:]) + "\t" + str(lc)
+		#else:
+		#for clinical and other unmapped features
+		#	annotation_hash[tk[0]] = l[0:1] + "\t" + "\t".join(tk[1:])
 		if (feature_types.get(tk[1]) == None):			
 			feature_types[tk[1]] = 1;
 		lc += 1
