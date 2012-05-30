@@ -346,28 +346,11 @@ function singlefeature_circvis(parsed_data,div) {
     var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
     var ticks = vq.utils.VisUtils.clone(parsed_data['features']);
 
-//    var floor = settings.values.floor === undefined ? min : settings.values.floor;
-//    var ceil = settings.values.ceil === undefined ? max : settings.values.ceil;
-//    if ( floor != min || ceil != max)  {
-//        scatterplot_data = parsed_data['features'].map(function(obj){
-//            var return_obj = vq.utils.VisUtils.clone(obj);
-//            return_obj[field+'_plot'] = Math.max(floor,Math.min(return_obj[field],ceil));
-//            return return_obj;
-//        });
-//        field = field+'_plot';
-//    }
-//    min = floor;
-//    max = ceil;
-//    function re_interpolate(new_domain) {
-//        var old_domain  = settings.color_scale.domain(), old_range = settings.color_scale.range();
-//        var scale = pv.Scale.linear(old_domain);
-//        scale.range.apply(scale,new_domain);
-//        var new_good_domain = old_domain.map(scale);
-//        var new_scale = pv.Scale.linear.apply(pv.Scale,new_good_domain).nice();
-//        new_scale.range.apply(new_scale,old_range);
-//        settings.color_scale= new_scale;
-//    }
-//    re_interpolate([min,max]);
+    //customize feature hovercard config to include association values
+    var tooltips =  re.display_options.circvis.tooltips.feature;
+    re.model.association.types.forEach(function(assoc) {
+            vq.utils.VisUtils.extend(tooltips, assoc.vis.tooltip.entry);
+       });
 
     var data = {
         GENOME: {
@@ -444,7 +427,7 @@ function singlefeature_circvis(parsed_data,div) {
                     shape:'dot',
                     fill_style  : function(feature) {return pairwise_settings.color_scale(feature[field]); },
                     stroke_style  : function(feature) {return pairwise_settings.color_scale(feature[field]); },
-                    tooltip_items : re.display_options.circvis.tooltips.feature,
+                    tooltip_items : tooltips,
                     tooltip_links : re.display_options.circvis.tooltips.feature_links
                     // listener : initiateDetailsPopup
                 }
@@ -672,9 +655,8 @@ function linear_plot(obj) {
             var obj = {};
             re.model.association.types.forEach(function(assoc) {
                 obj[assoc.ui.grid.store_index] = link[assoc.query.id];
-            })
+            });
             var node1_clone = vq.utils.VisUtils.extend(obj,link.node1);
-            node1_clone.start = node1_clone.start; node1_clone.end = node1_clone.end;
             node1_clone.sourceNode = vq.utils.VisUtils.extend({},link.node1);
             node1_clone.targetNode = vq.utils.VisUtils.extend({},link.node2);
             return node1_clone;
@@ -683,9 +665,8 @@ function linear_plot(obj) {
             var obj = {};
             re.model.association.types.forEach(function(assoc) {
                 obj[assoc.ui.grid.store_index] = link[assoc.query.id];
-            })
+            });
             var node1_clone = vq.utils.VisUtils.extend(obj,link.node2);
-            node1_clone.start = node1_clone.start; node1_clone.end = node1_clone.end;
             node1_clone.sourceNode = vq.utils.VisUtils.extend({},link.node1);
             node1_clone.targetNode = vq.utils.VisUtils.extend({},link.node2);
             return node1_clone;
@@ -866,7 +847,7 @@ function linear_plot(obj) {
     }
 
 
-    var e = new vq.events.Event('render_complete','linear',lin_browser);
+    var e = new vq.events.Event('render_complete','linear',obj);
     e.dispatch();
 
     return lin_browser;

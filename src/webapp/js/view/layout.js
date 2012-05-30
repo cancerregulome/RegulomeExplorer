@@ -44,8 +44,8 @@ function registerLayoutListeners() {
             Ext.getCmp('view-region').layout.setActiveItem('rf-graphical');
         }
     });
-    d.addListener('render_complete', 'linear', function(linear) {
-        exposeLinearPlot();
+    d.addListener('render_complete', 'linear', function(obj) {
+        exposeLinearPlot(obj);
     });
     d.addListener('render_complete', 'scatterplot', function(obj) {
         scatterplot_obj = obj;
@@ -580,7 +580,7 @@ function retrieveMedlineDocuments(term1, term2) {
     Ext.StoreMgr.get('dataDocument_grid_store').on({
         beforeload: {
             fn: function(store, options) {
-                store.proxy.setUrl(re.databases.solr.uri + re.databases.solr.select + '?q=%2Btext%3A\"' + term1 + '\" %2Btext%3A\"' + term2 + '\"&fq=%2Bpub_date_year%3A%5B1991 TO 2011%5D&wt=json' + '&hl=true&hl.fl=article_title,abstract_text&hl.snippets=100&hl.fragsize=50000&h.mergeContiguous=true');
+                store.proxy.setUrl(re.databases.solr.uri + re.databases.solr.select + '?q=%2Btext%3A\"' + term1 + '\" %2Btext%3A\"' + term2 + '\"&fq=%2Bpub_date_year%3A%5B1991 TO 2011%5D&wt=json' + '&hl=true&hl.fl=article_title,abstract_text&hl.snippets=100&hl.fragsize=50000&h.mergeContiguous=true&sort=pub_date_year%20desc');
             }
         }
     });
