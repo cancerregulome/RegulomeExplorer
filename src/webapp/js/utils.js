@@ -55,12 +55,13 @@ function parseAnnotationList(feature) {
             return a != '';
         }).join(', ');
     }
-
-    if (feature.source == 'CNVR') {
+    else if (feature.source == 'CNVR') {
         list = feature.label_mod.split('_');
         annotations = list.map(translateCNVRAnnotation).join(', ');
     }
-
+    else {
+         annotations = feature.label_mod == '' ? annotations : feature.label_mod;
+    }
     return annotations;
 }
 
