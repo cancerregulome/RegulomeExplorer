@@ -1639,7 +1639,7 @@ re.windows.details_window = new Ext.Window({
                     }, {
                         xtype: 'checkbox',
                         id: 'scatterplot_discrete_x_checkbox',
-                        boxLabel: 'Discretize Target',
+                        boxLabel: 'Discretize '+re.ui.feature1,
                         listeners: {
                             check: function(checked) {
                                 renderScatterPlot();
@@ -1648,7 +1648,7 @@ re.windows.details_window = new Ext.Window({
                     }, {
                         xtype: 'checkbox',
                         id: 'scatterplot_discrete_y_checkbox',
-                        boxLabel: 'Discretize Predictor',
+                        boxLabel: 'Discretize ' +re.ui.feature2,
                         listeners: {
                             check: function(checked) {
                                 renderScatterPlot();

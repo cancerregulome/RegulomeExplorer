@@ -926,13 +926,15 @@ function scatterplot_draw(params) {
     tooltip[data.f1alias] = f1,tooltip[data.f2alias] = f2,tooltip['Sample'] = 'patient_id';
 
     if(discretize_x && f1label != 'B') {
-
-        var quartiles = pv.Scale.quantile(f1values).quantiles(4).quantiles();
+        var values = data_array.map(function(obj){return obj[f1];});
+        var quartiles = pv.Scale.quantile(values).quantiles(4).quantiles();
         //Freedman-Diaconis' choice for bin size
-        var setSize = 2 * (quartiles[3] - quartiles[1]) / Math.pow(f1values.length,0.33);
-        var firstBin = pv.min(f1values)+setSize/2;
-        var bins = pv.range(firstBin,pv.max(f1values)-setSize/2,setSize);
-        f1values=f1values.map(function(val) { return bins[Math.min(Math.max(Math.floor((val-firstBin) / setSize),0),f1values.length-1)];});
+        var setSize = 2 * (quartiles[3] - quartiles[1]) / Math.pow(values.length,0.33);
+        var firstBin = pv.min(values)+setSize/2;
+        var bins = pv.range(firstBin,pv.max(values)-setSize/2,setSize);
+        data_array.forEach(function(val) {
+            val[f1] = bins[Math.min(Math.max(Math.round((val[f1]-firstBin) / setSize),0),bins.length-1)];
+        });
     }
     if(discretize_y && f2label != 'B') {
         var f2hist = pv.histogram(f2values).frequencies(true).bins();
