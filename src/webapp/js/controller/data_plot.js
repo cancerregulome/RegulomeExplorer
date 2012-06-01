@@ -925,22 +925,34 @@ function scatterplot_draw(params) {
     var tooltip = {};
     tooltip[data.f1alias] = f1,tooltip[data.f2alias] = f2,tooltip['Sample'] = 'patient_id';
 
-    if(discretize_x && f1label != 'B') {
+    if(discretize_x && !isNonLinear(f1label[0])) {
         var values = data_array.map(function(obj){return obj[f1];});
         var quartiles = pv.Scale.quantile(values).quantiles(4).quantiles();
         //Freedman-Diaconis' choice for bin size
         var setSize = 2 * (quartiles[3] - quartiles[1]) / Math.pow(values.length,0.33);
-        var firstBin = pv.min(values)+setSize/2;
-        var bins = pv.range(firstBin,pv.max(values)-setSize/2,setSize);
+        var max =pv.max(values), min = pv.min(values);
+        setSize = (max - min)/setSize > 9 ? (max - min) / 10 : setSize;
+        var firstBin = min+setSize/2;
+        var bins = pv.range(firstBin,max-setSize/2,setSize);
         data_array.forEach(function(val) {
             val[f1] = bins[Math.min(Math.max(Math.round((val[f1]-firstBin) / setSize),0),bins.length-1)];
         });
     }
-    if(discretize_y && f2label != 'B') {
-        var f2hist = pv.histogram(f2values).frequencies(true).bins();
+    if(discretize_y && !isNonLinear(f2label[0])) {
+        var values = data_array.map(function(obj){return obj[f2];});
+        var quartiles = pv.Scale.quantile(values).quantiles(4).quantiles();
+        //Freedman-Diaconis' choice for bin size
+        var setSize = 2 * (quartiles[3] - quartiles[1]) / Math.pow(values.length,0.33);
+        var max =pv.max(values), min = pv.min(values);
+        setSize = (max - min)/setSize >= 9 ? (max - min) / 10 : setSize;
+        var firstBin = min+setSize/2;
+        var bins = pv.range(firstBin,max-setSize/2,setSize);
+        data_array.forEach(function(val) {
+            val[f2] = bins[Math.min(Math.max(Math.round((val[f2]-firstBin) / setSize),0),bins.length-1)];
+        });
     }
-    f1label = (discretize_x ? 'B' : f1label[0]) + f1label.slice(1);
-    f2label = (discretize_y ? 'B' : f2label[0]) + f2label.slice(1);
+    f1label = (discretize_x ? 'C' : f1label[0]) + f1label.slice(1);
+    f2label = (discretize_y ? 'C' : f2label[0]) + f2label.slice(1);
     var violin = (isNonLinear(f1label[0]) ^ isNonLinear(f2label[0])); //one is nonlinear, one is not
     var cubbyhole = isNonLinear(f1label[0]) && isNonLinear(f2label[0]);
 
@@ -949,7 +961,7 @@ function scatterplot_draw(params) {
         sp = new vq.ViolinPlot();
         config ={DATATYPE : "vq.models.ViolinPlotData", CONTENTS : {
             PLOT : {container: div,
-                width : 600,
+                width : 550,
                 height: 300,
                 vertical_padding : 40,
                 horizontal_padding: 40,
@@ -974,7 +986,7 @@ function scatterplot_draw(params) {
         sp = new vq.CubbyHole();
         config ={DATATYPE : "vq.models.CubbyHoleData", CONTENTS : {
             PLOT : {container: div,
-                width : 600,
+                width : 550,
                 height: 300,
                 vertical_padding : 40, horizontal_padding: 40, font :"14px sans"},
             data_array: data_array,
@@ -998,7 +1010,7 @@ function scatterplot_draw(params) {
 
         config ={DATATYPE : "vq.models.ScatterPlotData", CONTENTS : {
             PLOT : {container: div,
-                width : 600,
+                width : 550,
                 height: 300,
                 vertical_padding : 40, horizontal_padding: 40, font :"14px sans"},
             data_array: data_array,
