@@ -933,9 +933,9 @@ function scatterplot_draw(params) {
         var max =pv.max(values), min = pv.min(values);
         setSize = (max - min)/setSize > 9 ? (max - min) / 10 : setSize;
         var firstBin = min+setSize/2;
-        var bins = pv.range(firstBin,max-setSize/2,setSize);
+        var bins = pv.range(firstBin,max-setSize/2+setSize/10,setSize);
         data_array.forEach(function(val) {
-            val[f1] = bins[Math.min(Math.max(Math.round((val[f1]-firstBin) / setSize),0),bins.length-1)];
+            val[f1] = bins[Math.min(Math.max(Math.floor((val[f1]-firstBin) / setSize),0),bins.length-1)];
         });
     }
     if(discretize_y && !isNonLinear(f2label[0])) {
@@ -946,9 +946,9 @@ function scatterplot_draw(params) {
         var max =pv.max(values), min = pv.min(values);
         setSize = (max - min)/setSize >= 9 ? (max - min) / 10 : setSize;
         var firstBin = min+setSize/2;
-        var bins = pv.range(firstBin,max-setSize/2,setSize);
+        var bins = pv.range(firstBin,max-setSize/2+setSize/10,setSize);
         data_array.forEach(function(val) {
-            val[f2] = bins[Math.min(Math.max(Math.round((val[f2]-firstBin) / setSize),0),bins.length-1)];
+            val[f2] = bins[Math.min(Math.max(Math.floor((val[f2]-firstBin) / setSize),0),bins.length-1)];
         });
     }
     f1label = (discretize_x ? 'C' : f1label[0]) + f1label.slice(1);
