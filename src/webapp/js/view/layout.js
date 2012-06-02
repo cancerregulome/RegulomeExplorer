@@ -403,6 +403,11 @@ function loadListStores(dataset_labels) {
     Ext.StoreMgr.get('f1_pathway_list_store').loadData(pathway_list);
     Ext.StoreMgr.get('f2_pathway_list_store').loadData(pathway_list);
 
+    Ext.StoreMgr.get('categorical_feature_store').loadData(dataset_labels.categorical_features);
+
+    if (re.ui.default_colorby_feature_alias !== undefined) {
+        Ext.getCmp('scatterplot_colorby_combobox').setValue(re.ui.default_colorby_feature_alias);
+    }
 }
 
 function loadDataTableStore(data) {
@@ -1617,7 +1622,7 @@ re.windows.details_window = new Ext.Window({
     closeAction: 'hide',
     layout: 'fit',
     width: 600,
-    height: 500,
+    height: 530,
     constrain: true,
     title: "Details",
     closable: true,
@@ -1701,7 +1706,61 @@ re.windows.details_window = new Ext.Window({
                             }
                         }
                     }]
-                }]
+                },
+                    {
+                        xtype: 'compositefield',
+                        defaultMargins: '0 20 0 0',
+                        items: [
+                            new Ext.form.ComboBox({
+                                id: 'scatterplot_colorby_combobox',
+                                disabled: true,
+                                emptyText: 'Select feature...',
+                                fieldLabel: 'Color By',
+                                displayField: 'label',
+                                valueField: 'alias',
+                                mode: 'local',
+                                triggerAction : 'all',
+                                store: new Ext.data.JsonStore({
+                                    id: 'categorical_feature_store',
+                                    fields: ['alias', 'label'],
+                                    data: []
+                                }),
+                                listeners: {
+                                    select: {
+                                        fn: function(combo, value) {
+                                            var alias = value.data.alias;
+                                            vq.events.Dispatcher.dispatch(new vq.events.Event('data_request', 'patient_categories', alias));
+                                        }
+                                    }
+                                }
+                            }),
+                            {
+                                xtype: 'checkbox',
+                                id: 'scatterplot_colorby_checkbox',
+                                boxLabel: 'Enable',
+                                listeners: {
+                                    check: {
+                                        fn: function(checkbox) {
+                                            if (checkbox.checked == true) {
+                                                var combo = Ext.getCmp('scatterplot_colorby_combobox');
+                                                var alias = combo.getValue();
+                                                combo.enable();
+                                                if (alias.length > 0) {
+                                                    vq.events.Dispatcher.dispatch(new vq.events.Event('data_request', 'patient_categories', alias));
+                                                }
+                                            }
+                                            else {
+                                                Ext.getCmp('scatterplot_colorby_combobox').disable();
+                                                re.plot.scatterplot_categories = undefined;
+                                                renderScatterPlot();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
             }]
         }, {
             xtype: 'panel',

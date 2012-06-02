@@ -20,6 +20,9 @@ function registerModelListeners() {
     d.addListener('query_complete','features',function(data) {
         parseFeatures(data);
     });
+    d.addListener('query_complete','patient_categories',function(data) {
+        parsePatientCategories(data);
+    });
 }
 
 function parseDatasetLabels(data) {
@@ -30,6 +33,11 @@ function parseDatasetLabels(data) {
 
 function parseAnnotations(data) {
     vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready','annotations', data));
+}
+
+function parsePatientCategories(data) {
+    var categories = data.patient_values;
+    vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready','patient_categories', categories));
 }
 
 function parseFeatures(data) {

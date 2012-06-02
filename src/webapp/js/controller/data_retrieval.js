@@ -19,6 +19,9 @@ function registerDataRetrievalListeners() {
     d.addListener('click_association', function(link) {
         loadFeatureData(link);
     });
+    d.addListener('data_request', 'patient_categories', function(obj) {
+        loadPatientCategories(obj);
+    });
 }
 
 function selectDataset(set_label) {
@@ -112,6 +115,31 @@ function loadDatasetLabels() {
             queryFailed('pathways', response);
         }
     });
+
+    var category_query_json = {
+        tq: "select alias, `label` where (TYPE=\'C\' or TYPE=\'B\') and (SOURCE=\'SAMP\' or SOURCE=\'CLIN\')",
+        tqx: 'out:json_array'
+    };
+
+    var category_query_str = '?' + Ext.urlEncode(category_query_json);
+    var category_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.features_uri + re.rest.query + category_query_str;
+
+    function categoryQueryHandle(response) {
+        try {
+            dataset_labels.categorical_features = Ext.decode(response.responseText);
+        }
+        catch (err) {
+            throwQueryError('categorical_features', response);
+        }
+    }
+
+    Ext.Ajax.request({
+        url: category_query,
+        success: synchronizer.add(categoryQueryHandle,this),
+        failure: function(response) {
+            queryFailed('categorical_features', response);
+        }
+    });
 }
 
 function lookupLabelPosition(label_obj) {
@@ -154,6 +182,41 @@ function lookupLabelPosition(label_obj) {
         }
     });
 
+}
+
+function loadPatientCategories(alias) {
+    var query_str = 'select patient_values where alias = \'' + alias + '\' limit 1';
+    var query_json = {
+        tq: query_str,
+        tqx: 'out:json_array'
+    };
+    var category_query_str = '?' + Ext.urlEncode(query_json);
+    var category_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.features_uri + re.rest.query + category_query_str;
+
+    function categoryQueryHandle(response) {
+        try {
+            var data = Ext.decode(response.responseText);
+            if (data.length == 1) {
+                loadComplete(data[0]);
+            } else {
+                //noResults('features');
+            }
+        } catch (err) {
+            throwQueryError('features', response);
+        }
+    }
+
+    function loadComplete(categories) {
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'patient_categories', categories));
+    }
+
+    Ext.Ajax.request({
+        url: category_query,
+        success: categoryQueryHandle,
+        failure: function(response) {
+            queryFailed('features', response);
+        }
+    });
 }
 
 function loadFeatureData(link) {

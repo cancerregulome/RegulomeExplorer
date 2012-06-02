@@ -38,6 +38,9 @@ function registerPlotListeners() {
     d.addListener('data_ready','annotations',function(obj){
         re.plot.chrome_length = obj['chrom_leng'];
     });
+    d.addListener('data_ready', 'patient_categories', function(obj) {
+        updatePatientCategories(obj);
+    });
     d.addListener('data_ready','pathways',function(obj){
         re.plot.pw_name = obj['pw_name'];
     });
@@ -63,6 +66,11 @@ function registerPlotListeners() {
         }
     });
 
+}
+
+function updatePatientCategories(data) {
+    re.plot.scatterplot_categories = data.split(':');
+    vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready', 'features', re.plot.scatterplot_data));
 }
 
 function layoutGraph() {
@@ -1516,6 +1524,7 @@ function scatterplot_draw(params) {
     var f1 = data.f1alias, f2 = data.f2alias;
     var f1label = data.f1alias, f2label = data.f2alias;
     var f1values, f2values;
+    var categories = re.plot.scatterplot_categories;
 
     if (isNonLinear(f1label[0])) {
         f1values = data.f1values.split(':');
@@ -1528,6 +1537,27 @@ function scatterplot_draw(params) {
         f2values = data.f2values.split(':').map(function(val) {return parseFloat(val);});
     }
 
+
+    var dot_colors;
+    var fill_style_fn = undefined;
+    var stroke_style_fn = undefined;
+
+    if (categories !== undefined) {
+        var unique_categories = pv.uniq(categories);
+        dot_colors = pv.Colors.category10(unique_categories);
+
+        fill_style_fn = function(d) {
+            return dot_colors(d.category);
+        };
+        stroke_style_fn = function(d) {
+            return dot_colors(d.category);
+        }
+    }
+    else {
+        fill_style_fn = function() {return pv.color('steelblue').alpha(0.2);};
+        stroke_style_fn = function() {return "steelblue";};
+    }
+
     if (f1values.length != f2values.length) {
         vq.events.Dispatcher.dispatch(new vq.events.Event('render_fail','scatterplot','Data cannot be rendered correctly.'));
         return;
@@ -1537,6 +1567,12 @@ function scatterplot_draw(params) {
         if (!isNAValue(f1label[0],f1values[i]) && !isNAValue(f2label[0],f2values[i]) ) {
             var obj = {};
             obj[f1] = f1values[i], obj[f2]=f2values[i], obj['patient_id'] = patient_labels[i];
+
+            if (categories !== undefined) {
+                obj.category = categories[i];
+                obj.patient_id = patient_labels[i] + " " + categories[i];
+            }
+
             data_array.push(obj);
         }
     }
@@ -1586,7 +1622,9 @@ function scatterplot_draw(params) {
             valuecolumnlabel : '',
             tooltip_items : tooltip,
             show_points : true,
-            regression :regression_type
+            regression :regression_type,
+            fill_style: fill_style_fn,
+            stroke_style: stroke_style_fn
         }};
         if (isNonLinear(f2label[0])) {
             reverseAxes();
@@ -1609,7 +1647,9 @@ function scatterplot_draw(params) {
             valuecolumnlabel : '',
             tooltip_items : tooltip,
             show_points : true,
-            radial_interval : 7
+            radial_interval : 7,
+            fill_style: fill_style_fn,
+            stroke_style: stroke_style_fn
         }};
         if (reverse_axes) {
             reverseAxes();
@@ -1633,7 +1673,9 @@ function scatterplot_draw(params) {
             valuecolumnlabel : '',
             tooltip_items : tooltip,
             radial_interval : 7,
-            regression :regression_type
+            regression :regression_type,
+            fill_style: fill_style_fn,
+            stroke_style: stroke_style_fn
         }};
         if (reverse_axes) {
             reverseAxes();
