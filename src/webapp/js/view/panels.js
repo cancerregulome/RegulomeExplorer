@@ -492,7 +492,22 @@ vq.utils.VisUtils.extend(re.ui, {
                                                 re.ui.feature1,
                                                 re.ui.feature2
                                             ]
-                                        }}]}
+                                        },
+                                        listeners: {
+                                            render: function(c) {
+                                            Ext.QuickTips.register({
+                                                target: c,
+                                                title: '',
+                                                text: '<b>Association</b>: Top X Results matching ' +
+                                                    'any of the specified labels<br><b>' +
+                                                    re.ui.feature1.label + '</b>: Top X ' +
+                                                    'Results for <b>each</b> of the specified labels in that fieldset<br><b>' +
+                                                    re.ui.feature2.label + '</b>: Top X Results for <b>each</b> of the specified ' +
+                                                    'labels in that fieldset'
+                                                });
+                                            }
+                                        }
+                                    }]}
                         ]
                     }]
             }
