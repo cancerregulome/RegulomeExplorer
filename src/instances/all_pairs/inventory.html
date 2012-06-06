@@ -25,7 +25,7 @@
             var targetUrl = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.dataset + "/query";
             Ext.Ajax.request({
                 url: targetUrl,
-                method: "get",
+                method: "GET",
                 params: {
                     tqx: "out:json_array"
                 },
@@ -34,10 +34,10 @@
                     if (data) {
                         var html = "";
                         var docHrf = document.location.href;
-                        var rootUri = substring(docHrf, 0, docHrf.indexOf("inventory.html"));
+                        var rootUri = docHrf.substring(0, docHrf.indexOf("inventory.html"));
                         Ext.each(data, function(item) {
                             var url = rootUri + "?dataset=" + item.label;
-                            html += "<li><a href='" + item.label + "'>" + item.label+ "</a>:" + item.description + "</li>";
+                            html += "<li><a href='" + url + "' target='_blank'>" + item.label+ "</a>:" + item.description + "</li>";
                         });
                         Ext.getDom("c_container").innerHTML = "<ul>" + html + "</ul>"
                     }
