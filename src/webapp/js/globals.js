@@ -4,9 +4,6 @@
  Import this before MVC scripts.
  */
 
-//var pathway_behavior = null;
-//var pathway_behavior_reset = null;
-
 if (re === undefined) {
     re = {};
 }
@@ -19,7 +16,7 @@ vq.utils.VisUtils.extend(re, {
     },
     analysis: {
         dataset_method_clause: ' where method=\'RF-ACE\'',
-        directed_association: true
+        directed_association: false
     },
     state: {
         once_loaded: false,
@@ -27,7 +24,7 @@ vq.utils.VisUtils.extend(re, {
         network_query: ''
     },
     node: {
-        uri: '/node',
+        uri: 'http://intianjora.cs.tut.fi:3001/node',
         services: {
             data: '/data',
             lookup:'/lookup/label/entrez'
@@ -97,6 +94,7 @@ vq.utils.VisUtils.extend(re, {
             rings: {
                 karyotype: {
                     hidden: false,
+		    color_background: '#FCFCFC',	
                     radius: 28
                 },
                 cnvr: {
@@ -163,13 +161,25 @@ vq.utils.VisUtils.extend(re, {
                     selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
                     config_object: function(feature) {
                         if (['CNVR', 'MIRN','METH'].indexOf(feature.source) >= 0) return null;
-                        Ext.Ajax.request({url:re.node.uri + re.node.services.lookup+'/'+feature.label,success:entrezHandler, failure: lookupFailed});
+			entrez = getGeneName.getValue(feature.label, "entrez");
+			if (isUnsignedInteger(entrez))
+				return 'http://www.ncbi.nlm.nih.gov/gene/' + entrez;
+			return 'http://www.ncbi.nlm.nih.gov/gene?term='+feature.label;
 
-                        function lookupFailed() {
-                            var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
-                              node.setAttribute('href','http://www.ncbi.nlm.nih.gov/gene?term='+feature.label);
-                        }
+			//var selector =  Ext.DomQuery.compile('a[href*=zzzZZZzzz]');                        
+                        //Ext.Ajax.request({url:re.node.uri + re.node.services.lookup+'/'+feature.label,success:entrezHandler, failure: lookupFailed});
+			//entrez = getGeneName.getValue(feature.label, "entrez");
+                        //if (entrez == "NA")
+			//	lookupFailed();
+			//var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
+			//var node = selector('')[0];
+			//node.setAttribute('href','<a href="http://www.ncbi.nlm.nih.gov/gene/zzzZZZzzz" target="_blank">NCBI</a>'.replace('zzzZZZzzz',entrez));
 
+                        //function lookupFailed() {
+                          //  var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
+                            //  node.setAttribute('href','http://www.ncbi.nlm.nih.gov/gene?term='+feature.label);
+                        //}
+			/*
                         function entrezHandler(response) {
                             var gene,entrez;
                             var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
@@ -180,8 +190,8 @@ vq.utils.VisUtils.extend(re, {
                             } catch (err) {
                                 lookupFailed();
                             }
-                        }
-                        return 'http://www.ncbi.nlm.nih.gov/gene/' + 'zzzZZZzzz';
+                        }*/
+                        //return 'http://www.ncbi.nlm.nih.gov/gene/' + 'zzzZZZzzz';
                     }
                 // },{
                 //     label: 'OMIM',
@@ -260,7 +270,20 @@ vq.utils.VisUtils.extend(re, {
         filters: {
             single_feature: true
         },
-        chromosomes: [],
+        
+	// Removes heading and trailing whitespaces from a string
+	trim: function(str) {
+	return str.replace(/^\s+/, '').replace(/\s+$/, '');
+	},
+
+	// Tests if s is an unsigned integer
+	isUnsignedInteger : function (s) {
+             return (s.toString().search(/^[0-9]+$/) == 0);
+        },
+
+	
+
+	chromosomes: [],
         dataset_labels: [],
         getDatasetLabels: function() {
             return re.ui.dataset_labels;
@@ -428,9 +451,10 @@ vq.utils.VisUtils.extend(re, {
         //#17becf
     };
     //dark blue to light blue to grey to light red to dark red
-    re.plot.colors.quants = {"Q1":"#000099", "Q2":"#0066FF","Q3":"#66A3FF","Q4":"#D6EBFF","Q5":"#FF8080","Q6":"#FF0000","Q7":"#800000"}; 
+    re.plot.colors.quants = {"Q1":"#000099", "Q2":"#66A3FF","Q3":"#959595","Q4":"#FF8080","Q5":"#800000"};
+//{"Q1":"#000099", "Q2":"#0066FF","Q3":"#66A3FF","Q4":"#959595","Q5":"#FF8080","Q6":"#FF0000","Q7":"#800000"}; 
 
-   re.plot.colors.quantinfo = {"Q1":"<5%", "Q2":"5-10%","Q3":"10-30%","Q4":"30-70%","Q5":"70-90%","Q6":"90-95%","Q7":">95%"}; 
+   re.plot.colors.quantinfo = {"Q1":"<5%", "Q2":"5-25%","Q3":"25-70%","Q4":"75-95%","Q5":">95%"};//,"Q6":"90-95%","Q7":">95%"}; 
 
     re.plot.colors.node_colors = function(source) {
         if (source in re.plot.colors.features) {
@@ -456,11 +480,11 @@ vq.utils.VisUtils.extend(re, {
         };
     } else {
         re.ui.feature1 = {
-            label: 'Feature 1',
+            label: 'Variable 1',
             id: 'feature1'
         };
         re.ui.feature2 = {
-            label: 'Feature 2',
+            label: 'Variable 2',
             id: 'feature2'
         };
     }

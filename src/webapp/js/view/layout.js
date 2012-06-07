@@ -402,12 +402,12 @@ function loadListStores(dataset_labels) {
     });
     Ext.StoreMgr.get('f1_pathway_list_store').loadData(pathway_list);
     Ext.StoreMgr.get('f2_pathway_list_store').loadData(pathway_list);
-
     Ext.StoreMgr.get('categorical_feature_store').loadData(dataset_labels.categorical_features);
 
     if (re.ui.default_colorby_feature_alias !== undefined) {
         Ext.getCmp('scatterplot_colorby_combobox').setValue(re.ui.default_colorby_feature_alias);
     }
+
 }
 
 function loadDataTableStore(data) {
@@ -516,7 +516,7 @@ function loadSelectedDataset() {
     if (selected_dataset != '') {
         vq.events.Dispatcher.dispatch(new vq.events.Event('dataset_selected', 'dataset_grid', selected_dataset));
         hideDatasetWindow();
-        Ext.getCmp('filter_parent').setTitle('Filtering \'' + selected_description + '\'');
+        Ext.getCmp('filter_parent').setTitle(selected_description);
     } else {
         Ext.Msg.alert('Dataset not selected', 'Select a dataset to load.');
     }
@@ -672,6 +672,13 @@ function registerAllListeners() {
     registerModelListeners();
     registerPlotListeners();
 }
+
+function addTooltip(value, metadata, record, rowIndex, colIndex, store){
+                var txt = getGeneName.getValue(value);
+                 metadata.attr = 'ext:qtip="' + txt +  '"';
+                     return value;
+         }
+
 
 Ext.onReady(function() {
     Ext.QuickTips.init();
@@ -845,28 +852,31 @@ Ext.onReady(function() {
                             dataIndex: 'target_source',
                             groupName: 'Target'
                         }, {
-                            header: "Label",
-                            width: 120,
+                            header: "LabelA",
+                            width: 100,
                             id: 'target_label',
                             dataIndex: 'target_label',
-                            groupName: 'Target'
+                            groupName: 'Target',
+                            renderer: addTooltip
                         }, {
-                            header: "Chr",
-                            width: 30,
+                            header: "ChrA",
+                            width: 40,
                             id: 'target_chr',
                             dataIndex: 'target_chr',
                             groupName: 'Target'
                         }, {
-                            header: "Start",
+                            header: "StartA",
                             width: 100,
                             id: 'target_start',
                             dataIndex: 'target_start',
+			    //hidden: true,
                             groupName: 'Target'
                         }, {
-                            header: "Stop",
+                            header: "StopA",
                             width: 100,
                             id: 'target_stop',
                             dataIndex: 'target_stop',
+			    //hidden: true,
                             groupName: 'Target'
                         }, {
                             header: "Id",
@@ -879,31 +889,35 @@ Ext.onReady(function() {
                             width: 40,
                             id: 'source_source',
                             dataIndex: 'source_source',
-                            groupName: 'Source'
+                            groupName: 'Target'
                         }, {
-                            header: "Label",
-                            width: 120,
+                            header: "LabelB",
+                            width: 100,
                             id: 'source_label',
                             dataIndex: 'source_label',
-                            groupName: 'Source'
+                            groupName: 'Target',
+                            renderer:addTooltip
                         }, {
-                            header: "Chr",
-                            width: 30,
+                            header: "ChrB",
+                            width: 40,
                             id: 'source_chr',
                             dataIndex: 'source_chr',
-                            groupName: 'Source'
+			    //hidden: true,
+                            groupName: 'Target'
                         }, {
-                            header: "Start",
+                            header: "StartB",
                             width: 100,
                             id: 'source_start',
                             dataIndex: 'source_start',
-                            groupName: 'Source'
+			    //hidden: true,
+                            groupName: 'Target'
                         }, {
-                            header: "Stop",
+                            header: "StopB",
                             width: 100,
                             id: 'source_stop',
                             dataIndex: 'source_stop',
-                            groupName: 'Source'
+			    //hidden: true,
+                            groupName: 'Target'
                         }].concat(re.model.association.types.map(function(obj) {
                             if (obj.ui != null)
 					return obj.ui.grid.column;
@@ -983,11 +997,11 @@ Ext.onReady(function() {
                             text: 'SVG',
                             value: 'svg',
                             handler: exportImage
-                        }, {
+                        }/*, {
                             text: 'PNG',
                             value: 'png',
                             handler: exportImage
-                        }]
+                        }*/]
                     }, {
                         text: 'Linear',
                         id: 'linear-export-menu',
@@ -995,11 +1009,11 @@ Ext.onReady(function() {
                             text: 'SVG',
                             value: 'svg',
                             handler: exportImage
-                        }, {
+                        }/*, {
                             text: 'PNG',
                             value: 'png',
                             handler: exportImage
-                        }]
+                        }*/]
                     }]
                 }]
             }, {
@@ -1707,7 +1721,7 @@ re.windows.details_window = new Ext.Window({
                         }
                     }]
                 },
-                    {
+{
                         xtype: 'compositefield',
                         defaultMargins: '0 20 0 0',
                         items: [
@@ -1760,7 +1774,7 @@ re.windows.details_window = new Ext.Window({
                             }
                         ]
                     }
-                ]
+		]
             }]
         }, {
             xtype: 'panel',

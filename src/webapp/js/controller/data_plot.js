@@ -1,7 +1,3 @@
-function isUnsignedInteger(s) {
-  return (s.toString().search(/^[0-9]+$/) == 0);
-}
-
 function registerPlotListeners() {
 
     var d = vq.events.Dispatcher;
@@ -67,7 +63,6 @@ function registerPlotListeners() {
     });
 
 }
-
 function updatePatientCategories(data) {
     re.plot.scatterplot_categories = data.split(':');
     vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready', 'features', re.plot.scatterplot_data));
@@ -250,7 +245,7 @@ function pathway_members_draw(div,anchor,networks) {
     var dataset_labels = re.ui.getDatasetLabels();
     if (re.ui.getCurrentPathwayMembers() == null || re.ui.getCurrentPathwayMembers().length == 0)
 	return;	
-    var currentMemberList = re.ui.getCurrentPathwayMembers().split(",");
+    var currentMemberList = re.ui.getCurrentPathwayMembers().split(/\s*,\s*/);
     currentMemberList.sort();
     var memberSourceCountArray = {};
     var memberCountArray = [];  
@@ -322,7 +317,7 @@ function pathway_members_draw(div,anchor,networks) {
     for (var i = 0; i < tuples.length; i++) {
         var key = tuples[i][0];
         var value = tuples[i][1];
-	if (key == "remove" || !isUnsignedInteger(value))
+	if (key == "remove" || !re.ui.isUnsignedInteger(value))
 		continue;
         sortedMembers[key] = value;
     }
@@ -1001,7 +996,13 @@ function wedge_plot(parsed_data,div) {
         Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
     },
     methband_tooltip_items = {
-        FeatureQuantile :  function(feature) { return feature.label + " " + feature.qtinfo;}
+        METHQuantile :  function(feature) { return feature.label + " " + feature.qtinfo;}
+    },
+    gexpband_tooltip_items = {
+        GEXPQuantile :  function(feature) { return feature.label + " " + feature.qtinfo;}
+    },
+    cnvrband_tooltip_items = {
+        CNVRQuantile :  function(feature) { return feature.label + " " + feature.qtinfo;}
     },
         unlocated_tooltip_items = {};
     unlocated_tooltip_items[re.ui.feature1.label] =  function(feature) { return feature.sourceNode.source + ' ' + feature.sourceNode.label +
@@ -1140,7 +1141,7 @@ function wedge_plot(parsed_data,div) {
                 OPTIONS: {
                     legend_label : 'GEX FQI' ,
                     outer_padding : 6,
-                    tooltip_items : methband_tooltip_items
+                    tooltip_items : gexpband_tooltip_items
                 }
             },{
                 PLOT : {
@@ -1167,7 +1168,7 @@ function wedge_plot(parsed_data,div) {
                 OPTIONS: {
                     legend_label : 'CNVR FQI' ,
                     outer_padding : 6,
-                    tooltip_items : methband_tooltip_items
+                    tooltip_items : cnvrband_tooltip_items
                 }
             },
             {
@@ -1522,7 +1523,8 @@ function scatterplot_draw(params) {
     var dataset_labels=re.ui.getDatasetLabels();
     var patient_labels = dataset_labels['patients'];
     var f1 = data.f1alias, f2 = data.f2alias;
-    var f1label = data.f1alias, f2label = data.f2alias;
+    var f1label = data.f1alias.split(':')[1] + " " + data.f1alias.split(':')[2];    
+    var f2label = data.f2alias.split(':')[1] + " " + data.f2alias.split(':')[2];
     var f1values, f2values;
     var categories = re.plot.scatterplot_categories;
 
@@ -1536,8 +1538,6 @@ function scatterplot_draw(params) {
     } else {
         f2values = data.f2values.split(':').map(function(val) {return parseFloat(val);});
     }
-
-
     var dot_colors;
     var fill_style_fn = undefined;
     var stroke_style_fn = undefined;
@@ -1558,6 +1558,7 @@ function scatterplot_draw(params) {
         stroke_style_fn = function() {return "steelblue";};
     }
 
+
     if (f1values.length != f2values.length) {
         vq.events.Dispatcher.dispatch(new vq.events.Event('render_fail','scatterplot','Data cannot be rendered correctly.'));
         return;
@@ -1567,13 +1568,11 @@ function scatterplot_draw(params) {
         if (!isNAValue(f1label[0],f1values[i]) && !isNAValue(f2label[0],f2values[i]) ) {
             var obj = {};
             obj[f1] = f1values[i], obj[f2]=f2values[i], obj['patient_id'] = patient_labels[i];
-
             if (categories !== undefined) {
                 obj.category = categories[i];
                 obj.patient_id = patient_labels[i] + " " + categories[i];
             }
-
-            data_array.push(obj);
+	    data_array.push(obj);
         }
     }
 
@@ -1623,8 +1622,8 @@ function scatterplot_draw(params) {
             tooltip_items : tooltip,
             show_points : true,
             regression :regression_type,
-            fill_style: fill_style_fn,
-            stroke_style: stroke_style_fn
+	    fill_style: fill_style_fn,
+            stroke_style: stroke_style_fn	
         }};
         if (isNonLinear(f2label[0])) {
             reverseAxes();
@@ -1648,7 +1647,7 @@ function scatterplot_draw(params) {
             tooltip_items : tooltip,
             show_points : true,
             radial_interval : 7,
-            fill_style: fill_style_fn,
+	    fill_style: fill_style_fn,
             stroke_style: stroke_style_fn
         }};
         if (reverse_axes) {

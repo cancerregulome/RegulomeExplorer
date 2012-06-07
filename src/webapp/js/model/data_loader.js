@@ -20,7 +20,7 @@ function registerModelListeners() {
     d.addListener('query_complete','features',function(data) {
         parseFeatures(data);
     });
-    d.addListener('query_complete','patient_categories',function(data) {
+     d.addListener('query_complete','patient_categories',function(data) {
         parsePatientCategories(data);
     });
 }
