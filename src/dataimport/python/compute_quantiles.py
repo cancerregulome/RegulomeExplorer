@@ -41,12 +41,18 @@ def compute_quantiles(afmFile,quantileFile):
 	quantiles = []
 	fullData = []
 
+	linesRead = 0
+	linesIncluded = 0
+	linesSkipped = 0
+
 	for line in afmReader:
 
+		linesRead = linesRead + 1
 		featureID = line[0]
 
 		# Skip nonnumerical and invalid features 
-		if featureID[0] != 'N':
+		if featureID[0:2] != 'N:':
+			linesSkipped = linesSkipped + 1
 			continue
 	
 		data = [float(x) for x in line[1:] if not isNA(x)]
@@ -56,6 +62,20 @@ def compute_quantiles(afmFile,quantileFile):
 		fullData.extend(data)
 	
 		quantiles.append([featureID,medianValue,'NA'])
+
+		linesIncluded = linesIncluded + 1
+
+	
+
+	print "\n",linesRead,"lines read from '",afmFile,"'"
+	print " -",linesIncluded,"lines included"
+	print " -",linesSkipped,"lines skipped\n"
+
+	if linesIncluded == 0 or len(fullData) == 0:
+		print "\nError: no data for computing quantiles"
+		print " - make sure the AFM is properly formatted"
+		print " - make sure the headers start with an 'N:' (numerical)\n"
+		return None
 
 	fullData.sort()
 

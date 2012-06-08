@@ -75,63 +75,59 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 				print "ERROR: Predictor feature %s is not in afm/annotation" %(f2alias)
 				continue
 			f2alias = annotated_feature.replace("\t", ":")
-		f1alias = f1alias.replace('|', '_')
-		f2alias = f2alias.replace('|', '_')
-		f1id = f1alias.split(":")[-1]
-		f2id = f2alias.split(":")[-1]
-		f1qtinfo = ""
-		if (features_hash.get(f1alias) != None and len(features_hash.get(f1alias)) >= 14):
-			f1qtinfo = features_hash.get(f1alias)[12] + "_" + features_hash.get(f1alias)[13]		
-		f2qtinfo = ""
-		if (features_hash.get(f2alias) != None and len(features_hash.get(f2alias)) >= 13):
-			f2qtinfo = features_hash.get(f2alias)[12] + "_" + features_hash.get(f2alias)[13]
+		#f1alias = f1alias.replace('|', '_')
+		#f2alias = f2alias.replace('|', '_')
+		f1data = f1alias.split(':')
+                f2data = f2alias.split(':')
+		"""if len(f1data) == 7:
+                        f1alias = f1alias + ":"
+                        f1data.append("")
 		
+                if len(f2data) == 7:
+                        f2alias = f2alias + ":"
+                        f2data.append("")
+		"""
+		if len(f1data) > 4:
+			f1data[3] = f1data[3][3:]
+		#else:
+ 		#	f1alias = ":".join(f1data) + ":::::"
+		if len(f2data) > 4:
+			f2data[3] = f2data[3][3:]
+ 		#else:
+		#	f2alias = ":".join(f2data) + ":::::"
+		
+		if (len(f1data) <= 7 and (f1data[1] == 'CLIN' or f1data[1] == 'SAMP')):
+			#if (f1data[1] == 'CLIN' or f1data[1] == 'SAMP'):
+			f1alias = ":".join(f1data[0:3]) + ":::::"
+			f1data = f1alias.split(':')
+		elif (len(f1data) == 7):
+			f1data.append("")
+		if (len(f2data) <= 7 and (f2data[1] == 'CLIN' or f2data[1] == 'SAMP')):
+			#if (f2data[1] == 'CLIN' or f2data[1] == 'SAMP'):
+			f2alias = ":".join(f2data[0:3]) + ":::::"
+			f2data = f2alias.split(':')
+		elif (len(f2data) == 7):
+			f2data.append("") 
+                    
+		f1id = features_hash[f1alias][0]#f1alias.split(":")[-1]
+		f2id = features_hash[f2alias][0]#f2alias.split(":")[-1]
+		f1qtinfo = ""
+		if (features_hash.get(f1alias) != None and len(features_hash.get(f1alias)) >= 14 ):
+			f1qtinfo = features_hash.get(f1alias)[13] + "_" + features_hash.get(f1alias)[14]		
+		f2qtinfo = ""
+		if (features_hash.get(f2alias) != None and len(features_hash.get(f2alias)) >= 14):
+			f2qtinfo = features_hash.get(f2alias)[13] + "_" + features_hash.get(f2alias)[14]		
 		pvalue = columns[2]
 		importance = columns[3]
-		"""if (is_rf == 1):
-			if (float(importance) < imp_cutoff):
-				impCut += 1
-				continue
-		"""
 		correlation = columns[4]
 		patientct = columns[5]
 		if (db_util.isUnmappedAssociation(f1alias, f2alias)):
 			unmappedout.write(f1alias + "\t" + f2alias + "\n")
 			unMapped += 1
 			continue	
-		#if (not parse_features_rfex.getFeatureId(columns[0])):
-		#	print "ERROR: feature1 %s not in afm" %(columns[0])
-		#	continue
-		#if (not parse_features_rfex.getFeatureId(columns[1])):
-		#	print "ERROR: feature2 %s not in afm" %(columns[1])
-		#	continue
 		f1genescore = ""
-		if (parse_features_rfex.getGeneInterestScore(f1alias) != None):
-			f1genescore = parse_features_rfex.getGeneInterestScore(f1alias)	
 		f2genescore = ""
-		if (parse_features_rfex.getGeneInterestScore(f2alias) != None):
-			f2genescore = parse_features_rfex.getGeneInterestScore(f2alias)
-		f1data = f1alias.split(':')
-		if len(f1data) > 4:
-			f1data[3] = f1data[3][3:]
-		else:
-			#f1alias = f1alias + ":::::"	
-			f1alias = ":".join(f1data[0:3]) + ":::::"
-	
-		if len(f1data) == 7:
-			f1alias = f1alias + ":"
-			f1data.append("")
-		f2data = f2alias.split(':')		
-		if len(f2data) > 4:
-			f2data[3] = f2data[3][3:]
-		else:
-			#f2alias = f2alias + ":::::"
-			f2alias = ":".join(f2data[0:3]) + ":::::"
-		if len(f2data) == 7:
-			f2alias = f2alias + ":"
-			f2data.append("")
-		#if (pvalue == "-inf"):
-		#	pvalue = "-1000"
+		
 		if (collapse_direction == 0):
 			associations_dic[f1afm_id + "_" + f2afm_id] = f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\t" + f1qtinfo + "\t" + f2qtinfo + "\n"
 		else:

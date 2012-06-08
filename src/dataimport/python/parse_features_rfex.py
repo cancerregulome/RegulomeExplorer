@@ -43,13 +43,14 @@ def populate_sample_meta(sampleList, config):
 def process_feature_annotations(annotation_path):
 	print "\nProcessing annotations %s \n" %(annotation_path) 
 	annotation_hash = {}
+	feature_types = {}	
 	if (annotation_path == "" or (not os.path.isfile(annotation_path))):
+		#annotation_hash["empty"] = 1
 		print "annotations path %s not defined or not a file " %(annotation_path)
-		return annotation_hash
+		return (annotation_hash, feature_types)
 	anno_file = open(annotation_path, "r")
         #line 1 is headers
 	lc = 0
-	feature_types = {}
 	for l in anno_file.readlines():
 		if (lc == 0):
 			lc += 1
@@ -89,17 +90,12 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 	featureId = 0
 	annotation_hash, ftypes = process_feature_annotations(annotations)
 	sub_afm_out = {}
-	#for k in ftypes.keys():		
-	#	sub_afm_out[k] = open('./results/' + dataset_label + '_' + k + '.afm','w')
-	#if (len(sub_afm_out) == 0):
-	#implies that annotations are not used, define out files for feature types from config
 	for q in quantileFeatures.split(","):
 		sub_afm_out[q] = open('./results/' + dataset_label + '_' + q + '.afm','w')
-	
 	for line in feature_matrix_file:
-		line = line.strip()	
-		tokens = line.split('\t')
+		tokens = line.strip().split('\t')
 		afmid = ""
+		gene_interesting_score = ""
 		if (featureId == 0):                
                 	sampleIds = ":".join(tokens[0:len(tokens)-1])
 			if (persist_sample_meta == 1):
@@ -110,8 +106,8 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 		if (not features_hash.get(tokens[0]) and len(tokens[0]) > 1):
 			valuesArray = []
 			alias = tokens[0]
-			afmid = alias
-			if (len(alias.split(":")) < 3):
+			data = alias.split(':')
+			if (len(data) < 3):
 				#afmid = alias
 				annotated_feature = annotation_hash.get(alias)
 				if (annotated_feature == None):
@@ -119,25 +115,31 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 					sys.exit(-1)
 				#put features in sub afm files for quantile calculation
 				ftype = annotated_feature.split("\t")[1]
-				if (sub_afm_out.get(ftype) != None):
-					sub_afm_out[ftype].write(line + "\n")				
 				alias = annotated_feature.replace("\t", ":")
-				featureId = int(alias.split(":")[-1])	
-			alias = alias.replace('|', '_')
-			features_hash[tokens[0]] = featureId
+				featureId = int(alias.split(":")[-1])
+				#data = alias.split(':')
+			#else:
+				#old afm
+				#ftype = data[1]
+				#if (len(data) == 7):
+				#	alias = alias + ":"
+				#if (sub_afm_out.get(ftype) != None):
+				#	sub_afm_out[ftype].write(alias + "\t" + "\t".join(tokens[1:]) + "\n") 
 			data = alias.split(':')
-			if (len(data) < 7):
+			ftype = data[1]
+			afmid = alias
+			if (sub_afm_out.get(ftype) != None):
+				sub_afm_out[ftype].write(alias + "\t" + "\t".join(tokens[1:]) + "\n")
+			#alias = alias.replace('|', '_')
+			features_hash[tokens[0]] = featureId
+			if (len(data) <= 7):
 				if (data[1] == 'CLIN' or data[1] == 'SAMP'):
-					alias = ":".join(data[0:3]) + "::::"
+					alias = ":".join(data[0:3]) + ":::::"
 					data = alias.split(':')
-				else: 
-					print "Skipping %s feature matrix annotation string missing required token lengths Category:Type:Name:Chr:Start:Stop:Strand" %(alias)
-					continue
+				else:
+					data.append("")
 			if len(data[3]) > 3:
 				data[3] = data[3][3:]
-			if (len(data) == 7):
-				alias = alias + ":"
-				data.append("")
 			patient_values = ":".join(tokens[1:len(tokens)-1])
 			for val in tokens[1:(len(tokens)-1)]:
 				if (db_util.is_numeric(val)):
@@ -145,8 +147,7 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 				else:
 					valuesArray.append(0.0)
 			patient_value_mean = sum(valuesArray)/len(valuesArray)
-			#outfile.write(str(featureId) + "\t" + alias + "\t" + "\t".join(data) + "\t" + patient_values + "\t" + str(patient_value_mean) + "\n")
-			out_hash[afmid] = str(featureId) + "\t" + alias + "\t" + "\t".join(data) + "\t" + patient_values + "\t" + str(patient_value_mean)
+			out_hash[afmid] = str(featureId) + "\t" + alias + "\t" + "\t".join(data) + "\t" + patient_values + "\t" + str(patient_value_mean) + "\t" + gene_interesting_score
 		else:
 			print "duplicated feature in feature set:" + tokens[0]
 		featureId += 1
@@ -168,9 +169,6 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 				fline = out_hash.get(afmkey)
 				if (fline != None):
 					out_hash[afmkey] = fline + "\t" + fv + "\t" + fq
-				#need to confirm and make sure that the new two columns in schema is defined with initial value of NULL
-				#else:
-				#	out_hash[afmkey] = fline + "\t" + "\t"		
 	for val in out_hash.values():
 		outfile.write(val + "\n")					
 		

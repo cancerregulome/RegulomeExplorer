@@ -58,7 +58,6 @@ def buildMeta(metaf, reinstance="tut"):
 	process_afm_cmd	= "python parse_features_rfex.py %s %s %s %s %s" %(afm, dslabel, config_file, annotations, quantileFeatures)
 	os.system(process_afm_cmd)
 	#method specific schema 
-	
 	rf_schema_cmd = "python createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_rface_template.sql " + config_file
 	os.system(rf_schema_cmd)	
 	#process associations
