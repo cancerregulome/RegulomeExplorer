@@ -38,9 +38,9 @@ CREATE TABLE #REPLACE#_features
    label_desc varchar(50),
    patient_values longtext,
    patient_values_mean double,
+   gene_interesting_score double,
    quantile_val double DEFAULT NULL,
-   quantile varchar(3) DEFAULT NULL,
-   gene_interesting_score double
+   quantile varchar(3) DEFAULT NULL
 );
 
 CREATE INDEX CHR ON #REPLACE#_features(chr);
