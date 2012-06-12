@@ -1517,9 +1517,7 @@ function scatterplot_draw(params) {
         discretize_x = params.discretize_x || false,
         discretize_y = params.discretize_y || false;
     re.plot.scatterplot_data = data;
-
     if (data === undefined) {return;}  //prevent null plot
-
     var dataset_labels=re.ui.getDatasetLabels();
     var patient_labels = dataset_labels['patients'];
     var f1 = data.f1alias, f2 = data.f2alias;
@@ -1527,13 +1525,13 @@ function scatterplot_draw(params) {
     var f2label = data.f2alias.split(':')[1] + " " + data.f2alias.split(':')[2];
     var f1values, f2values;
     var categories = re.plot.scatterplot_categories;
-
-    if (isNonLinear(f1label[0])) {
+    if (isNonLinear(data.f1alias.split(':')[0])){
+	//f1label[0])) {
         f1values = data.f1values.split(':');
     } else {
         f1values = data.f1values.split(':').map(function(val) {return parseFloat(val);});
     }
-    if (isNonLinear(f2label[0])) {
+    if (isNonLinear(data.f2alias.split(':')[0])){//f2label[0])) {
         f2values = data.f2values.split(':');
     } else {
         f2values = data.f2values.split(':').map(function(val) {return parseFloat(val);});
@@ -1541,7 +1539,6 @@ function scatterplot_draw(params) {
     var dot_colors;
     var fill_style_fn = undefined;
     var stroke_style_fn = undefined;
-
     if (categories !== undefined) {
         var unique_categories = pv.uniq(categories);
         dot_colors = pv.Colors.category10(unique_categories);
@@ -1557,8 +1554,6 @@ function scatterplot_draw(params) {
         fill_style_fn = function() {return pv.color('steelblue').alpha(0.2);};
         stroke_style_fn = function() {return "steelblue";};
     }
-
-
     if (f1values.length != f2values.length) {
         vq.events.Dispatcher.dispatch(new vq.events.Event('render_fail','scatterplot','Data cannot be rendered correctly.'));
         return;
@@ -1575,18 +1570,14 @@ function scatterplot_draw(params) {
 	    data_array.push(obj);
         }
     }
-
     function reverseAxes() {
         config.CONTENTS.xcolumnid = f2;config.CONTENTS.ycolumnid=f1;config.CONTENTS.xcolumnlabel=f2label;config.CONTENTS.ycolumnlabel=f1label;
         tooltip[data.f1alias]=f2;tooltip[data.f2alias]=f1;
         config.CONTENTS.tooltip_items=tooltip;
     }
-
     var tooltip = {};
     tooltip[data.f1alias] = f1,tooltip[data.f2alias] = f2,tooltip['Sample'] = 'patient_id';
-
     if(discretize_x && f1label != 'B') {
-
         var quartiles = pv.Scale.quantile(f1values).quantiles(4).quantiles();
         //Freedman-Diaconis' choice for bin size
         var setSize = 2 * (quartiles[3] - quartiles[1]) / Math.pow(f1values.length,0.33);
@@ -1599,9 +1590,8 @@ function scatterplot_draw(params) {
     }
     f1label = (discretize_x ? 'B' : f1label[0]) + f1label.slice(1);
     f2label = (discretize_y ? 'B' : f2label[0]) + f2label.slice(1);
-    var violin = (isNonLinear(f1label[0]) ^ isNonLinear(f2label[0])); //one is nonlinear, one is not
-    var cubbyhole = isNonLinear(f1label[0]) && isNonLinear(f2label[0]);
-
+    var violin = (isNonLinear(data.f1alias.split(':')[0]) ^ isNonLinear(data.f2alias.split(':')[0])); //one is nonlinear, one is not
+    var cubbyhole = isNonLinear(data.f1alias.split(':')[0]) && isNonLinear(data.f2alias.split(':')[0]);
     var sp,config;
     if (violin)     {
         sp = new vq.ViolinPlot();

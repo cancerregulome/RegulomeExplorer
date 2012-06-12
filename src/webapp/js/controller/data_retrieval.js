@@ -224,7 +224,7 @@ function loadFeatureData(link) {
     var patients = {
         data: null
     };
-    var query_str = 'select f1alias, f1values, f2alias, f2values ' + 'where f1alias  = \'' + link.sourceNode.id + '\' and f2alias = \'' + link.targetNode.id + '\' limit 1';
+    var query_str = 'select f1alias, f1values, f2alias, f2values ' + 'where f1alias  = \'' + link.sourceNode.id + '\' and f2alias = \'' + link.targetNode.id + '\' or (f2alias = \'' + link.sourceNode.id + '\' and f1alias = \'' + link.targetNode.id+  '\') limit 1';
     var query_json = {
         tq: query_str,
         tqx: 'out:json_array'
