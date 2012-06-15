@@ -24,7 +24,7 @@ vq.utils.VisUtils.extend(re, {
         network_query: ''
     },
     node: {
-        uri: 'http://intianjora.cs.tut.fi:3001/node',
+        uri: '/node',
         services: {
             data: '/data',
             lookup:'/lookup/label/entrez'
@@ -162,7 +162,7 @@ vq.utils.VisUtils.extend(re, {
                     config_object: function(feature) {
                         if (['CNVR', 'MIRN','METH'].indexOf(feature.source) >= 0) return null;
 			entrez = getGeneName.getValue(feature.label, "entrez");
-			if (isUnsignedInteger(entrez))
+			if (re.ui.isUnsignedInteger(entrez))
 				return 'http://www.ncbi.nlm.nih.gov/gene/' + entrez;
 			return 'http://www.ncbi.nlm.nih.gov/gene?term='+feature.label;
 
@@ -280,9 +280,6 @@ vq.utils.VisUtils.extend(re, {
 	isUnsignedInteger : function (s) {
              return (s.toString().search(/^[0-9]+$/) == 0);
         },
-
-	
-
 	chromosomes: [],
         dataset_labels: [],
         getDatasetLabels: function() {
@@ -357,7 +354,6 @@ vq.utils.VisUtils.extend(re, {
          */
         order_list: []
     },
-
 /*
      Window handles
      global handles to the masks and windows used by events
@@ -408,7 +404,6 @@ vq.utils.VisUtils.extend(re, {
         value: 'Y',
         label: 'Y'
     });
-
 /*
      Label map
      Hash maps feature type id to feature type label
@@ -428,9 +423,7 @@ vq.utils.VisUtils.extend(re, {
     re.plot.all_source_list = pv.blend([re.plot.locatable_source_list, re.plot.unlocatable_source_list]);
     re.plot.all_source_map = pv.numerate(re.plot.all_source_list);
     re.plot.locatable_source_map = pv.numerate(re.plot.locatable_source_list);
-
     re.plot.proximal_distance = 2.5 * re.plot.linear_unit;
-
     re.plot.colors.features = {
         'GEXP': '#1f77b4',
         //blue
@@ -450,12 +443,8 @@ vq.utils.VisUtils.extend(re, {
         'SAMP': '#bcbd22'
         //#17becf
     };
-    //dark blue to light blue to grey to light red to dark red
     re.plot.colors.quants = {"Q1":"#000099", "Q2":"#66A3FF","Q3":"#959595","Q4":"#FF8080","Q5":"#800000"};
-//{"Q1":"#000099", "Q2":"#0066FF","Q3":"#66A3FF","Q4":"#959595","Q5":"#FF8080","Q6":"#FF0000","Q7":"#800000"}; 
-
    re.plot.colors.quantinfo = {"Q1":"<5%", "Q2":"5-25%","Q3":"25-70%","Q4":"75-95%","Q5":">95%"};//,"Q6":"90-95%","Q7":">95%"}; 
-
     re.plot.colors.node_colors = function(source) {
         if (source in re.plot.colors.features) {
             return pv.color(re.plot.colors.features[source]);
