@@ -31,6 +31,7 @@ CREATE TABLE mv_#REPLACE#_feature_networks
    num_nonna_f2 int,
    logged_pvalue_f2 double,
    rho_score double,
+   link_distance int DEFAULT -1,
    f1qtinfo varchar(20) DEFAULT "",
    f2qtinfo varchar(20) DEFAULT "",
    id int AUTO_INCREMENT PRIMARY KEY NOT NULL

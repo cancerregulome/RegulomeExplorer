@@ -30,6 +30,7 @@ CREATE TABLE mv_#REPLACE#_feature_networks
    f1qtinfo varchar(20) DEFAULT "",
    f2qtinfo varchar(20) DEFAULT "",
    rho_score double DEFAULT 0,
+   link_distance int DEFAULT -1,
    id int AUTO_INCREMENT PRIMARY KEY NOT NULL
 );
 
