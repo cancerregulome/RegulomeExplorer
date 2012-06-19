@@ -58,6 +58,7 @@ vq.utils.VisUtils.extend(re.ui, {
                                         //formBind : true,
                                         listeners : {
                                             click : function(button,e) {
+						Ext.getCmp("filter_type").setValue(re.ui.feature1.id);
 						if ((Ext.getCmp("t_type").getValue() == 'GEXP' && Ext.getCmp("p_type").getValue() != 'Pathway')
 						|| (Ext.getCmp("t_type").getValue() != 'Pathway' && Ext.getCmp("p_type").getValue() == 'GEXP')){
 							//Ext.getCmp("pathway_member_panel").setTitle("Filtered member degrees");		
@@ -622,8 +623,9 @@ vq.utils.VisUtils.extend(re.ui, {
                                         valueField:'id',
                                         id:'filter_type',
                                         mode: 'local',
-                                        defaultValue:'association',
-                                        value:'association',
+					hidden: true,
+                                        defaultValue:re.ui.feature1['id'],
+                                        value:re.ui.feature1['id'],
                                         typeAhead : true,
                                         forceSelection : true,
                                         selectOnFocus: true,

@@ -305,7 +305,7 @@ function pathway_members_draw(div,anchor,networks) {
 	if (mcount > 0)
 		memberCountArray[member] = mcount;
     }
-    var mc = re.ui.getPathwayMembersQueryCounts();
+    //var mc = re.ui.etPathwayMembersQueryCounts();
     var sortedMembers = {};
     var tuples = [];
     for (var key in memberCountArray) tuples.push([key, memberCountArray[key]]);
@@ -317,8 +317,9 @@ function pathway_members_draw(div,anchor,networks) {
     for (var i = 0; i < tuples.length; i++) {
         var key = tuples[i][0];
         var value = tuples[i][1];
-	if (key == "remove" || !re.ui.isUnsignedInteger(value))
+	if (key == "remove" || !re.ui.isUnsignedInteger(value)){
 		continue;
+	}
         sortedMembers[key] = value;
     }
     var stuples = [];
@@ -342,12 +343,12 @@ function pathway_members_draw(div,anchor,networks) {
     	return b[1] - a[1];
     });
     var source_map = pv.numerate(dataset_labels['feature_sources'], function(row) {return row.source;});
-    var current_locatable_data = stuples; 
+    //var current_locatable_data = stuples; 
     var current_data = re.plot.all_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
     var current_map = pv.numerate(current_data);
     var anchor = anchor || 'top-right';
     var width=800, height=800;
-    var legend_height = (30 + current_locatable_data.length * 13), legend_width = 400;
+    var legend_height = (30 + stuples.length * 13), legend_width = 400;
     var top = 20, left = 0;
         re.plot.colors.link_sources_colors = function(link) { return re.plot.link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
     var vis= new pv.Panel()
@@ -654,9 +655,10 @@ function pathway_members_draw(div,anchor,networks) {
 	.anchor("left").add(pv.Label)
 	.textStyle(function(d)
 		{
-		 var m = d[0];
-                if (mc[m] == 0)
+		//var m = d[0];
+                if ( re.ui.getPathwayMembersQueryCounts()[d[0]] == 0){
                         return "red";
+		}
                 return "black";
 		}
 	)
@@ -688,12 +690,10 @@ function legend_draw(div,anchor) {
 	var indent = 12;
 	var lineHeight = 12;
 	var nFeatureTypes = current_locatable_data.length;
-
 	var variableTypeBoxHeight = padding + 5 + nFeatureTypes * lineHeight;
+	//var dataRingTypes = ['1. Cytoband','2. Gene Expression','3. Methylation','4. Copy Number','5. Unmapped Associations'];
 
-	var dataRingTypes = ['Cytogenetic','Gene Expression','Methylation','Copy Number','Unmapped Associations'];
-
-	var dataRingBoxHeight = padding + dataRingTypes.length * lineHeight;
+	var dataRingBoxHeight = padding + re.plot.legend.dataRingTypes.length * lineHeight;
 	var quantileBoxHeight = padding + Object.keys(re.plot.colors.quantinfo).length * lineHeight;
 	// Three legend boxes on top of each other
     var legend_height = variableTypeBoxHeight + dataRingBoxHeight + quantileBoxHeight + 3 * 5;
@@ -768,17 +768,17 @@ function legend_draw(div,anchor) {
         .textAlign('left')
         .top(padding) // 22
         .left(indent)
-        .text('Data Rings')
+        .text('Outer Data Rings')
         .font("15px helvetica");
 
      var datarings = ringPanel.add(pv.Panel)
-        .data(dataRingTypes)
+        .data(re.plot.legend.dataRingTypes)
         .top(function() { return padding + 5 + this.index * lineHeight;})
         .height(lineHeight);
 	datarings.add(pv.Label)
         .textAlign('left')
         .left(indent)
-        .text(function (d){return d;})
+        .text(function (d){return (d);})
 	.textBaseline('bottom')
         .font("11px helvetica");
 

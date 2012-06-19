@@ -352,6 +352,8 @@ function loadNetworkData(response) {
 
     case (re.ui.feature1.id):
     case (re.ui.feature2.id):
+    case (re.ui.feature1.label):
+    case (re.ui.feature2.label):
         loadNetworkDataByFeature(response)
         break;
     case ('association'):

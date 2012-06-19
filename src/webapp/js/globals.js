@@ -263,7 +263,7 @@ vq.utils.VisUtils.extend(re, {
         inter_scale: pv.Scale.linear(0.00005, 0.0004).range('lightpink', 'red'),
         linear_unit: 100000,
         chrome_length: [],
-
+	legend: {},
         scatterplot_data: null
     },
     ui: {
@@ -443,6 +443,7 @@ vq.utils.VisUtils.extend(re, {
         'SAMP': '#bcbd22'
         //#17becf
     };
+    re.plot.legend.dataRingTypes = ['1. Cytoband','2. Gene Expression','3. Methylation','4. Copy Number','5. Unmapped Associations'];
     re.plot.colors.quants = {"Q1":"#000099", "Q2":"#66A3FF","Q3":"#959595","Q4":"#FF8080","Q5":"#800000"};
    re.plot.colors.quantinfo = {"Q1":"<5%", "Q2":"5-25%","Q3":"25-70%","Q4":"75-95%","Q5":">95%"};//,"Q6":"90-95%","Q7":">95%"}; 
     re.plot.colors.node_colors = function(source) {
