@@ -127,14 +127,17 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 			continue	
 		f1genescore = ""
 		f2genescore = ""
-		
+		rhoscore = ""
+		link_distance = -1
+		if (len(f1data[4]) >= 1 and len(f2data[4]) >= 1 and f1data[3] == f2data[3]):
+			link_distance = abs(int(f2data[4]) - int(f1data[4]))
 		if (collapse_direction == 0):
-			associations_dic[f1afm_id + "_" + f2afm_id] = f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\t" + f1qtinfo + "\t" + f2qtinfo + "\n"
+			associations_dic[f1afm_id + "_" + f2afm_id] = f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\t" + f1qtinfo + "\t" + f2qtinfo + "\t" + rhoscore + "\t" + str(link_distance) + "\n"
 		else:
 			#check whether (f1 -> f2 or f2 -> f1) exists, if yes, take the more important
 			#if not, store pair
 			if ((associations_dic.get(f1afm_id + "_" + f2afm_id) == None) and (associations_dic.get(f2afm_id + "_" + f1afm_id) == None)):
-				associations_dic[f1afm_id + "_" + f2afm_id] = f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\t" + f1qtinfo + "\t" + f2qtinfo + "\n"
+				associations_dic[f1afm_id + "_" + f2afm_id] = f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\t" + f1qtinfo + "\t" + f2qtinfo +  "\t" + rhoscore + "\t" + str(link_distance) + "\n"
 			else:
 				existingLink = associations_dic.get(f1afm_id + "_" + f2afm_id)
 				ekey = f1afm_id + "_" + f2afm_id
@@ -143,10 +146,10 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 					ekey = f2afm_id + "_" + f1afm_id
 				prevImportance = existingLink.split("\t")[3]
 				if (float(importance) > float(prevImportance)):
-					associations_dic[ekey] = f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\t" + f1qtinfo + "\t" + f2qtinfo + "\n"					 			 
+					associations_dic[ekey] = f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\t" + f1qtinfo + "\t" + f2qtinfo +  "\t" + rhoscore + "\t" + str(link_distance) + "\n"					 			 
 		#tsvout.write(f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + str(parse_features_rfex.getFeatureId(columns[0])) + "\t" + "\t".join(f1data) + "\t" + str(parse_features_rfex.getFeatureId(columns[1])) + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\n")
 		if (reverse_direction == 1):
-			associations_dic[f2afm_id + "_" + f1afm_id] = f2alias + "\t" + f1alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2genescore + "\t" + f1genescore + "\t" + f2qtinfo + "\t" + f1qtinfo + "\n"
+			associations_dic[f2afm_id + "_" + f1afm_id] = f2alias + "\t" + f1alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2genescore + "\t" + f1genescore + "\t" + f2qtinfo + "\t" + f1qtinfo +  "\t" + rhoscore + "\t" + str(link_distance) + "\n"
 			edgeCount = edgeCount + 1
 		edgeCount = edgeCount + 1
 		if (do_pubcrawl == "yes"):
