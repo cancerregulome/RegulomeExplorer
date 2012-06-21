@@ -1,3 +1,7 @@
+function errorInQuery(response) {
+    return !!~response.indexOf('status:\'error\'');
+}
+
 function flex_field_query(label, value, fn) {
     var where = '';
     if (value + '' != '') {

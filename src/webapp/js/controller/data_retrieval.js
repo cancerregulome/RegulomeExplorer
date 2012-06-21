@@ -41,6 +41,7 @@ function loadDatasetLabels() {
 
     function clinicalLabelQueryHandler(response) {
         try {
+            if(errorInQuery(response.responseText)){throwQueryError('clin_labels', response);}
             dataset_labels['clin_labels'] = Ext.decode(response.responseText);
         } catch (err) {
             throwQueryError('clin_labels', response);
@@ -70,6 +71,7 @@ function loadDatasetLabels() {
 
     function featureSourceQueryHandler(response) {
         try {
+            if(errorInQuery(response.responseText)){throwQueryError('feature_sources', response);}
             dataset_labels['feature_sources'] = Ext.decode(response.responseText);
         } catch (err) {
             throwQueryError('feature_sources', response);
@@ -89,6 +91,7 @@ function loadDatasetLabels() {
 
     function patientQueryHandle(response) {
         try {
+            if(errorInQuery(response.responseText)){throwQueryError('patients', response);}
             dataset_labels['patients'] = Ext.decode(response.responseText)[0]['barcode'].split(':');
         } catch (err) {
             throwQueryError('patients_barcode', response);
@@ -114,6 +117,7 @@ function lookupLabelPosition(label_obj) {
 
     function positionQueryHandle(response) {
         try {
+            if(errorInQuery(response.responseText)){throwQueryError('label_position', response);}
             position_array = Ext.decode(response.responseText);
             if (position_array.length == 1) {
                 loadComplete();
@@ -162,6 +166,7 @@ function loadFeatureData(link) {
 
     function patientQueryHandle(response) {
         try {
+            if(errorInQuery(response.responseText)){throwQueryError('features', response);}
             patients['data'] = Ext.decode(response.responseText);
             if (patients['data'].length == 1) {
                 loadComplete();
@@ -202,6 +207,7 @@ function loadAnnotations() {
 
     function handleChromInfoQuery(response) {
         try {
+            if(errorInQuery(response.responseText)){throwQueryError('annotations', response);}
             annotations['chrom_leng'] = Ext.decode(response.responseText);
             if (annotations['chrom_leng'].length >= 1) {
                 loadComplete();
@@ -268,6 +274,7 @@ function loadNetworkDataSingleFeature(params) {
 
     function handleNetworkQuery(response) {
         try {
+            if(errorInQuery(response.responseText)){throwQueryError('associations', response);}
             responses.push(Ext.decode(response.responseText));
         } catch (err) { //an error detected in one of the responses
             throwQueryError('associations', response);
@@ -334,6 +341,8 @@ function loadNetworkDataByFeature(params) {
 
     function handleNetworkQuery(response) {
         try {
+
+            if(errorInQuery(response.responseText)){throwQueryError('associations', response);}
             responses.push(Ext.decode(response.responseText));
             if (responses.length >= labels.length) {
                 responses = pv.blend(responses);
@@ -388,6 +397,8 @@ function loadDirectedNetworkDataByAssociation(params) {
 
     function handleNetworkQuery(response) {
         try {
+
+            if(errorInQuery(response.responseText)){throwQueryError('associations', response);}
             responses = Ext.decode(response.responseText);
             if (responses.length >= 1) {
                 loadComplete();
@@ -426,6 +437,7 @@ function loadUndirectedNetworkDataByAssociation(params) {
 
     function handleNetworkQuery(response) {
         try {
+            if(errorInQuery(response.responseText)){throwQueryError('associations', response);}
             responses.push(Ext.decode(response.responseText));
             if (responses.length == 2) {
                 responses = pv.blend(responses);
@@ -499,7 +511,7 @@ function throwQueryError(query_type, response) {
     var json = Ext.decode(text.slice(json_index, -2));
     var error = json.errors[0];
     vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail', query_type, {
-        msg: error.message + error.detailed_message
+        msg: error.message //+ error.detailed_message
     }));
 }
 
