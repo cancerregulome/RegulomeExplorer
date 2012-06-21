@@ -1461,21 +1461,7 @@ var loadListener = function(store, records) {
     var e = new vq.events.Event('data_request', 'annotations', {});
     e.dispatch();
 
-    var sortedRecords = [];
-    Ext.each(records, function(record) {
-        sortedRecords.push(record);
-    });
-    sortedRecords.sort(function(a, b) {
-        if (a.json && b.json) {
-            var apath = a.json.org_path;
-            var bpath = b.json.org_path;
-            if (apath == bpath) return 0;
-            if (apath > bpath) return 1;
-            if (apath < bpath) return -1;
-        }
-        return 0;
-    });
-    pathedMenu.addPathedItems(sortedRecords);
+    pathedMenu.addPathedItems(records);
 };
 
 re.windows.dataset_window = new Ext.Window({
@@ -1788,7 +1774,22 @@ org.cancerregulome.explorer.view.PathedMenu = Ext.extend(Ext.menu.Menu, {
     },
 
     addPathedItems: function(records) {
+        var sortedRecords = [];
         Ext.each(records, function(record) {
+            sortedRecords.push(record);
+        });
+        sortedRecords.sort(function(a, b) {
+            if (a.json && b.json) {
+                var apath = a.json.org_path;
+                var bpath = b.json.org_path;
+                if (apath == bpath) return 0;
+                if (apath > bpath) return 1;
+                if (apath < bpath) return -1;
+            }
+            return 0;
+        });
+
+        Ext.each(sortedRecords, function(record) {
             var item = record.json;
             if (item) {
                 item.path = item.org_path;
