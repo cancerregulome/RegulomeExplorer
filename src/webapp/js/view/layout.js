@@ -1778,7 +1778,7 @@ org.cancerregulome.explorer.view.PathedMenu = Ext.extend(Ext.menu.Menu, {
             var item = record.json;
             if (item) {
                 item.path = item.org_path;
-                if (!item.path) item.path = "/Unclassified";
+                if (!item.path) item.path = "/Other";
 
                 var label = item.label;
                 var description = item.description;
