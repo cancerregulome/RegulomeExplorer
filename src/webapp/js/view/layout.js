@@ -934,44 +934,44 @@ Ext.onReady(function() {
                 menu: [
                     { text: "Datasets", menu: pathedMenu },
                     {
-                    text: 'Select',
-                    handler: loadDataDialog
-                }, {
-                    text: 'Export',
-                    menu: [{
-                        text: 'CSV',
-                        value: 'csv',
-                        handler: exportData
+                        text: 'Select',
+                        handler: loadDataDialog
                     }, {
-                        text: 'TSV',
-                        value: 'tsv',
-                        handler: exportData
-                    }, {
-                        text: 'Circular',
-                        id: 'circular-export-menu',
+                        text: 'Export',
                         menu: [{
-                            text: 'SVG',
-                            value: 'svg',
-                            handler: exportImage
+                            text: 'CSV',
+                            value: 'csv',
+                            handler: exportData
                         }, {
-                            text: 'PNG',
-                            value: 'png',
-                            handler: exportImage
-                        }]
-                    }, {
-                        text: 'Linear',
-                        id: 'linear-export-menu',
-                        menu: [{
-                            text: 'SVG',
-                            value: 'svg',
-                            handler: exportImage
+                            text: 'TSV',
+                            value: 'tsv',
+                            handler: exportData
                         }, {
-                            text: 'PNG',
-                            value: 'png',
-                            handler: exportImage
+                            text: 'Circular',
+                            id: 'circular-export-menu',
+                            menu: [{
+                                text: 'SVG',
+                                value: 'svg',
+                                handler: exportImage
+                            }, {
+                                text: 'PNG',
+                                value: 'png',
+                                handler: exportImage
+                            }]
+                        }, {
+                            text: 'Linear',
+                            id: 'linear-export-menu',
+                            menu: [{
+                                text: 'SVG',
+                                value: 'svg',
+                                handler: exportImage
+                            }, {
+                                text: 'PNG',
+                                value: 'png',
+                                handler: exportImage
+                            }]
                         }]
                     }]
-                }]
             }, {
                 id: 'displayMenu',
                 text: 'Display',
@@ -1195,567 +1195,567 @@ Ext.onReady(function() {
                                     render: function(field) {
                                         re.display_options.circvis.rings.pairwise_scores.min_y_value = field.value;
                                     },
-                                   change: function(field, value) {
-                                    re.display_options.circvis.rings.pairwise_scores.min_y_value = value;}
-                            }
-                        },{
-                            xtype:'label',
-                            text:'Max'
-                        },{
-                            xtype:'numberfield',
-                            text:'Max',
-                            width: 50,
-                            value:1,
-                            id:'max_y_axis',
-                            allowBlank:false,
-                                allowDecimals: true,
-                                decimalPrecision:6,
-                            disabled:!re.display_options.circvis.rings.pairwise_scores.manual_y_values,
-                            listeners: {
-                                render:function(field) {
-                                    re.display_options.circvis.rings.pairwise_scores.max_y_value = field.value;
-                            },
-                            change: function(field, value) {
-                                re.display_options.circvis.rings.pairwise_scores.max_y_value = value;}
-                        }
-                    }]}]
-            }, {
-                text: 'Color Scale',
-
-                menu:[
-                    {
-                        xtype:'compositefield',
-                        items:[
-                            {
-                                xtype:'checkbox',
-                                handler: function(checbox,checked) { re.display_options.circvis.rings.pairwise_scores.manual_y_color_scale = checked;
-                                    Ext.getCmp('min_y_color_menu').setDisabled(!checked);
-                                    Ext.getCmp('max_y_color_menu').setDisabled(!checked);}
+                                    change: function(field, value) {
+                                        re.display_options.circvis.rings.pairwise_scores.min_y_value = value;}
+                                }
                             },{
                                 xtype:'label',
-                                text:'Set Manually'
+                                text:'Max'
+                            },{
+                                xtype:'numberfield',
+                                text:'Max',
+                                width: 50,
+                                value:1,
+                                id:'max_y_axis',
+                                allowBlank:false,
+                                allowDecimals: true,
+                                decimalPrecision:6,
+                                disabled:!re.display_options.circvis.rings.pairwise_scores.manual_y_values,
+                                listeners: {
+                                    render:function(field) {
+                                        re.display_options.circvis.rings.pairwise_scores.max_y_value = field.value;
+                                    },
+                                    change: function(field, value) {
+                                        re.display_options.circvis.rings.pairwise_scores.max_y_value = value;}
+                                }
+                            }]}]
+                    }, {
+                        text: 'Color Scale',
+
+                        menu:[
+                            {
+                                xtype:'compositefield',
+                                items:[
+                                    {
+                                        xtype:'checkbox',
+                                        handler: function(checbox,checked) { re.display_options.circvis.rings.pairwise_scores.manual_y_color_scale = checked;
+                                            Ext.getCmp('min_y_color_menu').setDisabled(!checked);
+                                            Ext.getCmp('max_y_color_menu').setDisabled(!checked);}
+                                    },{
+                                        xtype:'label',
+                                        text:'Set Manually'
+                                    }]
+                            },{
+                                xtype:'compositefield',
+                                id:'min_y_color_menu',
+                                width:200,
+                                disabled: !re.display_options.circvis.rings.pairwise_scores.manual_y_color_scale,
+                                items:[{
+                                    text:'Min Color',
+                                    xtype:'label'
+                                },{
+                                    id:'min_y_color',
+                                    xtype:'colorpickerfield',
+                                    value:'#0000FF',
+                                    editMode:'all',
+                                    width:120,
+                                    handler :function(field, value) {
+                                        re.display_options.circvis.rings.pairwise_scores.min_y_color = '#' +value;
+                                    }
+                                }]
+                            }, {
+                                xtype:'compositefield',
+                                id:'max_y_color_menu',
+                                width:200,
+                                disabled: !re.display_options.circvis.rings.pairwise_scores.manual_y_color_scale,
+                                items:[{
+                                    text:'Max Color',
+                                    xtype:'label'
+                                },{
+                                    id:'max_y_color',
+                                    xtype:'colorpickerfield',
+                                    width:120,
+                                    value:'#FF0000',
+                                    hideOnClick:false,
+                                    editMode:'all',
+                                    handler:function(field, value) {
+                                        re.display_options.circvis.rings.pairwise_scores.max_y_color = '#' +value;
+                                    }
+
+                                }]
                             }]
-                    },{
-                        xtype:'compositefield',
-                        id:'min_y_color_menu',
-                        width:200,
-                        disabled: !re.display_options.circvis.rings.pairwise_scores.manual_y_color_scale,
-                        items:[{
-                            text:'Min Color',
-                            xtype:'label'
-                        },{
-                            id:'min_y_color',
-                            xtype:'colorpickerfield',
-                            value:'#0000FF',
-                            editMode:'all',
-                            width:120,
-                            handler :function(field, value) {
-                                re.display_options.circvis.rings.pairwise_scores.min_y_color = '#' +value;
-                            }
-                        }]
-                    }, {
-                        xtype:'compositefield',
-                        id:'max_y_color_menu',
-                        width:200,
-                        disabled: !re.display_options.circvis.rings.pairwise_scores.manual_y_color_scale,
-                        items:[{
-                            text:'Max Color',
-                            xtype:'label'
-                        },{
-                            id:'max_y_color',
-                            xtype:'colorpickerfield',
-                            width:120,
-                            value:'#FF0000',
-                            hideOnClick:false,
-                            editMode:'all',
-                            handler:function(field, value) {
-                                re.display_options.circvis.rings.pairwise_scores.max_y_color = '#' +value;
-                            }
-
-                        }]
                     }]
-            }]
-        }]
-    }, {
-        id: 'modalMenu',
-        text: 'Mode',
-        labelStyle: 'font-weight:bold;',
-        menu: [{
-            text: 'Circular Plot',
-            menu: [{
-                xtype: 'menucheckitem',
-                handler: modeHandler,
-                checked: true,
-                id: 'explore_check',
-                group: 'mode_group',
-                text: 'Explore',
-                value: 'explore'
+                }]
             }, {
-                xtype: 'menucheckitem',
-                handler: modeHandler,
-                group: 'mode_group',
-                id: 'nav_check',
-                text: 'Navigate',
-                value: 'navigate'
-            }, {
-                xtype: 'menucheckitem',
-                handler: modeHandler,
-                group: 'mode_group',
-                disabled: true,
-                id: 'select_check',
-                text: 'Select',
-                value: 'Select'
-            }]
-        }]
-    }, {
-        id: 'helpMenu',
-        text: 'Help',
-        labelStyle: 'font-weight:bold;',
-        menu: [{
-            text: 'User Guide',
-            handler: userGuideHandler
-        }, {
-            text: 'Quick Start Guide',
-            handler: function() {
-                openBrowserTab(re.help.links.quick_start)
-            }
-        }, {
-            text: 'Circular Ideogram'
-        }, {
-            handler: function() {
-                openBrowserTab(re.help.links.user_group)
-            },
-            text: 'User Group'
-        }, {
-            handler: openIssueHandler,
-            text: 'Report an Issue/Bug'
-        }]
-    }, {
-        id: 'aboutMenu',
-        text: 'About',
-        labelStyle: 'font-weight:bold;',
-        menu: [{
-            text: 'CSACR',
-            handler: function() {
-                openBrowserTab('http://www.cancerregulome.org/')
-            }
-        }, {
-            handler: openCodeRepository,
-            text: 'Code Repository'
-        }, {
-            text: 'This Analysis',
-            handler: function() {
-                openBrowserTab(re.help.links.analysis_summary)
-            }
-        }, {
-            text: 'Contact Us',
-            handler: function() {
-                openBrowserTab(re.help.links.contact_us)
-            }
-        }]
-    }]
-}, {
-    region: 'center',
-    id: 'center-panel',
-    name: 'center-panel',
-    layout: 'card',
-    border: false,
-    closable: false,
-    activeItem: 0,
-    height: 800,
-    margins: '0 5 5 0',
-    items: [
-        randomforestPanel]
-}],
-renderTo: Ext.getBody()
-});
-
-
-function ringHandler(item) {
-    re.setRingHidden(item.getId(), item.checked); //hidden if true!
-    requestFeatureFilteredRedraw();
-}
-
-function userGuideHandler(item) {
-    openBrowserTab(re.help.links.user_guide);
-}
-
-function openIssueHandler(item) {
-    openBrowserTab(re.help.links.bug_report);
-}
-
-function openCodeRepository(item) {
-    openBrowserTab('http://code.google.com/p/regulome-explorer/');
-}
-
-function modeHandler(item) {
-    switch (item.getId()) {
-        case ('nav_check'):
-            vq.events.Dispatcher.dispatch(new vq.events.Event('modify_circvis', 'main_menu', {
-                pan_enable: true,
-                zoom_enable: true
-            }));
-            break;
-        case ('explore_check'):
-        default:
-            vq.events.Dispatcher.dispatch(new vq.events.Event('modify_circvis', 'main_menu', {
-                pan_enable: false,
-                zoom_enable: false
-            }));
-    }
-}
-
-function scatterplotFieldHandler(item) {
-    re.display_options.circvis.rings.pairwise_scores.value_field = re.model.association.types[re.model.association_map[item.value]].id;
-}
-
-function networkLayoutHandler(item) {
-    switch (item.text) {
-        case ('Radial'):
-            re.display_options.cytoscape.layout = 'radial';
-            break;
-        case ('Tree'):
-            re.display_options.cytoscape.layout = 'tree';
-            break;
-        case ('Force Directed'):
-        default:
-            re.display_options.cytoscape.layout = 'force_directed';
-            break;
-    }
-    vq.events.Dispatcher.dispatch(new vq.events.Event('layout_network', 'main_menu', {}));
-}
-
-re.windows.export_window = new Ext.Window({
-    id: 'export-window',
-    renderTo: 'view-region',
-    modal: true,
-    closeAction: 'hide',
-    layout: 'anchor',
-    width: 600,
-    height: 500,
-    title: "Export Image",
-    closable: true,
-    tools: [{
-        id: 'help',
-        handler: function(event, toolEl, panel) {
-            openHelpWindow('Export', exportHelpString);
-        }
-    }],
-    layoutConfig: {
-        animate: true
-    },
-    maximizable: false,
-    items: {
-        xtype: 'textarea',
-        id: 'export-textarea',
-        name: 'export-textarea',
-        padding: '5 0 0 0',
-        autoScroll: true,
-        anchor: '100% 100%'
-    }
-});
-re.windows.export_window.hide();
-
-var loadListener = function(store, records) {
-    store.removeListener('load', loadListener);
-    var e = new vq.events.Event('data_request', 'annotations', {});
-    e.dispatch();
-
-    pathedMenu.addPathedItems(records);
-};
-
-re.windows.dataset_window = new Ext.Window({
-    id: 'dataset-window',
-    renderTo: 'view-region',
-    modal: false,
-    closeAction: 'hide',
-    layout: 'fit',
-    width: 600,
-    height: 300,
-    title: "Load Dataset",
-    closable: true,
-    layoutConfig: {
-        animate: true
-    },
-    maximizable: false,
-    items: {
-        xtype: 'grid',
-        id: 'dataset_grid',
-        autoScroll: true,
-        loadMask: true,
-        monitorResize: true,
-        autoWidth: true,
-        height: 250,
-        viewConfig: {
-            forceFit: true
-        },
-        cm: new Ext.grid.ColumnModel({
-            columns: [{
-                header: "Description",
-                width: 120,
-                id: 'description',
-                dataIndex: 'description'
-            }, {
-                header: "Date",
-                width: 90,
-                id: 'dataset_date',
-                dataIndex: 'dataset_date',
-                hidden: false
-            }, {
-                header: "Label",
-                width: 120,
-                id: 'label',
-                dataIndex: 'label',
-                hidden: true
-            }, {
-                header: "Method",
-                width: 70,
-                id: 'method',
-                dataIndex: 'method'
-            }, {
-                header: "Source",
-                width: 70,
-                id: 'source',
-                dataIndex: 'source'
-            }, {
-                header: "Contact",
-                width: 200,
-                id: 'contact',
-                dataIndex: 'contact'
-            }, {
-                header: "Comments",
-                width: 100,
-                id: 'comments',
-                dataIndex: 'comments'
-            }],
-            defaults: {
-                sortable: true,
-                width: 100
-            }
-        }),
-        store: new Ext.data.JsonStore({
-            autoLoad: true,
-            storeId: 'dataset_grid_store',
-            idProperty: 'label',
-            proxy: new Ext.data.HttpProxy({
-                url: re.databases.base_uri + re.databases.rf_ace.uri + re.tables.dataset + re.rest.query + '?' + re.params.query + re.analysis.dataset_method_clause + ' order by default_display DESC' + re.params.json_out
-            }),
-            fields: ['description', 'label', 'dataset_date', 'method', 'source', 'contact', 'comments', 'org_path'],
-            listeners: {
-                load: loadListener
-            }
-        })
-    },
-    bbar: [{
-        text: 'Load',
-        handler: manualLoadSelectedDataset
-    }, {
-        text: 'Cancel',
-        handler: hideDatasetWindow
-    }]
-});
-re.windows.dataset_window.hide();
-
-var medlineStore = new Ext.data.JsonStore({
-    root: 'response.docs',
-    totalProperty: 'response.numFound',
-    idProperty: 'pmid',
-    remoteSort: true,
-    storeId: 'dataDocument_grid_store',
-    fields: ['pmid', 'article_title', 'abstract_text', 'pub_date_month', 'pub_date_year'],
-    proxy: new Ext.data.HttpProxy({
-        url: re.databases.solr.uri + re.databases.solr.select + '?'
-    })
-});
-
-re.windows.details_window = new Ext.Window({
-    id: 'details-window',
-    renderTo: 'view-region',
-    modal: false,
-    closeAction: 'hide',
-    layout: 'fit',
-    width: 600,
-    height: 500,
-    constrain: true,
-    title: "Details",
-    closable: true,
-    layoutConfig: {
-        animate: true
-    },
-    maximizable: false,
-    items: [{
-        xtype: 'tabpanel',
-        id: 'details-tabpanel',
-        name: 'details-tabpanel',
-        activeTab: 'scatterplot_parent',
-        layoutOnCardChange: true,
-        items: [{
-            xtype: 'panel',
-            id: 'scatterplot_parent',
-            name: 'scatterplot_parent',
-            title: 'Data Plot',
-            layout: 'anchor',
-            margins: '3 0 3 3',
-            height: 500,
-            width: 600,
-            frame: true,
-            items: [{
-                xtype: 'panel',
-                id: 'scatterplot_panel',
-                name: 'scatterplot_panel',
-                anchor: '100% -100'
-            }, {
-                xtype: 'panel',
-                id: 'scatterplot_controls',
-                name: 'scatterplot_controls',
-                layout: 'form',
-                items: [{
-                    xtype: 'radiogroup',
-                    id: 'scatterplot_regression_radiogroup',
-                    fieldLabel: 'Regression',
-                    items: [{
+                id: 'modalMenu',
+                text: 'Mode',
+                labelStyle: 'font-weight:bold;',
+                menu: [{
+                    text: 'Circular Plot',
+                    menu: [{
+                        xtype: 'menucheckitem',
+                        handler: modeHandler,
                         checked: true,
-                        boxLabel: 'None',
-                        inputValue: 'none',
-                        name: 'sp_rb'
+                        id: 'explore_check',
+                        group: 'mode_group',
+                        text: 'Explore',
+                        value: 'explore'
                     }, {
-                        boxLabel: 'Linear',
-                        inputValue: 'linear',
-                        name: 'sp_rb'
-                    }],
-                    listeners: {
-                        change: function(checked_radio) {
-                            renderScatterPlot();
-                        }
+                        xtype: 'menucheckitem',
+                        handler: modeHandler,
+                        group: 'mode_group',
+                        id: 'nav_check',
+                        text: 'Navigate',
+                        value: 'navigate'
+                    }, {
+                        xtype: 'menucheckitem',
+                        handler: modeHandler,
+                        group: 'mode_group',
+                        disabled: true,
+                        id: 'select_check',
+                        text: 'Select',
+                        value: 'Select'
+                    }]
+                }]
+            }, {
+                id: 'helpMenu',
+                text: 'Help',
+                labelStyle: 'font-weight:bold;',
+                menu: [{
+                    text: 'User Guide',
+                    handler: userGuideHandler
+                }, {
+                    text: 'Quick Start Guide',
+                    handler: function() {
+                        openBrowserTab(re.help.links.quick_start)
                     }
                 }, {
-                    xtype: 'compositefield',
-                    defaultMargins: '0 20 0 0',
-                    items: [{
-                        xtype: 'checkbox',
-                        id: 'scatterplot_axes_checkbox',
-                        boxLabel: 'Reverse Axes',
-                        listeners: {
-                            check: function(checked) {
-                                renderScatterPlot();
-                            }
-                        }
-                    }, {
-                        xtype: 'checkbox',
-                        id: 'scatterplot_discrete_x_checkbox',
-                        boxLabel: 'Discretize '+re.ui.feature1,
-                        listeners: {
-                            check: function(checked) {
-                                renderScatterPlot();
-                            }
-                        }
-                    }, {
-                        xtype: 'checkbox',
-                        id: 'scatterplot_discrete_y_checkbox',
-                        boxLabel: 'Discretize ' +re.ui.feature2,
-                        listeners: {
-                            check: function(checked) {
-                                renderScatterPlot();
-                            }
-                        }
-                    }]
+                    text: 'Circular Ideogram'
+                }, {
+                    handler: function() {
+                        openBrowserTab(re.help.links.user_group)
+                    },
+                    text: 'User Group'
+                }, {
+                    handler: openIssueHandler,
+                    text: 'Report an Issue/Bug'
+                }]
+            }, {
+                id: 'aboutMenu',
+                text: 'About',
+                labelStyle: 'font-weight:bold;',
+                menu: [{
+                    text: 'CSACR',
+                    handler: function() {
+                        openBrowserTab('http://www.cancerregulome.org/')
+                    }
+                }, {
+                    handler: openCodeRepository,
+                    text: 'Code Repository'
+                }, {
+                    text: 'This Analysis',
+                    handler: function() {
+                        openBrowserTab(re.help.links.analysis_summary)
+                    }
+                }, {
+                    text: 'Contact Us',
+                    handler: function() {
+                        openBrowserTab(re.help.links.contact_us)
+                    }
                 }]
             }]
         }, {
-            xtype: 'panel',
-            id: 'medline_parent',
-            name: 'medline_parent',
-            title: 'MEDLINE',
-            layout: 'anchor',
-            margins: '3 0 3 3',
-            height: 500,
-            width: 600,
-            frame: true,
+            region: 'center',
+            id: 'center-panel',
+            name: 'center-panel',
+            layout: 'card',
+            border: false,
+            closable: false,
+            activeItem: 0,
+            height: 800,
+            margins: '0 5 5 0',
+            items: [
+                randomforestPanel]
+        }],
+        renderTo: Ext.getBody()
+    });
+
+
+    function ringHandler(item) {
+        re.setRingHidden(item.getId(), item.checked); //hidden if true!
+        requestFeatureFilteredRedraw();
+    }
+
+    function userGuideHandler(item) {
+        openBrowserTab(re.help.links.user_guide);
+    }
+
+    function openIssueHandler(item) {
+        openBrowserTab(re.help.links.bug_report);
+    }
+
+    function openCodeRepository(item) {
+        openBrowserTab('http://code.google.com/p/regulome-explorer/');
+    }
+
+    function modeHandler(item) {
+        switch (item.getId()) {
+            case ('nav_check'):
+                vq.events.Dispatcher.dispatch(new vq.events.Event('modify_circvis', 'main_menu', {
+                    pan_enable: true,
+                    zoom_enable: true
+                }));
+                break;
+            case ('explore_check'):
+            default:
+                vq.events.Dispatcher.dispatch(new vq.events.Event('modify_circvis', 'main_menu', {
+                    pan_enable: false,
+                    zoom_enable: false
+                }));
+        }
+    }
+
+    function scatterplotFieldHandler(item) {
+        re.display_options.circvis.rings.pairwise_scores.value_field = re.model.association.types[re.model.association_map[item.value]].id;
+    }
+
+    function networkLayoutHandler(item) {
+        switch (item.text) {
+            case ('Radial'):
+                re.display_options.cytoscape.layout = 'radial';
+                break;
+            case ('Tree'):
+                re.display_options.cytoscape.layout = 'tree';
+                break;
+            case ('Force Directed'):
+            default:
+                re.display_options.cytoscape.layout = 'force_directed';
+                break;
+        }
+        vq.events.Dispatcher.dispatch(new vq.events.Event('layout_network', 'main_menu', {}));
+    }
+
+    re.windows.export_window = new Ext.Window({
+        id: 'export-window',
+        renderTo: 'view-region',
+        modal: true,
+        closeAction: 'hide',
+        layout: 'anchor',
+        width: 600,
+        height: 500,
+        title: "Export Image",
+        closable: true,
+        tools: [{
+            id: 'help',
+            handler: function(event, toolEl, panel) {
+                openHelpWindow('Export', exportHelpString);
+            }
+        }],
+        layoutConfig: {
+            animate: true
+        },
+        maximizable: false,
+        items: {
+            xtype: 'textarea',
+            id: 'export-textarea',
+            name: 'export-textarea',
+            padding: '5 0 0 0',
+            autoScroll: true,
+            anchor: '100% 100%'
+        }
+    });
+    re.windows.export_window.hide();
+
+    var loadListener = function(store, records) {
+        store.removeListener('load', loadListener);
+        var e = new vq.events.Event('data_request', 'annotations', {});
+        e.dispatch();
+
+        pathedMenu.addPathedItems(records);
+    };
+
+    re.windows.dataset_window = new Ext.Window({
+        id: 'dataset-window',
+        renderTo: 'view-region',
+        modal: false,
+        closeAction: 'hide',
+        layout: 'fit',
+        width: 600,
+        height: 300,
+        title: "Load Dataset",
+        closable: true,
+        layoutConfig: {
+            animate: true
+        },
+        maximizable: false,
+        items: {
+            xtype: 'grid',
+            id: 'dataset_grid',
+            autoScroll: true,
+            loadMask: true,
+            monitorResize: true,
+            autoWidth: true,
+            height: 250,
+            viewConfig: {
+                forceFit: true
+            },
+            cm: new Ext.grid.ColumnModel({
+                columns: [{
+                    header: "Description",
+                    width: 120,
+                    id: 'description',
+                    dataIndex: 'description'
+                }, {
+                    header: "Date",
+                    width: 90,
+                    id: 'dataset_date',
+                    dataIndex: 'dataset_date',
+                    hidden: false
+                }, {
+                    header: "Label",
+                    width: 120,
+                    id: 'label',
+                    dataIndex: 'label',
+                    hidden: true
+                }, {
+                    header: "Method",
+                    width: 70,
+                    id: 'method',
+                    dataIndex: 'method'
+                }, {
+                    header: "Source",
+                    width: 70,
+                    id: 'source',
+                    dataIndex: 'source'
+                }, {
+                    header: "Contact",
+                    width: 200,
+                    id: 'contact',
+                    dataIndex: 'contact'
+                }, {
+                    header: "Comments",
+                    width: 100,
+                    id: 'comments',
+                    dataIndex: 'comments'
+                }],
+                defaults: {
+                    sortable: true,
+                    width: 100
+                }
+            }),
+            store: new Ext.data.JsonStore({
+                autoLoad: true,
+                storeId: 'dataset_grid_store',
+                idProperty: 'label',
+                proxy: new Ext.data.HttpProxy({
+                    url: re.databases.base_uri + re.databases.rf_ace.uri + re.tables.dataset + re.rest.query + '?' + re.params.query + re.analysis.dataset_method_clause + ' order by default_display DESC' + re.params.json_out
+                }),
+                fields: ['description', 'label', 'dataset_date', 'method', 'source', 'contact', 'comments', 'org_path'],
+                listeners: {
+                    load: loadListener
+                }
+            })
+        },
+        bbar: [{
+            text: 'Load',
+            handler: manualLoadSelectedDataset
+        }, {
+            text: 'Cancel',
+            handler: hideDatasetWindow
+        }]
+    });
+    re.windows.dataset_window.hide();
+
+    var medlineStore = new Ext.data.JsonStore({
+        root: 'response.docs',
+        totalProperty: 'response.numFound',
+        idProperty: 'pmid',
+        remoteSort: true,
+        storeId: 'dataDocument_grid_store',
+        fields: ['pmid', 'article_title', 'abstract_text', 'pub_date_month', 'pub_date_year'],
+        proxy: new Ext.data.HttpProxy({
+            url: re.databases.solr.uri + re.databases.solr.select + '?'
+        })
+    });
+
+    re.windows.details_window = new Ext.Window({
+        id: 'details-window',
+        renderTo: 'view-region',
+        modal: false,
+        closeAction: 'hide',
+        layout: 'fit',
+        width: 600,
+        height: 500,
+        constrain: true,
+        title: "Details",
+        closable: true,
+        layoutConfig: {
+            animate: true
+        },
+        maximizable: false,
+        items: [{
+            xtype: 'tabpanel',
+            id: 'details-tabpanel',
+            name: 'details-tabpanel',
+            activeTab: 'scatterplot_parent',
+            layoutOnCardChange: true,
             items: [{
-                id: 'dataDocument-panel',
-                name: 'dataDocument-panel',
+                xtype: 'panel',
+                id: 'scatterplot_parent',
+                name: 'scatterplot_parent',
+                title: 'Data Plot',
                 layout: 'anchor',
-                anchor: '100% 100%',
-                collapsible: false,
+                margins: '3 0 3 3',
+                height: 500,
+                width: 600,
+                frame: true,
                 items: [{
-                    xtype: 'grid',
-                    id: 'dataDocument_grid',
-                    name: 'dataDocument_grid',
-                    autoScroll: true,
-                    autoWidth: true,
-                    //                                    height: 425,
-                    loadMask: true,
-                    anchor: '100% 100%',
-                    store: medlineStore,
-                    viewConfig: {
-                        forceFit: true,
-                        enableRowBody: true,
-                        showPreview: true,
-                        getRowClass: function(record, rowIndex, p, store) {
-                            var jsonData = store.reader.jsonData;
-                            if (jsonData.highlighting[record.id] != undefined && jsonData.highlighting[record.id].abstract_text != undefined) {
-                                p.body = '<p>' + jsonData.highlighting[record.id].abstract_text[0] + '</p>';
-                            } else p.body = '<p>' + record.data.abstract_text + '</p>';
-                            return 'x-grid3-row-expanded';
-                        }
-                    },
-                    cm: new Ext.grid.ColumnModel({
-                        columns: [{
-                            header: "PMID",
-                            width: 50,
-                            id: 'pmid',
-                            dataIndex: 'pmid',
-                            groupName: 'Documents',
-                            renderer: renderPMID
+                    xtype: 'panel',
+                    id: 'scatterplot_panel',
+                    name: 'scatterplot_panel',
+                    anchor: '100% -100'
+                }, {
+                    xtype: 'panel',
+                    id: 'scatterplot_controls',
+                    name: 'scatterplot_controls',
+                    layout: 'form',
+                    items: [{
+                        xtype: 'radiogroup',
+                        id: 'scatterplot_regression_radiogroup',
+                        fieldLabel: 'Regression',
+                        items: [{
+                            checked: true,
+                            boxLabel: 'None',
+                            inputValue: 'none',
+                            name: 'sp_rb'
                         }, {
-                            header: "Title",
-                            width: 300,
-                            id: 'article_title',
-                            dataIndex: 'article_title',
-                            groupName: 'Documents',
-                            renderer: renderTitle
-                        }, {
-                            header: "Month",
-                            width: 75,
-                            id: 'pub_date_month',
-                            dataIndex: 'pub_date_month',
-                            groupName: 'Documents'
-                        }, {
-                            header: "Year",
-                            width: 75,
-                            id: 'pub_date_year',
-                            dataIndex: 'pub_date_year',
-                            groupName: 'Documents'
+                            boxLabel: 'Linear',
+                            inputValue: 'linear',
+                            name: 'sp_rb'
                         }],
-                        defaults: {
-                            sortable: true
+                        listeners: {
+                            change: function(checked_radio) {
+                                renderScatterPlot();
+                            }
                         }
-                    }),
-                    bbar: new Ext.PagingToolbar({
-                        pageSize: 20,
-                        store: medlineStore,
-                        displayInfo: true,
-                        displayMsg: 'Displaying documents {0} - {1} of {2}',
-                        emptyMsg: "No documents",
-                        items: ['-',
-                            {
-                                pressed: true,
-                                enableToggle: true,
-                                text: 'Show Preview',
-                                cls: 'x-btn-text-icon details',
-                                toggleHandler: function(btn, pressed) {
-                                    var view = Ext.getCmp('dataDocument_grid').getView();
-                                    view.showPreview = pressed;
-                                    view.refresh();
+                    }, {
+                        xtype: 'compositefield',
+                        defaultMargins: '0 20 0 0',
+                        items: [{
+                            xtype: 'checkbox',
+                            id: 'scatterplot_axes_checkbox',
+                            boxLabel: 'Reverse Axes',
+                            listeners: {
+                                check: function(checked) {
+                                    renderScatterPlot();
                                 }
-                            }]
-                    })
+                            }
+                        }, {
+                            xtype: 'checkbox',
+                            id: 'scatterplot_discrete_x_checkbox',
+                            boxLabel: 'Discretize '+re.ui.feature1,
+                            listeners: {
+                                check: function(checked) {
+                                    renderScatterPlot();
+                                }
+                            }
+                        }, {
+                            xtype: 'checkbox',
+                            id: 'scatterplot_discrete_y_checkbox',
+                            boxLabel: 'Discretize ' +re.ui.feature2,
+                            listeners: {
+                                check: function(checked) {
+                                    renderScatterPlot();
+                                }
+                            }
+                        }]
+                    }]
                 }]
-            }]
-        }] // medline tab
-    }] //tabpanel
-});
-re.windows.details_window.hide();
+            }, {
+                xtype: 'panel',
+                id: 'medline_parent',
+                name: 'medline_parent',
+                title: 'MEDLINE',
+                layout: 'anchor',
+                margins: '3 0 3 3',
+                height: 500,
+                width: 600,
+                frame: true,
+                items: [{
+                    id: 'dataDocument-panel',
+                    name: 'dataDocument-panel',
+                    layout: 'anchor',
+                    anchor: '100% 100%',
+                    collapsible: false,
+                    items: [{
+                        xtype: 'grid',
+                        id: 'dataDocument_grid',
+                        name: 'dataDocument_grid',
+                        autoScroll: true,
+                        autoWidth: true,
+                        //                                    height: 425,
+                        loadMask: true,
+                        anchor: '100% 100%',
+                        store: medlineStore,
+                        viewConfig: {
+                            forceFit: true,
+                            enableRowBody: true,
+                            showPreview: true,
+                            getRowClass: function(record, rowIndex, p, store) {
+                                var jsonData = store.reader.jsonData;
+                                if (jsonData.highlighting[record.id] != undefined && jsonData.highlighting[record.id].abstract_text != undefined) {
+                                    p.body = '<p>' + jsonData.highlighting[record.id].abstract_text[0] + '</p>';
+                                } else p.body = '<p>' + record.data.abstract_text + '</p>';
+                                return 'x-grid3-row-expanded';
+                            }
+                        },
+                        cm: new Ext.grid.ColumnModel({
+                            columns: [{
+                                header: "PMID",
+                                width: 50,
+                                id: 'pmid',
+                                dataIndex: 'pmid',
+                                groupName: 'Documents',
+                                renderer: renderPMID
+                            }, {
+                                header: "Title",
+                                width: 300,
+                                id: 'article_title',
+                                dataIndex: 'article_title',
+                                groupName: 'Documents',
+                                renderer: renderTitle
+                            }, {
+                                header: "Month",
+                                width: 75,
+                                id: 'pub_date_month',
+                                dataIndex: 'pub_date_month',
+                                groupName: 'Documents'
+                            }, {
+                                header: "Year",
+                                width: 75,
+                                id: 'pub_date_year',
+                                dataIndex: 'pub_date_year',
+                                groupName: 'Documents'
+                            }],
+                            defaults: {
+                                sortable: true
+                            }
+                        }),
+                        bbar: new Ext.PagingToolbar({
+                            pageSize: 20,
+                            store: medlineStore,
+                            displayInfo: true,
+                            displayMsg: 'Displaying documents {0} - {1} of {2}',
+                            emptyMsg: "No documents",
+                            items: ['-',
+                                {
+                                    pressed: true,
+                                    enableToggle: true,
+                                    text: 'Show Preview',
+                                    cls: 'x-btn-text-icon details',
+                                    toggleHandler: function(btn, pressed) {
+                                        var view = Ext.getCmp('dataDocument_grid').getView();
+                                        view.showPreview = pressed;
+                                        view.refresh();
+                                    }
+                                }]
+                        })
+                    }]
+                }]
+            }] // medline tab
+        }] //tabpanel
+    });
+    re.windows.details_window.hide();
 
 });
 
@@ -1837,4 +1837,74 @@ org.cancerregulome.explorer.view.PathedMenu = Ext.extend(Ext.menu.Menu, {
     }
 });
 
-var pathedMenu = new org.cancerregulome.explorer.view.PathedMenu({});
+//var pathedMenu = new org.cancerregulome.explorer.view.PathedMenu({});
+
+org.cancerregulome.explorer.view.DatasetMenu = Ext.extend(Ext.menu.Menu, {
+    constructor: function(config) {
+        Ext.apply(this, config);
+        org.cancerregulome.explorer.view.DatasetMenu.superclass.constructor.call(this);
+    },
+
+    addPathedItems: function(records, keys) {
+        var that = this;
+//	keys = keys || ['source','method','disease','dataset_date'];
+        keys = keys || ['source','disease','dataset_date'];
+        var sets = records.map(function(record){return record.json;}).filter(function(json_r){return json_r;});
+        var nested_sets = pv.nest(sets);
+
+        var sortDates = function(a,b) {
+            if (!a ^ !b) {return !a ? 1 : -1;} // one of them is null, empty, undefined
+            try {
+                var af = a.split('-').map(function(val) { return parseInt(val);}),
+                    bf = b.split('-').map(function(val) { return parseInt(val);});
+            }
+            catch(e) {  //failed to split or parse
+                return 0;
+            }
+            if(a.length != b.length != 3) { return 0;} //can't parse
+            return af[2] - bf[2] != 0 ? af[2] - bf[2] :
+                af[0] - bf[0] != 0 ? af[0] - bf[0] :
+                    af[1] - bf[1];
+        };
+        var sortStrings = function(a,b) {
+            if (!a ^ !b)   // one is null, empty, undefined and the other is not
+                return !a ? 1 : -1;
+            else if (a.toUpperCase() > b.toUpperCase() )return 1;
+            else if (b.toUpperCase() > a.toUpperCase() ) return -1;
+            return 0;
+        };
+        Ext.each(keys,function(key){
+            var key_func = function(a) { return a[key];};
+            nested_sets.key.call(nested_sets,key_func);
+            nested_sets.sortKeys.call(nested_sets,key === 'dataset_date' ? sortDates : sortStrings);
+        });
+        nested_sets = nested_sets.entries();
+
+        Ext.each(nested_sets, function(branch) { extendBranch.call(that,branch,0);});
+
+        function extendBranch(group,depth) {
+            var menu = this;
+            if (depth >= keys.length) {
+                var config = {
+                    id: Ext.id(),
+                    text: group.label,
+                    handler: function() {
+                        window.history.pushState({ dataset: group.label }, '', '?' + Ext.urlEncode({ dataset: group.label }));
+                        vq.events.Dispatcher.dispatch(new vq.events.Event('dataset_selected', 'dataset_grid', group.label));
+                        Ext.getCmp('filter_parent').setTitle('Filtering \'' + group.description + '\'');
+                    }
+                };
+                return menu.addMenuItem(new Ext.menu.Item(Ext.applyIf(config, group)));
+            }
+            else {
+                var branch = new Ext.menu.Menu();
+                var label = group.key || 'Other';
+                menu.add({text:label,menu:branch});
+                Ext.each(group.values,function(sub_group) { extendBranch.call(branch,sub_group, depth+1);});
+            }
+        }
+    }
+
+});
+
+var pathedMenu = new org.cancerregulome.explorer.view.DatasetMenu({});
