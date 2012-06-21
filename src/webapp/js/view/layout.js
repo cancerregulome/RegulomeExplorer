@@ -931,7 +931,9 @@ Ext.onReady(function() {
                 id: 'dataMenu',
                 text: 'Data',
                 labelStyle: 'font-weight:bold;',
-                menu: [{
+                menu: [
+                    { text: "Datasets", menu: pathedMenu },
+                    {
                     text: 'Select',
                     handler: loadDataDialog
                 }, {
@@ -1458,6 +1460,8 @@ var loadListener = function(store, records) {
     store.removeListener('load', loadListener);
     var e = new vq.events.Event('data_request', 'annotations', {});
     e.dispatch();
+
+    pathedMenu.addPathedItems(records);
 };
 
 re.windows.dataset_window = new Ext.Window({
@@ -1534,9 +1538,9 @@ re.windows.dataset_window = new Ext.Window({
             storeId: 'dataset_grid_store',
             idProperty: 'label',
             proxy: new Ext.data.HttpProxy({
-                url: re.databases.base_uri + re.databases.rf_ace.uri + re.tables.dataset + re.rest.query + '?' + re.params.query + 'select `description`, `dataset_date`,`label`, `method`, `source`, `contact`, `comments`' + re.analysis.dataset_method_clause + ' order by default_display DESC' + re.params.json_out
+                url: re.databases.base_uri + re.databases.rf_ace.uri + re.tables.dataset + re.rest.query + '?' + re.params.query + re.analysis.dataset_method_clause + ' order by default_display DESC' + re.params.json_out
             }),
-            fields: ['description', 'label', 'dataset_date', 'method', 'source', 'contact', 'comments'],
+            fields: ['description', 'label', 'dataset_date', 'method', 'source', 'contact', 'comments', 'org_path'],
             listeners: {
                 load: loadListener
             }
@@ -1754,3 +1758,68 @@ re.windows.details_window = new Ext.Window({
 re.windows.details_window.hide();
 
 });
+
+
+/*
+ * Pathed Menu Component
+ */
+Ext.ns("org.cancerregulome.explorer.view");
+
+org.cancerregulome.explorer.view.PathedMenu = Ext.extend(Ext.menu.Menu, {
+    menusByPath: {},
+
+    constructor: function(config) {
+        Ext.apply(this, config);
+        org.cancerregulome.explorer.view.PathedMenu.superclass.constructor.call(this);
+    },
+
+    addPathedItems: function(records) {
+        Ext.each(records, function(record) {
+            var item = record.json;
+            if (item) {
+                item.path = item.org_path;
+                if (!item.path) item.path = "/Unclassified";
+
+                var label = item.label;
+                var description = item.description;
+
+                var config = {
+                    id: Ext.id(),
+                    text: label,
+                    handler: function() {
+                        window.history.pushState({ dataset: label }, '', '?' + Ext.urlEncode({ dataset: label }));
+
+                        vq.events.Dispatcher.dispatch(new vq.events.Event('dataset_selected', 'dataset_grid', label));
+                        Ext.getCmp('filter_parent').setTitle('Filtering \'' + description + '\'');
+                    }
+                };
+
+                this.addPathedItem(new Ext.menu.Item(Ext.applyIf(config, item)));
+            }
+        }, this);
+    },
+
+    addPathedItem: function(menuItem) {
+        if (menuItem && menuItem.path) {
+            var parts = menuItem.path.split("/");
+            var lastMenu = this;
+            var currentPath = "";
+
+            for (var i = 1; i < parts.length; i++) {
+                var part = parts[i];
+                currentPath += "/" + part;
+                var existingMenu = this.menusByPath[currentPath];
+                if (!existingMenu) {
+                    existingMenu = new Ext.menu.Menu({path:currentPath});
+                    this.menusByPath[currentPath] = existingMenu;
+                    lastMenu.add({text:part, menu: existingMenu});
+                }
+                lastMenu = existingMenu;
+            }
+
+            lastMenu.addMenuItem(menuItem);
+        }
+    }
+});
+
+var pathedMenu = new org.cancerregulome.explorer.view.PathedMenu({});
