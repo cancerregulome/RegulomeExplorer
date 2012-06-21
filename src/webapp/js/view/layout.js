@@ -1461,7 +1461,21 @@ var loadListener = function(store, records) {
     var e = new vq.events.Event('data_request', 'annotations', {});
     e.dispatch();
 
-    pathedMenu.addPathedItems(records);
+    var sortedRecords = [];
+    Ext.each(records, function(record) {
+        sortedRecords.push(record);
+    });
+    sortedRecords.sort(function(a, b) {
+        if (a.json && b.json) {
+            var apath = a.json.org_path;
+            var bpath = b.json.org_path;
+            if (apath == bpath) return 0;
+            if (apath > bpath) return 1;
+            if (apath < bpath) return -1;
+        }
+        return 0;
+    });
+    pathedMenu.addPathedItems(sortedRecords);
 };
 
 re.windows.dataset_window = new Ext.Window({
