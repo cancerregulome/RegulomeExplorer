@@ -5,6 +5,7 @@ function registerLayoutListeners() {
         resetFormPanel();
         checkFormURL();
         requestFilteredData();
+        Ext.fly('re_filter_button').enable();
         re.state.once_loaded = true;
     });
     d.addListener('load_fail', 'associations', function(obj) {
@@ -83,13 +84,6 @@ function extractURL() {
     return json;
 }
 
-function checkDatasetURL() {
-    var json = extractURL();
-    if (json != null && json.dataset !== undefined) {
-        selectDatasetByLabel(json.dataset);
-    }
-}
-
 function checkFormURL() {
     var json = extractURL();
     if (json != null) setFormState(json);
@@ -140,7 +134,8 @@ function generateStateJSON() {
     //don't preserve empty or obvious values
     json = removeDefaultValues(json);
     var obj = {};
-    obj.dataset = getSelectedDatasetLabel();
+    var dataset = getSelectedDatasetLabel();
+    if(dataset) obj.dataset = dataset;
     obj = vq.utils.VisUtils.extend(obj, json);
     return obj;
 }
@@ -449,8 +444,13 @@ function loadDataTableStore(data) {
  */
 
 function loadDataset() {
+    Ext.fly('re_filter_button').disable();
     checkDatasetURL();
-    if (Ext.getCmp('dataset_grid').getSelectionModel().getSelected() === undefined) Ext.getCmp('dataset_grid').getSelectionModel().selectFirstRow();
+    if (Ext.getCmp('dataset_grid').getSelectionModel().getSelected() === undefined) {
+        Ext.Msg.alert('Dataset not selected', 'Please choose a dataset to begin.',loadDataDialog);
+        loadDataDialog();
+        return;
+    }
     loadSelectedDataset();
 }
 
@@ -458,6 +458,11 @@ function selectDatasetByLabel(label) {
     var record_index = Ext.StoreMgr.get('dataset_grid_store').find('label', label);
     if (record_index >= 0) {
         Ext.getCmp('dataset_grid').getSelectionModel().selectRow(record_index);
+        return true;
+    }
+    else {
+        Ext.getCmp('dataset_grid').getSelectionModel().selectRow(null);
+        return false;
     }
 }
 
@@ -467,7 +472,7 @@ function getSelectedDataset() {
 
 function getSelectedDatasetLabel() {
     var selected_record = getSelectedDataset();
-    var selected_dataset = '';
+    var selected_dataset = null;
     if (selected_record != null) {
         selected_dataset = selected_record.json.label;
     }
@@ -700,7 +705,8 @@ Ext.onReady(function() {
                         id: 'circle-panel',
                         width: 800,
                         x: 20,
-                        y: 20
+                        y: 20,
+                        html:'Select a Dataset to begin'
                     }, {
                         xtype: 'panel',
                         id: 'circle-legend-panel',
@@ -908,6 +914,7 @@ Ext.onReady(function() {
             re.ui.panels.east]
     });
 
+    re.ui.panels.east.disable();
 
 
     new Ext.Viewport({
@@ -1803,7 +1810,6 @@ org.cancerregulome.explorer.view.PathedMenu = Ext.extend(Ext.menu.Menu, {
                     text: label,
                     handler: function() {
                         window.history.pushState({ dataset: label }, '', '?' + Ext.urlEncode({ dataset: label }));
-
                         vq.events.Dispatcher.dispatch(new vq.events.Event('dataset_selected', 'dataset_grid', label));
                         Ext.getCmp('filter_parent').setTitle('Filtering \'' + description + '\'');
                     }
@@ -1852,8 +1858,9 @@ org.cancerregulome.explorer.view.DatasetMenu = Ext.extend(Ext.menu.Menu, {
         var sets = records.map(function(record){return record.json;}).filter(function(json_r){return json_r;});
         var nested_sets = pv.nest(sets);
 
-        var sortDates = function(a,b) {
+        function sortDates(a,b) {
             if (!a ^ !b) {return !a ? 1 : -1;} // one of them is null, empty, undefined
+            if(!!~[a,null,b].indexOf('Final')) return [a,null,b].indexOf('Final') -1;
             try {
                 var af = a.split('-').map(function(val) { return parseInt(val);}),
                     bf = b.split('-').map(function(val) { return parseInt(val);});
@@ -1861,18 +1868,18 @@ org.cancerregulome.explorer.view.DatasetMenu = Ext.extend(Ext.menu.Menu, {
             catch(e) {  //failed to split or parse
                 return 0;
             }
-            if(a.length != b.length != 3) { return 0;} //can't parse
-            return af[2] - bf[2] != 0 ? af[2] - bf[2] :
-                af[0] - bf[0] != 0 ? af[0] - bf[0] :
-                    af[1] - bf[1];
-        };
-        var sortStrings = function(a,b) {
+            if(af.length != 3 && bf.length != 3) { return 0;} //can't parse
+            return bf[2] - af[2] != 0 ? bf[2] - af[2] :
+                bf[0] - af[0] != 0 ? bf[0] - af[0] :
+                    bf[1] - af[1];
+        }
+        function sortStrings(a,b) {
             if (!a ^ !b)   // one is null, empty, undefined and the other is not
                 return !a ? 1 : -1;
             else if (a.toUpperCase() > b.toUpperCase() )return 1;
             else if (b.toUpperCase() > a.toUpperCase() ) return -1;
             return 0;
-        };
+        }
         Ext.each(keys,function(key){
             var key_func = function(a) { return a[key];};
             nested_sets.key.call(nested_sets,key_func);
@@ -1887,7 +1894,7 @@ org.cancerregulome.explorer.view.DatasetMenu = Ext.extend(Ext.menu.Menu, {
             if (depth >= keys.length) {
                 var config = {
                     id: Ext.id(),
-                    text: group.label,
+                    text: group.description,
                     handler: function() {
                         window.history.pushState({ dataset: group.label }, '', '?' + Ext.urlEncode({ dataset: group.label }));
                         vq.events.Dispatcher.dispatch(new vq.events.Event('dataset_selected', 'dataset_grid', group.label));
