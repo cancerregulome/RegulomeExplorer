@@ -119,14 +119,15 @@ function lookupLabelPosition(label_obj) {
         try {
             if(errorInQuery(response.responseText)){throwQueryError('label_position', response);}
             position_array = Ext.decode(response.responseText);
+            } catch (err) {
+            throwQueryError('label_position', response);
+        }
             if (position_array.length == 1) {
                 loadComplete();
             } else {
                 noResults('label_position');
             }
-        } catch (err) {
-            throwQueryError('label_position', response);
-        }
+        
     }
 
     function loadComplete() {
@@ -168,14 +169,15 @@ function loadFeatureData(link) {
         try {
             if(errorInQuery(response.responseText)){throwQueryError('features', response);}
             patients['data'] = Ext.decode(response.responseText);
+              } catch (err) {
+            throwQueryError('features', response);
+        }
             if (patients['data'].length == 1) {
                 loadComplete();
             } else {
                 noResults('features');
             }
-        } catch (err) {
-            throwQueryError('features', response);
-        }
+      
     }
 
     function loadComplete() {
@@ -209,15 +211,16 @@ function loadAnnotations() {
         try {
             if(errorInQuery(response.responseText)){throwQueryError('annotations', response);}
             annotations['chrom_leng'] = Ext.decode(response.responseText);
+             } catch (err) {
+            throwQueryError('annotations', response);
+        }
             if (annotations['chrom_leng'].length >= 1) {
                 loadComplete();
             } else {
                 noResults('annotations');
             }
 
-        } catch (err) {
-            throwQueryError('annotations', response);
-        }
+       
     }
 
     function loadComplete() {
@@ -341,9 +344,11 @@ function loadNetworkDataByFeature(params) {
 
     function handleNetworkQuery(response) {
         try {
-
             if(errorInQuery(response.responseText)){throwQueryError('associations', response);}
-            responses.push(Ext.decode(response.responseText));
+            responses.push(Ext.decode(response.responseText))
+             } catch (err) { //an error detected in one of the responses
+            throwQueryError('associations', response);
+        }
             if (responses.length >= labels.length) {
                 responses = pv.blend(responses);
                 if (responses.length >= 1) {
@@ -355,9 +360,7 @@ function loadNetworkDataByFeature(params) {
             } else { // haven't gathered all of the responses yet
                 return;
             }
-        } catch (err) { //an error detected in one of the responses
-            throwQueryError('associations', response);
-        }
+       
     }
 
     labels.forEach(function(label) {
@@ -397,17 +400,17 @@ function loadDirectedNetworkDataByAssociation(params) {
 
     function handleNetworkQuery(response) {
         try {
-
             if(errorInQuery(response.responseText)){throwQueryError('associations', response);}
             responses = Ext.decode(response.responseText);
+                 } catch (err) {
+            throwQueryError('associations', response);
+        }
             if (responses.length >= 1) {
                 loadComplete();
             } else {
                 noResults('associations');
             }
-        } catch (err) {
-            throwQueryError('associations', response);
-        }
+   
     }
 
     function loadComplete() {
@@ -439,6 +442,9 @@ function loadUndirectedNetworkDataByAssociation(params) {
         try {
             if(errorInQuery(response.responseText)){throwQueryError('associations', response);}
             responses.push(Ext.decode(response.responseText));
+                } catch (err) {
+            throwQueryError('associations', response);
+        }
             if (responses.length == 2) {
                 responses = pv.blend(responses);
                 if (responses.length < 1) {
@@ -447,9 +453,7 @@ function loadUndirectedNetworkDataByAssociation(params) {
                     loadComplete();
                 }
             }
-        } catch (err) {
-            throwQueryError('associations', response);
-        }
+    
     }
 
     function loadComplete() {
