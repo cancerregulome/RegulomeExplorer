@@ -360,14 +360,14 @@ vq.utils.VisUtils.extend(re, {
     re.label_map = {
         '*': 'All',
         'GEXP': 'Gene Expression',
-        'METH': 'Methylation',
-        'CNVR': 'Copy # Var Region',
+        'METH': 'DNA Methylation ',
+        'CNVR': 'Somatic Copy Number Alteration',
         'CLIN': 'Clinical',
-        'MIRN': 'microRNA',
-        'GNAB': 'Gene Aberration',
+        'MIRN': 'MicroRNA Expression',
+        'GNAB': 'Somatic Mutation',
         'SAMP': 'Tumor Sample',
         'PRDM': 'Paradigm Feature',
-        'RPPA': 'RPPA'
+        'RPPA': 'Protein Level - RPPA'
     };
     re.plot.all_source_list = pv.blend([re.plot.locatable_source_list, re.plot.unlocatable_source_list]);
     re.plot.all_source_map = pv.numerate(re.plot.all_source_list);

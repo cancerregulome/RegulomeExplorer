@@ -2,46 +2,7 @@ if (re.model === undefined) re.model = {};
 
 re.model.association =  {
     types : [
-        { 	id : 'rho_score',
-            label : 'Score',
-            ui : {
-                filter : {
-                    component:   new re.multirangeField(
-                        {   id:'rho_score',
-                            label: 'Score',
-                            default_value: 0,
-                            min_value: -300,
-                            max_value: 300}
-                    )
-                },
-                grid : {
-                    column : { header : "Score", width : 50 , id: 'rho_score' , dataIndex : 'rho_score', hidden: true},
-                    store_index : 'rho_score'
-                }
-            },
-            query : {
-                id : 'rho_score',
-                order_id:'logged_pvalue',
-                clause : flex_field_query,
-                order_direction : 'ASC'
-            },
-            vis : {
-                network : {
-                    edgeSchema : {name: "rho_score", type: "number" }
-                },
-                tooltip : {
-                    entry : { 'Score' : 'rho_score' }
-                },
-                scatterplot: {
-                    values: {
-                        min:-300,
-                        floor : -300,
-                        ceil: 300
-                    },
-                    color_scale : pv.Scale.linear(-300,0,300).range('blue','red')
-                }
-            }
-        },{ 	id : 'logged_pvalue',
+    {   id : 'logged_pvalue',
             label : 'log10(p)',
             ui : {
                 filter : {
@@ -89,8 +50,48 @@ re.model.association =  {
                 }
             }
         },
+        { 	id : 'rho_score',
+            label : 'Score',
+            ui : {
+                filter : {
+                    component:   new re.multirangeField(
+                        {   id:'rho_score',
+                            label: 'Score',
+                            default_value: 0,
+                            min_value: -300,
+                            max_value: 300}
+                    )
+                },
+                grid : {
+                    column : { header : "Score", width : 50 , id: 'rho_score' , dataIndex : 'rho_score', hidden: true},
+                    store_index : 'rho_score'
+                }
+            },
+            query : {
+                id : 'rho_score',
+                order_id:'logged_pvalue',
+                clause : flex_field_query,
+                order_direction : 'ASC'
+            },
+            vis : {
+                network : {
+                    edgeSchema : {name: "rho_score", type: "number" }
+                },
+                tooltip : {
+                    entry : { 'Score' : 'rho_score' }
+                },
+                scatterplot: {
+                    values: {
+                        min:-300,
+                        floor : -300,
+                        ceil: 300
+                    },
+                    color_scale : pv.Scale.linear(-300,0,300).range('blue','red')
+                }
+            }
+        },
         { 	id : 'num_nonna',
-            label : '# of non-NA',
+            label : '# of samples',
             ui : {
                 filter : {
                     component: {
@@ -104,13 +105,13 @@ re.model.association =  {
                         minValue:0,
                         tabIndex : 1,
                         validateOnBlur : true,
-                        fieldLabel : '# of non-NA >=',
+                        fieldLabel : '# of samples >=',
                         defaultValue: 0,
                         value : 0
                     }
                 },
                 grid : {
-                    column : { header: "# of non-NA", width:50, id:'num_nonna',dataIndex:'num_nonna' },
+                    column : { header: "# of samples", width:50, id:'num_nonna',dataIndex:'num_nonna' },
                     store_index : 'num_nonna'
                 }
             },
@@ -124,7 +125,7 @@ re.model.association =  {
                     edgeSchema : { name: "num_nonna", type: "number" }
                 },
                 tooltip : {
-                    entry : { ' # of non-NA' : 'num_nonna'}
+                    entry : { ' # of samples' : 'num_nonna'}
                 },
                 scatterplot : {
                     scale_type :'linear',
@@ -172,99 +173,6 @@ re.model.association =  {
                     color_scale : pv.Scale.linear(-1,1).range('blue','red')
                 }
             }
-//		},
-//        { 	id : 'logged_pvalue_bonf',
-//        			label : 'log10(bonf)',
-//        			ui : {
-//        			filter : {
-//
-//        			},
-//        			grid : {
-//        				column : { header: 'log10(bonf)', width:50, id:'logged_pvalue_bonf',dataIndex:'logged_pvalue_bonf'},
-//        				store_index : 'logged_pvalue_bonf'
-//        				}
-//        			},
-//        			query : {
-//        				id : 'logged_pvalue_bonf'
-////        				clause : flex_field_query,
-////        				order_direction : 'DESC'
-//        			},
-//        			vis : {
-//        				network : {
-//        					edgeSchema : { name: "logged_pvalue_bonf", type: "number" }
-//        				},
-//        				tooltip : {
-//        					entry : {  'log10(bonf)' : 'logged_pvalue_bonf'}
-//        				},
-//                        scatterplot : {
-//                                            scale_type :'linear',
-//                                            values : {
-//                                            },
-//                                            color_scale : pv.Scale.linear(-100,0).range('blue','red')
-//                                        }
-//                    }
-//        		},
-//        { 	id : 'num_nonna_f1',
-//        			label : '# of non-NA (f1)',
-//        			ui : {
-//        			filter : {
-//
-//        			},
-//        			grid : {
-//        				column : { header: '# of non-NA (f1)', width:50, id:'num_nonna_f1',dataIndex:'num_nonna_f1'},
-//        				store_index : 'num_nonna_f1'
-//        				}
-//        			},
-//        			query : {
-//        				id : 'num_nonna_f1'
-////        				clause : flex_field_query,
-////        				order_direction : 'DESC'
-//        			},
-//        			vis : {
-//        				network : {
-//        					edgeSchema : { name: "num_nonna_f1", type: "number" }
-//        				},
-//        				tooltip : {
-//        					entry : {  '# of non-NA' : 'num_nonna_f1'}
-//        				},
-//                        scatterplot : {
-//                                            scale_type :'linear',
-//                                            values : {
-//                                            },
-//                                            color_scale : pv.Scale.linear(0,500).range('blue','red')
-//                                        }
-//                    }
-//        		},
-//        { 	id : 'rho_score',
-//                			label : 'Score',
-//                			ui : {
-//                			filter : {
-//
-//                			},
-//                			grid : {
-//                				column : { header: 'Score', width:50, id:'rho_score',dataIndex:'rho_score'},
-//                				store_index : 'rho_score'
-//                				}
-//                			},
-//                			query : {
-//                				id : 'rho_score'
-//        //        				clause : flex_field_query,
-//        //        				order_direction : 'DESC'
-//                			},
-//                			vis : {
-//                				network : {
-//                					edgeSchema : { name: "rho_score", type: "number" }
-//                				},
-//                				tooltip : {
-//                					entry : {  'Score' : 'rho_score'}
-//                				},
-//                                scatterplot : {
-//                                                    scale_type :'linear',
-//                                                    values : {
-//                                                    },
-//                                                    color_scale : pv.Scale.linear(-1,1).range('red','blue','red')
-//                                                }
-//                            }
         }
     ]
 };
