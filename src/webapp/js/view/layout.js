@@ -1477,7 +1477,7 @@ Ext.onReady(function() {
         e.dispatch();
 
         pathedMenu.addPathedItems(records);
-        datasetTree.addNodes(records);
+        datasetTree.addNodes(records); 
     };
 
     var datasetTree = new org.cancerregulome.explorer.view.DatasetTree({text:'Datasets',expanded:true});
