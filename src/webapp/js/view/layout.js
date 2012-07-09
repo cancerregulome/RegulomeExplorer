@@ -1563,8 +1563,8 @@ Ext.onReady(function() {
 
     re.windows.dataset_window = new Ext.Window({
         id: 'dataset-window',
-        renderTo: 'view-region',
-        modal: false,
+        renderTo: Ext.getBody(),
+        modal: true,
         closeAction: 'hide',
         layout:'fit',
         width: 600,
