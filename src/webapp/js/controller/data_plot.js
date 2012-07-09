@@ -530,8 +530,8 @@ function wedge_plot(parsed_data,div) {
             container : div,
             enable_pan : false,
             enable_zoom : false,
-            show_legend: true,
-            legend_include_genome : true,
+            show_legend: false,
+            legend_include_genome : false,
             legend_corner : 'ne',
             legend_radius  : width / 15
         },
