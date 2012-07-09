@@ -24,7 +24,7 @@ re.model.association =  {
                     }
                 },
                 grid : {
-                    column : { header : "log10(p)", width : 50 , id: 'logged_pvalue' , dataIndex : 'logged_pvalue', hidden: true},
+                    column : { header : "log10(p)", width : 50 , id: 'logged_pvalue' , dataIndex : 'logged_pvalue', hidden: false},
                     store_index : 'logged_pvalue'
                 }
             },

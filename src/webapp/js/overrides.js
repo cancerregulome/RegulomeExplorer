@@ -139,7 +139,9 @@ org.cancerregulome.explorer.view.DatasetTree = Ext.extend(Ext.tree.TreeNode, {
             }
             else {
                 var label = group.key || 'Other';
-                var branch = new Ext.tree.TreeNode({text:label,node:branch,singleclickExpand:true});                
+                var init_properties = {text:label,node:branch,singleclickExpand:true};
+                if (depth == 0) Ext.apply(init_properties,{expanded: true});  //expand first branch
+                    var branch = new Ext.tree.TreeNode(init_properties);                
                 node.appendChild(branch);
                 Ext.each(group.values,function(sub_group) { extendBranch.call(branch,sub_group, depth+1);});
             }
