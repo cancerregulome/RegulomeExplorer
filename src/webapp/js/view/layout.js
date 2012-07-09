@@ -87,6 +87,8 @@ function checkDatasetURL() {
     var json = extractURL();
     if (json != null && json.dataset !== undefined) {
         selectDatasetByLabel(json.dataset);
+    } else {
+       selectDatasetByLabel(null);  
     }
 }
 
@@ -465,7 +467,7 @@ function selectDatasetByLabel(label) {
         Ext.getCmp('dataset-grid').getSelectionModel().selectRow(record_index);
     }
     else {
-        Ext.getCmp('dataset-grid').getSelectionModel().selectRow(null);
+        Ext.getCmp('dataset-grid').getSelectionModel().clearSelections(true);
     }
 }
 
@@ -1575,6 +1577,7 @@ Ext.onReady(function() {
             title:'Tree',
             id:'dataset-tree',
             rootVisible:false,
+            autoScroll:true,
             root: datasetTree
         },
            datasetGrid
