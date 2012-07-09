@@ -339,9 +339,7 @@ var tick_width = Math.PI / 180 * dataObj.ticks.wedge_width;
                 ).call(this,d),
                 d.active = 1,
                 this.render(),
-                null//this.parent.children[1].render()
-		);
-	};
+                this.parent.children[1].render());};
 
     dataObj.tick_panel.add(pv.Wedge)
             .events("all")
@@ -420,8 +418,8 @@ vq.CircVis.prototype._add_wedge = function(index,outerRadius) {
             .outerRadius(outerPlotRadius)
             .angle(function(d) { return dataObj.normalizedLength[d] * 2 * Math.PI;} )
             .startAngle(function(d) { return dataObj.startAngle_map[d]; } )
-	    .fillStyle(re.display_options.circvis.rings.color_background)	
-            //.strokeStyle("#444")
+            .fillStyle(re.display_options.circvis.rings.color_background)
+            .strokeStyle("#444")
             .lineWidth(1)
             .overflow("hidden")
             .add(pv.Wedge)
@@ -636,7 +634,8 @@ vq.CircVis.prototype._add_network = function () {
            include_footer : false,
            self_hover : true,
            timeout : dataObj._plot.tooltip_timeout,
-           data_config : dataObj._network.node_tooltipItems,
+           data_config :
+           dataObj._network.node_tooltipItems,
            tool_config : dataObj._network.node_tooltipLinks
        }
                ).call(this,d),
@@ -645,19 +644,21 @@ vq.CircVis.prototype._add_network = function () {
         populateConnectedNodes(this.index),
         dataObj.network_panel.render()
         );};
+
     re.ui.setPathwayBarBehavior(function(d, index){
-	return (
-	dataObj.network_panel.activeNetworkNode(index),
+        return (
+        dataObj.network_panel.activeNetworkNode(index),
         populateConnectedNodes(index),
         dataObj.network_panel.render()
     );});
     re.ui.setPathwayBarBehaviorReset(function(){
        return (
-    		dataObj.network_panel.activeNetworkNode(null),
-        	dataObj.network_panel.connectedToActiveNetworkNode([]),
-		dataObj.network_panel.render()
+                dataObj.network_panel.activeNetworkNode(null),
+                dataObj.network_panel.connectedToActiveNetworkNode([]),
+                dataObj.network_panel.render()
        );
     });
+
     var link_behavior = function(c,d) {
        return (pv.Behavior.hovercard(
        {
@@ -1064,8 +1065,7 @@ vq.models.CircVisData.prototype.setDataModel = function() {
     {label : '_network.link_strokeStyle', id: 'NETWORK.OPTIONS.link_stroke_style', cast : vq.utils.VisUtils.wrapProperty, defaultValue : function() { return 'red';} },
     {label : '_network.node_fillStyle', id: 'NETWORK.OPTIONS.node_fill_style', cast : vq.utils.VisUtils.wrapProperty, defaultValue : function() { return 'blue';} },
     {label : '_network.node_strokeStyle', id: 'NETWORK.OPTIONS.node_stroke_style', cast : vq.utils.VisUtils.wrapProperty, defaultValue : function() { return 'blue';} },
- {label : '_network.node_key', id: 'NETWORK.OPTIONS.node_key', cast : Function, defaultValue : function(node) { return node['chr']+'_'+ node['start']+'_'+node['end'];} },   
- //{label : '_network.node_key', id: 'NETWORK.OPTIONS.node_key', cast : Function, defaultValue : function(node) { return node['chr'];} },
+    {label : '_network.node_key', id: 'NETWORK.OPTIONS.node_key', cast : Function, defaultValue : function(node) { return node['chr']+'_'+ node['start']+'_'+node['end'];} },
     {label : '_network.node_highlightMode', id: 'NETWORK.OPTIONS.node_highlight_mode', cast : String, defaultValue : 'brighten' },
     {label : '_network.node_tooltipFormat', id: 'NETWORK.OPTIONS.node_tooltipFormat', cast : vq.utils.VisUtils.wrapProperty, defaultValue : vq.utils.VisUtils.network_node_title },
     {label : '_network.node_tooltipItems', id: 'NETWORK.OPTIONS.node_tooltip_items', defaultValue :  { Chr : 'chr', Start : 'start', End : 'end'} },
@@ -1197,8 +1197,8 @@ vq.models.CircVisData.prototype._setupData =  function() {
             delete wedge._data;
         }); //foreach
     }
-     //------------------- NETWORK DATA
-var nodes = {};
+    //------------------- NETWORK DATA
+    var nodes = {};
     var valid_chr = pv.dict(this._chrom.keys, function() { return {}; });
     var node_array=[];
     var links_array = [];
@@ -1220,8 +1220,7 @@ var nodes = {};
                         index1 = nodes[node1_key];
                     }            
           if (nodes[node2_key] === undefined){
-	 //copy out useful properties     
-                   var temp_node = d.node2;
+                        var temp_node = d.node2;
                         temp_node.nodeName = node2_key;
                         length = node_array.push(temp_node);
                         index2 = length - 1;
@@ -1229,65 +1228,6 @@ var nodes = {};
                     } else {
                         index2 = nodes[node2_key];
                     }
-
-            if (index1 != null && index2 !=null) {
-  var node = {source : index1, target : index2} ;
-                for (var p in d) {
-                    if (p != 'node1' && p!= 'node2') {
-                        node[p] = d[p];
-                    }
-                }
-                links_array.push(node);
-            }
-        });
-        this._network.nodes_array = this._network.tile_nodes ?  vq.utils.VisUtils.layoutChrTiles(node_array,that._network.node_overlap_distance) : node_array;
-        this._network.links_array = links_array;
-        this._network.data = 'loaded';
-        nodes = [];
-        node_array = [];
-        links_array = [];
-    }
-/*  var nodes = pv.dict(this._chrom.keys, function() { return {}; });
-    var node_array=[];
-    var links_array = [];
-    var length;
-    var index1,index2;
-    if (this._network != undefined && this._network.data != undefined) {
-        this._network.data.forEach(function(d) {
-            index1 = null;
-            index2 = null;
-            if (nodes[d.node1.chr] != undefined){
-                if (nodes[d.node1.chr][d.node1.start] === undefined ){
-                    nodes[d.node1.chr][d.node1.start] = {};
-                    if (nodes[d.node1.chr][d.node1.start][d.node1.source] === undefined ) {
-                        var temp_node = d.node1;
-                        temp_node.nodeName = d.node1.chr;
-                        length = node_array.push(temp_node);
-                        index1 = length - 1;
-                        nodes[d.node1.chr][d.node1.start][d.node1.source] = index1;
-                    } else {
-                        index1 = nodes[d.node1.chr][d.node1.start][d.node1.source];
-                    }
-                } else {
-                    index1 = nodes[d.node1.chr][d.node1.start][d.node1.source];
-                }
-            }
-            if (nodes[d.node2.chr] != undefined) {
-                if (nodes[d.node2.chr][d.node2.start] === undefined ) {
-                    nodes[d.node2.chr][d.node2.start] = {};
-                    if (nodes[d.node2.chr][d.node2.start][d.node2.source] === undefined ) {
-                        var temp_node = d.node2;
-                        temp_node.nodeName = d.node2.chr;
-                        length = node_array.push(temp_node);
-                        index2 = length - 1;
-                        nodes[d.node2.chr][d.node2.start][d.node2.source] = index2;
-                    } else {
-                        index2 = nodes[d.node2.chr][d.node2.start][d.node2.source];
-                    }
-                } else {
-                    index2 = nodes[d.node2.chr][d.node2.start][d.node2.source];
-                }
-            }
 
             if (index1 != null && index2 !=null) {
                 //copy out useful properties
@@ -1307,7 +1247,6 @@ var nodes = {};
         node_array = [];
         links_array = [];
     }
-*/
 
     if (this.ticks != undefined && this.ticks._data_array != undefined && this.ticks._data_array != null) {
         if (that.ticks.overlap_distance === undefined) {
