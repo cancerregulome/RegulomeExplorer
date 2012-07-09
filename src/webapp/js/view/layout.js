@@ -83,9 +83,17 @@ function extractURL() {
     return json;
 }
 
+function isDatasetURLSpecified() {
+ var json = extractURL();
+    if (json != null && json.dataset !== undefined) {
+        return true;
+    }
+    return false;
+}
+
 function checkDatasetURL() {
     var json = extractURL();
-    if (json != null && json.dataset !== undefined) {
+    if (isDatasetURLSpecified()) {
         selectDatasetByLabel(json.dataset);
     } else {
        selectDatasetByLabel(null);  
@@ -453,6 +461,7 @@ function loadDataTableStore(data) {
 
 function loadDataset() {
     checkDatasetURL();
+    if (!isDatasetURLSpecified()) {loadDataDialog(); return;}
     if (Ext.getCmp('dataset-grid').getSelectionModel().getSelected() === undefined) {
         Ext.Msg.alert('Valid Dataset not selected', 'Please choose a dataset to begin.',loadDataDialog);
         preserveState();
