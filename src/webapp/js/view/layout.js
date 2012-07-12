@@ -235,25 +235,16 @@ function retrieveEdges() {
 }
 
 function retrieveEdgesWith(separator) {
-    var data = retrieveEdges();
-    if (data && data.length) {
-        var columnHeaders = [];
-        var firstItem = data[0];
-        for (var key in firstItem) {
-            if (firstItem.hasOwnProperty(key)) {
-                columnHeaders.push(key);
-            }
-        }
-
-        var text = columnHeaders.join(separator) + "\n";
-        Ext.each(data, function(row) {
-            var rowValues = [];
-            Ext.each(columnHeaders, function(columnHeader) {
-                rowValues.push(row[columnHeader]);
+    var textdata = retrieveEdges();
+    if (textdata) {
+        var data = JSON.parse(textdata);
+        if (data && data.length) {
+            var text = "";
+            Ext.each(data, function(row) {
+                text += row.join(separator) + "\n";
             });
-            text += rowValues.join(separator) + "\n";
-        });
-        return text;
+            return text;
+        }
     }
     return null;
 }
