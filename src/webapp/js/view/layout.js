@@ -960,7 +960,7 @@ Ext.onReady(function() {
             re.ui.panels.east]
     });
 
-    var googleDriveClient = new org.cancerregulome.explorer.utils.DriveClientWindow({});
+    var googleDriveClient = new org.cancerregulome.explorer.utils.GoogleDriveClient({});
     var googleDriveMenu = new Ext.menu.Item({
         text: 'Export to Google Drive',
         icon: "https://developers.google.com/drive/images/drive_icon.png",
@@ -1006,10 +1006,10 @@ Ext.onReady(function() {
         }
     });
 
-    googleDriveClient.on("logged_in", function() {
+    googleDriveClient.on("logged_in", function(userProfile) {
         googleDriveMenu.enable();
 
-        googleDriveLogin.setText("Log out Google Profile");
+        googleDriveLogin.setText("Log out " + userProfile.email);
         googleDriveLogin.setHandler(function() {
             googleDriveClient.logout();
         });

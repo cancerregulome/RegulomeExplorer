@@ -1,25 +1,25 @@
 Ext.ns("org.cancerregulome.explorer.utils");
 
-org.cancerregulome.explorer.utils.DriveClientWindow = Ext.extend(Ext.util.Observable, {
+org.cancerregulome.explorer.utils.GoogleDriveClient = Ext.extend(Ext.util.Observable, {
     redirectUrl:null,
     lastChange:-1,
-    taskRunner: null,
+    taskRunner:null,
 
     constructor:function (config) {
         Ext.apply(this, config);
 
         this.addEvents("logged_in", "logged_out", "make_ready");
 
-        org.cancerregulome.explorer.utils.DriveClientWindow.superclass.constructor.call(this);
+        org.cancerregulome.explorer.utils.GoogleDriveClient.superclass.constructor.call(this);
 
         this.on("make_ready", this.makeReady, this);
 
         var me = this;
-        var runFn = function(){
+        var runFn = function () {
             console.log("run");
             me.makeReady();
         };
-        this.checkLoginTask = { run: runFn, interval: 2000 };
+        this.checkLoginTask = { run:runFn, interval:2000 };
         this.taskRunner = new Ext.util.TaskRunner();
     },
 
@@ -35,7 +35,7 @@ org.cancerregulome.explorer.utils.DriveClientWindow = Ext.extend(Ext.util.Observ
                     this.fireEvent("logged_out");
                 } else if (json["client_id"]) {
                     this.redirectUrl = null;
-                    this.fireEvent("logged_in");
+                    this.fireEvent("logged_in", json);
                 } else {
                     // TODO: Fire events
                 }
@@ -93,5 +93,3 @@ org.cancerregulome.explorer.utils.DriveClientWindow = Ext.extend(Ext.util.Observ
         });
     }
 });
-
-
