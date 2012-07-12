@@ -234,6 +234,30 @@ function retrieveEdges() {
                 })));
 }
 
+function retrieveEdgesWith(separator) {
+    var data = retrieveEdges();
+    if (data && data.length) {
+        var columnHeaders = [];
+        var firstItem = data[0];
+        for (var key in firstItem) {
+            if (firstItem.hasOwnProperty(key)) {
+                columnHeaders.push(key);
+            }
+        }
+
+        var text = columnHeaders.join(separator) + "\n";
+        Ext.each(data, function(row) {
+            var rowValues = [];
+            Ext.each(columnHeaders, function(columnHeader) {
+                rowValues.push(row[columnHeader]);
+            });
+            text += rowValues.join(separator) + "\n";
+        });
+        return text;
+    }
+    return null;
+}
+
 function openHelpWindow(subject, text) {
     if (re.windows.helpWindowReference == null || re.windows.helpWindowReference.closed) {
         re.windows.helpWindowReference = window.open('', 'help-popup', 'width=400,height=300,resizable=1,scrollbars=1,status=0,' + 'titlebar=0,toolbar=0,location=0,directories=0,menubar=0,copyhistory=0');
@@ -997,6 +1021,38 @@ Ext.onReady(function() {
                                 handler: exportImage
                             }]
                         }]
+                    }, {
+                        text: 'Export to Google Drive',
+                        handler: function() {
+                            new org.cancerregulome.explorer.utils.DriveClientWindow({
+                                uploaders: [
+                                    {
+                                        text: 'CSV', filename: "RE_data.csv",
+                                        getContent: function() {
+                                            return retrieveEdgesWith(",");
+                                        }
+                                    },
+                                    {
+                                        text: 'TSV', filename: "RE_data.tsv",
+                                        getContent: function() {
+                                            return retrieveEdgesWith("\t");
+                                        }
+                                    },
+                                    {
+                                        text: 'Circular View as SVG', filename: "RE_circular_view.svg",
+                                        getContent: function() {
+                                            return retrieveSVG('circle-panel');
+                                        }
+                                    },
+                                    {
+                                        text: 'Linear View as SVG', filename: "RE_linear_view.svg",
+                                        getContent: function() {
+                                            return retrieveSVG('linear-panel');
+                                        }
+                                    }
+                                ]
+                            });
+                        }
                     }]
             }, {
                 id: 'displayMenu',
