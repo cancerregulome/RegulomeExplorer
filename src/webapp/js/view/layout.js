@@ -960,6 +960,51 @@ Ext.onReady(function() {
             re.ui.panels.east]
     });
 
+    var googleDriveClient = new org.cancerregulome.explorer.utils.DriveClientWindow({});
+    var googleDriveMenu = new Ext.menu.Item({
+        text: 'Export to Google Drive',
+        disabled: true,
+        menu: [
+            {
+                text: 'Spreadsheet',
+                handler: function() {
+                    googleDriveClient.writeFile("RE_data.tsv", retrieveEdgesWith("\t"));
+                }
+            },
+            {
+                text: 'Circular',
+                menu: [
+                    {
+                        text: 'SVG',
+                        handler: function() {
+                            googleDriveClient.writeFile("RE_circular_view.svg", retrieveSVG('circle-panel'));
+                        }
+                    },
+                    { text: 'PNG', handler: function() { alert("Not yet supported"); } }
+                ]
+            },
+            {
+                text: 'Linear',
+                menu: [
+                    {
+                        text: 'SVG',
+                        handler: function() {
+                            googleDriveClient.writeFile("RE_linear_view.svg", retrieveSVG('linear-panel'));
+                        }
+                    },
+                    { text: 'PNG', handler: function() { alert("Not yet supported"); } }
+                ]
+            },
+            {
+                text: 'Linear',
+                menu: [
+                    { text: 'SVG', handler: exportImage },
+                    { text: 'PNG', handler: exportImage }
+                ]
+            }
+        ]
+    });
+
     new Ext.Viewport({
         layout: {
             type: 'border',
@@ -1021,39 +1066,8 @@ Ext.onReady(function() {
                                 handler: exportImage
                             }]
                         }]
-                    }, {
-                        text: 'Export to Google Drive',
-                        handler: function() {
-                            new org.cancerregulome.explorer.utils.DriveClientWindow({
-                                uploaders: [
-                                    {
-                                        text: 'CSV', filename: "RE_data.csv",
-                                        getContent: function() {
-                                            return retrieveEdgesWith(",");
-                                        }
-                                    },
-                                    {
-                                        text: 'TSV', filename: "RE_data.tsv",
-                                        getContent: function() {
-                                            return retrieveEdgesWith("\t");
-                                        }
-                                    },
-                                    {
-                                        text: 'Circular View as SVG', filename: "RE_circular_view.svg",
-                                        getContent: function() {
-                                            return retrieveSVG('circle-panel');
-                                        }
-                                    },
-                                    {
-                                        text: 'Linear View as SVG', filename: "RE_linear_view.svg",
-                                        getContent: function() {
-                                            return retrieveSVG('linear-panel');
-                                        }
-                                    }
-                                ]
-                            });
-                        }
-                    }]
+                    },
+                    googleDriveMenu]
             }, {
                 id: 'displayMenu',
                 text: 'Display',
@@ -1435,7 +1449,22 @@ Ext.onReady(function() {
                         openBrowserTab(re.help.links.contact_us)
                     }
                 }]
-            }]
+            },
+                {
+                    text: "Log In",
+                    labelStyle: 'font-weight:bold;',
+                    menu: [
+                        {
+                            text: "Google Drive",
+                            handler: function() {
+                                googleDriveClient.makeReady(function() {
+                                    googleDriveMenu.enable();
+                                });
+                            }
+                        }
+                    ]
+                }
+            ]
         }, {
             region: 'center',
             id: 'center-panel',
