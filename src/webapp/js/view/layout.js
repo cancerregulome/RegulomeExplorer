@@ -963,6 +963,7 @@ Ext.onReady(function() {
     var googleDriveClient = new org.cancerregulome.explorer.utils.DriveClientWindow({});
     var googleDriveMenu = new Ext.menu.Item({
         text: 'Export to Google Drive',
+        icon: "https://developers.google.com/drive/images/drive_icon.png",
         disabled: true,
         menu: [
             {
@@ -980,7 +981,7 @@ Ext.onReady(function() {
                             googleDriveClient.writeFile("RE_circular_view.svg", retrieveSVG('circle-panel'));
                         }
                     },
-                    { text: 'PNG', handler: function() { alert("Not yet supported"); } }
+                    { text: 'PNG (not yet supported)' }
                 ]
             },
             {
@@ -992,18 +993,36 @@ Ext.onReady(function() {
                             googleDriveClient.writeFile("RE_linear_view.svg", retrieveSVG('linear-panel'));
                         }
                     },
-                    { text: 'PNG', handler: function() { alert("Not yet supported"); } }
-                ]
-            },
-            {
-                text: 'Linear',
-                menu: [
-                    { text: 'SVG', handler: exportImage },
-                    { text: 'PNG', handler: exportImage }
+                    { text: 'PNG (not yet supported)' }
                 ]
             }
         ]
     });
+    var googleDriveLogin = new Ext.menu.Item({
+        text: "Google Profile",
+        icon: "https://www.google.com/images/icons/ui/gprofile_button-64.png",
+        handler: function() {
+            alert("Not ready yet");
+        }
+    });
+
+    googleDriveClient.on("logged_in", function() {
+        googleDriveMenu.enable();
+
+        googleDriveLogin.setText("Log out Google Profile");
+        googleDriveLogin.setHandler(function() {
+            googleDriveClient.logout();
+        });
+    });
+    googleDriveClient.on("logged_out", function() {
+        googleDriveMenu.disable();
+
+        googleDriveLogin.setText("Google Profile");
+        googleDriveLogin.setHandler(function() {
+            googleDriveClient.login();
+        });
+    });
+    googleDriveClient.makeReady();
 
     new Ext.Viewport({
         layout: {
@@ -1453,16 +1472,7 @@ Ext.onReady(function() {
                 {
                     text: "Log In",
                     labelStyle: 'font-weight:bold;',
-                    menu: [
-                        {
-                            text: "Google Drive",
-                            handler: function() {
-                                googleDriveClient.makeReady(function() {
-                                    googleDriveMenu.enable();
-                                });
-                            }
-                        }
-                    ]
+                    menu: [ googleDriveLogin ]
                 }
             ]
         }, {
