@@ -163,7 +163,7 @@ function renderSFCircleData(data) {
 }
 
 function renderLinearData(obj) {
-    linear_plot(vq.utils.VisUtils.extend(obj,{div:document.getElementById('linear-panel')}));
+    linear_plot(vq.utils.VisUtils.extend(obj,{div:'linear-panel'}));
 }
 
 function renderGraph(data) {
