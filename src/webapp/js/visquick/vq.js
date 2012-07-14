@@ -817,7 +817,7 @@ vq.utils.SyncDatasources = function(timeout,total_checks,success_callback,args,f
     /** @private */
     vq.utils.SyncDatasources.prototype.check_args = function(){
         var check = true;
-        for (arg in this.args) {
+        for (var arg in this.args) {
             if (this.args[arg] == null) { check = false;}
         }
         return check;
@@ -835,6 +835,59 @@ vq.utils.SyncDatasources = function(timeout,total_checks,success_callback,args,f
         }
         setTimeout(function() { that.poll_args();},that.timeout);
     };
+
+
+/**
+ * @class Constructs a utility object for use with multiple-source Ajax requests.
+ * If data must be retrieved from several sources before a workflow may be started, this tool can be used to
+ * check that all callbacks have been made at least once.
+ *
+ * @param {callback}    function to call if all callbacks are made
+ * @param {scope}       scope to make callback under
+ * @param {optional}     pass additional arguments for callback
+ */
+
+vq.utils.SyncCallbacks = function(callback,scope){
+    var success_cb;
+
+    if (callback instanceof Function) {
+        success_cb = callback;
+    } else {
+        console.error('Error: callback function not passed to SynchCallbacks initializer.');
+        return;
+    }
+
+    var cb_hash = {};
+    var args = [];
+    //preserve additional arguments for later callback
+    for (var i=2;i<arguments.length;i++) {
+        args.push(arguments[i]);
+    }
+
+    return {
+        add : function(cb,cb_scope) {
+            // is it really a callback function?
+            if (!(cb instanceof Function)) { return null; }
+            //generate unique id for hash key for this callback function
+            var id = vq.utils.VisUtils.guid();
+            //initialize counter to 0 for this callback function
+            cb_hash[id] = 0;
+            return function() {
+                //be sure to pass response into handler
+                cb.apply(cb_scope,arguments);
+                cb_hash[id] += 1;
+                var count = 0;
+                //how many callback functions is this object currently tracking?
+                var total = Object.keys(cb_hash).length;
+                //count how many values are 1 or greater
+                Object.keys(cb_hash).forEach(function(k) { count += (cb_hash[k] > 0 ? 1 : 0);});
+                //if all values are 1 or greater, hit final callback
+                if (count >= total) success_cb.apply(scope,args);
+            };
+        }
+    };
+};
+
 
 
 /* vq.events.js */
@@ -950,8 +1003,8 @@ vq.events.Dispatcher = (function() {
  *
  *      self_hover : {Boolean} - If true, placing the mouse cursor over the hovercard cancels the timer which hides the hovercard
  *      include_header : {Boolean} - If true, the header of the data panel is displayed.
-*       include_footer : {Boolean} - If true, the footer containing the CLOSE [X} action is displayed at the bottom of the hovercard
-*       include_frame : {Boolean} - If true, the frame that contains the hovercard actions (move,pin, etc) is displayed.
+ *       include_footer : {Boolean} - If true, the footer containing the CLOSE [X} action is displayed at the bottom of the hovercard
+ *       include_frame : {Boolean} - If true, the frame that contains the hovercard actions (move,pin, etc) is displayed.
  *     </pre>
  */
 
@@ -981,7 +1034,7 @@ vq.Hovercard.prototype.show = function(anchorTarget,dataObject) {
     var that = this;
     if (!anchorTarget) { throw 'vq.Hovercard.show: target div not found.'; return;}
     this.target =  anchorTarget;
-        this.hovercard.appendChild(this.renderCard(dataObject));
+    this.hovercard.appendChild(this.renderCard(dataObject));
     if (this.tool_config) {
         var hr = document.createElement('div');
         hr.setAttribute('style',"height:1px;background:#000;border:1px solid #333");
@@ -1012,39 +1065,39 @@ vq.Hovercard.prototype.show = function(anchorTarget,dataObject) {
 
 };
 
-  vq.Hovercard.prototype.startOutTimer =   function() {
-      var that = this;
-        if (!this.outtimer_id){ this.outtimer_id = window.setTimeout(function(){that.trigger();},that.timeout); }
- };
+vq.Hovercard.prototype.startOutTimer =   function() {
+    var that = this;
+    if (!this.outtimer_id){ this.outtimer_id = window.setTimeout(function(){that.trigger();},that.timeout); }
+};
 
- vq.Hovercard.prototype.cancelOutTimer =  function() {
-        if (this.outtimer_id){
-            window.clearTimeout(this.outtimer_id);
-            this.outtimer_id = null;
-        }
- };
+vq.Hovercard.prototype.cancelOutTimer =  function() {
+    if (this.outtimer_id){
+        window.clearTimeout(this.outtimer_id);
+        this.outtimer_id = null;
+    }
+};
 
- vq.Hovercard.prototype.trigger = function (){
-        if(this.outtimer_id) {
-            window.clearTimeout(this.outtimer_id);
-            this.outtimer_id = null;
-            this.destroy();
-        }
-        return false;
+vq.Hovercard.prototype.trigger = function (){
+    if(this.outtimer_id) {
+        window.clearTimeout(this.outtimer_id);
+        this.outtimer_id = null;
+        this.destroy();
+    }
+    return false;
 };
 
 vq.Hovercard.prototype.togglePin = function() {
-  this.lock_display = !this.lock_display || false;
+    this.lock_display = !this.lock_display || false;
     var that = this;
-            if (this.getContainer().className=="") {
-                this.getContainer().addEventListener('mouseout',that.start,false);
-                this.getContainer().className ="temp";
-            } else {
-                this.target_mark.removeEventListener('mouseout',that.start,false);
-                this.getContainer().removeEventListener('mouseout',that.start,false);
-                this.cancelOutTimer();
-                this.getContainer().className ="";
-            }
+    if (this.getContainer().className=="") {
+        this.getContainer().addEventListener('mouseout',that.start,false);
+        this.getContainer().className ="temp";
+    } else {
+        this.target_mark.removeEventListener('mouseout',that.start,false);
+        this.getContainer().removeEventListener('mouseout',that.start,false);
+        this.cancelOutTimer();
+        this.getContainer().className ="";
+    }
     this.pin_div.innerHTML = this.lock_display ? vq.Hovercard.icon.pin_in : vq.Hovercard.icon.pin_out;
 };
 
@@ -1059,14 +1112,14 @@ vq.Hovercard.prototype.placeInDocument = function(){
     card.style.top = 0 +'px';
     card.style.left = 0 + 'px';
     document.body.appendChild(card);
-     card.style.top = offset.top + offset.height + (20 * this.transform.invert().k ) + 'px';
-     card.style.left = offset.left + offset.width + (20 * this.transform.invert().k  ) + 'px';
+    card.style.top = offset.top + offset.height + (20 * this.transform.invert().k ) + 'px';
+    card.style.left = offset.left + offset.width + (20 * this.transform.invert().k  ) + 'px';
     card.style.visibility='visible';
 
     if (this.include_frame) {
         var hr = document.createElement('div');
         hr.setAttribute('style',"height:1px;background:#000;border:1px solid #333");
-         this.hovercard.insertBefore(hr,this.hovercard.childNodes.item(0));
+        this.hovercard.insertBefore(hr,this.hovercard.childNodes.item(0));
         this.frame = this.hovercard.insertBefore(this.renderFrame(),this.hovercard.childNodes.item(0));
 
         this.attachMoveListener();}
@@ -1074,8 +1127,8 @@ vq.Hovercard.prototype.placeInDocument = function(){
 
 vq.Hovercard.prototype.hide = function() {
     if(!this.self_hover || !this.over_self) {
-    this.hovercard.style.display = 'none';
-    this.hovercard.style.visibility='hidden';
+        this.hovercard.style.display = 'none';
+        this.hovercard.style.visibility='hidden';
     }
 };
 
@@ -1094,7 +1147,7 @@ vq.Hovercard.prototype.isHidden = function() {
 };
 
 vq.Hovercard.prototype.renderCard = function(dataObject) {
-          return  this.renderData(dataObject);
+    return  this.renderData(dataObject);
 };
 
 vq.Hovercard.prototype.attachMoveListener = function() {
@@ -1102,10 +1155,10 @@ vq.Hovercard.prototype.attachMoveListener = function() {
     var pos= {}, offset = {};
 
     function activateDrag(evt) {
-         var ev = !evt?window.event:evt;
+        var ev = !evt?window.event:evt;
         //don't listen for mouseout if its a temp card
         if (that.getContainer().className=="temp") {
-                that.getContainer().removeEventListener('mouseout',that.start,false);
+            that.getContainer().removeEventListener('mouseout',that.start,false);
         }
         //begin tracking mouse movement!
         window.addEventListener('mousemove',trackMouse,false);
@@ -1192,19 +1245,25 @@ vq.Hovercard.prototype.renderTools = function(dataObject) {
     table.setAttribute('style',"font-size:10px");
     var tBody = document.createElement("tbody");
     table.appendChild(tBody);
-
+    var value;
     if (this.tool_config) {
         for (var key in this.tool_config) {
+            var value;
+            value = undefined;
             try {
                 if (!this.tool_config.hasOwnProperty(key)) continue;
+                if(this.tool_config[key] === undefined || this.tool_config[key] == null) continue;
+                if (typeof  this.tool_config[key] == 'function') {
+                    value = this.tool_config[key](dataObject);
+                    if (value === undefined || value == null) continue;
+                } else {
+                    value = get(dataObject,this.tool_config[key]);
+                }
                 var trow = tBody.insertRow(-1);
                 var tcell= trow.insertCell(-1);
                 var link = document.createElement('a');
-                if (typeof  this.tool_config[key] == 'function') {
-                    link.setAttribute('href',this.tool_config[key](dataObject));
-                }else {
-                    link.setAttribute('href', get(dataObject,this.tool_config[key]));
-                }
+
+                link.setAttribute('href',value);
                 link.setAttribute('target',"_blank");
                 link.innerHTML = key;
                 tcell.appendChild(link);
@@ -1221,7 +1280,6 @@ vq.Hovercard.icon.pin_in =  '<span style="font-size:15px;color:#000;" title="Cli
 vq.Hovercard.icon.pin_out =  '<span style="font-size:15px;color:#000" title="Click to pin card to the window">T</span>';
 
 vq.Hovercard.prototype.renderData = function(dataObject) {
-    var html = '';
     var get = vq.utils.VisUtils.get;
     var table = document.createElement('table');
     if (typeof dataObject == 'object') {
@@ -1235,21 +1293,25 @@ vq.Hovercard.prototype.renderData = function(dataObject) {
         }
         var tBody = document.createElement("tbody");
         table.appendChild(tBody);
-
+        var value;
         if (this.data_config) {
             for (var key in this.data_config) {
+                value = undefined;
                 try {
                     if (!this.data_config.hasOwnProperty(key)) continue;
+                    if(this.data_config[key] === undefined || this.data_config[key] == null) continue;
+                    if (typeof this.data_config[key] == 'function') {
+                        value = this.data_config[key](dataObject);
+                        if (value === undefined || value == null) continue;
+                    } else {
+                        value = get(dataObject,this.data_config[key]);
+                    }
                     var trow = tBody.insertRow(-1);
                     var tcell= trow.insertCell(-1);
                     tcell.innerHTML = '<b>' + key + '</b>:';
                     tcell.style.textAlign = 'right';
                     tcell= trow.insertCell(-1);
-                    if (typeof  this.data_config[key] == 'function') {
-                        tcell.innerHTML= '<span>' +  this.data_config[key](dataObject) + '</span>';
-                    }else {
-                        tcell.innerHTML= '<span>' +  get(dataObject,this.data_config[key]) + '</span>';
-                    }
+                    tcell.innerHTML= '<span>' +  value + '</span>';
                 } catch(e) {
                     console.warn('Data not found for tool tip: ' + e);
                 }
@@ -1257,6 +1319,7 @@ vq.Hovercard.prototype.renderData = function(dataObject) {
             }
         } else {
             pv.keys(dataObject).forEach(function(key) {
+                //     if(get(dataObject,key) === undefined || get(dataObject,key) == null) return;
                 try {
                     var trow = tBody.insertRow(-1);
                     var tcell= trow.insertCell(-1);
@@ -1285,7 +1348,7 @@ vq.Hovercard.prototype.renderFooter = function() {
     var footer = document.createElement('div');
     footer.setAttribute('style',"text-align:right;font-size:13px;margin-right:5px;color:rgb(240,10,10);cursor:pointer;");
     var close = document.createElement('span');
-        function hideHovercard() {
+    function hideHovercard() {
         that.destroy();
         return false;
     }
@@ -1376,14 +1439,14 @@ pv.Behavior.hovercard = function(opts) {
         //set a timeout to retry after timeout milliseconds has passed
         // quit if there is already a temporary hovercard on the window and timeout has passed
         if (hovercard_arr.length > 0 && !retry) {
-             opts.retry = true;
-             opts.event = {x:this.parent.mouse().x,y:this.parent.mouse().y};
-             opts.param_data = true;
-             d=info;
-             target.addEventListener('mouseout',clear,false);
-             outtimer_id = window.setTimeout(retry_tooltip,opts.timeout || 100);
-             return;
-       	}// if there are still cards out and this is a retry, just give up
+            opts.retry = true;
+            opts.event = {x:this.parent.mouse().x,y:this.parent.mouse().y};
+            opts.param_data = true;
+            d=info;
+            target.addEventListener('mouseout',clear,false);
+            outtimer_id = window.setTimeout(retry_tooltip,opts.timeout || 100);
+            return;
+        }// if there are still cards out and this is a retry, just give up
         else if (hovercard_arr.length > 0 && retry) { opts.retry = false; target.removeEventListener('mouseout',clear,false); return;}
         else if (retry) { clear(); target.removeEventListener('mouseout',clear,false);}
 
