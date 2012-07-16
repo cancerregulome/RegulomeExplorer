@@ -1,0 +1,24 @@
+<html>
+<head>
+    <title>Testing</title>
+
+    <link rel="stylesheet" type="text/css" href="http://cdn.cancerregulome.org/js/extjs/3.4.0/resources/css/ext-all.css" />
+    <link rel="stylesheet" type="text/css" href="http://cdn.cancerregulome.org/js/extjs/3.4.0/resources/css/xtheme-slate.css" />
+
+    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/extjs/3.4.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/extjs/3.4.0/ext-all.js"></script>
+
+    <script type="text/javascript" src="js/view/google_drive.js"></script>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            var googleDrive = new org.cancerregulome.explorer.utils.GoogleDriveClient({});
+//            googleDrive.makeReady();
+            googleDrive.writeFile("testing.txt", "This is a test");
+        });
+    </script>
+</head>
+<body>
+<div id="c_container"></div>
+</body>
+</html>

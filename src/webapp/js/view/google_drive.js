@@ -8,9 +8,9 @@ org.cancerregulome.explorer.utils.GoogleDriveClient = Ext.extend(Ext.util.Observ
     constructor:function (config) {
         Ext.apply(this, config);
 
-        this.addEvents("logged_in", "logged_out", "make_ready");
-
         org.cancerregulome.explorer.utils.GoogleDriveClient.superclass.constructor.call(this);
+
+        this.addEvents("logged_in", "logged_out", "make_ready");
 
         this.on("make_ready", this.makeReady, this);
 
@@ -77,6 +77,12 @@ org.cancerregulome.explorer.utils.GoogleDriveClient = Ext.extend(Ext.util.Observ
     },
 
     writeFile:function (title, contents) {
+        var loadingMsg = Ext.MessageBox.show({
+            title: "Google Drive",
+            msg: "Uploading '" + title + "'. Please wait a few moments...",
+            icon: Ext.MessageBox.INFO
+        });
+        
         Ext.Ajax.request({
             url:"/google-drive-svc/",
             method:"POST",
@@ -84,11 +90,17 @@ org.cancerregulome.explorer.utils.GoogleDriveClient = Ext.extend(Ext.util.Observ
                 meta:Ext.util.JSON.encode({title:title}), content:contents
             },
             scope:this,
-            success:function (o) {
-                // TODO : Fire events
+            success:function () {
+                loadingMsg.hide();
             },
-            failure:function (o, e) {
-                // TODO : Fire events
+            failure:function () {
+                loadingMsg.hide();
+                Ext.MessageBox.show({
+                    title: "Google Drive",
+                    msg: "Failed to upload '" + title + "'.  Please try again.",
+                    icon: Ext.MessageBox.WARNING,
+                    buttons: Ext.MessageBox.OK
+                });
             }
         });
     }
