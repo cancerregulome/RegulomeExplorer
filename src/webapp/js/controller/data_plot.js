@@ -1664,7 +1664,17 @@ function scatterplot_draw(params) {
             radial_interval : 7,
             regression :regression_type,
             fill_style: fill_style_fn,
-            stroke_style: stroke_style_fn
+            stroke_style: stroke_style_fn,
+            x_axis_tick_format: function(d) {
+                if (d >= 1000)
+                    return d/1000 + "E3";
+                return d;
+            },
+            y_axis_tick_format: function(d) {
+                if (d >= 1000)
+                    return d/1000 + "E3";
+                return d;
+            }
         }};
         if (reverse_axes) {
             reverseAxes();
