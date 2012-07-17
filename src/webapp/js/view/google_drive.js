@@ -103,7 +103,7 @@ org.cancerregulome.explorer.utils.GoogleDriveClient = Ext.extend(Ext.util.Observ
                 if (json && json.id) {
                     Ext.MessageBox.show({
                         title: "Google Drive",
-                        msg: "Succesfully loaded '" + title + "'.<br/><a href='https://docs.google.com/spreadsheet/ccc?key=" + json.id + "' target='_blank'>Open In Google Docs</a>",
+                        msg: "Succesfully loaded '" + title + "'. <br/><br/><a href='http://drive.google.com' target='_blank'>Open Google Drive</a>",
                         buttons: Ext.MessageBox.OK,
                         icon: Ext.MessageBox.INFO
                     });
