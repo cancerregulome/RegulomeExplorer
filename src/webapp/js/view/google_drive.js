@@ -96,8 +96,18 @@ org.cancerregulome.explorer.utils.GoogleDriveClient = Ext.extend(Ext.util.Observ
                 meta:Ext.util.JSON.encode(fileMeta), content:contents
             },
             scope:this,
-            success:function () {
+            success:function (o) {
+                var json = Ext.util.JSON.decode(o.responseText);
+
                 loadingMsg.hide();
+                if (json && json.id) {
+                    Ext.MessageBox.show({
+                        title: "Google Drive",
+                        msg: "Succesfully loaded '" + title + "'.<br/><a href='https://docs.google.com/spreadsheet/ccc?key=" + json.id + "' target='_blank'>Open In Google Docs</a>",
+                        buttons: Ext.MessageBox.OK,
+                        icon: Ext.MessageBox.INFO
+                    });
+                }
             },
             failure:function () {
                 loadingMsg.hide();
