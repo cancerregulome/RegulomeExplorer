@@ -958,6 +958,13 @@ Ext.onReady(function() {
         disabled: true,
         menu: [
             {
+                text: 'Open Google Drive',
+                handler: function() {
+                    window.open("http://drive.google.com", "_blank", "");
+                }
+            },
+            "-",
+            {
                 text: 'Spreadsheet',
                 handler: function() {
                     googleDriveClient.writeFile("RE_data.tsv", retrieveEdgesWith("\t"));
@@ -1032,7 +1039,9 @@ Ext.onReady(function() {
             split: false,
             height: 27,
             layout: 'fit',
-            tbar: [{
+            tbar: [
+                { text: "Log In", labelStyle: 'font-weight:bold;', menu: [ googleDriveLogin ] },
+                {
                 id: 'dataMenu',
                 text: 'Data',
                 labelStyle: 'font-weight:bold;',
@@ -1459,12 +1468,7 @@ Ext.onReady(function() {
                         openBrowserTab(re.help.links.contact_us)
                     }
                 }]
-            },
-                {
-                    text: "Log In",
-                    labelStyle: 'font-weight:bold;',
-                    menu: [ googleDriveLogin ]
-                }
+            }
             ]
         }, {
             region: 'center',
