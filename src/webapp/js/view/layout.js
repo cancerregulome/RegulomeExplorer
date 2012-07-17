@@ -234,14 +234,18 @@ function retrieveEdges() {
                 })));
 }
 
-function retrieveEdgesWith(separator) {
+function retrieveSpreadsheetContent() {
     var textdata = retrieveEdges();
     if (textdata) {
         var data = JSON.parse(textdata);
         if (data && data.length) {
             var text = "";
             Ext.each(data, function(row) {
-                text += row.join(separator) + "\n";
+                var rowdata = [];
+                Ext.each(row, function(cell) {
+                    rowdata.push("\"" + cell + "\"");
+                });
+                text += rowdata.join(",") + "\n";
             });
             return text;
         }
@@ -967,7 +971,7 @@ Ext.onReady(function() {
             {
                 text: 'Spreadsheet',
                 handler: function() {
-                    googleDriveClient.writeFile("RE_data.tsv", retrieveEdgesWith("\t"));
+                    googleDriveClient.writeFile("RE_data_spreadsheet", retrieveSpreadsheetContent(), "text/csv");
                 }
             },
             {
