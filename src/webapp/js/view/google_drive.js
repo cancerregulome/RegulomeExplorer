@@ -121,3 +121,87 @@ org.cancerregulome.explorer.utils.GoogleDriveClient = Ext.extend(Ext.util.Observ
         });
     }
 });
+
+org.cancerregulome.explorer.utils.GetGoogleDriveMenu = function() {
+    var googleDriveClient = new org.cancerregulome.explorer.utils.GoogleDriveClient({});
+    var googleDriveLogin = new Ext.menu.Item({
+        text: "Login to Google Profile",
+        icon: "https://www.google.com/images/icons/ui/gprofile_button-64.png",
+        handler: function() {
+            alert("Not ready yet");
+        }
+    });
+
+    var loggedInItems = [
+        new Ext.menu.Item({
+            text: "Spreadsheet",
+            icon: "https://ssl.gstatic.com/docs/doclist/images/icon_10_spreadsheet_list.png",
+            disabled: true,
+            handler: function() {
+                googleDriveClient.writeFile("RE_data_spreadsheet", retrieveSpreadsheetContent(), "text/csv");
+            }
+        }),
+        new Ext.menu.Item({
+            text: 'Circular',
+            disabled: true,
+            menu: [
+                {
+                    text: 'SVG',
+                    handler: function() {
+                        googleDriveClient.writeFile("RE_circular_view.svg", retrieveSVG('circle-panel'));
+                    }
+                },
+                { text: 'PNG (not yet supported)' }
+            ]
+        }),
+        new Ext.menu.Item({
+            text: 'Linear',
+            disabled: true,
+            menu: [
+                {
+                    text: 'SVG',
+                    handler: function() {
+                        googleDriveClient.writeFile("RE_linear_view.svg", retrieveSVG('linear-panel'));
+                    }
+                },
+                { text: 'PNG (not yet supported)' }
+            ]
+        })
+    ];
+
+    googleDriveClient.on("logged_in", function(userProfile) {
+        Ext.each(loggedInItems, function(lii) {
+            lii.enable();
+        });
+
+        googleDriveLogin.setText("Log out " + userProfile.email);
+        googleDriveLogin.setHandler(function() {
+            googleDriveClient.logout();
+        });
+    });
+    googleDriveClient.on("logged_out", function() {
+        Ext.each(loggedInItems, function(lii) {
+            lii.disable();
+        });
+
+        googleDriveLogin.setText("Login to Google Profile");
+        googleDriveLogin.setHandler(function() {
+            googleDriveClient.login();
+        });
+    });
+    googleDriveClient.makeReady();
+
+    var openGoogleDrive = {
+        text: "Open Google Drive",
+        icon: "https://developers.google.com/drive/images/drive_icon.png",
+        handler: function() {
+            window.open("http://drive.google.com", "_blank", "");
+        }
+    };
+
+    return {
+        text: 'Export to Google Drive',
+        icon: "https://developers.google.com/drive/images/drive_icon.png",
+        menu: [ googleDriveLogin, "-", openGoogleDrive, "-", loggedInItems ]
+    }
+};

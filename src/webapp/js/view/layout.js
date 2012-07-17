@@ -955,79 +955,6 @@ Ext.onReady(function() {
             re.ui.panels.east]
     });
 
-    var googleDriveClient = new org.cancerregulome.explorer.utils.GoogleDriveClient({});
-    var googleDriveMenu = new Ext.menu.Item({
-        text: 'Export to Google Drive',
-        icon: "https://developers.google.com/drive/images/drive_icon.png",
-        disabled: true,
-        menu: [
-            {
-                text: "Open Google Drive",
-                icon: "https://developers.google.com/drive/images/drive_icon.png",
-                handler: function() {
-                    window.open("http://drive.google.com", "_blank", "");
-                }
-            },
-            "-",
-            {
-                text: "Spreadsheet",
-                icon: "https://ssl.gstatic.com/docs/doclist/images/icon_10_spreadsheet_list.png",
-                handler: function() {
-                    googleDriveClient.writeFile("RE_data_spreadsheet", retrieveSpreadsheetContent(), "text/csv");
-                }
-            },
-            {
-                text: 'Circular',
-                menu: [
-                    {
-                        text: 'SVG',
-                        handler: function() {
-                            googleDriveClient.writeFile("RE_circular_view.svg", retrieveSVG('circle-panel'));
-                        }
-                    },
-                    { text: 'PNG (not yet supported)' }
-                ]
-            },
-            {
-                text: 'Linear',
-                menu: [
-                    {
-                        text: 'SVG',
-                        handler: function() {
-                            googleDriveClient.writeFile("RE_linear_view.svg", retrieveSVG('linear-panel'));
-                        }
-                    },
-                    { text: 'PNG (not yet supported)' }
-                ]
-            }
-        ]
-    });
-    var googleDriveLogin = new Ext.menu.Item({
-        text: "Google Profile",
-        icon: "https://www.google.com/images/icons/ui/gprofile_button-64.png",
-        handler: function() {
-            alert("Not ready yet");
-        }
-    });
-
-    googleDriveClient.on("logged_in", function(userProfile) {
-        googleDriveMenu.enable();
-
-        googleDriveLogin.setText("Log out " + userProfile.email);
-        googleDriveLogin.setHandler(function() {
-            googleDriveClient.logout();
-        });
-    });
-    googleDriveClient.on("logged_out", function() {
-        googleDriveMenu.disable();
-
-        googleDriveLogin.setText("Google Profile");
-        googleDriveLogin.setHandler(function() {
-            googleDriveClient.login();
-        });
-    });
-    googleDriveClient.makeReady();
-
     new Ext.Viewport({
         layout: {
             type: 'border',
@@ -1046,7 +973,6 @@ Ext.onReady(function() {
             height: 27,
             layout: 'fit',
             tbar: [
-                { text: "Log In", labelStyle: 'font-weight:bold;', menu: [ googleDriveLogin ] },
                 {
                 id: 'dataMenu',
                 text: 'Data',
@@ -1092,7 +1018,7 @@ Ext.onReady(function() {
                             }]
                         }]
                     },
-                    googleDriveMenu]
+                    org.cancerregulome.explorer.utils.GetGoogleDriveMenu()]
             }, {
                 id: 'displayMenu',
                 text: 'Display',
