@@ -962,14 +962,16 @@ Ext.onReady(function() {
         disabled: true,
         menu: [
             {
-                text: 'Open Google Drive',
+                text: "Open Google Drive",
+                icon: "https://developers.google.com/drive/images/drive_icon.png",
                 handler: function() {
                     window.open("http://drive.google.com", "_blank", "");
                 }
             },
             "-",
             {
-                text: 'Spreadsheet',
+                text: "Spreadsheet",
+                icon: "https://ssl.gstatic.com/docs/doclist/images/icon_10_spreadsheet_list.png",
                 handler: function() {
                     googleDriveClient.writeFile("RE_data_spreadsheet", retrieveSpreadsheetContent(), "text/csv");
                 }
