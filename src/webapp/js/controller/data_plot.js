@@ -1521,21 +1521,21 @@ function scatterplot_draw(params) {
     var dataset_labels=re.ui.getDatasetLabels();
     var patient_labels = dataset_labels['patients'];
     var f1 = data.f1alias, f2 = data.f2alias;
-    var f1label = data.f1alias.split(':')[1] + " " + data.f1alias.split(':')[2];    
-    var f2label = data.f2alias.split(':')[1] + " " + data.f2alias.split(':')[2];
+    var f1label = data.f1alias, f2label = data.f2alias;
     var f1values, f2values;
     var categories = re.plot.scatterplot_categories;
-    if (isNonLinear(data.f1alias.split(':')[0])){
-	//f1label[0])) {
+
+    if (isNonLinear(f1label[0])) {
         f1values = data.f1values.split(':');
     } else {
         f1values = data.f1values.split(':').map(function(val) {return parseFloat(val);});
     }
-    if (isNonLinear(data.f2alias.split(':')[0])){//f2label[0])) {
+    if (isNonLinear(f2label[0])) {
         f2values = data.f2values.split(':');
     } else {
         f2values = data.f2values.split(':').map(function(val) {return parseFloat(val);});
     }
+
     var dot_colors;
     var fill_style_fn = undefined;
     var stroke_style_fn = undefined;
@@ -1577,21 +1577,26 @@ function scatterplot_draw(params) {
     }
     var tooltip = {};
     tooltip[data.f1alias] = f1,tooltip[data.f2alias] = f2,tooltip['Sample'] = 'patient_id';
-    if(discretize_x && f1label != 'B') {
-        var quartiles = pv.Scale.quantile(f1values).quantiles(4).quantiles();
-        //Freedman-Diaconis' choice for bin size
-        var setSize = 2 * (quartiles[3] - quartiles[1]) / Math.pow(f1values.length,0.33);
-        var firstBin = pv.min(f1values)+setSize/2;
-        var bins = pv.range(firstBin,pv.max(f1values)-setSize/2,setSize);
-        f1values=f1values.map(function(val) { return bins[Math.min(Math.max(Math.floor((val-firstBin) / setSize),0),f1values.length-1)];});
+
+    if(discretize_x && !isNonLinear(f1label[0])) {
+        var values1 = data_array.map(function(obj){return obj[f1];});
+        var binFunc1 = binData(values1);
+        data_array.forEach(function(val) {
+            val[f1] = binFunc1(val[f1]);
+        });
     }
-    if(discretize_y && f2label != 'B') {
-        var f2hist = pv.histogram(f2values).frequencies(true).bins();
+    if(discretize_y && !isNonLinear(f2label[0])) {
+        var values2 = data_array.map(function(obj){return obj[f2];});
+        var binFunc2 = binData(values2);
+        data_array.forEach(function(val) {
+            val[f2] = binFunc2(val[f2]);
+        });
     }
-    f1label = (discretize_x ? 'B' : f1label[0]) + f1label.slice(1);
-    f2label = (discretize_y ? 'B' : f2label[0]) + f2label.slice(1);
-    var violin = (isNonLinear(data.f1alias.split(':')[0]) ^ isNonLinear(data.f2alias.split(':')[0])); //one is nonlinear, one is not
-    var cubbyhole = isNonLinear(data.f1alias.split(':')[0]) && isNonLinear(data.f2alias.split(':')[0]);
+    f1label = (discretize_x ? 'C' : f1label[0]) + f1label.slice(1);
+    f2label = (discretize_y ? 'C' : f2label[0]) + f2label.slice(1);
+    var violin = (isNonLinear(f1label[0]) ^ isNonLinear(f2label[0])); //one is nonlinear, one is not
+    var cubbyhole = isNonLinear(f1label[0]) && isNonLinear(f2label[0]);
+
     var sp,config;
     if (violin)     {
         sp = new vq.ViolinPlot();
@@ -1612,8 +1617,13 @@ function scatterplot_draw(params) {
             tooltip_items : tooltip,
             show_points : true,
             regression :regression_type,
-	    fill_style: fill_style_fn,
-            stroke_style: stroke_style_fn	
+            fill_style: fill_style_fn,
+            stroke_style: stroke_style_fn,
+            y_axis_tick_format: function(d) {
+                if (d >= 1000)
+                    return d/1000 + "E3";
+                return d;
+            }
         }};
         if (isNonLinear(f2label[0])) {
             reverseAxes();
@@ -1637,7 +1647,7 @@ function scatterplot_draw(params) {
             tooltip_items : tooltip,
             show_points : true,
             radial_interval : 7,
-	    fill_style: fill_style_fn,
+            fill_style: fill_style_fn,
             stroke_style: stroke_style_fn
         }};
         if (reverse_axes) {
