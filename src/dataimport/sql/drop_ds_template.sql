@@ -1,0 +1,13 @@
+DROP TABLE IF EXISTS #REPLACE#_features;
+DROP VIEW IF EXISTS v_#REPLACE#_features;
+DROP VIEW IF EXISTS v_#REPLACE#_feature_clinlabel;
+DROP VIEW IF EXISTS v_#REPLACE#_feature_sources;
+DROP TABLE IF EXISTS #REPLACE#_feature_pathways;
+DROP TABLE IF EXISTS #REPLACE#_association_index;
+DROP TABLE IF EXISTS #REPLACE#_patients;
+DROP VIEW IF EXISTS v_#REPLACE#_patients;
+DROP TABLE IF EXISTS #REPLACE#_networks;
+DROP VIEW IF EXISTS v_#REPLACE#_patient_values;
+DROP VIEW IF EXISTS v_#REPLACE#_feature_networks;
+DROP TABLE IF EXISTS mv_#REPLACE#_feature_networks;
+delete from regulome_explorer_dataset where label = '#REPLACE#';
