@@ -383,6 +383,7 @@ function loadNetworkDataByFeature(params) {
                 url: association_query,
         success: handleNetworkQuery,
         failure: function(response) {
+            if (response.isTimeout) {
                     queryFailed('associations', response);           
                 } 
         }
@@ -527,7 +528,7 @@ var timeouts = 0;
 
 function queryFailed(data_type, response) {
     vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail', data_type, {
-        msg: 'Query Error: ' + response.status + ': ' + response.responseText
+        msg: 'Query Error: ' + response.status + ': ' + response.statusText
     }));
 }
 
