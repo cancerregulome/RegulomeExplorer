@@ -50,43 +50,42 @@ re.model.association =  {
                 }
             }
         },
-        { 	id : 'rho_score',
-            label : 'Score',
+        {   id : 'correlation',
+            label : 'Correlation',
             ui : {
                 filter : {
                     component:   new re.multirangeField(
-                        {   id:'rho_score',
-                            label: 'Score',
+                        {   id:'correlation',
+                            label: 'Correlation',
                             default_value: 0,
-                            min_value: -300,
-                            max_value: 300}
+                            min_value: -1,
+                            max_value: 1}
                     )
                 },
                 grid : {
-                    column : { header : "Score", width : 50 , id: 'rho_score' , dataIndex : 'rho_score', hidden: true},
-                    store_index : 'rho_score'
+                    column : { header: "Correlation", width:50, id:'correlation',dataIndex:'correlation'},
+                    store_index : 'correlation'
                 }
             },
             query : {
-                id : 'rho_score',
-                order_id:'logged_pvalue',
+                id : 'correlation',
                 clause : flex_field_query,
-                order_direction : 'ASC'
+                order_direction : 'DESC'
             },
             vis : {
                 network : {
-                    edgeSchema : {name: "rho_score", type: "number" }
+                    edgeSchema : { name: "correlation", type: "number" }
                 },
                 tooltip : {
-                    entry : { 'Score' : 'rho_score' }
+                    entry : {  Correlation : 'correlation'}
                 },
-                scatterplot: {
-                    values: {
-                        min:-300,
-                        floor : -300,
-                        ceil: 300
+                scatterplot : {
+                    scale_type :'linear',
+                    values : {
+                        min:-1,
+                        max:1
                     },
-                    color_scale : pv.Scale.linear(-300,0,300).range('blue','red')
+                    color_scale : pv.Scale.linear(-1,1).range('blue','red')
                 }
             }
         },
@@ -132,45 +131,6 @@ re.model.association =  {
                     values : {
                     },
                     color_scale : pv.Scale.linear(0,400).range('blue','red')
-                }
-            }
-        },
-        { 	id : 'correlation',
-            label : 'Correlation',
-            ui : {
-                filter : {
-                    component:   new re.multirangeField(
-                        {   id:'correlation',
-                            label: 'Correlation',
-                            default_value: 0,
-                            min_value: -1,
-                            max_value: 1}
-                    )
-                },
-                grid : {
-                    column : { header: "Correlation", width:50, id:'correlation',dataIndex:'correlation'},
-                    store_index : 'correlation'
-                }
-            },
-            query : {
-                id : 'correlation',
-                clause : flex_field_query,
-                order_direction : 'DESC'
-            },
-            vis : {
-                network : {
-                    edgeSchema : { name: "correlation", type: "number" }
-                },
-                tooltip : {
-                    entry : {  Correlation : 'correlation'}
-                },
-                scatterplot : {
-                    scale_type :'linear',
-                    values : {
-                        min:-1,
-                        max:1
-                    },
-                    color_scale : pv.Scale.linear(-1,1).range('blue','red')
                 }
             }
         }
