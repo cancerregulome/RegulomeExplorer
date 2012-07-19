@@ -315,13 +315,19 @@ function loadNetworkDataSingleFeature(params) {
         var network_query = buildSingleFeatureGQLQuery(obj, f == 't' ? re.ui.feature1.id : re.ui.feature2.id);
         var association_query_str = '?' + re.params.query + network_query + re.params.json_out;
         var association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
-        Ext.Ajax.request({
-            url: association_query,
-            success: handleNetworkQuery,
-            failure: function(response) {
-                queryFailed('associations', response);
-            }
-        });
+       Ext.Ajax.request({
+        url: association_query,
+        success: handleNetworkQuery,
+        failure: function(response) {
+            if (response.isTimeout) {
+               Ext.Ajax.request({
+                url: association_query,
+        success: handleNetworkQuery,
+        failure: function(response) {
+                    queryFailed('associations', response);           
+                } 
+        }
+    });
     });
 }
 
@@ -368,13 +374,19 @@ function loadNetworkDataByFeature(params) {
         var network_query = buildGQLQuery(params);
         var association_query_str = '?' + re.params.query + network_query + re.params.json_out;
         var association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
-        Ext.Ajax.request({
-            url: association_query,
-            success: handleNetworkQuery,
-            failure: function(response) {
-                queryFailed('associations', response);
-            }
-        });
+         Ext.Ajax.request({
+        url: association_query,
+        success: handleNetworkQuery,
+        failure: function(response) {
+            if (response.isTimeout) {
+               Ext.Ajax.request({
+                url: association_query,
+        success: handleNetworkQuery,
+        failure: function(response) {
+                    queryFailed('associations', response);           
+                } 
+        }
+    });
     });
 
 }
@@ -423,12 +435,17 @@ function loadDirectedNetworkDataByAssociation(params) {
         }));
     }
 
-
-    Ext.Ajax.request({
+  Ext.Ajax.request({
         url: association_query,
         success: handleNetworkQuery,
         failure: function(response) {
-            queryFailed('associations', response);
+            if (response.isTimeout) {
+               Ext.Ajax.request({
+                url: association_query,
+        success: handleNetworkQuery,
+        failure: function(response) {
+                    queryFailed('associations', response);           
+                } 
         }
     });
 
@@ -471,11 +488,19 @@ function loadUndirectedNetworkDataByAssociation(params) {
     var association_query_str = '?' + re.params.query + re.state.network_query + re.params.json_out;
     var association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
 
+var timeouts = 0;
+
     Ext.Ajax.request({
         url: association_query,
         success: handleNetworkQuery,
         failure: function(response) {
-            queryFailed('associations', response);
+            if (response.isTimeout) {
+               Ext.Ajax.request({
+                url: association_query,
+        success: handleNetworkQuery,
+        failure: function(response) {
+                    queryFailed('associations', response);           
+                } 
         }
     });
 
@@ -484,11 +509,17 @@ function loadUndirectedNetworkDataByAssociation(params) {
     association_query_str = '?' + re.params.query + re.state.network_query + re.params.json_out;
     association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
 
-    Ext.Ajax.request({
+     Ext.Ajax.request({
         url: association_query,
         success: handleNetworkQuery,
         failure: function(response) {
-            queryFailed('associations', response);
+            if (response.isTimeout) {
+               Ext.Ajax.request({
+                url: association_query,
+        success: handleNetworkQuery,
+        failure: function(response) {
+                    queryFailed('associations', response);           
+                } 
         }
     });
 
