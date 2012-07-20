@@ -112,7 +112,12 @@ vq.utils.VisUtils.extend(re, {
                                         manual_y_values: false,
                                         min_y_value:0,
                                         max_y_value:1
-                }
+                }/*,
+		quantiled_data: {
+		    GEXP: true,
+		    CNVR: true,
+		    METH: true		
+		}*/
             },
             tooltips: {
                 feature: {
@@ -354,6 +359,10 @@ vq.utils.VisUtils.extend(re, {
          */
         order_list: []
     },
+    statistic:{
+        global_summary:[]
+    },
+
 /*
      Window handles
      global handles to the masks and windows used by events
@@ -485,5 +494,8 @@ vq.utils.VisUtils.extend(re, {
     re.model.association.types.forEach(function(assoc) {
          vq.utils.VisUtils.extend(re.display_options.circvis.tooltips.feature, assoc.vis.tooltip.entry);
     });
+
+    re.model.association["link_distance"] = "link_distance"; 
+    re.statistic.global_summary["afmsrc_counts"] = {"CLIN":61,"CNVR":3831,"GEXP":5485,"GNAB":5482,"METH":4982,"MIRN":605,"RPPA":165,"SAMP":315};
 
 })();
