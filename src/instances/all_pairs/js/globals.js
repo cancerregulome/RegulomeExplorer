@@ -9,7 +9,7 @@ if (re === undefined) {
 
 vq.utils.VisUtils.extend(re, {
 
-    title: 'All Pairs Significance Explorer',
+    title: 'Regulome Explorer: All Pairs',
     google: {
         analytics_id: 'UA-20488457-2'
     },

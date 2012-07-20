@@ -9,7 +9,7 @@ if (re === undefined) {
 
 vq.utils.VisUtils.extend(re, {
 
-    title: 'Random Forest Associations Explorer',
+    title: 'Regulome Explorer: Random Forest',
     google: {
         analytics_id: 'UA-20488457-2'
     },
