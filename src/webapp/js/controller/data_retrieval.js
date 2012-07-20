@@ -639,14 +639,12 @@ function flipParams(params) {
 };
 
 function buildGQLQuery(args) {
-    var query = 'select alias1, alias2, f1qtinfo, f2qtinfo';
+    var query = 'select alias1, alias2, f1qtinfo, f2qtinfo, link_distance';
     re.model.association.types.forEach(function(obj) {
         query += ', ' + obj.query.id;
     });
-
     var whst = ' where',
         where = whst;
-
     if (args['t_type'] != '' && args['t_type'] != '*') {
         where += (where.length > whst.length ? ' and ' : ' ');
         where += 'f1source = \'' + args['t_type'] + '\'';

@@ -1139,7 +1139,7 @@ function wedge_plot(parsed_data,div) {
                     data_array : gexp_filtered_list//methcbmband
                 },
                 OPTIONS: {
-                    legend_label : 'GEX FQI' ,
+                    legend_label : 'GEXP Quantiled Features' ,
                     outer_padding : 6,
                     tooltip_items : gexpband_tooltip_items
                 }
@@ -1152,7 +1152,7 @@ function wedge_plot(parsed_data,div) {
                     data_array : meth_filtered_list//cnvrcbmband
                 },
                 OPTIONS: {
-                    legend_label : 'METH FQI' ,
+                    legend_label : 'METH Quantiled Features' ,
                     outer_padding : 6,
                     tooltip_items : methband_tooltip_items
                 }
@@ -1166,7 +1166,7 @@ function wedge_plot(parsed_data,div) {
                     data_array : cnvr_filtered_list
                 },
                 OPTIONS: {
-                    legend_label : 'CNVR FQI' ,
+                    legend_label : 'CNVR Quantiled Features' ,
                     outer_padding : 6,
                     tooltip_items : cnvrband_tooltip_items
                 }
