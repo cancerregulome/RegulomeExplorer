@@ -113,11 +113,11 @@ def isUnmappedAssociation(f1alias, f2alias):
         Classify edges as unmapped if both nodes do not have chr positions
         """
         f1data = f1alias.split(":")
-        if (len(f1data) < 5):
-                return False
+	f2data = f2alias.split(":")
+        if (len(f1data) < 4 or len(f2data) < 4):
+		return False
         f1source = f1data[1]
         f1chr = f1data[3]
-        f2data = f2alias.split(":")
         f2source = f2data[1]
         f2chr = f2data[3]
 	

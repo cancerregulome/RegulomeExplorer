@@ -7,19 +7,20 @@ import sys
 import db_util
 import os
 import time
+import math
 import parse_features_rfex
 import ConfigParser
 import smtp
 import getRFACEInfo
 
-def process_associations_rfex(dataset_label, matrixfile, associationsfile, config, annotations, collapse_direction, reverse_direction):
+def process_associations_rfex(dataset_label, matrixfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path):
 	mydb = db_util.getDBSchema(config) 
 	myuser = db_util.getDBUser(config) 
 	mypw = db_util.getDBPassword(config) 
 	myhost = db_util.getDBHost(config) 
 	myport = db_util.getDBPort(config)
 	imp_cutoff = db_util.getImportanceCutoff(config)
-	results_path = db_util.getResultsPath(config)
+	#results_path = db_util.getResultsPath(config)
 	contacts = db_util.getNotify(config) 
 	pubcrawl_contacts = db_util.getPubcrawlContact(config) 
 	if (not os.path.isfile(associationsfile)):
@@ -30,19 +31,27 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 	print "Begin processing associations %s Applying processing_pubcrawl %s" %(time.ctime(), do_pubcrawl)
 	associations_in = open(associationsfile,'r')
 	annotation_hash, ftype = parse_features_rfex.process_feature_annotations(annotations)
-	fshout = open('./results/load_sql_associations_' + dataset_label + '.sh','w')
-	if (not os.path.exists(results_path + "/" + dataset_label)):
-		os.mkdir(results_path + "/" + dataset_label)
-	unmappedPath = results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_rface_unmapped.tsv'
+	fshout = open(results_path + 'load_sql_associations_' + dataset_label + '.sh','w')
+	if (not os.path.exists(results_path + dataset_label)):
+		os.mkdir(results_path + dataset_label)
+	unmappedPath = results_path  + dataset_label + '/edges_out_' + dataset_label + '_rface_unmapped.tsv'
 	unmappedout = open(unmappedPath,'w')
-	features_file = open('./results/' + dataset_label + '_features_out.tsv','r')
+	features_file = open(results_path + dataset_label + '_features_out.tsv','r')
 	features_hash = {}
 	for fl in features_file.readlines():
 		ftk = fl.strip().split("\t")
 		features_hash[ftk[1]] = ftk
 	features_file.close()
-	tsvout = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_rface_re.tsv','w')
-	pubcrawl_tsvout = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_rface_pc.tsv','w')
+		
+	aliasid_file = open(results_path + dataset_label + '_features_alias_id.tsv','r')
+	aliasid_hash = {}
+	for fl in aliasid_file.readlines():
+		ftk = fl.strip().split("\t")
+		aliasid_hash[ftk[0]] = ftk
+	aliasid_file.close()	
+	
+	tsvout = open(results_path + dataset_label + '/edges_out_' + dataset_label + '_rface_re.tsv','w')
+	pubcrawl_tsvout = open(results_path + dataset_label + '/edges_out_' + dataset_label + '_rface_pc.tsv','w')
 	lc = 0
 	edgeCount = 0
 	pcc = 0
@@ -108,16 +117,33 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 			f2data = f2alias.split(':')
 		elif (len(f2data) == 7):
 			f2data.append("") 
-                    
-		f1id = features_hash[f1alias][0]#f1alias.split(":")[-1]
-		f2id = features_hash[f2alias][0]#f2alias.split(":")[-1]
+		f1aliasOmic = f1alias
+		f2aliasOmic = f2alias
+		#for annotations
+		try:    
+			f1id = features_hash[f1alias][0]#f1alias.split(":")[-1]
+		except KeyError:
+			f1id = aliasid_hash[f1alias][1]
+			f1aliasOmic = aliasid_hash[f1alias][2]
+			f1data = f1aliasOmic.split(':')
+			f1data[3] = f1data[3][3:]
+		try:
+			f2id = features_hash[f2alias][0]#f2alias.split(":")[-1]
+		except KeyError:
+			f2id = aliasid_hash[f2alias][1]
+			f2aliasOmic = aliasid_hash[f2alias][2]
+			f2data = f2aliasOmic.split(':')
+			f2data[3] = f2data[3][3:]
+			
+
 		f1qtinfo = ""
 		if (features_hash.get(f1alias) != None and len(features_hash.get(f1alias)) >= 14 ):
 			f1qtinfo = features_hash.get(f1alias)[13] + "_" + features_hash.get(f1alias)[14]		
 		f2qtinfo = ""
 		if (features_hash.get(f2alias) != None and len(features_hash.get(f2alias)) >= 14):
 			f2qtinfo = features_hash.get(f2alias)[13] + "_" + features_hash.get(f2alias)[14]		
-		pvalue = columns[2]
+		pvalue = float(columns[2])
+		pvalue = str(round(-1*(math.log10(pvalue)),3))
 		importance = columns[3]
 		correlation = columns[4]
 		patientct = columns[5]
@@ -129,15 +155,15 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 		f2genescore = ""
 		rhoscore = ""
 		link_distance = -1
-		if (len(f1data[4]) >= 1 and len(f2data[4]) >= 1 and f1data[3] == f2data[3]):
+		if (len(f1data) >=5 and len(f2data)>=5 and db_util.is_numeric(f1data[4]) >= 1 and db_util.is_numeric(f2data[4]) >= 1 and f1data[3] == f2data[3]):
 			link_distance = abs(int(f2data[4]) - int(f1data[4]))
 		if (collapse_direction == 0):
-			associations_dic[f1afm_id + "_" + f2afm_id] = f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\t" + f1qtinfo + "\t" + f2qtinfo + "\t" + rhoscore + "\t" + str(link_distance) + "\n"
+			associations_dic[f1afm_id + "_" + f2afm_id] = f1aliasOmic + "\t" + f2aliasOmic + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\t" + f1qtinfo + "\t" + f2qtinfo + "\t" + rhoscore + "\t" + str(link_distance) + "\n"
 		else:
 			#check whether (f1 -> f2 or f2 -> f1) exists, if yes, take the more important
 			#if not, store pair
 			if ((associations_dic.get(f1afm_id + "_" + f2afm_id) == None) and (associations_dic.get(f2afm_id + "_" + f1afm_id) == None)):
-				associations_dic[f1afm_id + "_" + f2afm_id] = f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\t" + f1qtinfo + "\t" + f2qtinfo +  "\t" + rhoscore + "\t" + str(link_distance) + "\n"
+				associations_dic[f1afm_id + "_" + f2afm_id] = f1aliasOmic + "\t" + f2aliasOmic + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\t" + f1qtinfo + "\t" + f2qtinfo +  "\t" + rhoscore + "\t" + str(link_distance) + "\n"
 			else:
 				existingLink = associations_dic.get(f1afm_id + "_" + f2afm_id)
 				ekey = f1afm_id + "_" + f2afm_id
@@ -146,10 +172,10 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 					ekey = f2afm_id + "_" + f1afm_id
 				prevImportance = existingLink.split("\t")[3]
 				if (float(importance) > float(prevImportance)):
-					associations_dic[ekey] = f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\t" + f1qtinfo + "\t" + f2qtinfo +  "\t" + rhoscore + "\t" + str(link_distance) + "\n"					 			 
+					associations_dic[ekey] = f1aliasOmic + "\t" + f2aliasOmic + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\t" + f1qtinfo + "\t" + f2qtinfo +  "\t" + rhoscore + "\t" + str(link_distance) + "\n"					 			 
 		#tsvout.write(f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + str(parse_features_rfex.getFeatureId(columns[0])) + "\t" + "\t".join(f1data) + "\t" + str(parse_features_rfex.getFeatureId(columns[1])) + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\n")
 		if (reverse_direction == 1):
-			associations_dic[f2afm_id + "_" + f1afm_id] = f2alias + "\t" + f1alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2genescore + "\t" + f1genescore + "\t" + f2qtinfo + "\t" + f1qtinfo +  "\t" + rhoscore + "\t" + str(link_distance) + "\n"
+			associations_dic[f2afm_id + "_" + f1afm_id] = f2aliasOmic + "\t" + f1aliasOmic + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2genescore + "\t" + f1genescore + "\t" + f2qtinfo + "\t" + f1qtinfo +  "\t" + rhoscore + "\t" + str(link_distance) + "\n"
 			edgeCount = edgeCount + 1
 		edgeCount = edgeCount + 1
 		if (do_pubcrawl == "yes"):
@@ -175,17 +201,16 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 		smtp.main("jlin@systemsbiology.net", contacts, "Notification - New RFAce " + dataset_label + " Associations Loaded for RegulomeExplorer", "New RFAce associations loaded for dataset " + dataset_label + "\n\nFeature matrix:" + matrixfile + "\nRF Associations:" + associationsfile + "\n\nParsed associations for db:" + tsvout.name + "\n\n" + str(pcc) + " Total Parsed Associations loaded\n" + str(unMapped) + " Total Unmapped Edges saved here:" + unmappedout.name)
 	associations_dic = None
 
-def main(dataset_label, featuresfile, associationsfile, configfile, annotations, collapse_direction, reverse_direction):
+def main(dataset_label, featuresfile, associationsfile, configfile, annotations, collapse_direction, reverse_direction, results_path):
 	print "\n in parse_associations_rfex : dataset_label = <%s> \n" % dataset_label
-	#config = db_util.getConfig(configfile)
 	notify = db_util.getNotify(config)
-	process_associations_rfex(dataset_label, featuresfile, associationsfile, config, annotations, collapse_direction, reverse_direction)
+	process_associations_rfex(dataset_label, featuresfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path)
 
 
 if __name__ == "__main__":
 	print "Parsing features kicked off %s" %time.ctime()
-	if (len(sys.argv) < 5):
-		print 'Usage is py2.6 parse_associations_rfex.py feature_matrix.tsv edges_matrix.tsv  dataset_label configfile [annotationsFile] [doCollapseEdges]'
+	if (len(sys.argv) < 9):
+		print 'ERROR: Usage is py2.6 parse_associations_rfex.py feature_matrix.tsv edges_matrix.tsv  dataset_label configfile annotationsFile doCollapseEdges doReverse resultsPath'
 		sys.exit(1)
 	insert_features = 0
 	args = sys.argv
@@ -201,6 +226,7 @@ if __name__ == "__main__":
 	#annotations = args[5]
 	collapse_direction = int(args[6])
 	reverse_direction = int(args[7])
+	results_path = args[8]
 	#if (len(sys.argv) == 8):
 		
 	#check if it's pairwise workflow
@@ -208,6 +234,6 @@ if __name__ == "__main__":
 	if (not os.path.isfile(associationsfile)):
         	print associationsfile + " does not exist; unrecoverable ERROR"
 		sys.exit(-1)
-	main(dataset_label, matrixfile, associationsfile, config, annotations, collapse_direction, reverse_direction)
+	main(dataset_label, matrixfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path)
 
 

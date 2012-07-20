@@ -4,8 +4,8 @@ import os
 import time
 import json
 
-def addDataset(label, feature_matrix, associations, method, description, comments, configfile):
-	print "adding dataset to admin table with config " + configfile + " for label " + label 
+def addDataset(label, feature_matrix, associations, method, source, description, comments, configfile, results_path):
+	print "Adding " + source + " dataset to admin table with config " + configfile + " for label " + label 
 	if (description == ""):
 		#not general, revisit this to enter all TCGA known cancers
 		if (label.find("brca") != -1 or label.find("BRCA") != -1):
@@ -36,15 +36,15 @@ def addDataset(label, feature_matrix, associations, method, description, comment
 	inputfiles = "{matrix:"+feature_matrix+",associations:"+associations+"}"
 	currentDate = time.strftime("%m-%d-%y")
 	config = db_util.getConfig(configfile)
-	results_path = db_util.getResultsPath(config)
+	#results_path = db_util.getResultsPath(config)
 	max_logpv = -1.0
 	contact = "cbm - tut"
 	if (label.find('gbm') != -1):
 		contact = "Brady Bernard bbernard@systemsbiology.org"
 	if (label.find('coad') != -1):
 		contact = "Vesteinn Thorsson vthorsson@systemsbiology.org"
-	if (os.path.exists(results_path + '/' + label + '/edges_out_' + label + '_meta.json')):
-		meta_json_file = open(results_path + '/' + label + '/edges_out_' + label + '_meta.json','r')
+	if (os.path.exists(results_path + label + '/edges_out_' + label + '_meta.json')):
+		meta_json_file = open(results_path + label + '/edges_out_' + label + '_meta.json','r')
 		metaline = meta_json_file.read()
 		if (len(metaline) > 1):
 			try:
@@ -55,13 +55,18 @@ def addDataset(label, feature_matrix, associations, method, description, comment
 			except:
 				print "Unexpected error:", sys.exc_info()[0]
 				raise
-		meta_json_file.close()		
-	insertSql = "replace into regulome_explorer_dataset (label,method,source,contact,comments,dataset_date,description,max_logged_pvalue, input_files, default_display) values ('%s', '%s', 'Visakorpi/Nykte', 'TUT-CSB', '%s', '%s', '%s', %f, '%s', '%i');" %(label, method, comments,currentDate,description, max_logpv, inputfiles, 1)
+		meta_json_file.close()	
+	summary_json = ""
+	if (os.path.exists(results_path + "feature_summary_" + label + ".json")):
+		summary_file = open(results_path + "feature_summary_" + label + ".json", "r")
+		summary_json = summary_file.read().strip()
+		summary_file.close()	
+	insertSql = "replace into regulome_explorer_dataset (label,method,source,contact,comments,dataset_date,description,max_logged_pvalue, input_files, default_display, summary_json) values ('%s', '%s', '%s', 'TUT-CSB', '%s', '%s', '%s', %f, '%s', '%i', '%s');" %(label, method, source, comments,currentDate,description, max_logpv, inputfiles, 1, summary_json)
 	db_util.executeInsert(config, insertSql)
 
 if __name__=="__main__":
-	#/tools/bin/python2.7 update_rgex_dataset.py $dataset_label $feature_matrix_file $associations_pw $method $description $comments $configfile
-	if (len(sys.argv) < 8):
-	        print 'Usage is py2.6 update_rgex_dataset.py dataset_label feature_matrix associations method desc comments configfile'
+	#/tools/bin/python2.7 update_rgex_dataset.py $dataset_label $feature_matrix_file $associations_pw $method $source $description $comments $configfile
+	if (len(sys.argv) < 10):
+	        print 'Usage is py2.6 update_rgex_dataset.py dataset_label feature_matrix associations method source desc comments configfile, resultsPath'
         	sys.exit(1)
-	addDataset(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7])
+	addDataset(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9])

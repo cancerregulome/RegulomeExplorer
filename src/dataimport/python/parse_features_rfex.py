@@ -66,35 +66,47 @@ def process_feature_annotations(annotation_path):
 			feature_types[tk[1]] = 1;
 		lc += 1
 	anno_file.close()
+	print feature_types
 	return (annotation_hash, feature_types)
 
-def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, config, annotations="", quantileFeatures=""):	
+def accumulate_summary_counts(summary_hash, feature_type):	
+	if (summary_hash.get(feature_type) == None):
+		summary_hash[feature_type] = 1
+	summary_hash[feature_type] = summary_hash[feature_type] + 1 
+
+def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, config, annotations, quantileFeatures, results_path):	
 	global features_hash
 	print ("processing feature set: matrix file %s annotation file %s"%(matrix_file, annotations))
 	out_hash = {}
 	features_hash = {}
+	summary_hash = {}
 	mydb = db_util.getDBSchema(config) 
 	myuser = db_util.getDBUser(config) 
 	mypw = db_util.getDBPassword(config)
 	myhost = db_util.getDBHost(config)
 	myport = db_util.getDBPort(config)
+	#results_path = db_util.getResultsPath(config)
+        
 	if (not os.path.isfile(matrix_file)):
 	        print "ERROR\n" + matrix_file + " does not exist; unrecoverable ERROR"
 		sys.exit(-1)
 	feature_matrix_file = open(matrix_file, "r")
 	feature_table = mydb + "." + dataset_label + "_features"
 	sample_table = mydb + "." + dataset_label + "_patients"
-	fshout = open('./results/' + dataset_label + '_load_features.sh','w')
-	outfile = open('./results/' + dataset_label + '_features_out.tsv','w')
-	sampleOutfile = open('./results/' + dataset_label + '_sample_values_out.tsv','w')
+	fshout = open(results_path + dataset_label + '_load_features.sh','w')
+	outfile = open(results_path + dataset_label + '_features_out.tsv','w')
+	alidfile = open(results_path + dataset_label + '_features_alias_id.tsv','w')
+	sampleOutfile = open(results_path + dataset_label + '_sample_values_out.tsv','w')
 	featureId = 0
+	#hasAnnotations = False
 	annotation_hash, ftypes = process_feature_annotations(annotations)
 	sub_afm_out = {}
 	for q in quantileFeatures.split(","):
-		sub_afm_out[q] = open('./results/' + dataset_label + '_' + q + '.afm','w')
+		sub_afm_out[q] = open(results_path + dataset_label + '_' + q + '.afm','w')
 	for line in feature_matrix_file:
 		tokens = line.strip().split('\t')
 		afmid = ""
+		ftype = ""
 		gene_interesting_score = ""
 		if (featureId == 0):                
                 	sampleIds = ":".join(tokens[0:len(tokens)-1])
@@ -106,31 +118,25 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 		if (not features_hash.get(tokens[0]) and len(tokens[0]) > 1):
 			valuesArray = []
 			alias = tokens[0]
+			originalAFM = tokens[0]
 			data = alias.split(':')
-			if (len(data) < 3):
+			if (len(data) < 4):
 				#afmid = alias
 				annotated_feature = annotation_hash.get(alias)
 				if (annotated_feature == None):
 					print "ERROR: AFM feature %s is not in annotation" %(alias)
 					sys.exit(-1)
+				#hasAnnotations = True
 				#put features in sub afm files for quantile calculation
 				ftype = annotated_feature.split("\t")[1]
 				alias = annotated_feature.replace("\t", ":")
 				featureId = int(alias.split(":")[-1])
-				#data = alias.split(':')
-			#else:
-				#old afm
-				#ftype = data[1]
-				#if (len(data) == 7):
-				#	alias = alias + ":"
-				#if (sub_afm_out.get(ftype) != None):
-				#	sub_afm_out[ftype].write(alias + "\t" + "\t".join(tokens[1:]) + "\n") 
 			data = alias.split(':')
-			ftype = data[1]
+			if (ftype == ""):
+				ftype = data[1]
 			afmid = alias
 			if (sub_afm_out.get(ftype) != None):
 				sub_afm_out[ftype].write(alias + "\t" + "\t".join(tokens[1:]) + "\n")
-			#alias = alias.replace('|', '_')
 			features_hash[tokens[0]] = featureId
 			if (len(data) <= 7):
 				if (data[1] == 'CLIN' or data[1] == 'SAMP'):
@@ -147,6 +153,8 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 				else:
 					valuesArray.append(0.0)
 			patient_value_mean = sum(valuesArray)/len(valuesArray)
+			accumulate_summary_counts(summary_hash,data[1])
+			alidfile.write(originalAFM + "\t" + str(featureId) + "\t" +  alias + "\n")
 			out_hash[afmid] = str(featureId) + "\t" + alias + "\t" + "\t".join(data) + "\t" + patient_values + "\t" + str(patient_value_mean) + "\t" + gene_interesting_score
 		else:
 			print "duplicated feature in feature set:" + tokens[0]
@@ -154,7 +162,7 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 	quantiles_out = {} 
 	for ftype in sub_afm_out.keys():
                         sub_afm_out[ftype].close()
-			q_out = "./results/" + dataset_label + "_" + ftype + "_qo.tsv"
+			q_out = resultsPath + dataset_label + "_" + ftype + "_qo.tsv"
 			#get quantile from timo and add back to alias string and then write
 			compute_quantiles.compute_quantiles(sub_afm_out[ftype].name, q_out)
 			quantiles_out[ftype] = open(q_out, "r")
@@ -170,10 +178,18 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 				if (fline != None):
 					out_hash[afmkey] = fline + "\t" + fv + "\t" + fq
 	for val in out_hash.values():
-		outfile.write(val + "\n")					
-		
+		outfile.write(val + "\n")
+	summary_out = open(resultsPath + "feature_summary_" + dataset_label + ".json", "w")
+	summary_json = "{"
+        #{"CLIN":61,"CNVR":3831,"GEXP":5485,"GNAB":5482,"METH":4982,"MIRN":605,"RPPA":165,"SAMP":315};
+
+	for feature_type in summary_hash:
+		summary_json = summary_json + '"%s":%i,' %(feature_type, summary_hash[feature_type])
+	summary_out.write(summary_json[0:-1] + "}\n")
+	summary_out.close()
 	feature_matrix_file.close()
 	outfile.close()
+	alidfile.close()
 	sampleOutfile.close()
 	fshout.write("#!/bin/bash\n")
 	fshout.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
@@ -329,28 +345,30 @@ def processGeneAssociation(datapath, configfile):
 if __name__ == "__main__":
 	global datast_label
 	print "Parsing features kicked off %s" %time.ctime()
-	if (len(sys.argv) < 3):
-        	print 'Usage is py2.6 parse_features_rfex.py data_matrix.tsv dataset_label'
+	if (len(sys.argv) < 7):
+        	print 'Usage is py2.6 parse_features_rfex.py data_matrix.tsv dataset_label configFile annotations quantileFeatures resultsPath'
         	sys.exit(1)
 	dataset_label = sys.argv[2]
 	print "\nin parse_features_rfex : dataset_label = <%s>\n" % dataset_label
 	configfile = sys.argv[3]
 	config = db_util.getConfig(configfile)
-	annotations = ""
-	if (len(sys.argv) >= 5):
-		annotations = sys.argv[4]
-	quantileFeatures = ""
-	if (len(sys.argv) >= 6):
-		quantileFeatures = sys.argv[5]
-	process_feature_matrix(dataset_label, sys.argv[1], 1, config, annotations, quantileFeatures)	
+	#annotations = ""
+	#if (len(sys.argv) >= 5):
+	annotations = sys.argv[4]
+	#quantileFeatures = ""
+	#if (len(sys.argv) >= 6):
+	quantileFeatures = sys.argv[5]
+	resultsPath = sys.argv[6]
+ 
+	process_feature_matrix(dataset_label, sys.argv[1], 1, config, annotations, quantileFeatures, resultsPath)	
 	#os.system("sh " + sh.name)
-	path = sys.argv[2].rsplit("/", 1)[0] 
-	if (os.path.exists(path + "/GEXP_interestingness.tsv")):
-		sh = process_gexp_interest_score(path + "/GEXP_interestingness.tsv", configfile)	
-		os.system("sh " + sh.name)
-	if (os.path.exists(path + "/gsea_associations.tsv")):
-		sh = process_pathway_associations(path + "/gsea_associations.tsv", configfile)
-		os.system("sh " + sh.name)
-	processGeneAssociation(path,configfile)		
+	#path = sys.argv[2].rsplit("/", 1)[0] 
+	#if (os.path.exists(path + "/GEXP_interestingness.tsv")):
+	#	sh = process_gexp_interest_score(path + "/GEXP_interestingness.tsv", configfile)	
+	#	os.system("sh " + sh.name)
+	#if (os.path.exists(path + "/gsea_associations.tsv")):
+	#	sh = process_pathway_associations(path + "/gsea_associations.tsv", configfile)
+	#	os.system("sh " + sh.name)
+	#processGeneAssociation(path,configfile)		
 	print "Done with processing feature relating loads %s " %(time.ctime())
 
