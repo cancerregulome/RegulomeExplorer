@@ -8,6 +8,10 @@ function registerLayoutListeners() {
         re.state.once_loaded = true;
     });
     d.addListener('load_fail', 'associations', function(obj) {
+        if (Ext.getCmp('t_label').getValue().indexOf(",") > -1){
+            Ext.getCmp('pathway_member_panel').expand();
+        }
+
         Ext.Msg.alert('Query failed', obj.msg);
         re.windows.masks.network_mask.hide();
     });
@@ -35,8 +39,11 @@ function registerLayoutListeners() {
         }
     });
     d.addListener('data_ready', 'associations', function(data) {
-        loadDataTableStore(data);
+        if (Ext.getCmp('t_label').getValue().indexOf(",") > -1){
+            Ext.getCmp('pathway_member_panel').expand();
+        }
 
+        loadDataTableStore(data);
     });
     d.addListener('data_ready', 'sf_associations', function(data) {
         loadDataTableStore(data);
