@@ -3,7 +3,7 @@ if (re.model === undefined) re.model = {};
 re.model.association =  {
     types : [
     {   id : 'logged_pvalue',
-            label : 'log10(p)',
+            label : '-log10(p)',
             ui : {
                 filter : {
                     component: {
@@ -18,19 +18,18 @@ re.model.association =  {
                         minValue:-300.0,
                         tabIndex : 1,
                         validateOnBlur : true,
-                        fieldLabel : 'log10(p) <=',
-                        defaultValue: -2,
-                        value : -2
-                    }
+                        fieldLabel : '-log10(p) >=',
+                        defaultValue: 6,
+                        value : 6
                 },
                 grid : {
-                    column : { header : "log10(p)", width : 50 , id: 'logged_pvalue' , dataIndex : 'logged_pvalue', hidden: false},
+                    column : { header : "-log10(p)", width : 50 , id: 'logged_pvalue' , dataIndex : 'logged_pvalue', hidden: false},
                     store_index : 'logged_pvalue'
                 }
             },
             query : {
                 id : 'logged_pvalue',
-                clause : 'logged_pvalue <= ',
+                clause : 'logged_pvalue >= ',
                 order_direction : 'ASC'
             },
             vis : {
@@ -38,7 +37,7 @@ re.model.association =  {
                     edgeSchema : {name: "logged_pvalue", type: "number" }
                 },
                 tooltip : {
-                    entry : { 'log(p)' : 'logged_pvalue' }
+                    entry : { '-log10(p)' : 'logged_pvalue' }
                 },
                 scatterplot: {
                     values: {

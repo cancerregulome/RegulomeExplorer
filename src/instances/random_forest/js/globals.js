@@ -9,7 +9,7 @@ if (re === undefined) {
 
 vq.utils.VisUtils.extend(re, {
 
-    title: 'Random Forest Associations Explorer',
+    title: 'Regulome Explorer: Random Forest',
     google: {
         analytics_id: 'UA-20488457-2'
     },
@@ -73,7 +73,7 @@ vq.utils.VisUtils.extend(re, {
             user_guide: '/help/crc_agg/user_guide.html',
             quick_start: '/help/crc_agg/quick_start.html',
             contact_us: '/help/crc_agg/contact_us.html',
-            analysis_summary: '/help/crc_agg/analysis/analysis_summary.html',
+            analysis_summary: '/help/rf_ace/analysis.html',
             bug_report: 'http://code.google.com/p/regulome-explorer/issues/entry',
             user_group: 'http://groups.google.com/group/regulome-explorer'
         }

@@ -428,7 +428,8 @@ function loadUndirectedNetworkDataByAssociation(params) {
         }
             if (responses.length == 2) {
                 responses = pv.blend(responses);
-                if (responses.length < 1) {
+                if (responses.length
+< 1) {
                     noResults('associations');
                 } else {
                     loadComplete();
@@ -464,8 +465,10 @@ function loadUndirectedNetworkDataByAssociation(params) {
 }
 
 function queryFailed(data_type, response) {
+    var msg = '';
+    msg = response.isTimeout ? 'Timeout. Re-submitting the filter may provide the results.' : response.statusText;
     vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail', data_type, {
-        msg: 'Query Error: ' + response.status + ': ' + response.statusText
+        msg: 'Query Error: ' + msg;
     }));
 }
 
@@ -540,7 +543,8 @@ function buildGQLQuery(args) {
         where = whst;
 
     if (args['t_type'] != '' && args['t_type'] != '*') {
-        where += (where.length > whst.length ? ' and ' : ' ');
+        where += (where.length >
+    whst.length ? ' and ' : ' ');
         where += 'f1source = \'' + args['t_type'] + '\'';
     }
     if (args['p_type'] != '' && args['p_type'] != '*') {
@@ -573,14 +577,18 @@ function buildGQLQuery(args) {
     }
     if (args['t_stop'] != '') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f1end <= ' + args['t_stop'];
+        where += 'f1end
+    <= ' + args['t_stop'];
     }
     if (args['p_stop'] != '') {
-        where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f2end <= ' + args['p_stop'];
+        where += (where.length >
+        whst.length ? ' and ' : ' ');
+        where += 'f2end
+        <= ' + args['p_stop'];
     }
     if ((args['p_start'] != '') && (args['p_stop'] != '')) {
-        where += ' and f2end >= ' + args['p_start'];
+        where += ' and f2end >
+            = ' + args['p_start'];
     }
     if ((args['t_start'] != '') && (args['t_stop'] != '')) {
         where += ' and f1end >= ' + args['t_start'];
@@ -589,7 +597,9 @@ function buildGQLQuery(args) {
     re.model.association.types.forEach(function(obj) {
         if (typeof obj.query.clause == 'function') {
             var clause = flex_field_query(obj.query.id, args[obj.query.id], args[obj.query.id + '_fn']);
-            where += ((clause.length < 1) ? '' : ((where.length > whst.length ? ' and ' : ' ') + clause));
+            where += ((clause.length
+            < 1) ? '' : ((where.length >
+                whst.length ? ' and ' : ' ') + clause));
             return;
         }
         if (args[obj.query.id] != '') {
@@ -653,23 +663,29 @@ function buildSingleFeatureGQLQuery(args, feature) {
     }
     if (args['t_stop'] && args['t_stop'] != '') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f1end <= ' + args['t_stop'];
+        where += 'f1end
+                <= ' + args['t_stop'];
         if (args['t_start'] != '') {
-            where += ' and f1end >= ' + args['t_start'];
+            where += ' and f1end >
+                    = ' + args['t_start'];
         }
     }
     if (args['p_stop'] && args['p_stop'] != '') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f2end <= ' + args['p_stop'];
+        where += 'f2end
+                    <= ' + args['p_stop'];
         if (args['p_start'] != '') {
-            where += ' and f2end >= ' + args['p_start'];
+            where += ' and f2end >
+                        = ' + args['p_start'];
         }
     }
 
     re.model.association.types.forEach(function(obj) {
         if (typeof obj.query.clause == 'function') {
             var clause = flex_field_query(obj.query.id, args[obj.query.id], args[obj.query.id + '_fn']);
-            where += ((clause.length < 1) ? '' : ((where.length > whst.length ? ' and ' : ' ') + clause));
+            where += ((clause.length
+                        < 1) ? '' : ((where.length >
+                            whst.length ? ' and ' : ' ') + clause));
             return;
         }
         if (args[obj.query.id] != '') {
