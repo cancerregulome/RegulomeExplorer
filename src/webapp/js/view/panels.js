@@ -243,6 +243,7 @@ vq.utils.VisUtils.extend(re.ui, {
                                                     select : function(field,record,index) {
                                                         Ext.getCmp("filter_type").setValue(re.ui.feature1.id);
 							Ext.getCmp('f1_label_comp').setVisible(true);
+							record.json.label = record.json.label.replace('\\r', '');
 							Ext.getCmp('t_label').setValue(record.json.label);
 							Ext.getCmp('limit').setValue('25');
                                                     	re.ui.setCurrentPathwayMembers(record.json.label);
