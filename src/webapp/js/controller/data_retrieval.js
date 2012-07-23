@@ -426,13 +426,7 @@ function loadNetworkDataSingleFeature(params) {
         var network_query = buildSingleFeatureGQLQuery(obj, f == 't' ? re.ui.feature1.id : re.ui.feature2.id);
         var association_query_str = '?' + re.params.query + network_query + re.params.json_out;
         var association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
-        Ext.Ajax.request({
-            url: association_query,
-            success: handleNetworkQuery,
-            failure: function(response) {
-                queryFailed('associations', response);
-            }
-        });
+        requestWithRetry(association_query,handleNetworkQuery,'associations',1);
     });
 }
 
@@ -480,13 +474,8 @@ function loadNetworkDataByFeature(params) {
         var network_query = buildGQLQuery(params);
         var association_query_str = '?' + re.params.query + network_query + re.params.json_out;
         var association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
-        Ext.Ajax.request({
-            url: association_query,
-            success: handleNetworkQuery,
-            failure: function(response) {
-                queryFailed('associations', response);
-            }
-        });
+
+        requestWithRetry(association_query,handleNetworkQuery,'associations',1);
     });
 
 }
@@ -537,15 +526,7 @@ function loadDirectedNetworkDataByAssociation(params) {
         }));
     }
 
-
-    Ext.Ajax.request({
-        url: association_query,
-        success: handleNetworkQuery,
-        failure: function(response) {
-            queryFailed('associations', response);
-        }
-    });
-
+    requestWithRetry(association_query,handleNetworkQuery,'associations',1);
 }
 
 function loadUndirectedNetworkDataByAssociation(params) {
@@ -585,27 +566,14 @@ function loadUndirectedNetworkDataByAssociation(params) {
     var association_query_str = '?' + re.params.query + re.state.network_query + re.params.json_out;
     var association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
 
-    Ext.Ajax.request({
-        url: association_query,
-        success: handleNetworkQuery,
-        failure: function(response) {
-            queryFailed('associations', response);
-        }
-    });
+    requestWithRetry(association_query,handleNetworkQuery,'associations',1);
 
     var flip_params = flipParams(params);
     re.state.network_query = buildGQLQuery(flip_params);
     association_query_str = '?' + re.params.query + re.state.network_query + re.params.json_out;
     association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
 
-    Ext.Ajax.request({
-        url: association_query,
-        success: handleNetworkQuery,
-        failure: function(response) {
-            queryFailed('associations', response);
-        }
-    });
-
+    requestWithRetry(association_query,handleNetworkQuery,'associations',1);
 }
 
 function queryFailed(data_type, response) {
@@ -614,6 +582,23 @@ function queryFailed(data_type, response) {
     vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail', data_type, {
         msg: 'Query Error: ' + msg
     }));
+}
+
+function requestWithRetry(query,handler,failed_type,times) {
+var repeat = times > -1 ? times : 1;
+
+ Ext.Ajax.request({
+        url: query,
+        success: handler,
+        failure: function(response) {
+            if (repeat == 0) {
+                    queryFailed(failed_type, response);
+                }
+            else if (response.isTimeout) {
+               requestWithRetry.call(query,handler,failed_type,--repeat);
+            }
+        }
+       });
 }
 
 /* Handler functions */
