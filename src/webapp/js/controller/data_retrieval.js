@@ -316,6 +316,7 @@ function loadNetworkDataSingleFeature(params) {
         var association_query_str = '?' + re.params.query + network_query + re.params.json_out;
         var association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
                requestWithRetry(association_query,handleNetworkQuery,'associations',1);
+        });
    
 }
 
@@ -362,7 +363,9 @@ function loadNetworkDataByFeature(params) {
         var network_query = buildGQLQuery(params);
         var association_query_str = '?' + re.params.query + network_query + re.params.json_out;
         var association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
+
          requestWithRetry(association_query,handleNetworkQuery,'associations',1);
+     });
 }
 
 function loadNetworkDataByAssociation(params) {
