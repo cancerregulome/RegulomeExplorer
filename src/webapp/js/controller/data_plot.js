@@ -812,15 +812,15 @@ function wedge_plot(parsed_data,div) {
         vq.utils.VisUtils.extend(unlocated_tooltip_items, assoc.vis.tooltip.entry);
     });
 
-    function parse_qt_info(feature, filtered_list, qvalue_dic){
-        var feature = filtered_list[mi];
+    function parse_qt_info(feature_index, filtered_list, qvalue_dic){
+        var feature = filtered_list[feature_index];
         var qistr = feature["qtinfo"];
         if (qistr != null && qistr.indexOf("_") != -1){
                 feature["value"] = qvalue_dic[qistr.split("_")[1]];
                 feature["start"] = feature["start"] - qoffset;
                 feature["end"] = feature["end"] + qoffset;
         }
-	return feature;
+        return feature;
     };
 
     var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
@@ -851,7 +851,8 @@ function wedge_plot(parsed_data,div) {
         return f['source'] == 'GEXP';
     });
     var cnvr_filtered_list = ticks.filter(function(f){
-        return f['source'] == 'CNVR';
+        var qistr = f["qtinfo"];
+        return f['source'] == 'CNVR' && qistr != null && qistr.indexOf("_") != -1;
     });
     var qoffset = 750000;	
     //var meth_qvalue_dic = {"Q1":"#33FF33", "Q2":"#00FF00","Q3":"#009900","Q4":"#006600"};
