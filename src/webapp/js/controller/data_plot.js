@@ -635,9 +635,9 @@ function singlefeature_circvis(parsed_data,div) {
 		return  vq.utils.VisUtils.options_map(feature)['label'];
 	},
         Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
-    },
+    };
 
-        scatterplot_data = parsed_data['features'];
+    var scatterplot_data = parsed_data['features'];
 
     var pairwise_settings = re.display_options.circvis.rings.pairwise_scores;
     var field = re.display_options.circvis.rings.pairwise_scores.value_field;
