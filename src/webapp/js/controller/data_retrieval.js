@@ -486,9 +486,7 @@ function loadUndirectedNetworkDataByAssociation(params) {
 function queryFailed(data_type, response) {
     var msg = '';
     msg = response.isTimeout ? 'Timeout. Re-submitting the filter may provide the results.' : response.statusText;
-    vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail', data_type, {
-        msg: 'Query Error: ' + msg;
-    }));
+    vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail', data_type, {  msg: 'Query Error: ' + msg }));
 }
 
 function requestWithRetry(query, handler, failed_type, times) {
