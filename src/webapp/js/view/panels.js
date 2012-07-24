@@ -454,7 +454,7 @@ re.ui.panels = {
                                 id: 'cis',
                                 boxLabel: 'Cis',
                                 inputValue: 'false',
-                                defaultValue:'false',
+                                defaultValue:false,
                                  listeners: {
                                      check: function(cb, checked) {
                                         Ext.getCmp('trans').setDisabled(checked);
@@ -467,8 +467,7 @@ re.ui.panels = {
                                 id:'trans',
                                 name: 'trans',
                                 boxLabel: 'Trans',
-                                inputValue: 'false',
-                                defaultValue:'false',
+                                defaultValue:false,
                                 listeners: {
                                      check: function(cb, checked) {                                      
                                         Ext.getCmp('cis').setDisabled(checked);
@@ -478,7 +477,7 @@ re.ui.panels = {
                         }, {
                                 xtype: 'numberfield',
                                 fieldLabel: 'Closer than',
-                                id: 'proximal_distance',
+                                id: 'proximal',
                                 name: 'proximal_distance',
                                 disabled: true,
                                 allowNegative: false,
@@ -495,7 +494,7 @@ re.ui.panels = {
                             }, {
                                 xtype: 'numberfield',
                                 fieldLabel: 'Farther than',
-                                id: 'distal_distance',
+                                id: 'distal',
                                 name: 'distal_distance',
                                 disabled: true,
                                 allowNegative: false,

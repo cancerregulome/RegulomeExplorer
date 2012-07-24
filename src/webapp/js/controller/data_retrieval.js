@@ -605,6 +605,20 @@ function buildGQLQuery(args) {
         where += ' and f1end >= ' + args['t_start'];
     }
 
+    if (args['cis']) {
+        where += (where.length > whst.length ? ' and ' : ' ');
+        where += 'f1chr=f2chr';
+    }
+    else if (args['trans']) {
+        where += (where.length > whst.length ? ' and ' : ' ');
+        where += 'f1chr!=f2chr';
+    }
+
+    if (args['proximal']) {
+        where += (where.length > whst.length ? ' and ' : ' ');
+        where += 'f1start-f2start <= ' + args['proximal'];
+    }
+
     re.model.association.types.forEach(function(obj) {
         if (typeof obj.query.clause == 'function') {
             var clause = flex_field_query(obj.query.id, args[obj.query.id], args[obj.query.id + '_fn']);
