@@ -453,7 +453,8 @@ re.ui.panels = {
                                 name: 'cis',
                                 id: 'cis',
                                 boxLabel: 'Cis',
-                                inputValue: 'cis',
+                                inputValue: 'false',
+                                defaultValue:'false',
                                  listeners: {
                                      check: function(cb, checked) {
                                         Ext.getCmp('trans').setDisabled(checked);
@@ -466,7 +467,8 @@ re.ui.panels = {
                                 id:'trans',
                                 name: 'trans',
                                 boxLabel: 'Trans',
-                                inputValue: 'trans',
+                                inputValue: 'false',
+                                defaultValue:'false',
                                 listeners: {
                                      check: function(cb, checked) {                                      
                                         Ext.getCmp('cis').setDisabled(checked);
