@@ -220,7 +220,7 @@ function colorscale_draw(association_obj, div) {
         .left((width-scale_width)/2)
         .right((width-scale_width)/2)
         .strokeStyle('black')
-        //.lineWidth(1)
+        .lineWidth(1)
         .bottom(30)
         .height(30);
     legend.add(pv.Bar)
@@ -773,7 +773,7 @@ function wedge_plot(parsed_data,div) {
         var e = new vq.events.Event('render_linearbrowser','circvis',{data:vq.utils.VisUtils.clone(parsed_data),chr:chr,start:start,range:range_length});
         e.dispatch();
     }
-    var ucsc_genome_url = 'http://genome.ucsc.edu/cgi-bin/hgTracks';
+
     var link_tooltip_items = { };
     link_tooltip_items[re.ui.feature1.label] = function(link) { return link.sourceNode.label+ ' ' + link.sourceNode.source + ' Chr' + link.sourceNode.chr + ' ' + link.sourceNode.start +
         '-' + link.sourceNode.end + ' ' +link.sourceNode.label_mod;};
@@ -1279,7 +1279,7 @@ function linear_plot(obj) {
     }
 
 
-    var e = new vq.events.Event('render_complete','linear',lin_browser);
+    var e = new vq.events.Event('render_complete','linear',obj);
     e.dispatch();
 
     return lin_browser;

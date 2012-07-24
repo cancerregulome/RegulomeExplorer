@@ -1,13 +1,13 @@
+
 if (re === undefined) { re = {};}
 
-vq.utils.VisUtils.extend(re.ui, {
-        panels : {
+re.ui.panels = {
             east : {
                 region: 'east',
                 collapsible: true,
                 floatable: true,
                 autoHide:false,
-		autoScroll: true,
+                autoScroll: true,
                 split: true,
                 width: 280,
                 id: 'filter_parent',
@@ -173,12 +173,12 @@ vq.utils.VisUtils.extend(re.ui, {
                                                         fieldLabel:'Label',
                                                         defaultValue : '',
                                                         value : '',
-							listeners: {
-								change: function(t,o,n){
-									if (n.indexOf(",") != -1)
-										Ext.getCmp("filter_type").setValue(re.ui.feature1.id);	
-								}
-							}
+                                                        listeners: {
+                                                            change: function(t,o,n){
+                                                                if (n.indexOf(",") != -1)
+                                                                    Ext.getCmp("filter_type").setValue(re.ui.feature1.id);
+                                                            }
+                                                        }
                                                     },
                                                     {
                                                         xtype:'button',
@@ -414,11 +414,11 @@ vq.utils.VisUtils.extend(re.ui, {
                                                         fieldLabel:'Label',
                                                         defaultValue : '',
                                                         value : '',
-							listeners: {
-                                                                change: function(t,o,n){
-                                                                        if (n.indexOf(",") != -1)
-                                                                                Ext.getCmp("filter_type").setValue(re.ui.feature2.id);
-                                                                }
+                                                        listeners: {
+                                                            change: function(t,o,n){
+                                                                if (n.indexOf(",") != -1)
+                                                                    Ext.getCmp("filter_type").setValue(re.ui.feature2.id);
+                                                            }
                                                         }
                                                     },
                                                     {
@@ -459,7 +459,7 @@ vq.utils.VisUtils.extend(re.ui, {
                                                 defaultValue:'*',
                                                 value:'*'
                                             },
-					    {
+                                            {
                                                 name:'p_pathway',
                                                 mode:'local',
                                                 id:'p_pathway',
@@ -499,10 +499,10 @@ vq.utils.VisUtils.extend(re.ui, {
                                                                 mjson["display_count"] = Math.floor(5*Math.random());
                                                                 mjson["hidden_count"] = Math.floor(10*Math.random());
                                                                 memberDataArray.push(mjson);
-								loadFeaturesInAFM(member);
+                                                            loadFeaturesInAFM(member);
                                                         }
                                                         renderPathwayMembers('below-top-right');
-							var url = record.json.value;
+                                                        var url = record.json.value;
                                                         if (record.json.url != null && record.json.url.length > 1)
                                                                 url = "<a href='" + record.json.url + "' target='_blank'>" + record.json.value  + "</a> ";
                                                         Ext.getCmp("pathway_member_panel").setTitle(url + memberDataArray.length + " Genes");
@@ -645,56 +645,7 @@ vq.utils.VisUtils.extend(re.ui, {
                                         }}]}
                         ]
                     },
-/*	{xtype: 'panel', 
-	id:'pathway_member_panel',
-                        title : 'Pathway Gene Members',
-                        autoScroll : true,
-                        height : 500,
-			width: 400,
-			minWidth: 300,
-			collapsed:true,
-        		items: 
-			{xtype: 'stackedbarchart',
-			autoSize: true,
-		//	plugins: [new Ext.ux.plugin.VisibilityMode()],
-	    		boxMinHeight: 400,
-			animCollapse:false, animFloat:false,hideMode: 'offsets',	
-            		store: new Ext.data.JsonStore({
-            			autoLoad : false,
-                		data: [],
-                		fields : ['pmember','display_count', 'hidden_count'],
-                		storeId:'pathway_member_store'
-            		}),
-            		yField: 'pmember',    	
-            		xAxis: new Ext.chart.NumericAxis({
-                		stackingEnabled: true,
-                		labelRenderer: function(dd){
-					return dd;
-				}
-            		}),
-        	    series: [{
-                	xField: 'display_count',
-                	displayName: 'Shown',
-			style: {color:0x6238A7, size:8, spacing:8}
-            		},{
-                	xField: 'hidden_count',
-                	displayName: 'Hidden',
-			style: {color:"#C38EC7", size:8, spacing:8}
-            		}],
-		    extraStyle:{
-				legend: {display: 'right'}
-			},
-			listeners: { 
-                        	itemclick : function(obj) {
-                                var si = obj.seriesIndex;
-				if (si == 0)
-					 alert("highlight " + obj.item.hidden_count  + " hidden edges for " + obj.item.pmember);
-				if (si == 1)
-					alert("highlight " + obj.item.hidden_count + " hidden edges for " + obj.item.pmember)
-                        	}
-                	}
-        	}},*/
- 		    {
+                    {
                         xtype: 'panel', id:'pathway_member_panel',
                         title : 'Pathways/Groupings',
                         autoScroll : true,
@@ -705,18 +656,16 @@ vq.utils.VisUtils.extend(re.ui, {
                             handler: function(event, toolEl, panel){
                                 openHelpWindow('Filtering',filteringHelpString);
                             }}],//,
-			items: [{
-                        xtype: 'panel',
-                        id: 'pathway-member-item',
-                        width: 300,
-			height: 800,
-                        x: 20,
-                        y: 20
-                    }]
+                 items: [{
+                     xtype: 'panel',
+                     id: 'pathway-member-item',
+                     width: 300,
+                     height: 800,
+                     x: 20,
+                     y: 20
+                 }]
                     }
-		]
+                ]
             }
 
-        }
-    }
-);
+};

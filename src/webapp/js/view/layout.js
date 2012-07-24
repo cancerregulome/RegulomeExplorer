@@ -8,10 +8,6 @@ function registerLayoutListeners() {
         re.state.once_loaded = true;
     });
     d.addListener('load_fail', 'associations', function(obj) {
-        if (Ext.getCmp('t_label').getValue().indexOf(",") > -1){
-            Ext.getCmp('pathway_member_panel').expand();
-        }
-
         Ext.Msg.alert('Query failed', obj.msg);
         re.windows.masks.network_mask.hide();
     });
@@ -39,11 +35,8 @@ function registerLayoutListeners() {
         }
     });
     d.addListener('data_ready', 'associations', function(data) {
-        if (Ext.getCmp('t_label').getValue().indexOf(",") > -1){
-            Ext.getCmp('pathway_member_panel').expand();
-        }
-
         loadDataTableStore(data);
+
     });
     d.addListener('data_ready', 'sf_associations', function(data) {
         loadDataTableStore(data);
@@ -51,8 +44,8 @@ function registerLayoutListeners() {
             Ext.getCmp('view-region').layout.setActiveItem('rf-graphical');
         }
     });
-    d.addListener('render_complete', 'linear', function(linear) {
-        exposeLinearPlot();
+    d.addListener('render_complete', 'linear', function(obj) {
+        exposeLinearPlot(obj);
     });
     d.addListener('render_complete', 'scatterplot', function(obj) {
         scatterplot_obj = obj;
@@ -90,10 +83,20 @@ function extractURL() {
     return json;
 }
 
+function isDatasetURLSpecified() {
+ var json = extractURL();
+    if (json != null && json.dataset !== undefined) {
+        return true;
+    }
+    return false;
+}
+
 function checkDatasetURL() {
     var json = extractURL();
-    if (json != null && json.dataset !== undefined) {
+    if (isDatasetURLSpecified()) {
         selectDatasetByLabel(json.dataset);
+    } else {
+       selectDatasetByLabel(null);
     }
 }
 
@@ -141,13 +144,13 @@ function removeDefaultValues(json) {
     return json;
 }
 
-
 function generateStateJSON() {
     var json = getFilterSelections();
     //don't preserve empty or obvious values
     json = removeDefaultValues(json);
     var obj = {};
-    obj.dataset = getSelectedDatasetLabel();
+    var dataset = getSelectedDatasetLabel();
+    if(dataset) obj.dataset = dataset;
     obj = vq.utils.VisUtils.extend(obj, json);
     return obj;
 }
@@ -208,7 +211,7 @@ function exportImage() {
 
 function loadDataDialog() {
     re.windows.dataset_window.show();
-    Ext.getCmp('dataset_grid').store.load();
+    Ext.getCmp('dataset-grid').store.load();
 }
 
 function exportData() {
@@ -308,7 +311,9 @@ function getFilterSelections() {
     return packFilterSelections(
         type_1, label_1, Ext.getCmp('t_chr').getValue(), Ext.getCmp('t_start').getValue(), Ext.getCmp('t_stop').getValue(),
 
-        type_2, label_2, Ext.getCmp('p_chr').getValue(), Ext.getCmp('p_start').getValue(), Ext.getCmp('p_stop').getValue(), Ext.getCmp('order').getValue(), Ext.getCmp('limit').getValue(), Ext.getCmp('filter_type').getValue(), Ext.getCmp('isolate').checked, Ext.getCmp('t_pathway').getValue(), Ext.getCmp('p_pathway').getValue());
+        type_2, label_2, Ext.getCmp('p_chr').getValue(), Ext.getCmp('p_start').getValue(), Ext.getCmp('p_stop').getValue(), Ext.getCmp('order').getValue(), Ext.getCmp('limit').getValue(), Ext.getCmp('filter_type').getValue(),
+
+        Ext.getCmp('isolate').checked, Ext.getCmp('t_pathway').getValue(), Ext.getCmp('p_pathway').getValue());
 }
 
 
@@ -329,7 +334,7 @@ function packFilterSelections() {
         filter_type: arguments[12],
         isolate: arguments[13],
 	t_pathway: arguments[14],
-	p_pathway: arguments[15],
+	p_pathway: arguments[15]
     };
 
     re.model.association.types.forEach(function(obj) {
@@ -478,24 +483,40 @@ function loadDataTableStore(data) {
 
 function loadDataset() {
     checkDatasetURL();
-    if (Ext.getCmp('dataset_grid').getSelectionModel().getSelected() === undefined) Ext.getCmp('dataset_grid').getSelectionModel().selectFirstRow();
+    if (!isDatasetURLSpecified()) {loadDataDialog(); return;}
+    if (Ext.getCmp('dataset-grid').getSelectionModel().getSelected() === undefined) {
+        Ext.Msg.alert('Valid Dataset not selected', 'Please choose a dataset to begin.',loadDataDialog);
+        preserveState();
+        return;
+    }
     loadSelectedDataset();
 }
 
 function selectDatasetByLabel(label) {
     var record_index = Ext.StoreMgr.get('dataset_grid_store').find('label', label);
     if (record_index >= 0) {
-        Ext.getCmp('dataset_grid').getSelectionModel().selectRow(record_index);
+        Ext.getCmp('dataset-grid').getSelectionModel().selectRow(record_index);
+    }
+    else {
+        Ext.getCmp('dataset-grid').getSelectionModel().clearSelections(true);
     }
 }
 
 function getSelectedDataset() {
-    return Ext.getCmp('dataset_grid').getSelectionModel().getSelected();
+    if (Ext.getCmp('dataset-tabpanel').layout.activeItem.id == 'dataset-tree' &&
+        Ext.getCmp('dataset-tree').getSelectionModel().getSelectedNode() !== null) {
+        var label = Ext.getCmp('dataset-tree').getSelectionModel().getSelectedNode().attributes.label;
+        var record_index = Ext.StoreMgr.get('dataset_grid_store').find('label', label);
+        if (record_index >= 0) {
+            Ext.getCmp('dataset-grid').getSelectionModel().selectRow(record_index);
+        }
+    }
+    return  Ext.getCmp('dataset-grid').getSelectionModel().getSelected();
 }
 
 function getSelectedDatasetLabel() {
     var selected_record = getSelectedDataset();
-    var selected_dataset = '';
+    var selected_dataset = null;
     if (selected_record != null) {
         selected_dataset = selected_record.json.label;
     }
@@ -521,9 +542,9 @@ function loadSelectedDataset() {
     var selected_dataset = getSelectedDatasetLabel();
     var selected_description = getSelectedDatasetDescription();
     if (selected_dataset != '') {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('dataset_selected', 'dataset_grid', selected_dataset));
+        vq.events.Dispatcher.dispatch(new vq.events.Event('dataset_selected', 'dataset-grid', selected_dataset));
         hideDatasetWindow();
-        Ext.getCmp('filter_parent').setTitle(selected_description);
+        Ext.getCmp('filter_parent').setTitle('Filtering \'' + selected_description + '\'');
     } else {
         Ext.Msg.alert('Dataset not selected', 'Select a dataset to load.');
     }
@@ -608,7 +629,7 @@ function retrieveMedlineDocuments(term1, term2) {
     Ext.StoreMgr.get('dataDocument_grid_store').on({
         beforeload: {
             fn: function(store, options) {
-                store.proxy.setUrl(re.databases.solr.uri + re.databases.solr.select + '?q=%2Btext%3A\"' + term1 + '\" %2Btext%3A\"' + term2 + '\"&fq=%2Bpub_date_year%3A%5B1991 TO 2011%5D&wt=json' + '&hl=true&hl.fl=article_title,abstract_text&hl.snippets=100&hl.fragsize=50000&h.mergeContiguous=true');
+                store.proxy.setUrl(re.databases.solr.uri + re.databases.solr.select + '?q=%2Btext%3A\"' + term1 + '\" %2Btext%3A\"' + term2 + '\"&fq=%2Bpub_date_year%3A%5B1991 TO 2011%5D&wt=json' + '&hl=true&hl.fl=article_title,abstract_text&hl.snippets=100&hl.fragsize=50000&h.mergeContiguous=true&sort=pub_date_year%20desc');
             }
         }
     });
@@ -654,9 +675,9 @@ function exposeCirclePlot() {
     re.windows.masks.network_mask.hide();
 }
 
-function exposeLinearPlot(chr, start, range_length) {
+function exposeLinearPlot(feature_obj) {
     Ext.getCmp('linear-parent').expand(true);
-    Ext.getCmp('linear-parent').setTitle('Chromosome-level View: Chromosome ' + chr);
+    Ext.getCmp('linear-parent').setTitle('Chromosome-level View: Chromosome ' + feature_obj.chr);
     var task = new Ext.util.DelayedTask(function() {
         var rf = Ext.getCmp('rf-graphical').body;
         var d = rf.dom;
@@ -681,10 +702,10 @@ function registerAllListeners() {
 }
 
 function addTooltip(value, metadata, record, rowIndex, colIndex, store){
-                var txt = getGeneName.getValue(value);
-                 metadata.attr = 'ext:qtip="' + txt +  '"';
-                     return value;
-         }
+    var txt = getGeneName.getValue(value);
+    metadata.attr = 'ext:qtip="' + txt +  '"';
+    return value;
+}
 
 
 Ext.onReady(function() {
@@ -735,7 +756,8 @@ Ext.onReady(function() {
                         id: 'circle-panel',
                         width: 800,
                         x: 20,
-                        y: 20
+                        y: 20,
+                        html:'Select a Dataset to begin'
                     }, {
                         xtype: 'panel',
                         id: 'circle-legend-panel',
@@ -744,17 +766,7 @@ Ext.onReady(function() {
                         frame: false,
                         x: 880,
                         y: 20
-                    }, /*{
-                        xtype: 'panel',
-                        id: 'pathway-legend-panel',
-                        width: 150,
-                        border: false,
-                        frame: false,
-			//autoScroll: true,
-                        x: 880,
-                        y: 100
-                    },*/
-			{
+                    }, {
                         xtype: 'panel',
                         id: 'circle-colorscale-panel',
                         width: 150,
@@ -876,14 +888,12 @@ Ext.onReady(function() {
                             width: 100,
                             id: 'target_start',
                             dataIndex: 'target_start',
-			    //hidden: true,
                             groupName: 'Target'
                         }, {
                             header: "StopA",
                             width: 100,
                             id: 'target_stop',
                             dataIndex: 'target_stop',
-			    //hidden: true,
                             groupName: 'Target'
                         }, {
                             header: "Id",
@@ -909,25 +919,22 @@ Ext.onReady(function() {
                             width: 40,
                             id: 'source_chr',
                             dataIndex: 'source_chr',
-			    //hidden: true,
                             groupName: 'Target'
                         }, {
                             header: "StartB",
                             width: 100,
                             id: 'source_start',
                             dataIndex: 'source_start',
-			    //hidden: true,
                             groupName: 'Target'
                         }, {
                             header: "StopB",
                             width: 100,
                             id: 'source_stop',
                             dataIndex: 'source_stop',
-			    //hidden: true,
                             groupName: 'Target'
                         }].concat(re.model.association.types.map(function(obj) {
                             if (obj.ui != null)
-					return obj.ui.grid.column;
+                                return obj.ui.grid.column;
                         })),
                         defaults: {
                             sortable: true,
@@ -1004,11 +1011,11 @@ Ext.onReady(function() {
                             text: 'SVG',
                             value: 'svg',
                             handler: exportImage
-                        }/*, {
+                        }, {
                             text: 'PNG',
                             value: 'png',
                             handler: exportImage
-                        }*/]
+                        }]
                     }, {
                         text: 'Linear',
                         id: 'linear-export-menu',
@@ -1016,11 +1023,11 @@ Ext.onReady(function() {
                             text: 'SVG',
                             value: 'svg',
                             handler: exportImage
-                        }/*, {
+                        }, {
                             text: 'PNG',
                             value: 'png',
                             handler: exportImage
-                        }*/]
+                        }]
                     }]
                 }]
             }, {
@@ -1530,25 +1537,15 @@ var loadListener = function(store, records) {
     store.removeListener('load', loadListener);
     var e = new vq.events.Event('data_request', 'annotations', {});
     e.dispatch();
+
+    pathedMenu.addPathedItems(records);
+    datasetTree.addNodes(records);
 };
 
-re.windows.dataset_window = new Ext.Window({
-    id: 'dataset-window',
-    renderTo: 'view-region',
-    modal: false,
-    closeAction: 'hide',
-    layout: 'fit',
-    width: 600,
-    height: 300,
-    title: "Load Dataset",
-    closable: true,
-    layoutConfig: {
-        animate: true
-    },
-    maximizable: false,
-    items: {
-        xtype: 'grid',
-        id: 'dataset_grid',
+var datasetTree = new org.cancerregulome.explorer.view.DatasetTree({text:'Datasets',expanded:true,autoScroll:true});
+var datasetGrid = new Ext.grid.GridPanel({
+        title:'Grid',
+        id: 'dataset-grid',
         autoScroll: true,
         loadMask: true,
         monitorResize: true,
@@ -1613,16 +1610,48 @@ re.windows.dataset_window = new Ext.Window({
                 load: loadListener
             }
         })
-    },
-    bbar: [{
-        text: 'Load',
-        handler: manualLoadSelectedDataset
-    }, {
-        text: 'Cancel',
-        handler: hideDatasetWindow
-    }]
-});
-re.windows.dataset_window.hide();
+    });
+
+    re.windows.dataset_window = new Ext.Window({
+        id: 'dataset-window',
+        renderTo: Ext.getBody(),
+        modal: true,
+        closeAction: 'hide',
+        layout:'fit',
+        width: 600,
+        height: 300,
+        title: "Load Dataset",
+        closable: true,
+        layoutConfig: {
+            animate: true
+        },
+        maximizable: false,
+        items: {
+            xtype: 'tabpanel',
+            id:'dataset-tabpanel',
+            activeTab: 'dataset-tree',
+            deferredRender : false,
+            items: [
+                {
+                    xtype:'treepanel',
+                    title:'Tree',
+                    id:'dataset-tree',
+                    rootVisible:false,
+                    autoScroll:true,
+                    root: datasetTree
+                },
+                datasetGrid
+            ]
+        },
+        bbar: [{
+            text: 'Load',
+            handler: manualLoadSelectedDataset
+        }, {
+            text: 'Cancel',
+            handler: hideDatasetWindow
+        }]
+    });
+    re.windows.dataset_window.hide();
 
 var medlineStore = new Ext.data.JsonStore({
     root: 'response.docs',
@@ -1711,7 +1740,7 @@ re.windows.details_window = new Ext.Window({
                     }, {
                         xtype: 'checkbox',
                         id: 'scatterplot_discrete_x_checkbox',
-                        boxLabel: 'Discretize Target',
+                        boxLabel: 'Discretize '+re.ui.feature1.label,
                         listeners: {
                             check: function(checked) {
                                 renderScatterPlot();
@@ -1720,7 +1749,7 @@ re.windows.details_window = new Ext.Window({
                     }, {
                         xtype: 'checkbox',
                         id: 'scatterplot_discrete_y_checkbox',
-                        boxLabel: 'Discretize Predictor',
+                        boxLabel: 'Discretize ' +re.ui.feature2.label,
                         listeners: {
                             check: function(checked) {
                                 renderScatterPlot();
@@ -1880,3 +1909,5 @@ re.windows.details_window = new Ext.Window({
 re.windows.details_window.hide();
 
 });
+
+var pathedMenu = new org.cancerregulome.explorer.view.DatasetMenu({});
