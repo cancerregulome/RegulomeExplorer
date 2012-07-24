@@ -183,7 +183,7 @@ function renderSFCircleData(data) {
 }
 
 function renderLinearData(obj) {
-    linear_plot(vq.utils.VisUtils.extend(obj,{div:document.getElementById('linear-panel')}));
+    linear_plot(vq.utils.VisUtils.extend(obj,{div:'linear-panel'}));
 }
 
 function renderGraph(data) {
@@ -1196,7 +1196,7 @@ function linear_plot(obj) {
                 },
                 data_array : locations
             },  { type: 'glyph',
-                label : 'Unmapped Feature Correlates',
+                label : 'Associations lacking Genomic Coordinates',
                 description : '',
                 CONFIGURATION: {
                     fill_style : function(hit) { return re.plot.colors.node_colors(hit.source);},
@@ -1219,7 +1219,7 @@ function linear_plot(obj) {
                 data_array : hit_map
             },
             { type: 'glyph',
-                label : 'Proximal Feature Predictors',
+                label : 'Proximal Feature Associations',
                 description : '',
                 CONFIGURATION: {
                     fill_style : function(link) { return re.plot.colors.link_sources_colors([link.sourceNode.source,link.targetNode.source])},
@@ -1242,7 +1242,7 @@ function linear_plot(obj) {
                 data_array : neighbor_map
             },
             { type: 'tile',
-                label : 'Distal Intra-Chromosomal Correlates',
+                label : 'Distal Intra-Chromosomal Associations',
                 description : '',
                 CONFIGURATION: {
                     fill_style :  function(link) { return re.plot.colors.link_sources_colors([link.sourceNode.source,link.targetNode.source]);},

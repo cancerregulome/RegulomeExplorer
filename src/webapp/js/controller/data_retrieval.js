@@ -294,19 +294,15 @@ function loadFeaturesInAFM(label) {
     	var patient_query_str = '?' + Ext.urlEncode(query_json);
     	var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.features_uri + re.rest.query + patient_query_str;
     	function mQueryHandle(response) {
-          try {
-	    var r = Ext.decode(response.responseText);
-            //features["data"] = r;
-	    re.ui.setPathwayMembersQueryCounts(label,r.length);
-	    //if (features['data'].length >= 1) {
-	//	loadComplete(r.length);
-          //  }else{
-	//	noResults('features');
-	  //  } 
-	  }catch (err) {
-            throwQueryError('features', response);
+            try {
+                var r = Ext.decode(response.responseText);
+
+                re.ui.setPathwayMembersQueryCounts(label,r.length);
+            } catch (err) {
+                throwQueryError('features', response);
            }
 	}
+
     Ext.Ajax.request({
         url: patient_query,
         success: mQueryHandle,
