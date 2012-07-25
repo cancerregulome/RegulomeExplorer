@@ -354,17 +354,6 @@ function pathway_members_draw(div,anchor,networks) {
 
     re.plot.colors.link_sources_colors = function(link) { return re.plot.link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
 
-    var vis= new pv.Panel()
-        .left(0)
-        .top(0)
-        .width(legend_width)
-        .height(legend_height)
-        .canvas(div);
-
-    var draw_panel = vis.add(pv.Panel)
-        .left(left_padding)
-        .top(top_padding);
-
     var pathway_members_query_counts = re.ui.getPathwayMembersQueryCounts();
     var locatable_sources = re.plot.locatable_source_list;
     var horizontal_offset = 35;
@@ -373,7 +362,7 @@ function pathway_members_draw(div,anchor,networks) {
     var scale_factor = 5;
 
     var draw_data = [];
-    stuples.forEach(function(mv) {
+    stuples.forEach(function(mv, index) {
         var pathway_member = mv[0];
 
         var sources = [];
@@ -384,6 +373,7 @@ function pathway_members_draw(div,anchor,networks) {
             if (count > 0) {
                 sources.push({
                     source_index: source_index,
+                    label_index: index,
                     offset: total,
                     width: count
                 });
@@ -394,24 +384,50 @@ function pathway_members_draw(div,anchor,networks) {
 
         var obj = {
             label: pathway_member,
+            label_index: index,
             sources: sources
         };
 
         draw_data.push(obj);
     });
 
+    var vis = new pv.Panel()
+        .left(0)
+        .top(0)
+        .width(legend_width)
+        .height(legend_height)
+        .canvas(div);
+
+    var draw_panel = vis.add(pv.Panel)
+        .def("active_label_index", -1)
+        .left(left_padding)
+        .top(top_padding)
+        .events("all")
+        .event("click", function() {
+            this.active_label_index(-1);
+            this.render();
+            re.circvis_obj.highlightConnectedNodes('');
+        });
+
     var entries = draw_panel.add(pv.Panel)
         .data(draw_data)
         .top(function() { return this.index * bar_height;})
         .height(bar_height)
         .event("mouseover", function(d) {
-            if (pathway_members_query_counts[d.label] > 0) {
+            if (draw_panel.active_label_index() == -1 && pathway_members_query_counts[d.label] > 0) {
                 re.circvis_obj.highlightConnectedNodes(d.label);
             }
         })
-        .event("mouseout", function(d) {
-            if (pathway_members_query_counts[d.label] > 0) {
+        .event("mouseout", function() {
+            if (draw_panel.active_label_index() == -1) {
                 re.circvis_obj.highlightConnectedNodes('');
+            }
+        })
+        .event("click", function(d) {
+            if (pathway_members_query_counts[d.label] > 0) {
+                draw_panel.active_label_index(d.label_index);
+                draw_panel.render();
+                re.circvis_obj.highlightConnectedNodes(d.label);
             }
         });
 
@@ -431,6 +447,14 @@ function pathway_members_draw(div,anchor,networks) {
         .anchor("left").add(pv.Label)
         .textStyle(function(d) {
             return pathway_members_query_counts[d.label] == 0 ? "red" :  "black";
+        })
+        .font(function(d) {
+            if (d.label_index == draw_panel.active_label_index()) {
+                return "bold 10px sans-serif";
+            }
+            else {
+                return "10px sans-serif";
+            }
         })
         .text(function(d) {
             return d.label;
@@ -465,7 +489,15 @@ function pathway_members_draw(div,anchor,networks) {
             return scale_factor * d.width;
         })
         .fillStyle(function(d) {
-            return re.plot.colors.node_colors(locatable_sources[d.source_index]);
+            var color = re.plot.colors.node_colors(locatable_sources[d.source_index]);
+
+            if (d.label_index == draw_panel.active_label_index()) {
+                return color;
+            }
+            else {
+                color.opacity = 0.7;
+                return color;
+            }
         })
         .bottom(1.0);
 
@@ -889,8 +921,8 @@ function wedge_plot(parsed_data,div) {
                 listener : wedge_listener,
                 stroke_style :stroke_style,
                 fill_style : function(tick) {return re.plot.colors.node_colors(tick.source); },
-              tooltip_links :re.display_options.circvis.tooltips.links,
-                    tooltip_items :  re.display_options.circvis.tooltips.feature     //optional
+                tooltip_links :re.display_options.circvis.tooltips.links,
+                tooltip_items :  re.display_options.circvis.tooltips.feature     //optional
             }
         },
         PLOT: {
