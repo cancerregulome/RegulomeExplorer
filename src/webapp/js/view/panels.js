@@ -1,6 +1,9 @@
-
-if (re === undefined) { re = {};}
-
+if (re === undefined) {
+    re = {};
+}
+vq.utils.VisUtils.extend(re, {
+    ui: {}
+});
 re.ui.panels = {
             east : {
                 region: 'east',
