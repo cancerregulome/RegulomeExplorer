@@ -281,26 +281,27 @@ function loadFeatureData(link) {
 function loadFeaturesInAFM(label) {
     function loadComplete(ct) {
      	re.ui.setPathwayMembersQueryCounts(label,ct);
-   	vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'features', features));
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'features', features));
     }
     var features = {
         data: null
     };
-    	var query_str = "select alias where `label` ='"  + label + "' limit 1";
-        var query_json = {
+
+    var query_str = "select alias where `label` ='"  + label + "' limit 1";
+    var query_json = {
         tq: query_str,
         tqx: 'out:json_array'
-        };
-    	var patient_query_str = '?' + Ext.urlEncode(query_json);
-    	var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.features_uri + re.rest.query + patient_query_str;
-    	function mQueryHandle(response) {
-            try {
-                var r = Ext.decode(response.responseText);
+    };
+    var patient_query_str = '?' + Ext.urlEncode(query_json);
+    var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.features_uri + re.rest.query + patient_query_str;
+    function mQueryHandle(response) {
+        try {
+            var r = Ext.decode(response.responseText);
 
-                re.ui.setPathwayMembersQueryCounts(label,r.length);
-            } catch (err) {
-                throwQueryError('features', response);
-           }
+            re.ui.setPathwayMembersQueryCounts(label,r.length);
+        } catch (err) {
+            throwQueryError('features', response);
+        }
 	}
 
     Ext.Ajax.request({
@@ -704,6 +705,20 @@ function buildGQLQuery(args) {
     }
     if ((args['t_start'] != '') && (args['t_stop'] != '')) {
         where += ' and f1end >= ' + args['t_start'];
+    }
+
+    if (args['cis']) {
+        where += (where.length > whst.length ? ' and ' : ' ');
+        where += 'f1chr=f2chr';
+    }
+    else if (args['trans']) {
+        where += (where.length > whst.length ? ' and ' : ' ');
+        where += 'f1chr!=f2chr';
+    }
+
+    if (args['proximal']) {
+        where += (where.length > whst.length ? ' and ' : ' ');
+        where += 'f1start-f2start <= ' + args['proximal'];
     }
 
     re.model.association.types.forEach(function(obj) {

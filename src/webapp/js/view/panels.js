@@ -85,16 +85,18 @@ re.ui.panels = {
                             resetFormPanel();
                         }
                     }
-                }
-                ],
+                }],
                 items: [{
                     xtype:'fieldset',
                     id:re.ui.feature1.id,
                     title:re.ui.feature1.label,
                     collapsible: true,
-                    defaults:{anchor:'100%'},
+                    defaults: {
+                        anchor:'100%'
+                    },
                     labelWidth: 70,
-                    labelSeparator : '',forceSelection : true,
+                    labelSeparator: '',
+                    forceSelection: true,
                     defaultType:'textfield',
                     autoHeight:true,
                     items: [{
@@ -105,13 +107,9 @@ re.ui.panels = {
                         checked:false,
                         listeners: {
                             check: function(cb, checked) {
-                                //Ext.getCmp(re.ui.feature2.id).setDisabled(checked);
-                                //if (checked) { Ext.getCmp(re.ui.feature2.id).collapse(); }
-                                //else { Ext.getCmp(re.ui.feature2.id).expand(); }
                                 Ext.getCmp('t_chr').setDisabled(checked);
                                 Ext.getCmp('t_start').setDisabled(checked);
                                 Ext.getCmp('t_stop').setDisabled(checked);
-                                //Ext.getCmp('t_lookup_button').setDisabled(checked);
                                 Ext.getCmp('filter_type').setDisabled(checked);
                             }
                         }
@@ -125,9 +123,10 @@ re.ui.panels = {
                             autoLoad : false,
                             fields : ['value','label'],
                             idProperty:'value',
-                            data: [
-                                {value: '*',label:'All'}
-                            ],
+                            data: [{
+                                value: '*',
+                                label:'All'
+                            }],
                             storeId:'f1_type_combo_store'
                         }),
                         fieldLabel:'Type',
@@ -150,7 +149,6 @@ re.ui.panels = {
                                     Ext.getCmp('t_pathway').setVisible(false);
                                     break;
                                 case('Pathway'):
-                                    //Ext.getCmp('f1_label_comp').setVisible(false);
                                     Ext.getCmp('t_clin').setVisible(false);
                                     Ext.getCmp('t_pathway').setVisible(true);
                                     break;
@@ -268,9 +266,10 @@ re.ui.panels = {
                                 Ext.getCmp("pathway_member_panel").setTitle(url + " " + memberDataArray.length + " Genes");
                             }
                         }
-                    },
-                    {
-                        xtype:'combo', name:'t_chr',id:'t_chr',
+                    }, {
+                        xtype:'combo',
+                        name:'t_chr',
+                        id:'t_chr',
                         mode:'local',
                         allowBlank : false,
                         store: new Ext.data.JsonStore({
@@ -322,8 +321,7 @@ re.ui.panels = {
                         fieldLabel : 'Stop <=',
                         defaultValue : '',
                         value : ''
-                    }
-                    ]
+                    }]
                 }, {
                     xtype:'fieldset',
                     id:re.ui.feature2.id,
@@ -332,7 +330,9 @@ re.ui.panels = {
                     maskDisabled:true,
                     collapsed: true,
                     collapsible: true,
-                    defaults:{anchor:'100%'},
+                    defaults: {
+                        anchor:'100%'
+                    },
                     labelWidth: 70,
                     labelSeparator : '',
                     defaultType:'textfield',
@@ -353,9 +353,10 @@ re.ui.panels = {
                             autoLoad : false,
                             fields : ['value','label'],
                             idProperty:'value',
-                            data: [
-                                {value: '*',label:'All'}
-                            ],
+                            data: [{
+                                value: '*',
+                                label:'All'
+                            }],
                             storeId:'f2_type_combo_store'
                         }),
                         fieldLabel:'Type',
@@ -403,22 +404,24 @@ re.ui.panels = {
                             selectOnFocus:true,
                             fieldLabel:'Label',
                             defaultValue : '',
-                            value : '',
+                            value: '',
                             listeners: {
                                 change: function(t,o,n){
                                     if (n.indexOf(",") != -1)
                                         Ext.getCmp("filter_type").setValue(re.ui.feature2.id);
                                 }
                             }
-                        },
-                        {
+                        }, {
                             xtype:'button',
                             text:'Lookup',
                             width:50,
                             handler:function(evt) {
                                 var label = Ext.getCmp('p_label').getValue();
                                 if (label.length > 0) {
-                                    vq.events.Dispatcher.dispatch(new vq.events.Event('data_request','label_position',{ui:'f2',label:label}));
+                                    vq.events.Dispatcher.dispatch(new vq.events.Event('data_request', 'label_position', {
+                                        ui:'f2',
+                                        label:label
+                                    }));
                                 }
                             }
                         }]
@@ -496,7 +499,9 @@ re.ui.panels = {
                             }
                         }
                     }, {
-                        xtype:'combo', name:'p_chr',id:'p_chr',
+                        xtype:'combo',
+                        name:'p_chr',
+                        id:'p_chr',
                         mode:'local',
                         allowBlank : true,
                         store: new Ext.data.JsonStore({
@@ -548,24 +553,99 @@ re.ui.panels = {
                         fieldLabel : 'Stop <=',
                         defaultValue : '',
                         value : ''
-                    }]
+                    }
+                    ]
                 }, {
                     xtype:'fieldset',
                     defaults:{
                         anchor:'100%'
                     },
-                    labelWidth : 90,
+                    labelWidth: 110,
                     labelSeparator : '',
                     title:'Association',
                     collapsible: true,
                     autoHeight:true,
-                    items:
-                        re.model.association.types.filter(function(assoc) {
-                            return assoc.ui != undefined && assoc.ui.filter != undefined &&
-                                    assoc.ui.filter.component != undefined;
-                        }).map( function (obj) {
-                            return obj.ui.filter.component;
-                        }).concat([{
+                    items: [{
+                        xtype: 'fieldset',
+                          defaults: { anchor:'90%'},
+                        labelWidth:60,
+                        collapsible: true,
+                        collapsed: true,
+                        autoHeight: true,
+                        labelSeparator: '',
+                        title: 'Distance',
+                        items: [
+                            {
+                            fieldLabel: 'Inter-Chromasomal',
+                            xtype:'compositefield',
+                            items: [{
+                                xtype: 'checkbox',
+                                name: 'cis',
+                                id: 'cis',
+                                boxLabel: 'Cis',
+                                inputValue: 'false',
+                                defaultValue:false,
+                                 listeners: {
+                                     check: function(cb, checked) {
+                                        Ext.getCmp('trans').setDisabled(checked);
+                                        Ext.getCmp('proximal_distance').setDisabled(!checked);
+                                        Ext.getCmp('distal_distance').setDisabled(!checked);
+                                    }
+                            }
+                            }, {
+                                xtype: 'checkbox',
+                                id:'trans',
+                                name: 'trans',
+                                boxLabel: 'Trans',
+                                defaultValue:false,
+                                listeners: {
+                                     check: function(cb, checked) {
+                                        Ext.getCmp('cis').setDisabled(checked);
+                                    }
+                                }
+                            }]
+                        }, {
+                                xtype: 'numberfield',
+                                fieldLabel: 'Closer than',
+                                id: 'proximal_distance',
+                                name: 'proximal_distance',
+                                disabled: true,
+                                allowNegative: false,
+                                decimalPrecision: 0,
+                                emptyText: 'Input value...',
+                                invalidText: 'This value is not valid.',
+                                maxValue: 250999999,
+                                minValue: 1,
+                                tabIndex: 1,
+                                validateOnBlur: true,
+                                allowDecimals: false,
+                                defaultValue: '10000',
+                                value: '10000'
+                            }, {
+                                xtype: 'numberfield',
+                                fieldLabel: 'Farther than',
+                                id: 'distal_distance',
+                                name: 'distal_distance',
+                                disabled: true,
+                                allowNegative: false,
+                                decimalPrecision: 0,
+                                emptyText: 'Input value...',
+                                invalidText: 'This value is not valid.',
+                                maxValue: 250999999,
+                                minValue: 1,
+                                tabIndex: 1,
+                                validateOnBlur: true,
+                                allowDecimals: false,
+                                defaultValue: '50000',
+                                value: '50000'
+                            }
+                        ]
+                    }].concat(
+                    re.model.association.types.filter(function(assoc) {
+                        return assoc.ui != undefined && assoc.ui.filter != undefined && assoc.ui.filter.component != undefined;
+                    }).map( function (obj) {
+                        return obj.ui.filter.component;
+                    })).concat([{
                         xtype: 'combo',
                         name: 'order',
                         id: 'order',
@@ -615,11 +695,11 @@ re.ui.panels = {
                     fieldLabel:'Filter By',
                     displayField: 'label',
                     valueField:'id',
+                    anchor:'90%',
                     id:'filter_type',
                     mode: 'local',
-                    hidden: true,
-                    defaultValue:re.ui.feature1['id'],
-                    value:re.ui.feature1['id'],
+                    defaultValue: 'association',
+                    value: 'association',
                     typeAhead : true,
                     forceSelection : true,
                     selectOnFocus: true,
@@ -635,6 +715,15 @@ re.ui.panels = {
                             id:'association'
                         },
                         re.ui.feature1, re.ui.feature2]
+                    },
+                    listeners: {
+                        render: function(c) {
+                            Ext.QuickTips.register({
+                                target: c,
+                                title: '',
+                                text: '<b>Association</b>: Top X Results matching ' + 'any of the specified labels<br><b>' + re.ui.feature1.label + '</b>: Top X ' + 'Results for <b>each</b> of the specified labels in that fieldset<br><b>' + re.ui.feature2.label + '</b>: Top X Results for <b>each</b> of the specified ' + 'labels in that fieldset'
+                            });
+                        }
                     }
                 }]
             }]

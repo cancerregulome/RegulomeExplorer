@@ -310,10 +310,17 @@ function getFilterSelections() {
     }
     return packFilterSelections(
         type_1, label_1, Ext.getCmp('t_chr').getValue(), Ext.getCmp('t_start').getValue(), Ext.getCmp('t_stop').getValue(),
+        type_2, label_2, Ext.getCmp('p_chr').getValue(), Ext.getCmp('p_start').getValue(), Ext.getCmp('p_stop').getValue(),
+        Ext.getCmp('order').getValue(), Ext.getCmp('limit').getValue(), Ext.getCmp('filter_type').getValue(),
+        Ext.getCmp('isolate').checked,
+            Ext.getCmp('cis').checked,
+            Ext.getCmp('trans').checked,
+            Ext.getCmp('proximal_distance').checked,
+            Ext.getCmp('distal_distance').checked,
 
-        type_2, label_2, Ext.getCmp('p_chr').getValue(), Ext.getCmp('p_start').getValue(), Ext.getCmp('p_stop').getValue(), Ext.getCmp('order').getValue(), Ext.getCmp('limit').getValue(), Ext.getCmp('filter_type').getValue(),
-
-        Ext.getCmp('isolate').checked, Ext.getCmp('t_pathway').getValue(), Ext.getCmp('p_pathway').getValue());
+        Ext.getCmp('t_pathway').getValue(),
+        Ext.getCmp('p_pathway').getValue()
+    );
 }
 
 
@@ -333,8 +340,12 @@ function packFilterSelections() {
         limit: arguments[11],
         filter_type: arguments[12],
         isolate: arguments[13],
-	t_pathway: arguments[14],
-	p_pathway: arguments[15]
+        cis: arguments[14],
+        trans: arguments[15],
+        proximal: arguments[16],
+        distal: arguments[17],
+        t_pathway: arguments[18],
+        p_pathway: arguments[19]
     };
 
     re.model.association.types.forEach(function(obj) {
@@ -1057,8 +1068,7 @@ Ext.onReady(function() {
                         checked: false,
                         group: 'networklayout_group'
                     }]
-                }, 
-		{
+                }, {
                     id: 'fqiMenu',
                     text: 'Data Ring',
                     labelStyle: 'font-weight:bold;',
@@ -1075,8 +1085,7 @@ Ext.onReady(function() {
                         checked: false,
                         group: 'fqilayout_group'
                     }]
-                }, 
-		{
+                }, {
                     text: 'Circular Plot',
                     menu: [{
                         text: 'Outer Ticks:',
@@ -1756,61 +1765,59 @@ re.windows.details_window = new Ext.Window({
                             }
                         }
                     }]
-                },
-{
-                        xtype: 'compositefield',
-                        defaultMargins: '0 20 0 0',
-                        items: [
-                            new Ext.form.ComboBox({
-                                id: 'scatterplot_colorby_combobox',
-                                disabled: true,
-                                emptyText: 'Select feature...',
-                                fieldLabel: 'Color By',
-                                displayField: 'label',
-                                valueField: 'alias',
-                                mode: 'local',
-                                triggerAction : 'all',
-                                store: new Ext.data.JsonStore({
-                                    id: 'categorical_feature_store',
-                                    fields: ['alias', 'label'],
-                                    data: []
-                                }),
-                                listeners: {
-                                    select: {
-                                        fn: function(combo, value) {
-                                            var alias = value.data.alias;
-                                            vq.events.Dispatcher.dispatch(new vq.events.Event('data_request', 'patient_categories', alias));
-                                        }
+                }, {
+                    xtype: 'compositefield',
+                    defaultMargins: '0 20 0 0',
+                    items: [
+                        new Ext.form.ComboBox({
+                            id: 'scatterplot_colorby_combobox',
+                            disabled: true,
+                            emptyText: 'Select feature...',
+                            fieldLabel: 'Color By',
+                            displayField: 'label',
+                            valueField: 'alias',
+                            mode: 'local',
+                            triggerAction : 'all',
+                            store: new Ext.data.JsonStore({
+                                id: 'categorical_feature_store',
+                                fields: ['alias', 'label'],
+                                data: []
+                            }),
+                            listeners: {
+                                select: {
+                                    fn: function(combo, value) {
+                                        var alias = value.data.alias;
+                                        vq.events.Dispatcher.dispatch(new vq.events.Event('data_request', 'patient_categories', alias));
                                     }
                                 }
-                            }),
-                            {
-                                xtype: 'checkbox',
-                                id: 'scatterplot_colorby_checkbox',
-                                boxLabel: 'Enable',
-                                listeners: {
-                                    check: {
-                                        fn: function(checkbox) {
-                                            if (checkbox.checked == true) {
-                                                var combo = Ext.getCmp('scatterplot_colorby_combobox');
-                                                var alias = combo.getValue();
-                                                combo.enable();
-                                                if (alias.length > 0) {
-                                                    vq.events.Dispatcher.dispatch(new vq.events.Event('data_request', 'patient_categories', alias));
-                                                }
+                            }
+                        }),
+                        {
+                            xtype: 'checkbox',
+                            id: 'scatterplot_colorby_checkbox',
+                            boxLabel: 'Enable',
+                            listeners: {
+                                check: {
+                                    fn: function(checkbox) {
+                                        if (checkbox.checked == true) {
+                                            var combo = Ext.getCmp('scatterplot_colorby_combobox');
+                                            var alias = combo.getValue();
+                                            combo.enable();
+                                            if (alias.length > 0) {
+                                                vq.events.Dispatcher.dispatch(new vq.events.Event('data_request', 'patient_categories', alias));
                                             }
-                                            else {
-                                                Ext.getCmp('scatterplot_colorby_combobox').disable();
-                                                re.plot.scatterplot_categories = undefined;
-                                                renderScatterPlot();
-                                            }
+                                        }
+                                        else {
+                                            Ext.getCmp('scatterplot_colorby_combobox').disable();
+                                            re.plot.scatterplot_categories = undefined;
+                                            renderScatterPlot();
                                         }
                                     }
                                 }
                             }
-                        ]
-                    }
-		]
+                        }
+                    ]
+                }]
             }]
         }, {
             xtype: 'panel',
@@ -1834,7 +1841,6 @@ re.windows.details_window = new Ext.Window({
                     name: 'dataDocument_grid',
                     autoScroll: true,
                     autoWidth: true,
-                    //                                    height: 425,
                     loadMask: true,
                     anchor: '100% 100%',
                     store: medlineStore,
