@@ -20,7 +20,7 @@ def process_feature_alias(alias):
 		data[3] = data[3][3:]
 	return data
 
-def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config, annotations)
+def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
 	"""
 	Include edges where nodes are in original set, direction does not matter so do not populate edge if A->B if B->A are in hash
 	Expected tab delimited columns are nodeA nodeB pvalue correlation numNonNA	
@@ -36,7 +36,7 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config, an
 	do_pubcrawl = db_util.getDoPubcrawl(config)
 	results_path = db_util.getResultsPath(config)
 	edges_file = open(pairwised_file)
-	annotation_hash = parse_features_rfex.process_feature_matrix(dataset_label, matrixfile, 0, config, annotations)
+	#annotation_hash = parse_features_rfex.process_feature_matrix(dataset_label, matrixfile, 0, config, annotations)
 	print "\nBegin processing pairwise edges\n\n"
 	edge_table = mydb + ".mv_" + dataset_label + "_feature_networks" 
         efshout = open('./results/load_edges_' + dataset_label + '.sh','w')
@@ -45,6 +45,14 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config, an
 	edges_meta_json = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_meta.json','w')
 	unmappedPath = results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_unmapped.tsv'
 	unmappedout = open(unmappedPath,'w')
+
+	features_file = open(results_path + "/" + dataset_label + '_features_out.tsv','r')
+	features_hash = {}
+	for fl in features_file.readlines():
+		ftk = fl.strip().split("\t")
+		features_hash[ftk[1]] = ftk
+        features_file.close()
+
 	validEdgeId = 1
 	invalidEdges = 0
 	dupeEdges = 0
@@ -60,6 +68,9 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config, an
 			print "ERROR: not enough tokens:" + line
 			continue
 		nodeA = tokens[0]
+		nodeB = tokens[1]
+		#let's ignore annotations for all pairs for now
+		"""
 		if (len(nodeA.split(":")) < 3):
                         annotated_feature = annotation_hash.get(nodeA)
                         if (annotated_feature == None):
@@ -73,16 +84,17 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config, an
 				print "ERROR: Target feature %s is not in afm/annotation" %(f1alias)
 				continue
 			nodeB = annotated_feature.replace("\t", ":")
+		"""
 		if (db_util.isUnmappedAssociation(nodeA, nodeB)):
 	                unmappedout.write(nodeA + "\t" + nodeB + "\n")
         	        unMapped += 1
                 	continue
-		nodeA = nodeA.replace('|', '_')
-		nodeB = nodeB.replace('|', '_')
-		if (parse_features_rfex.getFeatureId(tokens[0]) and parse_features_rfex.getFeatureId(tokens[1])):
+		#nodeA = nodeA.replace('|', '_')
+		#nodeB = nodeB.replace('|', '_')
+		if (features_hash[nodeA] and features_hash[nodeB]):
 			if (not edges_hash.get(nodeA + "_" + nodeB) and not edges_hash.get(nodeA + "_" + nodeB)):
-				feature1id = str(parse_features_rfex.getFeatureId(tokens[0])) 
-				feature2id = str(parse_features_rfex.getFeatureId(tokens[1]))
+				feature1id = str(features_hash[nodeA]) 
+				feature2id = str(features_hash[nodeB])
 				edges_hash[nodeA + "_" + nodeB] = validEdgeId
 				validEdgeId += 1
 				dataA = process_feature_alias(nodeA)
@@ -112,7 +124,16 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config, an
 				numnaf2 = tokens[9]
 				pvf2 = tokens[10]
 				rho = str(db_util.sign(float(correlation))*abs(float(pv)))
-				edges_out_re.write(feature1id + "\t" + feature2id + "\t" + nodeA + "\t" + "\t".join(dataA) + "\t" + nodeB + "\t" + "\t".join(dataB) + "\t" + correlation + "\t" + numna + "\t" + pv + "\t" + bonf + "\t" + pv_bonf + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\t" + rho + "\n")
+				link_distance = -1
+				if (len(dataA) >=5 and len(dataB)>=5 and db_util.is_numeric(dataA[4]) >= 1 and db_util.is_numeric(dataB[4]) >= 1 and dataA[3] == dataB[3]):
+					link_distance = abs(int(dataB[4]) - int(dataA[4]))
+				f1qtinfo = ""
+				if (features_hash.get(nodeA) != None and len(features_hash.get(nodeA)) >= 14 ):
+					f1qtinfo = features_hash.get(nodeA)[13] + "_" + features_hash.get(nodeA)[14]               
+				f2qtinfo = ""
+				if (features_hash.get(nodeB) != None and len(features_hash.get(nodeB)) >= 14):
+					f2qtinfo = features_hash.get(nodeB)[13] + "_" + features_hash.get(nodeB)[14]               
+				edges_out_re.write(feature1id + "\t" + feature2id + "\t" + nodeA + "\t" + "\t".join(dataA) + "\t" + nodeB + "\t" + "\t".join(dataB) + "\t" + correlation + "\t" + numna + "\t" + pv + "\t" + bonf + "\t" + pv_bonf + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\t" + rho + "\t" + str(link_distance) + "\t" + f1qtinfo + "\t" + f2qtinfo + "\n")
 				if (do_pubcrawl == "yes"):
 					#call andrea code
 					getPairwiseInfo.processLine(line, edges_out_pc)
@@ -143,7 +164,7 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config, an
 	if (db_util.getDoSmtp(config) == 'yes'):
 		smtp.main("jlin@systemsbiology.net", notify, "Notification - New Pairwise Associations loaded for All Pairs Significance Test", "New pairwise associations loaded into All Pairs Significance Test for " + pw_label + "\n\n" + str(totalEdges) + " Total Edges\n\nFeature matrix file:" + feature_matrix + "\nPairwise associations file:" + associations + "\n")
 
-def main(dataset_label, feature_matrix, associations, configfile, insert_features, annotations):
+def main(dataset_label, feature_matrix, associations, configfile):
 	print "\n in parse_pairwise : dataset_label = <%s> \n" % dataset_label
 	config = db_util.getConfig(configfile)
 	results_path = db_util.getResultsPath(config)
@@ -151,7 +172,7 @@ def main(dataset_label, feature_matrix, associations, configfile, insert_feature
 	if (not os.path.exists(results_path + "/" + dataset_label)):
 		os.mkdir(results_path + "/" + dataset_label)
 	print "Done with processing features, processing pairwise edges %s " %(time.ctime())
-	process_pairwise_edges(dataset_label, feature_matrix, associations, config, annotations)
+	process_pairwise_edges(dataset_label, feature_matrix, associations, config)
 	print "Done with processing pairwise edges %s " %(time.ctime())
 
 if __name__ == "__main__":
@@ -164,5 +185,5 @@ if __name__ == "__main__":
 	if (len(sys.argv) == 6):
 		annotations = args[5]
 	dataset_label = sys.argv[3]
-	main(dataset_label, sys.argv[1], sys.argv[2], sys.argv[4], insert_features, annotations)
+	main(dataset_label, sys.argv[1], sys.argv[2], sys.argv[4])
 
