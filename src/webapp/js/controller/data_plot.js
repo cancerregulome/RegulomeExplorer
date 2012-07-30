@@ -347,18 +347,18 @@ function pathway_members_draw(div,anchor,networks) {
     var current_data = re.plot.all_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
     var current_map = pv.numerate(current_data);
 
+    re.plot.colors.link_sources_colors = function(link) { return re.plot.link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
+
     var top_padding = 20,
-        left_padding = 30;
+        left_padding = 0;
     var legend_height = (30 + stuples.length * 13),
         legend_width = 400;
 
-    re.plot.colors.link_sources_colors = function(link) { return re.plot.link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
-
     var pathway_members_query_counts = re.ui.getPathwayMembersQueryCounts();
     var locatable_sources = re.plot.locatable_source_list;
-    var horizontal_offset = 35;
+    var horizontal_offset = 65;
     var bar_height = 12;
-    var label_offset = -20;
+    var label_offset = 10;
     var scale_factor = 5;
 
     var draw_data = [];
@@ -413,6 +413,10 @@ function pathway_members_draw(div,anchor,networks) {
         .data(draw_data)
         .top(function() { return this.index * bar_height;})
         .height(bar_height)
+        .strokeStyle(function(d) {
+            // Red rectangle for highlighting the selected pathway member
+            return d.label_index == draw_panel.active_label_index() ? "red" : pv.color("rgba(1, 1, 1, 0)");
+        })
         .event("mouseover", function(d) {
             if (draw_panel.active_label_index() == -1 && pathway_members_query_counts[d.label] > 0) {
                 re.circvis_obj.highlightConnectedNodes(d.label);
@@ -432,9 +436,9 @@ function pathway_members_draw(div,anchor,networks) {
         });
 
     // Pathway member name labels
-    entries.add(pv.Bar)
+    entries.add(pv.Panel)
         .left(label_offset)
-        .width(horizontal_offset)
+        .width(horizontal_offset-label_offset)
         .fillStyle("white")
         .event("dblclick", function(d) {
             var url = 'http://www.genecards.org/cgi-bin/carddisp.pl?gene=' + d.label;
@@ -460,10 +464,6 @@ function pathway_members_draw(div,anchor,networks) {
             return d.label;
         });
 
-
-    var features_panel = entries.add(pv.Panel)
-        .left(horizontal_offset);
-
     var x_scale = pv.Scale.linear(0, 50*4).range(0, legend_width);
 
     draw_panel.add(pv.Panel)
@@ -478,7 +478,9 @@ function pathway_members_draw(div,anchor,networks) {
         .text(x_scale.tickFormat);
 
     // Horizontal bar for each source
-    features_panel.add(pv.Bar)
+    entries.add(pv.Panel)
+        .left(horizontal_offset)
+        .add(pv.Bar)
         .data(function(d) {
             return d.sources;
         })
