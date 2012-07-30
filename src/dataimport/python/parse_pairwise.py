@@ -64,9 +64,9 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
 		totalEdges += 1 
 		line = line.strip()
 		tokens = line.split('\t')
-		if (len(tokens) != 11):
-			print "ERROR: not enough tokens:" + line
-			continue
+		if (len(tokens) < 11):
+			print "Fatal ERROR: requires 11 tokens, found:" + str(len(tokens)) + "\n" + line
+			sys.exit(1)
 		nodeA = tokens[0]
 		nodeB = tokens[1]
 		#let's ignore annotations for all pairs for now
@@ -124,7 +124,7 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
 				numnaf2 = tokens[9]
 				pvf2 = tokens[10]
 				rho = str(db_util.sign(float(correlation))*abs(float(pv)))
-				link_distance = -1
+				link_distance = 500000000 
 				if (len(dataA) >=5 and len(dataB)>=5 and db_util.is_numeric(dataA[4]) >= 1 and db_util.is_numeric(dataB[4]) >= 1 and dataA[3] == dataB[3]):
 					link_distance = abs(int(dataB[4]) - int(dataA[4]))
 				f1qtinfo = ""
