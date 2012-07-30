@@ -315,12 +315,9 @@ function getFilterSelections() {
         Ext.getCmp('isolate').checked,
             Ext.getCmp('cis').checked,
             Ext.getCmp('trans').checked,
-            Ext.getCmp('proximal_distance').checked,
-            Ext.getCmp('distal_distance').checked,
-
-        Ext.getCmp('t_pathway').getValue(),
-        Ext.getCmp('p_pathway').getValue()
-    );
+            Ext.getCmp('cis_distance_value').getValue(),
+            Ext.getCmp('cis_distance_fn').getValue()
+        );
 }
 
 
@@ -342,20 +339,20 @@ function packFilterSelections() {
         isolate: arguments[13],
         cis: arguments[14],
         trans: arguments[15],
-        proximal: arguments[16],
-        distal: arguments[17],
-        t_pathway: arguments[18],
-        p_pathway: arguments[19]
+        cis_distance_value: arguments[16],
+        cis_distance_fn: arguments[17]
     };
 
     re.model.association.types.forEach(function(obj) {
         if (Ext.getCmp(obj.id) === undefined) {
             return;
         }
-        return_obj[obj.id] = Ext.getCmp(obj.id).getValue();
         if (obj.ui.filter.component instanceof re.multirangeField) {
+            return_obj[obj.id + '_value']  = Ext.getCmp(obj.id + '_value').getValue();
             return_obj[obj.id + '_fn'] = Ext.getCmp(obj.id + '_fn').getValue();
-        }
+        } else{
+        return_obj[obj.id] = Ext.getCmp(obj.id).getValue();
+    }
     });
     return return_obj;
 }

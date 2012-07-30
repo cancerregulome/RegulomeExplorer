@@ -593,17 +593,21 @@ function queryFailed(data_type, response) {
     }));
 }
 
-function requestWithRetry(query,handler,failed_type,times) {
+function requestWithRetry(query, handler, failed_type, times) {
     var repeat = times > -1 ? times : 1;
+    var requestRetry = function() { 
+        var q = query, h=handler, f=failed_type, r = repeat-1;
+        requestWithRetry.call(q, h, f, r);
+    }
 
     Ext.Ajax.request({
         url: query,
         success: handler,
         failure: function(response) {
-            if (repeat == 0) {
+            if (--repeat == 0) {
                 queryFailed(failed_type, response);
             } else if (response.isTimeout) {
-                requestWithRetry.call(query, handler, failed_type, --repeat);
+                requestRetry();
             }
         }
     });
@@ -711,19 +715,15 @@ function buildGQLQuery(args) {
         where += (where.length > whst.length ? ' and ' : ' ');
         where += 'f1chr=f2chr';
     }
-    else if (args['trans']) {
-        where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f1chr!=f2chr';
-    }
-
-    if (args['proximal']) {
-        where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f1start-f2start <= ' + args['proximal'];
+    if(args['cis'] && args['cis_distance_value'] != '') {
+        var clause1 = flex_field_query('f1start-f2start',args['cis_distance_value'], args['cis_distance_fn']);
+        var clause2 = flex_field_query('f2start-f1start',args['cis_distance_value'], args['cis_distance_fn']);
+            where += ((clause1.length < 1) ? '' : ((where.length > whst.length ? ' and ' : ' ') + '(' + clause1 + ' or ' + clause2 + ' )'));
     }
 
     re.model.association.types.forEach(function(obj) {
         if (typeof obj.query.clause == 'function') {
-            var clause = flex_field_query(obj.query.id, args[obj.query.id], args[obj.query.id + '_fn']);
+            var clause = flex_field_query(obj.query.id, args[obj.query.id+'_value'], args[obj.query.id + '_fn']);
             where += ((clause.length < 1) ? '' : ((where.length > whst.length ? ' and ' : ' ') + clause));
             return;
         }
@@ -801,9 +801,19 @@ function buildSingleFeatureGQLQuery(args, feature) {
         }
     }
 
+    if (args['cis']) {
+        where += (where.length > whst.length ? ' and ' : ' ');
+        where += 'f1chr=f2chr';
+    }
+    if(args['cis'] && args['cis_distance_value'] != '') {
+        var clause1 = flex_field_query('f1start-f2start',args['cis_distance_value'], args['cis_distance_fn']);
+        var clause2 = flex_field_query('f2start-f1start',args['cis_distance_value'], args['cis_distance_fn']);
+            where += ((clause1.length < 1) ? '' : ((where.length > whst.length ? ' and ' : ' ') + '(' + clause1 + ' or ' + clause2 + ' )'));
+    }
+
     re.model.association.types.forEach(function(obj) {
         if (typeof obj.query.clause == 'function') {
-            var clause = flex_field_query(obj.query.id, args[obj.query.id], args[obj.query.id + '_fn']);
+            var clause = flex_field_query(obj.query.id, args[obj.query.id+'_value'], args[obj.query.id + '_fn']);
             where += ((clause.length < 1) ? '' : ((where.length > whst.length ? ' and ' : ' ') + clause));
             return;
         }

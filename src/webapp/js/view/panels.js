@@ -12,7 +12,7 @@ re.ui.panels = {
         autoHide:false,
         autoScroll: true,
         split: true,
-        width: 280,
+        width: 290,
         id: 'filter_parent',
         title: 'Filtering',
         layout: {
@@ -588,8 +588,7 @@ re.ui.panels = {
                                  listeners: {
                                      check: function(cb, checked) {
                                         Ext.getCmp('trans').setDisabled(checked);
-                                        Ext.getCmp('proximal_distance').setDisabled(!checked);
-                                        Ext.getCmp('distal_distance').setDisabled(!checked);
+                                        Ext.getCmp('cis_distance').setDisabled(!checked);
                                     }
                             }
                             }, {
@@ -603,42 +602,19 @@ re.ui.panels = {
                                         Ext.getCmp('cis').setDisabled(checked);
                                     }
                                 }
-                            }]
-                        }, {
-                                xtype: 'numberfield',
-                                fieldLabel: 'Closer than',
-                                id: 'proximal_distance',
-                                name: 'proximal_distance',
+                        }]
+                        }, new re.simplerangeField({
+                                id: 'cis_distance',
+                                name: 'cis_distance',
+                                label:'Distance',
                                 disabled: true,
-                                allowNegative: false,
-                                decimalPrecision: 0,
-                                emptyText: 'Input value...',
-                                invalidText: 'This value is not valid.',
-                                maxValue: 250999999,
-                                minValue: 1,
+                                max_value: 3e8,
+                                min_value: 0,
                                 tabIndex: 1,
                                 validateOnBlur: true,
                                 allowDecimals: false,
-                                defaultValue: '10000',
-                                value: '10000'
-                            }, {
-                                xtype: 'numberfield',
-                                fieldLabel: 'Farther than',
-                                id: 'distal_distance',
-                                name: 'distal_distance',
-                                disabled: true,
-                                allowNegative: false,
-                                decimalPrecision: 0,
-                                emptyText: 'Input value...',
-                                invalidText: 'This value is not valid.',
-                                maxValue: 250999999,
-                                minValue: 1,
-                                tabIndex: 1,
-                                validateOnBlur: true,
-                                allowDecimals: false,
-                                defaultValue: '50000',
-                                value: '50000'
-                            }
+                                default_value: '50000'
+                            })
                         ]
                     }].concat(
                     re.model.association.types.filter(function(assoc) {
