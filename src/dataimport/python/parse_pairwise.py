@@ -65,7 +65,10 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
 		line = line.strip()
 		tokens = line.split('\t')
 		if (len(tokens) < 11):
-			print "Fatal ERROR: requires 11 tokens, found:" + str(len(tokens)) + "\n" + line
+			if (validEdgeId == 1):
+				print "Skipping header/line 1 for insufficient token reasons"
+				continue
+			print "Fatal ERROR: requires 11 tokens, found:" + str(len(tokens)) + " and it's not the first line\n" + line
 			sys.exit(1)
 		nodeA = tokens[0]
 		nodeB = tokens[1]
