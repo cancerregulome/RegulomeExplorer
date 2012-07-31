@@ -398,7 +398,7 @@ vq.utils.VisUtils.extend(re, {
         '*': 'All',
         'GEXP': 'Gene Expression',
         'METH': 'DNA Methylation ',
-        'CNVR': 'Somatic Copy Number Alteration',
+        'CNVR': 'Somatic Copy Number',
         'CLIN': 'Clinical',
         'MIRN': 'MicroRNA Expression',
         'GNAB': 'Somatic Mutation',
