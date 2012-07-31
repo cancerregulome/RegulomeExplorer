@@ -180,7 +180,13 @@ def is_numeric(lit):
 
 #quick function to tell sign of int
 sign = lambda x: math.copysign(1, x)
-		
+
+negative = lambda x: -1*(x)
+#round(-1*(math.log10(pvalue)),3))
+negative_log10 = lambda x: round(-1*(math.log10(x)),3)		
+
+reflective = lambda x: (x)
+
 if __name__ == "__main__":	
 	configfile = sys.argv[1]
 	config = getConfig(configfile) #config.read(configfile)

@@ -20,7 +20,7 @@ def process_feature_alias(alias):
 		data[3] = data[3][3:]
 	return data
 
-def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
+def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, config):
 	"""
 	Include edges where nodes are in original set, direction does not matter so do not populate edge if A->B if B->A are in hash
 	Expected tab delimited columns are nodeA nodeB pvalue correlation numNonNA	
@@ -115,17 +115,17 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
 					cnan += 1
 					continue
 				numna = tokens[3]
-				pv = tokens[4]
+				pv = str(pvlambda(float(tokens[4])))
 				if (float(pv) > max_pv):
 					max_pv = float(pv)
 				bonf = tokens[5]
-				pv_bonf = tokens[6]
+				pv_bonf = str(pvlambda(float(tokens[6])))#tokens[6]
 				if (float(pv_bonf) > max_pv_corr):
 					max_pv_corr = float(pv_bonf)
 				numnaf1 = tokens[7]
-				pvf1 = tokens[8]
+				pvf1 = str(pvlambda(float(tokens[8])))#tokens[8]
 				numnaf2 = tokens[9]
-				pvf2 = tokens[10]
+				pvf2 = str(pvlambda(float(tokens[10])))#tokens[10]
 				rho = str(db_util.sign(float(correlation))*abs(float(pv)))
 				link_distance = 500000000 
 				if (len(dataA) >=5 and len(dataB)>=5 and db_util.is_numeric(dataA[4]) >= 1 and db_util.is_numeric(dataB[4]) >= 1 and dataA[3] == dataB[3]):
@@ -167,7 +167,7 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, config):
 	if (db_util.getDoSmtp(config) == 'yes'):
 		smtp.main("jlin@systemsbiology.net", notify, "Notification - New Pairwise Associations loaded for All Pairs Significance Test", "New pairwise associations loaded into All Pairs Significance Test for " + pw_label + "\n\n" + str(totalEdges) + " Total Edges\n\nFeature matrix file:" + feature_matrix + "\nPairwise associations file:" + associations + "\n")
 
-def main(dataset_label, feature_matrix, associations, configfile):
+def main(dataset_label, feature_matrix, associations, pvalueRepresentation, configfile):
 	print "\n in parse_pairwise : dataset_label = <%s> \n" % dataset_label
 	config = db_util.getConfig(configfile)
 	results_path = db_util.getResultsPath(config)
@@ -175,18 +175,20 @@ def main(dataset_label, feature_matrix, associations, configfile):
 	if (not os.path.exists(results_path + "/" + dataset_label)):
 		os.mkdir(results_path + "/" + dataset_label)
 	print "Done with processing features, processing pairwise edges %s " %(time.ctime())
-	process_pairwise_edges(dataset_label, feature_matrix, associations, config)
+	pvlambda = db_util.reflective
+	if (pvalueRepresentation == "negative"):
+                pvlambda = db_util.negative
+        elif (pvalueRepresentation == "negative_log10"):
+                pvlambda = db_util.negative_log10
+	process_pairwise_edges(dataset_label, feature_matrix, associations, pvlambda, config)
 	print "Done with processing pairwise edges %s " %(time.ctime())
 
 if __name__ == "__main__":
 	print "Parsing features kicked off %s" %time.ctime()
-	if (len(sys.argv) < 5):
-        	print 'Usage is py2.6 parse_pairwise.py feature_matrix.tsv edges_matrix.tsv  dataset_label configfile optional[insert_features]'
+	if (len(sys.argv) < 6):
+        	print 'Usage is py2.6 parse_pairwise.py feature_matrix.tsv edges_matrix.tsv  dataset_label pvlambda configfile'
         	sys.exit(1)
-	insert_features = 0
 	annotations = ""
-	if (len(sys.argv) == 6):
-		annotations = args[5]
 	dataset_label = sys.argv[3]
-	main(dataset_label, sys.argv[1], sys.argv[2], sys.argv[4])
+	main(dataset_label, sys.argv[1], sys.argv[2], sys.argv[4], sys.argv[5])
 

@@ -3,6 +3,9 @@ import sys
 import time
 import ConfigParser
 
+def getPythonBin(config):
+        return config.get("build", "python_bin")
+
 def getFeatureAnnotations(config):
 	return config.get("build", "annotations")
 
@@ -59,26 +62,27 @@ def buildMeta(metaf, config_file=""):
 	collapseDirection = getCollapseEdgeDirection(config)
 	pvalueRepresentation = getPValueTransform(config)
 	resultsPath = getResultsDir(config)
-	#lambda
+	python_bin = getPythonBin(config) 
+
 	print "starting dataimport %s \nlabel %s afm %s annotations %s associations %s collapse_direction %s" %(time.ctime(), dslabel, afm, annotations, associations, collapseDirection)
-	util_cmd = "/tools/bin/python2.7 db_util.py " + config_file
+	util_cmd = python_bin + " db_util.py " + config_file
 	os.system(util_cmd)
 	#create re schema for dataset label
-	reschema_cmd = "/tools/bin/python2.7 createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_re_template.sql " + config_file
+	reschema_cmd = python_bin + " createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_re_template.sql " + config_file
 	os.system(reschema_cmd)	
 	#process afm with optional annotations, groupings
-	process_afm_cmd	= "/tools/bin/python2.7 parse_features_rfex.py %s %s %s %s %s %s" %(afm, dslabel, config_file, annotations, quantileFeatures, resultsPath)
+	process_afm_cmd	= python_bin + " parse_features_rfex.py %s %s %s %s %s %s" %(afm, dslabel, config_file, annotations, quantileFeatures, resultsPath)
 	os.system(process_afm_cmd)
 	#method specific schema 
-	rf_schema_cmd = "/tools/bin/python2.7 createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_pairwise_template.sql " + config_file
+	rf_schema_cmd = python_bin + " createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_pairwise_template.sql " + config_file
 	os.system(rf_schema_cmd)	
 	#process associations
 	collapseDirection = getCollapseEdgeDirection(config)
 	reverseDirection = getReverseDirection(config)
-	process_pairwise_associations_cmd = "/tools/bin/python2.7 parse_pairwise.py %s %s %s %s" %(afm, associations, dslabel, config_file)
+	process_pairwise_associations_cmd = python_bin + " parse_pairwise.py %s %s %s %s %s" %(afm, associations, dslabel, pvalueRepresentation, config_file)
 	print process_pairwise_associations_cmd
 	os.system(process_pairwise_associations_cmd)
-	update_re_store_cmd = '/tools/bin/python2.7 update_rgex_dataset.py %s %s %s %s "%s" "%s" "%s" %s %s' %(dslabel, afm, associations, 'pairwise', source, description, comment, config_file, resultsPath)
+	update_re_store_cmd = python_bin + ' update_rgex_dataset.py %s %s %s %s "%s" "%s" "%s" %s %s' %(dslabel, afm, associations, 'pairwise', source, description, comment, config_file, resultsPath)
 	os.system(update_re_store_cmd) 		
 	print "completed dataimport %s \nlabel %s afm %s annotations %s associations %s" %(time.ctime(), dslabel, afm, annotations, associations)
 

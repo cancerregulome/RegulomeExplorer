@@ -11,7 +11,7 @@ def loadConfig(env):
 	configFile = ""
 	if (env == "internal"):
 		configFile = "../config/rfex_sql_sandbox.config"
-	elif (env == "tut"):
+	elif (env == ""):
 		configFile = "../config/rfex_sql.config"
 	elif (env == "gdac"):
 		configFile = "../config/rfex_sql_gdac.config"

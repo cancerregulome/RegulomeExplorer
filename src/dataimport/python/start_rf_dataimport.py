@@ -3,6 +3,9 @@ import sys
 import time
 import ConfigParser
 
+def getPythonBin(config):
+	return config.get("build", "python_bin")
+
 def getFeatureAnnotations(config):
 	return config.get("build", "annotations")
 
@@ -43,9 +46,13 @@ def getReverseDirection(config):
 #lambda function for pvalue transform
 #pv_neglog10_lamba
 
-def buildMeta(metaf, reinstance="tut"):
+def buildMeta(metaf, config_file):
+	if (config_file == ""):
+		config_file = "../config/rfex_sql.config"       
 	config = ConfigParser.RawConfigParser()
-        config.read(metaf)	
+        config.read(metaf)
+	python_bin = getPythonBin(config)
+	
 	source = getSource(config)
 	afm = getAfm(config)
 	associations = getAssociations(config)
@@ -59,28 +66,24 @@ def buildMeta(metaf, reinstance="tut"):
 	resultsPath = getResultsDir(config)
 	#lambda
 	print "starting dataimport %s \nlabel %s afm %s annotations %s associations %s collapse_direction %s" %(time.ctime(), dslabel, afm, annotations, associations, collapseDirection)
-	config_file = "../config/rfex_sql.config"	
-	if (reinstance != "tut"):
-		#check public, sandbox, tcga
-		print "ToDo to handle re specific instance config files"
-	util_cmd = "python db_util.py " + config_file
+	util_cmd = python_bin + " db_util.py " + config_file
 	os.system(util_cmd)
 	#create re schema for dataset label
-	reschema_cmd = "python createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_re_template.sql " + config_file
+	reschema_cmd = python_bin + " createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_re_template.sql " + config_file
 	os.system(reschema_cmd)	
 	#process afm with optional annotations, groupings
-	process_afm_cmd	= "python parse_features_rfex.py %s %s %s %s %s %s" %(afm, dslabel, config_file, annotations, quantileFeatures, resultsPath)
+	process_afm_cmd	= python_bin + " parse_features_rfex.py %s %s %s %s %s %s" %(afm, dslabel, config_file, annotations, quantileFeatures, resultsPath)
 	os.system(process_afm_cmd)
 	#method specific schema 
-	rf_schema_cmd = "python createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_rface_template.sql " + config_file
+	rf_schema_cmd = python_bin + " createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_rface_template.sql " + config_file
 	os.system(rf_schema_cmd)	
 	#process associations
 	collapseDirection = getCollapseEdgeDirection(config)
 	reverseDirection = getReverseDirection(config)
-	process_rf_associations_cmd = "python parse_associations_rfex.py %s %s %s %s %s %s %s %s" %(afm, associations, dslabel, config_file, annotations, collapseDirection, reverseDirection, resultsPath)
+	process_rf_associations_cmd = python_bin + " parse_associations_rfex.py %s %s %s %s %s %s %s %s %s" %(afm, associations, dslabel, config_file, annotations, collapseDirection, reverseDirection, resultsPath, pvalueRepresentation)
 	print process_rf_associations_cmd
 	os.system(process_rf_associations_cmd)
-	update_re_store_cmd = 'python update_rgex_dataset.py %s %s %s %s "%s" "%s" "%s" %s %s' %(dslabel, afm, associations, 'RF-ACE', source, description, comment, config_file, resultsPath)
+	update_re_store_cmd = python_bin + ' update_rgex_dataset.py %s %s %s %s "%s" "%s" "%s" %s %s' %(dslabel, afm, associations, 'RF-ACE', source, description, comment, config_file, resultsPath)
 	os.system(update_re_store_cmd) 		
 	print "completed dataimport %s \nlabel %s afm %s annotations %s associations %s" %(time.ctime(), dslabel, afm, annotations, associations)
 
@@ -103,5 +106,8 @@ if __name__ == "__main__":
         if (hasmeta == False):
 		print(errmsg)
 		sys.exit(-1)
-	buildMeta(metafile)
+	configFile = ""
+        if (len(sys.argv) == 3):
+                configFile = sys.argv[2]
+        buildMeta(metafile, configFile)
 

@@ -13,7 +13,7 @@ import ConfigParser
 import smtp
 import getRFACEInfo
 
-def process_associations_rfex(dataset_label, matrixfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path):
+def process_associations_rfex(dataset_label, matrixfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path, pv_lambda):
 	mydb = db_util.getDBSchema(config) 
 	myuser = db_util.getDBUser(config) 
 	mypw = db_util.getDBPassword(config) 
@@ -142,8 +142,8 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 		f2qtinfo = ""
 		if (features_hash.get(f2alias) != None and len(features_hash.get(f2alias)) >= 14):
 			f2qtinfo = features_hash.get(f2alias)[13] + "_" + features_hash.get(f2alias)[14]		
-		pvalue = float(columns[2])
-		pvalue = str(round(-1*(math.log10(pvalue)),3))
+		pvalue = str(pv_lambda(float(columns[2])))
+		#round(-1*(math.log10(pvalue)),3))
 		importance = columns[3]
 		correlation = columns[4]
 		patientct = columns[5]
@@ -201,16 +201,21 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 		smtp.main("jlin@systemsbiology.net", contacts, "Notification - New RFAce " + dataset_label + " Associations Loaded for RegulomeExplorer", "New RFAce associations loaded for dataset " + dataset_label + "\n\nFeature matrix:" + matrixfile + "\nRF Associations:" + associationsfile + "\n\nParsed associations for db:" + tsvout.name + "\n\n" + str(pcc) + " Total Parsed Associations loaded\n" + str(unMapped) + " Total Unmapped Edges saved here:" + unmappedout.name)
 	associations_dic = None
 
-def main(dataset_label, featuresfile, associationsfile, configfile, annotations, collapse_direction, reverse_direction, results_path):
+def main(dataset_label, featuresfile, associationsfile, configfile, annotations, collapse_direction, reverse_direction, results_path, pvalueRepresentation):
 	print "\n in parse_associations_rfex : dataset_label = <%s> \n" % dataset_label
 	notify = db_util.getNotify(config)
-	process_associations_rfex(dataset_label, featuresfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path)
+	pvlambda = db_util.reflective
+        if (pvalueRepresentation == "negative"):
+                pvlambda = db_util.negative
+        elif (pvalueRepresentation == "negative_log10"):
+                pvlambda = db_util.negative_log10
+	process_associations_rfex(dataset_label, featuresfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path, pvlambda)
 
 
 if __name__ == "__main__":
 	print "Parsing features kicked off %s" %time.ctime()
-	if (len(sys.argv) < 9):
-		print 'ERROR: Usage is py2.6 parse_associations_rfex.py feature_matrix.tsv edges_matrix.tsv  dataset_label configfile annotationsFile doCollapseEdges doReverse resultsPath'
+	if (len(sys.argv) < 10):
+		print 'ERROR: Usage is py2.6 parse_associations_rfex.py feature_matrix.tsv edges_matrix.tsv  dataset_label configfile annotationsFile doCollapseEdges doReverse resultsPath pvalueRepresentation'
 		sys.exit(1)
 	insert_features = 0
 	args = sys.argv
@@ -218,22 +223,15 @@ if __name__ == "__main__":
 	associationsfile = args[2]
 	dataset_label = sys.argv[3]
 	configfile = args[4]
-	#annotations = ""
-	#if (len(sys.argv) == 6):
 	annotations = args[5]
-	#collapse_direction = 0
-	#if (len(sys.argv) == 7):
-	#annotations = args[5]
 	collapse_direction = int(args[6])
 	reverse_direction = int(args[7])
 	results_path = args[8]
-	#if (len(sys.argv) == 8):
-		
-	#check if it's pairwise workflow
+	pvalueRep = args[9]
 	config = db_util.getConfig(configfile)
 	if (not os.path.isfile(associationsfile)):
         	print associationsfile + " does not exist; unrecoverable ERROR"
 		sys.exit(-1)
-	main(dataset_label, matrixfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path)
+	main(dataset_label, matrixfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path, pvalueRep)
 
 
