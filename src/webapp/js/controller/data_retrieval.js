@@ -716,9 +716,8 @@ function buildGQLQuery(args) {
         where += 'f1chr=f2chr';
     }
     if(args['cis'] && args['cis_distance_value'] != '') {
-        var clause1 = flex_field_query('f1start-f2start',args['cis_distance_value'], args['cis_distance_fn']);
-        var clause2 = flex_field_query('f2start-f1start',args['cis_distance_value'], args['cis_distance_fn']);
-            where += ((clause1.length < 1) ? '' : ((where.length > whst.length ? ' and ' : ' ') + '(' + clause1 + ' or ' + clause2 + ' )'));
+        var clause1 = flex_field_query('link_distance',args['cis_distance_value'], args['cis_distance_fn']);
+            where += ((clause1.length < 1) ? '' : ((where.length > whst.length ? ' and ' : ' ') + '(' + clause1 + ' )'));
     }
 
     re.model.association.types.forEach(function(obj) {
@@ -806,9 +805,8 @@ function buildSingleFeatureGQLQuery(args, feature) {
         where += 'f1chr=f2chr';
     }
     if(args['cis'] && args['cis_distance_value'] != '') {
-        var clause1 = flex_field_query('f1start-f2start',args['cis_distance_value'], args['cis_distance_fn']);
-        var clause2 = flex_field_query('f2start-f1start',args['cis_distance_value'], args['cis_distance_fn']);
-            where += ((clause1.length < 1) ? '' : ((where.length > whst.length ? ' and ' : ' ') + '(' + clause1 + ' or ' + clause2 + ' )'));
+        var clause1 = flex_field_query('link_distance',args['cis_distance_value'], args['cis_distance_fn']);
+         where += ((clause1.length < 1) ? '' : ((where.length > whst.length ? ' and ' : ' ') + '(' + clause1 +')'));
     }
 
     re.model.association.types.forEach(function(obj) {

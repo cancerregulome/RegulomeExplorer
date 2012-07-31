@@ -14,13 +14,14 @@ re.model.association =  {
                         decimalPrecision : 0,
                         emptyText : 'Input value...',
                         invalidText:'This value is not valid.',
-                        maxValue:0,
-                        minValue:-300.0,
+                        maxValue:300,
+                        minValue:0.0,
                         tabIndex : 1,
                         validateOnBlur : true,
                         fieldLabel : '-log10(p) >=',
                         defaultValue: 6,
                         value : 6
+                    }
                 },
                 grid : {
                     column : { header : "-log10(p)", width : 50 , id: 'logged_pvalue' , dataIndex : 'logged_pvalue', hidden: false},
@@ -41,11 +42,11 @@ re.model.association =  {
                 },
                 scatterplot: {
                     values: {
-                        min:-300,
-                        floor : -50,
-                        ceil: 0
+                        min:0,
+                        floor : 0,
+                        ceil: 300
                     },
-                    color_scale : pv.Scale.linear(-100,0).range('blue','red')
+                    color_scale : pv.Scale.linear(0,50).range('blue','red')
                 }
             }
         },

@@ -2,31 +2,31 @@ if (re.model === undefined) re.model = {};
 
 re.model.association =  {
 	types : [		
-		{ 	id : 'pvalue',
-			label : 'Pvalue',
+		{ 	id : 'logged_pvalue',
+			label : '-log10(p)',
 			ui : {
-			filter : { 
-				 					component: {
-					 							xtype : 'numberfield',
-                                                id:'pvalue',
-                                                name :'pvalue',
-                                                allowNegative: false,
-                                                decimalPrecision : 8,
-                                                emptyText : 'Input value...',
-                                                invalidText:'This value is not valid.',
-                                                maxValue:0.9,
-                                                minValue:0,
-                                                tabIndex : 1,
-                                                validateOnBlur : true,
-                                                fieldLabel : 'pvalue <=',
-                                                defaultValue : 0.5,
-                                                value : 0.5
-                                            }
-			},
-			grid : {
-				column : { header : "pvalue", width : 50 , id: 'pvalue' , dataIndex : 'pvalue', hidden: true},
-				store_index : 'pvalue'
-			}
+				filter : { 
+ 					component: {
+	 							xtype : 'numberfield',
+                                id:'pvalue',
+                                name :'pvalue',
+                                allowNegative: false,
+                                decimalPrecision : 8,
+                                emptyText : 'Input value...',
+                                invalidText:'This value is not valid.',
+                                maxValue:0.9,
+                                minValue:0,
+                                tabIndex : 1,
+                                validateOnBlur : true,
+                                fieldLabel : 'pvalue <=',
+                                defaultValue : 0.5,
+                                value : 0.5
+                            }
+				},
+					grid : {
+						column : { header : "pvalue", width : 50 , id: 'pvalue' , dataIndex : 'pvalue', hidden: true},
+						store_index : 'pvalue'
+					}
 			},
 			query : {
 				id : 'pvalue',

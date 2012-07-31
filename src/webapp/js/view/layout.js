@@ -1589,6 +1589,11 @@ var datasetGrid = new Ext.grid.GridPanel({
                 id: 'source',
                 dataIndex: 'source'
             }, {
+                header: "Disease",
+                width: 70,
+                id: 'disease',
+                dataIndex: 'disease'
+            }, {
                 header: "Contact",
                 width: 200,
                 id: 'contact',
@@ -1609,9 +1614,9 @@ var datasetGrid = new Ext.grid.GridPanel({
             storeId: 'dataset_grid_store',
             idProperty: 'label',
             proxy: new Ext.data.HttpProxy({
-                url: re.databases.base_uri + re.databases.rf_ace.uri + re.tables.dataset + re.rest.query + '?' + re.params.query + 'select `description`, `dataset_date`,`label`, `method`, `source`, `contact`, `comments`' + re.analysis.dataset_method_clause + ' order by default_display DESC' + re.params.json_out
+                url: re.databases.base_uri + re.databases.rf_ace.uri + re.tables.dataset + re.rest.query + '?' + re.params.query + 'select `description`, `dataset_date`,`label`, `method`, `source`, `disease`, `contact`, `comments`' + re.analysis.dataset_method_clause + ' order by default_display DESC' + re.params.json_out
             }),
-            fields: ['description', 'label', 'dataset_date', 'method', 'source', 'contact', 'comments'],
+            fields: ['description', 'label', 'dataset_date', 'method', 'source', 'disease', 'contact', 'comments'],
             listeners: {
                 load: loadListener
             }

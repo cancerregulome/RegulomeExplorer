@@ -317,7 +317,7 @@ function pathway_members_draw(div,anchor,networks) {
     for (var i = 0; i < tuples.length; i++) {
         var key = tuples[i][0];
         var value = tuples[i][1];
-	if (key == "remove" || !re.ui.isUnsignedInteger(value)){
+	if (key == "remove" || !isUnsignedInteger(value)){
 		continue;
 	}
         sortedMembers[key] = value;
@@ -1508,14 +1508,10 @@ function scatterplot_draw(params) {
             fill_style: fill_style_fn,
             stroke_style: stroke_style_fn,
             x_axis_tick_format: function(d) {
-                if (d >= 1000)
-                    return d/1000 + "E3";
-                return d;
+                return d.toPrecision(3);
             },
             y_axis_tick_format: function(d) {
-                if (d >= 1000)
-                    return d/1000 + "E3";
-                return d;
+                return d.toPrecision(3);
             }
         }};
         if (reverse_axes) {

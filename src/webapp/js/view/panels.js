@@ -570,7 +570,7 @@ re.ui.panels = {
                           defaults: { anchor:'90%'},
                         labelWidth:60,
                         collapsible: true,
-                        collapsed: true,
+                        //collapsed: true,
                         autoHeight: true,
                         labelSeparator: '',
                         title: 'Distance',
@@ -603,7 +603,8 @@ re.ui.panels = {
                                     }
                                 }
                         }]
-                        }, new re.simplerangeField({
+                        }, 
+                        new re.simplerangeField({
                                 id: 'cis_distance',
                                 name: 'cis_distance',
                                 label:'Distance',

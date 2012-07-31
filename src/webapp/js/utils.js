@@ -6,14 +6,14 @@ function flex_field_query(label, value, fn) {
     var where = '';
     if (value + '' != '') {
         if (fn == 'Btw') {
-            where += '(' + label + ' >= -' + value + ' and ' + label + ' <= ' + value + ')';
+            where += '(' + label + '>= -' + value + ' and ' + label + '<=' + value + ')';
         } else if (fn == '<=') {
-            where += '(' + label + ' <= ' + value + ')';
+            where += '(' + label + '<=' + value + ')';
         } else if (fn == '>=') {
-            where += '(' + label + ' >= ' + value + ')';
+            where += '(' + label + '>=' + value + ')';
         } else {
             if (parseFloat(value) != '0') {
-                where += '(' + label + ' >= ' + value + ' or ' + label + ' <= -' + value + ')';
+                where += '(' + label + '>=' + value + ' or ' + label + '<= -' + value + ')';
             }
         }
     }
@@ -21,7 +21,14 @@ function flex_field_query(label, value, fn) {
 
 }
 
-
+function trim (str) {
+    return str.replace(/^\s+/, '').replace(/\s+$/, '');
+}
+     
+// Tests if s is an unsigned integer
+function isUnsignedInteger (s) {
+     return (s.toString().search(/^[0-9]+$/) == 0);
+}
 function parseLabelList(labellist) {
     return labellist.replace(new RegExp(' ', 'g'), '').split(',');
 }

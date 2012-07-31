@@ -44,7 +44,7 @@ vq.utils.VisUtils.extend(re, {
             uri: '/google-dsapi-svc/addama/datasources/csacr'
         },
         rf_ace: {
-            uri: '/google-dsapi-svc/addama/datasources/tcga'
+            uri: '/google-dsapi-svc/addama/datasources/re'
         },
         solr: {
             uri: '/solr',
@@ -62,7 +62,8 @@ vq.utils.VisUtils.extend(re, {
         clin_uri: '',
         patient_uri: '',
         feature_data_uri: '',
-        pathway_uri: ''
+        pathway_uri: '',
+        pathways:'/pathways'
     },
     /*
      *        URL's
@@ -105,6 +106,11 @@ vq.utils.VisUtils.extend(re, {
                     min_y_value:0,
                     max_y_value:1
                 }
+            },
+             quantiled_data: {
+                    GEXP: true,
+                    CNVR: true,
+                    METH: true
             },
             tooltips: {
                 feature: {
@@ -249,7 +255,7 @@ vq.utils.VisUtils.extend(re, {
         inter_scale: pv.Scale.linear(0.00005, 0.0004).range('lightpink', 'red'),
         linear_unit: 100000,
         chrome_length: [],
-
+        legend: {}, 
         scatterplot_data: null
     },
     ui: {
@@ -258,11 +264,40 @@ vq.utils.VisUtils.extend(re, {
         },
         chromosomes: [],
         dataset_labels: [],
-        getDatasetLabels: function() {
+        // Removes heading and trailing whitespaces from a string
+    getDatasetLabels: function() {
             return re.ui.dataset_labels;
         },
-        setDatasetLabels: function(obj) {
+        setDatasetLabels: function(obj) {   
             re.ui.dataset_labels = obj;
+        },
+        current_pathway_members: [],
+    getCurrentPathwayMembers: function() {
+            return re.ui.current_pathway_members;
+        },     
+        setCurrentPathwayMembers: function(obj) {
+            re.ui.current_pathway_members = obj;
+    },
+        pathway_members_query_counts: {},
+        getPathwayMembersQueryCounts: function() {
+            return re.ui.pathway_members_query_counts;
+        },
+        setPathwayMembersQueryCounts: function(obj, ct) {
+            re.ui.pathway_members_query_counts[obj] = ct;
+        },
+        pathway_bar_mouseover_behavior: {},
+        getPathwayBarBehavior: function() {
+            return re.ui.pathway_bar_mouseover_behavior;
+        },
+        setPathwayBarBehavior: function(obj) {
+            re.ui.pathway_bar_mouseover_behavior = obj;
+        },
+        pathway_bar_mouseover_behavior_reset: {},
+        getPathwayBarBehaviorReset: function() {
+            return re.ui.pathway_bar_mouseover_behavior_reset;
+        },
+        setPathwayBarBehaviorReset: function(obj) {
+            re.ui.pathway_bar_mouseover_behavior_reset = obj;
         },
         /*
          *        Order combo list
@@ -393,6 +428,10 @@ vq.utils.VisUtils.extend(re, {
         'SAMP': '#bcbd22'
         //#17becf
     };
+
+    re.plot.legend.dataRingTypes = ['1. Cytoband','2. Gene Expression','3. Methylation','4. Copy Number','5. Unmapped Associations'];
+    re.plot.colors.quants = {"Q1":"#000099", "Q2":"#66A3FF","Q3":"#959595","Q4":"#FF8080","Q5":"#800000"};
+    re.plot.colors.quantinfo = {"Q1":"<5%", "Q2":"5-25%","Q3":"25-70%","Q4":"75-95%","Q5":">95%"};//,"Q6":"90-95%","Q7":">95%"};
 
     re.plot.colors.node_colors = function(source) {
         if (source in re.plot.colors.features) {
