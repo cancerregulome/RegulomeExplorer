@@ -31,7 +31,7 @@ re.model.association =  {
             query : {
                 id : 'logged_pvalue',
                 clause : 'logged_pvalue >= ',
-                order_direction : 'ASC'
+                order_direction : 'DESC'
             },
             vis : {
                 network : {

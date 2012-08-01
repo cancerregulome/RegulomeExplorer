@@ -592,26 +592,27 @@ function legend_draw(div,anchor) {
         .top(variableTypeBoxHeight)
         .left(0); // .top(function(){ return current_locatable_data.length*12;})
 
-     ringPanel.add(pv.Label)
-        .textAlign('left')
-        .top(padding) // 22
-        .left(indent)
-        .text('Outer Data Rings')
-        .font("15px helvetica");
+ //     ringPanel.add(pv.Label)
+ //        .textAlign('left')
+ //        .top(padding) // 22
+ //        .left(indent)
+ //        .text('Outer Data Rings')
+ //        .font("15px helvetica");
 
-     var datarings = ringPanel.add(pv.Panel)
-        .data(re.plot.legend.dataRingTypes)
-        .top(function() { return padding + 5 + this.index * lineHeight;})
-        .height(lineHeight);
-	datarings.add(pv.Label)
-        .textAlign('left')
-        .left(indent)
-        .text(function (d){return (d);})
-	.textBaseline('bottom')
-        .font("11px helvetica");
+ //     var datarings = ringPanel.add(pv.Panel)
+ //        .data(re.plot.legend.dataRingTypes)
+ //        .top(function() { return padding + 5 + this.index * lineHeight;})
+ //        .height(lineHeight);
+	// datarings.add(pv.Label)
+ //        .textAlign('left')
+ //        .left(indent)
+ //        .text(function (d){return (d);})
+	// .textBaseline('bottom')
+ //        .font("11px helvetica");
 
      var quantPanel = vis.add(pv.Panel)
-        .top(variableTypeBoxHeight + dataRingBoxHeight)
+        .top(variableTypeBoxHeight)
+//        .top(variableTypeBoxHeight + dataRingBoxHeight)
         .left(0);
 
      quantPanel.add(pv.Label)
@@ -957,50 +958,50 @@ function wedge_plot(parsed_data,div) {
                     background_style: re.display_options.circvis.rings.karyotype.color_background
                 }
             },
-	    {
-                PLOT : {
-                    height : ring_radius/4,
-                    type :   'karyotype'
-                },
-                DATA:{
-                    data_array : gexp_filtered_list//methcbmband
-                },
-                OPTIONS: {
-                    legend_label : 'GEXP Quantiled Features' ,
-                    outer_padding : 6,
-                    tooltip_items : gexpband_tooltip_items,
-                    background_style: re.display_options.circvis.rings.karyotype.color_background
-                }
-            },{
-                PLOT : {
-                    height : ring_radius/4,
-                    type :   'karyotype'
-                },
-                DATA:{
-                    data_array : meth_filtered_list//cnvrcbmband
-                },
-                OPTIONS: {
-                    legend_label : 'METH Quantiled Features' ,
-                    outer_padding : 6,
-                    tooltip_items : methband_tooltip_items,
-                    background_style: re.display_options.circvis.rings.karyotype.color_background
-                }
-            },
-	    {
-                PLOT : {
-                    height : ring_radius/4,
-                    type :   'karyotype'
-                },
-                DATA:{
-                    data_array : cnvr_filtered_list
-                },
-                OPTIONS: {
-                    legend_label : 'CNVR Quantiled Features' ,
-                    outer_padding : 6,
-                    tooltip_items : cnvrband_tooltip_items,
-                    background_style: re.display_options.circvis.rings.karyotype.color_background
-                }
-            },
+	    // {
+     //            PLOT : {
+     //                height : ring_radius/4,
+     //                type :   'karyotype'
+     //            },
+     //            DATA:{
+     //                data_array : gexp_filtered_list//methcbmband
+     //            },
+     //            OPTIONS: {
+     //                legend_label : 'GEXP Quantiled Features' ,
+     //                outer_padding : 6,
+     //                tooltip_items : gexpband_tooltip_items,
+     //                background_style: re.display_options.circvis.rings.karyotype.color_background
+     //            }
+     //        },{
+     //            PLOT : {
+     //                height : ring_radius/4,
+     //                type :   'karyotype'
+     //            },
+     //            DATA:{
+     //                data_array : meth_filtered_list//cnvrcbmband
+     //            },
+     //            OPTIONS: {
+     //                legend_label : 'METH Quantiled Features' ,
+     //                outer_padding : 6,
+     //                tooltip_items : methband_tooltip_items,
+     //                background_style: re.display_options.circvis.rings.karyotype.color_background
+     //            }
+     //        },
+	    // {
+     //            PLOT : {
+     //                height : ring_radius/4,
+     //                type :   'karyotype'
+     //            },
+     //            DATA:{
+     //                data_array : cnvr_filtered_list
+     //            },
+     //            OPTIONS: {
+     //                legend_label : 'CNVR Quantiled Features' ,
+     //                outer_padding : 6,
+     //                tooltip_items : cnvrband_tooltip_items,
+     //                background_style: re.display_options.circvis.rings.karyotype.color_background
+     //            }
+     //        },
             {
                 PLOT : {
                     height : ring_radius/4,

@@ -434,7 +434,7 @@ vq.utils.VisUtils.extend(re, {
 
     re.plot.legend.dataRingTypes = ['1. Cytoband','2. Gene Expression','3. Methylation','4. Copy Number','5. Unmapped Associations'];
     re.plot.colors.quants = {"Q1":"#000099", "Q2":"#66A3FF","Q3":"#959595","Q4":"#FF8080","Q5":"#800000"};
-    re.plot.colors.quantinfo = {"Q1":"<5%", "Q2":"5-25%","Q3":"25-70%","Q4":"75-95%","Q5":">95%"};//,"Q6":"90-95%","Q7":">95%"};
+    re.plot.colors.quantinfo = {"Q1":"<5%", "Q2":"5-25%","Q3":"25-75%","Q4":"75-95%","Q5":">95%"};//,"Q6":"90-95%","Q7":">95%"};
 
     re.plot.colors.node_colors = function(source) {
         if (source in re.plot.colors.features) {

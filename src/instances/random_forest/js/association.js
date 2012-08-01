@@ -8,8 +8,8 @@ re.model.association =  {
 				filter : { 
  					component: {
 	 							xtype : 'numberfield',
-                                id:'pvalue',
-                                name :'pvalue',
+                                id:'logged_pvalue',
+                                name :'logged_pvalue',
                                 allowNegative: false,
                                 decimalPrecision : 8,
                                 emptyText : 'Input value...',
@@ -18,27 +18,27 @@ re.model.association =  {
                                 minValue:0,
                                 tabIndex : 1,
                                 validateOnBlur : true,
-                                fieldLabel : 'pvalue <=',
+                                fieldLabel : '-log10(p) <=',
                                 defaultValue : 0.5,
                                 value : 0.5
                             }
 				},
 					grid : {
-						column : { header : "pvalue", width : 50 , id: 'pvalue' , dataIndex : 'pvalue', hidden: true},
-						store_index : 'pvalue'
+						column : { header : "logged_pvalue", width : 50 , id: 'logged_pvalue' , dataIndex : 'logged_pvalue', hidden: true},
+						store_index : 'logged_pvalue'
 					}
 			},
 			query : {
-				id : 'pvalue',
-				clause : 'pvalue <= ',
-				order_direction : 'ASC'
+				id : 'logged_pvalue',
+				clause : 'logged_pvalue <= ',
+				order_direction : 'DESC'
 			},
 			vis : {
 				network : {
-					edgeSchema : {name: "pvalue", type: "number" }
+					edgeSchema : {name: "logged_pvalue", type: "number" }
 				},
 				tooltip : {
-					entry : { pvalue : 'pvalue' }
+					entry : { pvalue : 'logged_pvalue' }
 				},
                 scatterplot : {
                     values : {
