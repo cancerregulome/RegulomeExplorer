@@ -2,7 +2,6 @@ Ext.ns("org.cancerregulome.explorer.utils");
 
 org.cancerregulome.explorer.utils.GoogleDriveClient = Ext.extend(Ext.util.Observable, {
     redirectUrl:null,
-    lastChange:-1,
     taskRunner:null,
 
     constructor:function (config) {
@@ -19,7 +18,7 @@ org.cancerregulome.explorer.utils.GoogleDriveClient = Ext.extend(Ext.util.Observ
             console.log("run");
             me.makeReady();
         };
-        this.checkLoginTask = { run:runFn, interval:2000 };
+        this.checkLoginTask = { run:runFn, interval:2000, repeat: 30 };
         this.taskRunner = new Ext.util.TaskRunner();
     },
 
@@ -30,21 +29,18 @@ org.cancerregulome.explorer.utils.GoogleDriveClient = Ext.extend(Ext.util.Observ
             scope:this,
             success:function (o) {
                 var json = Ext.util.JSON.decode(o.responseText);
+                if (json.rejected) {
+                    this.taskRunner.stopAll();
+                }
                 if (json.redirect) {
                     this.redirectUrl = json.redirect;
                     this.fireEvent("logged_out");
                 } else if (json["client_id"]) {
                     this.redirectUrl = null;
+                    this.taskRunner.stopAll();
                     this.fireEvent("logged_in", json);
                 } else {
                     // TODO: Fire events
-                }
-                if (json.lastChange) {
-                    if (json.lastChange != this.lastChange) {
-                        console.log("stop!:" + json.lastChange + ":" + this.lastChange);
-                        this.taskRunner.stopAll();
-                    }
-                    this.lastChange = json.lastChange;
                 }
             },
             failure:function (o, e) {
@@ -70,7 +66,6 @@ org.cancerregulome.explorer.utils.GoogleDriveClient = Ext.extend(Ext.util.Observ
             method:"GET",
             scope:this,
             success:function () {
-                this.lastChange = -1;
                 this.fireEvent("make_ready");
             }
         });
