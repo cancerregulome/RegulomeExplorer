@@ -31,7 +31,7 @@ re.model.association =  {
                         query : {
                                 id : 'pvalue',
                                 clause : 'pvalue >= ',
-                                order_direction : 'ASC'
+                                order_direction : 'DESC'
                         },
                         vis : {
                                 network : {
