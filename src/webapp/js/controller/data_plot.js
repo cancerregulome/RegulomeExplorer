@@ -1539,6 +1539,9 @@ function initializeGraph(obj) {
         flashInstallerPath: re.cytoscape['flashInstallerPath']
     };
     re.cytoscape.obj = new org.cytoscapeweb.Visualization(div_id, options);
+    re.cytoscape.obj["customTooltip"] = function(data){
+        return "Chr: "+ data.chr + "\n" + "Start: " + data.start + "\n" + "End: " + data.end;
+    };
     re.cytoscape.data = obj.network;
 }
 
@@ -1572,7 +1575,8 @@ function populateGraph(obj) {
             },
             labelFontSize : 20,
             labelHorizontalAnchor: "center",
-            labelVerticalAnchor : "top"
+            labelVerticalAnchor : "top",
+            tooltipText: {customMapper: { functionName: "customTooltip" }}
         },
         edges: {
             width: 3,
@@ -1598,6 +1602,14 @@ function populateGraph(obj) {
     var layout =getNetworkLayout();
 
     re.cytoscape.obj.ready(function() {
+        re.cytoscape.obj.addListener("click", "edges", function(event){
+            var data = event.target.data;
+            var target = data.target.split(":");
+            var source = data.source.split(":");
+            var association = {sourceNode: {id: data.source, label: source[2] },
+            targetNode: {id: data.target, label: target[2]}}; 
+            initiateDetailsPopup(association);
+        });
         re.display_options.cytoscape.ready = true;
         var e = new vq.events.Event('render_complete','graph',{});
         e.dispatch();
@@ -1609,7 +1621,9 @@ function populateGraph(obj) {
         layout:layout,
 
         // set the style at initialisation
-        visualStyle: visual_style });
+        visualStyle: visual_style,
+        nodeTooltipsEnabled: true
+        });
 }
 
 
