@@ -954,7 +954,7 @@ function wedge_plot(parsed_data,div) {
                     legend_description : 'Chromosomal Cytogenetic Bands',
                     outer_padding : 6,
                     tooltip_items : karyotype_tooltip_items,
-                    background_style: re.display_options.circvis.rings.color_background
+                    background_style: re.display_options.circvis.rings.karyotype.color_background
                 }
             },
 	    {
@@ -969,7 +969,7 @@ function wedge_plot(parsed_data,div) {
                     legend_label : 'GEXP Quantiled Features' ,
                     outer_padding : 6,
                     tooltip_items : gexpband_tooltip_items,
-                    background_style: re.display_options.circvis.rings.color_background
+                    background_style: re.display_options.circvis.rings.karyotype.color_background
                 }
             },{
                 PLOT : {
@@ -983,7 +983,7 @@ function wedge_plot(parsed_data,div) {
                     legend_label : 'METH Quantiled Features' ,
                     outer_padding : 6,
                     tooltip_items : methband_tooltip_items,
-                    background_style: re.display_options.circvis.rings.color_background
+                    background_style: re.display_options.circvis.rings.karyotype.color_background
                 }
             },
 	    {
@@ -998,7 +998,7 @@ function wedge_plot(parsed_data,div) {
                     legend_label : 'CNVR Quantiled Features' ,
                     outer_padding : 6,
                     tooltip_items : cnvrband_tooltip_items,
-                    background_style: re.display_options.circvis.rings.color_background
+                    background_style: re.display_options.circvis.rings.karyotype.color_background
                 }
             },
             {
