@@ -96,8 +96,18 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 		#nodeB = nodeB.replace('|', '_')
 		if (features_hash[nodeA] and features_hash[nodeB]):
 			if (not edges_hash.get(nodeA + "_" + nodeB) and not edges_hash.get(nodeA + "_" + nodeB)):
-				feature1id = str(features_hash[nodeA]) 
-				feature2id = str(features_hash[nodeB])
+				feature1id = ""#str(features_hash[nodeA]) 
+				feature2id = ""#str(features_hash[nodeB])
+				#This will need to be improve once all pairs has annotations 
+				try:
+					feature1id = str(features_hash[nodeA][0])
+				except KeyError:
+					print "ERROR: key error in resolving featureId for " + nodeA
+				try:
+					feature2id = str(features_hash[nodeB][0])
+				except:
+					print "ERROR: key error in resolving featureId for " + nodeB
+
 				edges_hash[nodeA + "_" + nodeB] = validEdgeId
 				validEdgeId += 1
 				dataA = process_feature_alias(nodeA)

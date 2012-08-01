@@ -1,14 +1,9 @@
-#drwxrwsr-x. 2 erkkila2 csbgroup 4.0K Jul  9 13:59 .
-#-rwxr-x---. 1 erkkila2 csbgroup 1.5G Jul  9 14:00 coadread.merge.12apr.rnaseq.276.hg18Plus.rface
-#
 [build]
 source=TCGA
 afm=/titan/cancerregulome3/TCGA/outputs/kirc/kirc.bigMerge.25jun.tsv
 annotations=na
 quantile_features=CNVR,GEXP,METH
 associations=/titan/cancerregulome3/TCGA/outputs/kirc/keep.pwpvD.short.sort
-#/home/csbgroup/re_data/tcga/coadread.nov10/coadread.nov10.trimmed.rface
-#/home/csbgroup/re_data/tcga/crc/coadread.nov10.associations.filtered.rface
 afm_description=Kidney Renal
 comment=Kidney
 dataset_label=kirc_31july_pw
