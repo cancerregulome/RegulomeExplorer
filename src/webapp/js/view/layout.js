@@ -1037,7 +1037,8 @@ Ext.onReady(function() {
                             handler: exportImage
                         }]
                     }]
-                }]
+                },
+                org.cancerregulome.explorer.utils.GetGoogleDriveMenu()]
             }, {
                 id: 'displayMenu',
                 text: 'Display',
@@ -1608,6 +1609,7 @@ var datasetGrid = new Ext.grid.GridPanel({
                 sortable: true,
                 width: 100
             }
+
         }),
         store: new Ext.data.JsonStore({
             autoLoad: true,
