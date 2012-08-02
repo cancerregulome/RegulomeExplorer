@@ -4,7 +4,7 @@ import os
 import time
 import json
 
-def addDataset(label, feature_matrix, associations, method, source, description, comments, configfile, results_path):
+def addDataset(label, feature_matrix, associations, method, source, description, comments, configfile, results_path, ds_date, disease, contact):
 	print "Adding " + source + " dataset to admin table with config " + configfile + " for label " + label 
 	if (description == ""):
 		#not general, revisit this to enter all TCGA known cancers
@@ -38,11 +38,11 @@ def addDataset(label, feature_matrix, associations, method, source, description,
 	config = db_util.getConfig(configfile)
 	#results_path = db_util.getResultsPath(config)
 	max_logpv = -1.0
-	contact = "cbm - tut"
-	if (label.find('gbm') != -1):
-		contact = "Brady Bernard bbernard@systemsbiology.org"
-	if (label.find('coad') != -1):
-		contact = "Vesteinn Thorsson vthorsson@systemsbiology.org"
+	#contact = "re@csacr.org"
+	#if (label.find('gbm') != -1):
+	#	contact = "Brady Bernard bbernard@systemsbiology.org"
+	#if (label.find('coad') != -1):
+	#	contact = "Vesteinn Thorsson vthorsson@systemsbiology.org"
 	if (os.path.exists(results_path + label + '/edges_out_' + label + '_meta.json')):
 		meta_json_file = open(results_path + label + '/edges_out_' + label + '_meta.json','r')
 		metaline = meta_json_file.read()
@@ -61,12 +61,11 @@ def addDataset(label, feature_matrix, associations, method, source, description,
 		summary_file = open(results_path + "feature_summary_" + label + ".json", "r")
 		summary_json = summary_file.read().strip()
 		summary_file.close()	
-	insertSql = "replace into regulome_explorer_dataset (label,method,source,contact,comments,dataset_date,description,max_logged_pvalue, input_files, default_display, summary_json) values ('%s', '%s', '%s', 'TUT-CSB', '%s', '%s', '%s', %f, '%s', '%i', '%s');" %(label, method, source, comments,currentDate,description, max_logpv, inputfiles, 1, summary_json)
+	insertSql = "replace into regulome_explorer_dataset (label,method,source,contact,comments,dataset_date,description,max_logged_pvalue, input_files, default_display, summary_json, disease) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', %f, '%s', '%i', '%s', '%s');" %(label, method, source, contact, comments,ds_date,description, max_logpv, inputfiles, 1, summary_json, disease)
 	db_util.executeInsert(config, insertSql)
 
 if __name__=="__main__":
-	#/tools/bin/python2.7 update_rgex_dataset.py $dataset_label $feature_matrix_file $associations_pw $method $source $description $comments $configfile
-	if (len(sys.argv) < 10):
-	        print 'Usage is py2.6 update_rgex_dataset.py dataset_label feature_matrix associations method source desc comments configfile, resultsPath'
+	if (len(sys.argv) < 13):
+	        print 'Usage is py2.6 update_rgex_dataset.py dataset_label feature_matrix associations method source desc comments configfile, resultsPath, dataset_date, diseaseCode, contact'
         	sys.exit(1)
-	addDataset(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9])
+	addDataset(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12])

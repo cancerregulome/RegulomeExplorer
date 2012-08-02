@@ -24,6 +24,9 @@ def getBuildComment(config):
 def getDatasetLabel(config):
 	return config.get("build", "dataset_label")
 
+def getDatasetDate(config):
+	return config.get("build", "dataset_date")
+
 def getResultsDir(config):
 	return config.get("results", "path")
 
@@ -32,6 +35,12 @@ def getQuantileFeatures(config):
 
 def getSource(config):
 	return config.get("build", "source")
+
+def getContact(config):
+	return config.get("build", "contact")
+
+def getDiseaseCode(config):
+	return config.get("build", "disease_code")
 
 #dbetl configs
 def getPValueTransform(config):
@@ -61,6 +70,9 @@ def buildMeta(metaf, config_file):
 	dslabel = getDatasetLabel(config)
 	comment = getBuildComment(config)
 	description = getAfmDescription(config)
+	dsdate = getDatasetDate(config)
+	diseaseCode = getDiseaseCode(config)
+	contact = getContact(config)
 	collapseDirection = getCollapseEdgeDirection(config)
 	pvalueRepresentation = getPValueTransform(config)
 	resultsPath = getResultsDir(config)
@@ -83,7 +95,7 @@ def buildMeta(metaf, config_file):
 	process_rf_associations_cmd = python_bin + " parse_associations_rfex.py %s %s %s %s %s %s %s %s %s" %(afm, associations, dslabel, config_file, annotations, collapseDirection, reverseDirection, resultsPath, pvalueRepresentation)
 	print process_rf_associations_cmd
 	os.system(process_rf_associations_cmd)
-	update_re_store_cmd = python_bin + ' update_rgex_dataset.py %s %s %s %s "%s" "%s" "%s" %s %s' %(dslabel, afm, associations, 'RF-ACE', source, description, comment, config_file, resultsPath)
+	update_re_store_cmd = python_bin + ' update_rgex_dataset.py %s %s %s %s "%s" "%s" "%s" %s %s %s %s %s' %(dslabel, afm, associations, 'RF-ACE', source, description, comment, config_file, resultsPath, dsdate, diseaseCode, contact)
 	os.system(update_re_store_cmd) 		
 	print "completed dataimport %s \nlabel %s afm %s annotations %s associations %s" %(time.ctime(), dslabel, afm, annotations, associations)
 

@@ -190,6 +190,8 @@ def main(dataset_label, feature_matrix, associations, pvalueRepresentation, conf
                 pvlambda = db_util.negative
         elif (pvalueRepresentation == "negative_log10"):
                 pvlambda = db_util.negative_log10
+	elif (pvalueRepresentation == "absolute"):
+                pvlambda = db_util.absolute
 	process_pairwise_edges(dataset_label, feature_matrix, associations, pvlambda, config)
 	print "Done with processing pairwise edges %s " %(time.ctime())
 

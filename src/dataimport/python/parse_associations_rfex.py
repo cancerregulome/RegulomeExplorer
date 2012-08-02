@@ -142,7 +142,8 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 		f2qtinfo = ""
 		if (features_hash.get(f2alias) != None and len(features_hash.get(f2alias)) >= 14):
 			f2qtinfo = features_hash.get(f2alias)[13] + "_" + features_hash.get(f2alias)[14]		
-		pvalue = str(pv_lambda(float(columns[2])))
+		pvalue = float(columns[2])
+		pvalue = str(pv_lambda(pvalue))
 		#round(-1*(math.log10(pvalue)),3))
 		importance = columns[3]
 		correlation = columns[4]
@@ -209,6 +210,9 @@ def main(dataset_label, featuresfile, associationsfile, configfile, annotations,
                 pvlambda = db_util.negative
         elif (pvalueRepresentation == "negative_log10"):
                 pvlambda = db_util.negative_log10
+	elif (pvalueRepresentation == "absolute"):
+		pvlambda = db_util.absolute
+
 	process_associations_rfex(dataset_label, featuresfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path, pvlambda)
 
 
