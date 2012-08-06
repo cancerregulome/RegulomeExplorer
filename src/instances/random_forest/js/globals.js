@@ -9,7 +9,7 @@ if (re === undefined) {
 
 vq.utils.VisUtils.extend(re, {
 
-    title: 'Random Forest Associations Explorer',
+    title: 'Regulome Explorer: Random Forest',
     google: {
         analytics_id: 'UA-20488457-2'
     },
@@ -44,7 +44,7 @@ vq.utils.VisUtils.extend(re, {
             uri: '/google-dsapi-svc/addama/datasources/csacr'
         },
         rf_ace: {
-            uri: '/google-dsapi-svc/addama/datasources/tcga'
+            uri: '/google-dsapi-svc/addama/datasources/re'
         },
         solr: {
             uri: '/solr',
@@ -62,7 +62,8 @@ vq.utils.VisUtils.extend(re, {
         clin_uri: '',
         patient_uri: '',
         feature_data_uri: '',
-        pathway_uri: ''
+        pathway_uri: '',
+        pathways:'/pathways'
     },
     /*
      *        URL's
@@ -73,7 +74,7 @@ vq.utils.VisUtils.extend(re, {
             user_guide: '/help/crc_agg/user_guide.html',
             quick_start: '/help/crc_agg/quick_start.html',
             contact_us: '/help/crc_agg/contact_us.html',
-            analysis_summary: '/help/crc_agg/analysis/analysis_summary.html',
+            analysis_summary: '/help/rf_ace/analysis.html',
             bug_report: 'http://code.google.com/p/regulome-explorer/issues/entry',
             user_group: 'http://groups.google.com/group/regulome-explorer'
         }
@@ -102,12 +103,17 @@ vq.utils.VisUtils.extend(re, {
                     radius: 80,
 
                     manual_y_color_scale:false,
-                                        min_y_color:'#0000FF',
-                                        max_y_color:'#FF0000',
-                                        manual_y_values: false,
-                                        min_y_value:0,
-                                        max_y_value:1
+                    min_y_color:'#0000FF',
+                    max_y_color:'#FF0000',
+                    manual_y_values: false,
+                    min_y_value:0,
+                    max_y_value:1
                 }
+            },
+             quantiled_data: {
+                    GEXP: true,
+                    CNVR: true,
+                    METH: true
             },
             tooltips: {
                 feature: {
@@ -128,65 +134,75 @@ vq.utils.VisUtils.extend(re, {
                 unlocated_feature : {},
                 karyotype_feature: {},
                 edge: {},
-                link_objects: [{
-                    label: 'UCSC Genome Browser',
-                    url: 'http://genome.ucsc.edu/cgi-bin/hgTracks',
-                    uri: '?db=hg18&position=chr',
-                    config_object: function(feature) {
-                        return 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg18&position=chr' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
-                    }
-                }, //ucsc_genome_browser
-                {
-                    label: 'Ensemble',
-                    url: 'http://uswest.ensembl.org/Homo_sapiens/Location/View',
-                    uri: '?r=',
-                    config_object: function(feature) {
-                        return 'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
-                    }
-                }, //ensemble
-                {
-                    label: 'Cosmic',
-                    url: 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic',
-                    uri: '?action=bygene&ln=',
-                    config_object: function(feature) {
-                        return ['CNVR', 'MIRN','METH'].indexOf(feature.source) < 0 ? 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label : null;
-                    }
-               },  {
-                    label: 'NCBI',
-                    url: 'http://www.ncbi.nlm.nih.gov/gene/',
-                    uri: '',
-                    selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
-                    config_object: function(feature) {
-                        if (['CNVR', 'MIRN','METH'].indexOf(feature.source) >= 0) return null;
-                        Ext.Ajax.request({url:re.node.uri + re.node.services.lookup+'/'+feature.label,success:entrezHandler, failure: lookupFailed});
-
-                        function lookupFailed() {
-                            var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
-                              node.setAttribute('href','http://www.ncbi.nlm.nih.gov/gene?term='+feature.label);
+                link_objects: [
+                    {
+                        label: 'Pubcrawl',
+                        url: 'http://explorer.cancerregulome.org/pubcrawl/pubcrawl_tcga.html',
+                        uri: '?term=fbxw7&dataset=gbm_1031',
+                        config_object: function(feature) {
+                            return 'http://explorer.cancerregulome.org/pubcrawl/pubcrawl_tcga.html?term='+feature.label+'&dataset=' + re.tables.current_data;
                         }
+                    }, //pubcrawl
+                    {
+                        label: 'UCSC Genome Browser',
+                        url: 'http://genome.ucsc.edu/cgi-bin/hgTracks',
+                        uri: '?db=hg18&position=chr',
+                        config_object: function(feature) {
+                            return 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg18&position=chr' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
+                        }
+                    }, //ucsc_genome_browser
+                    {
+                        label: 'Ensemble',
+                        url: 'http://uswest.ensembl.org/Homo_sapiens/Location/View',
+                        uri: '?r=',
+                        config_object: function(feature) {
+                            return 'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
+                        }
+                    }, //ensemble
+                    {
+                        label: 'Cosmic',
+                        url: 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic',
+                        uri: '?action=bygene&ln=',
+                        config_object: function(feature) {
+                            return ['CNVR', 'MIRN','METH'].indexOf(feature.source) < 0 ? 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label : null;
+                        }
+                    },  {
+                        label: 'NCBI',
+                        url: 'http://www.ncbi.nlm.nih.gov/gene/',
+                        uri: '',
+                        selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
+                        config_object: function(feature) {
+                            var selector = Ext.DomQuery.compile('a[href*=zzzZZZzzz]');
+                            if (['CNVR', 'MIRN','METH'].indexOf(feature.source) >= 0) return null;
+                            Ext.Ajax.request({url:re.node.uri + re.node.services.lookup+'/'+feature.label,success:entrezHandler, failure: lookupFailed});
 
-                        function entrezHandler(response) {
-                            var gene,entrez;
-                            var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
-                            try {
-                                gene = Ext.decode(response.responseText);
-                                entrez = gene[Object.keys(gene)[0]];
-                                node.setAttribute('href',node.getAttribute('href').replace('zzzZZZzzz',entrez));
-                            } catch (err) {
-                                lookupFailed();
+                            function lookupFailed() {
+                                var node = selector('')[0];
+                                node.setAttribute('href','http://www.ncbi.nlm.nih.gov/gene?term='+feature.label);
                             }
+
+                            function entrezHandler(response) {
+                                var gene,entrez;
+                                var node = selector('')[0];
+                                try {
+                                    gene = Ext.decode(response.responseText);
+                                    entrez = gene[Object.keys(gene)[0]];
+                                    node.setAttribute('href',node.getAttribute('href').replace('zzzZZZzzz',entrez));
+                                } catch (err) {
+                                    lookupFailed();
+                                }
+                            }
+                            return 'http://www.ncbi.nlm.nih.gov/gene/' + 'zzzZZZzzz';
                         }
-                        return 'http://www.ncbi.nlm.nih.gov/gene/' + 'zzzZZZzzz';
+                    }, {
+                        label: 'miRBase',
+                        url: 'http://mirbase.org/cgi-bin/query.pl',
+                        uri: '?terms=',
+                        config_object: function(feature) {
+                            return feature.source == 'MIRN' ? 'http://www.mirbase.org/cgi-bin/query.pl?terms=' + feature.label : null;
+                        }
                     }
-                }, {
-                    label: 'miRBase',
-                    url: 'http://mirbase.org/cgi-bin/query.pl',
-                    uri: '?terms=',
-                    config_object: function(feature) {
-                        return feature.source == 'MIRN' ? 'http://www.mirbase.org/cgi-bin/query.pl?terms=' + feature.label : null;
-                    }
-                }
-                   ],
+                ],
                 //link_objects
                 edge_links: {},
                 feature_links : {}
@@ -242,7 +258,7 @@ vq.utils.VisUtils.extend(re, {
         inter_scale: pv.Scale.linear(0.00005, 0.0004).range('lightpink', 'red'),
         linear_unit: 100000,
         chrome_length: [],
-
+        legend: {},
         scatterplot_data: null
     },
     ui: {
@@ -251,11 +267,40 @@ vq.utils.VisUtils.extend(re, {
         },
         chromosomes: [],
         dataset_labels: [],
-        getDatasetLabels: function() {
+      // Removes heading and trailing whitespaces from a string
+    getDatasetLabels: function() {
             return re.ui.dataset_labels;
         },
-        setDatasetLabels: function(obj) {
+        setDatasetLabels: function(obj) {   
             re.ui.dataset_labels = obj;
+        },
+        current_pathway_members: [],
+    getCurrentPathwayMembers: function() {
+            return re.ui.current_pathway_members;
+        },     
+        setCurrentPathwayMembers: function(obj) {
+            re.ui.current_pathway_members = obj;
+    },
+        pathway_members_query_counts: {},
+        getPathwayMembersQueryCounts: function() {
+            return re.ui.pathway_members_query_counts;
+        },
+        setPathwayMembersQueryCounts: function(obj, ct) {
+            re.ui.pathway_members_query_counts[obj] = ct;
+        },
+        pathway_bar_mouseover_behavior: {},
+        getPathwayBarBehavior: function() {
+            return re.ui.pathway_bar_mouseover_behavior;
+        },
+        setPathwayBarBehavior: function(obj) {
+            re.ui.pathway_bar_mouseover_behavior = obj;
+        },
+        pathway_bar_mouseover_behavior_reset: {},
+        getPathwayBarBehaviorReset: function() {
+            return re.ui.pathway_bar_mouseover_behavior_reset;
+        },
+        setPathwayBarBehaviorReset: function(obj) {
+            re.ui.pathway_bar_mouseover_behavior_reset = obj;
         },
         /*
          *        Order combo list
@@ -294,7 +339,7 @@ vq.utils.VisUtils.extend(re, {
         order_list: []
     },
 
-/*
+    /*
      Window handles
      global handles to the masks and windows used by events
      */
@@ -345,21 +390,21 @@ vq.utils.VisUtils.extend(re, {
         label: 'Y'
     });
 
-/*
+    /*
      Label map
      Hash maps feature type id to feature type label
      */
-    re.label_map = {
+     re.label_map = {
         '*': 'All',
         'GEXP': 'Gene Expression',
-        'METH': 'Methylation',
-        'CNVR': 'Copy # Var Region',
+        'METH': 'DNA Methylation ',
+        'CNVR': 'Somatic Copy Number',
         'CLIN': 'Clinical',
-        'MIRN': 'microRNA',
-        'GNAB': 'Gene Aberration',
+        'MIRN': 'MicroRNA Expression',
+        'GNAB': 'Somatic Mutation',
         'SAMP': 'Tumor Sample',
         'PRDM': 'Paradigm Feature',
-        'RPPA': 'RPPA'
+        'RPPA': 'Protein Level - RPPA'
     };
     re.plot.all_source_list = pv.blend([re.plot.locatable_source_list, re.plot.unlocatable_source_list]);
     re.plot.all_source_map = pv.numerate(re.plot.all_source_list);
@@ -386,6 +431,10 @@ vq.utils.VisUtils.extend(re, {
         'SAMP': '#bcbd22'
         //#17becf
     };
+
+    re.plot.legend.dataRingTypes = ['1. Cytoband','2. Gene Expression','3. Methylation','4. Copy Number','5. Unmapped Associations'];
+    re.plot.colors.quants = {"Q1":"#000099", "Q2":"#66A3FF","Q3":"#959595","Q4":"#FF8080","Q5":"#800000"};
+    re.plot.colors.quantinfo = {"Q1":"<5%", "Q2":"5-25%","Q3":"25-75%","Q4":"75-95%","Q5":">95%"};//,"Q6":"90-95%","Q7":">95%"};
 
     re.plot.colors.node_colors = function(source) {
         if (source in re.plot.colors.features) {

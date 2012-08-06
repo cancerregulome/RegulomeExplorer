@@ -1,91 +1,44 @@
 if (re.model === undefined) re.model = {};
 
 re.model.association =  {
-	types : [
-		{ 	id : 'importance',
-			label : 'Importance',
+	types : [		
+		{ 	id : 'logged_pvalue',
+			label : '-log10(p)',
 			ui : {
-			filter : { 
-				 					component: {
-					 							xtype : 'numberfield',
-                                                id:'importance',
-                                                name :'importance',
-                                                allowNegative: false,
-                                                decimalPrecision : 2,
-                                                emptyText : 'Input value...',
-                                                invalidText:'This value is not valid.',
-                                                minValue:0,
-                                                tabIndex : 1,
-                                                validateOnBlur : true,
-                                                fieldLabel : 'Importance >=',
-                                                defaultValue : 0,
-                                                value : 0
-                                            }
-			},
-			grid : {
-				column : { header: "Importance", width:50, id:'importance',dataIndex:'importance' },
-				store_index : 'importance'
-				}
+				filter : { 
+ 					component: {
+	 							xtype : 'numberfield',
+                                id:'logged_pvalue',
+                                name :'logged_pvalue',
+                                allowNegative: false,
+                                decimalPrecision : 8,
+                                emptyText : 'Input value...',
+                                invalidText:'This value is not valid.',
+                                maxValue:0.9,
+                                minValue:0,
+                                tabIndex : 1,
+                                validateOnBlur : true,
+                                fieldLabel : '-log10(p) <=',
+                                defaultValue : 0.5,
+                                value : 0.5
+                            }
+				},
+					grid : {
+						column : { header : "logged_pvalue", width : 50 , id: 'logged_pvalue' , dataIndex : 'logged_pvalue', hidden: true},
+						store_index : 'logged_pvalue'
+					}
 			},
 			query : {
-				id : 'importance',
-				clause : 'importance >= ',
+				id : 'logged_pvalue',
+				clause : 'logged_pvalue <= ',
 				order_direction : 'DESC'
 			},
 			vis : {
 				network : {
-					edgeSchema : { name: "importance", type: "number" }
+					edgeSchema : {name: "logged_pvalue", type: "number" }
 				},
 				tooltip : {
-					entry : { 'Importance' : 'importance'}
-				},
-                scatterplot : {
-                    scale_type :'linear',
-                    values : {
-                        min : 0,
-                        max:0.1
-                    },
-                    color_scale : pv.Scale.linear(0,0.1).range('blue','red')
-                }
-			}	
-		},
-		{ 	id : 'pvalue',
-			label : 'Pvalue',
-			ui : {
-			filter : { 
-				 					component: {
-					 							xtype : 'numberfield',
-                                                id:'pvalue',
-                                                name :'pvalue',
-                                                allowNegative: false,
-                                                decimalPrecision : 8,
-                                                emptyText : 'Input value...',
-                                                invalidText:'This value is not valid.',
-                                                maxValue:0.9,
-                                                minValue:0,
-                                                tabIndex : 1,
-                                                validateOnBlur : true,
-                                                fieldLabel : 'pvalue <=',
-                                                defaultValue : 0.5,
-                                                value : 0.5
-                                            }
-			},
-			grid : {
-				column : { header : "pvalue", width : 50 , id: 'pvalue' , dataIndex : 'pvalue', hidden: true},
-				store_index : 'pvalue'
-			}
-			},
-			query : {
-				id : 'pvalue',
-				clause : 'pvalue <= ',
-				order_direction : 'ASC'
-			},
-			vis : {
-				network : {
-					edgeSchema : {name: "pvalue", type: "number" }
-				},
-				tooltip : {
-					entry : { pvalue : 'pvalue' }
+					entry : { pvalue : 'logged_pvalue' }
 				},
                 scatterplot : {
                     values : {

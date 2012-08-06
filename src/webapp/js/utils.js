@@ -1,15 +1,19 @@
+function errorInQuery(response) {
+    return !!~response.indexOf('status:\'error\'');
+}
+
 function flex_field_query(label, value, fn) {
     var where = '';
     if (value + '' != '') {
         if (fn == 'Btw') {
-            where += '(' + label + ' >= -' + value + ' and ' + label + ' <= ' + value + ')';
+            where += '(' + label + '>= -' + value + ' and ' + label + '<=' + value + ')';
         } else if (fn == '<=') {
-            where += '(' + label + ' <= ' + value + ')';
+            where += '(' + label + '<=' + value + ')';
         } else if (fn == '>=') {
-            where += '(' + label + ' >= ' + value + ')';
+            where += '(' + label + '>=' + value + ')';
         } else {
             if (parseFloat(value) != '0') {
-                where += '(' + label + ' >= ' + value + ' or ' + label + ' <= -' + value + ')';
+                where += '(' + label + '>=' + value + ' or ' + label + '<= -' + value + ')';
             }
         }
     }
@@ -17,7 +21,14 @@ function flex_field_query(label, value, fn) {
 
 }
 
-
+function trim (str) {
+    return str.replace(/^\s+/, '').replace(/\s+$/, '');
+}
+     
+// Tests if s is an unsigned integer
+function isUnsignedInteger (s) {
+     return (s.toString().search(/^[0-9]+$/) == 0);
+}
 function parseLabelList(labellist) {
     return labellist.replace(new RegExp(' ', 'g'), '').split(',');
 }
@@ -55,12 +66,13 @@ function parseAnnotationList(feature) {
             return a != '';
         }).join(', ');
     }
-
-    if (feature.source == 'CNVR') {
+    else if (feature.source == 'CNVR') {
         list = feature.label_mod.split('_');
         annotations = list.map(translateCNVRAnnotation).join(', ');
     }
-
+    else {
+         annotations = feature.label_mod == '' ? annotations : feature.label_mod;
+    }
     return annotations;
 }
 
@@ -201,6 +213,20 @@ function downloadData(data, filename, in_format, out_format) {
     postData(url, data, dataSuccess, dataFail);
 }
 
+function binData(values){
+        var quartiles = pv.Scale.quantile(values).quantiles(4).quantiles();
+        //Freedman-Diaconis' choice for bin size
+        var setSize = 2 * (quartiles[3] - quartiles[1]) / Math.pow(values.length,0.33);
+        var max =pv.max(values), min = pv.min(values);
+        //max # of bins is 10
+        setSize = (max - min)/setSize >= 9 ? (max - min) / 10 : setSize;
+        var firstBin = min+setSize/2;
+        var bins = pv.range(firstBin,max-setSize/2+setSize/10,setSize);
+            return function(val) {
+                return bins[Math.min(Math.max(Math.floor((val-firstBin) / setSize),0),bins.length-1)];
+                };
+}
+
 function convertData(data, filename, in_format, out_format) {
     function dataSuccess(response) {}
 
@@ -300,8 +326,4 @@ re.build_tooltips = function() {
    });
 
 };
-
-function isUnsignedInteger(s) {
-  return (s.toString().search(/^[0-9]+$/) == 0);
-}
 

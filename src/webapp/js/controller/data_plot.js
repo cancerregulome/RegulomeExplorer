@@ -317,7 +317,7 @@ function pathway_members_draw(div,anchor,networks) {
     for (var i = 0; i < tuples.length; i++) {
         var key = tuples[i][0];
         var value = tuples[i][1];
-	if (key == "remove" || !re.ui.isUnsignedInteger(value)){
+	if (key == "remove" || !isUnsignedInteger(value)){
 		continue;
 	}
         sortedMembers[key] = value;
@@ -347,18 +347,18 @@ function pathway_members_draw(div,anchor,networks) {
     var current_data = re.plot.all_source_list.filter(function(input_row){return source_map[input_row] != undefined;});
     var current_map = pv.numerate(current_data);
 
+    re.plot.colors.link_sources_colors = function(link) { return re.plot.link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
+
     var top_padding = 20,
-        left_padding = 30;
+        left_padding = 0;
     var legend_height = (30 + stuples.length * 13),
         legend_width = 400;
 
-    re.plot.colors.link_sources_colors = function(link) { return re.plot.link_sources_array[current_map[link[0]] * current_data.length + current_map[link[1]]];}
-
     var pathway_members_query_counts = re.ui.getPathwayMembersQueryCounts();
     var locatable_sources = re.plot.locatable_source_list;
-    var horizontal_offset = 35;
+    var horizontal_offset = 65;
     var bar_height = 12;
-    var label_offset = -20;
+    var label_offset = 10;
     var scale_factor = 5;
 
     var draw_data = [];
@@ -413,6 +413,10 @@ function pathway_members_draw(div,anchor,networks) {
         .data(draw_data)
         .top(function() { return this.index * bar_height;})
         .height(bar_height)
+        .strokeStyle(function(d) {
+            // Red rectangle for highlighting the selected pathway member
+            return d.label_index == draw_panel.active_label_index() ? "red" : pv.color("rgba(1, 1, 1, 0)");
+        })
         .event("mouseover", function(d) {
             if (draw_panel.active_label_index() == -1 && pathway_members_query_counts[d.label] > 0) {
                 re.circvis_obj.highlightConnectedNodes(d.label);
@@ -432,9 +436,9 @@ function pathway_members_draw(div,anchor,networks) {
         });
 
     // Pathway member name labels
-    entries.add(pv.Bar)
+    entries.add(pv.Panel)
         .left(label_offset)
-        .width(horizontal_offset)
+        .width(horizontal_offset-label_offset)
         .fillStyle("white")
         .event("dblclick", function(d) {
             var url = 'http://www.genecards.org/cgi-bin/carddisp.pl?gene=' + d.label;
@@ -460,10 +464,6 @@ function pathway_members_draw(div,anchor,networks) {
             return d.label;
         });
 
-
-    var features_panel = entries.add(pv.Panel)
-        .left(horizontal_offset);
-
     var x_scale = pv.Scale.linear(0, 50*4).range(0, legend_width);
 
     draw_panel.add(pv.Panel)
@@ -478,7 +478,9 @@ function pathway_members_draw(div,anchor,networks) {
         .text(x_scale.tickFormat);
 
     // Horizontal bar for each source
-    features_panel.add(pv.Bar)
+    entries.add(pv.Panel)
+        .left(horizontal_offset)
+        .add(pv.Bar)
         .data(function(d) {
             return d.sources;
         })
@@ -590,26 +592,8 @@ function legend_draw(div,anchor) {
         .top(variableTypeBoxHeight)
         .left(0); // .top(function(){ return current_locatable_data.length*12;})
 
-     ringPanel.add(pv.Label)
-        .textAlign('left')
-        .top(padding) // 22
-        .left(indent)
-        .text('Outer Data Rings')
-        .font("15px helvetica");
-
-     var datarings = ringPanel.add(pv.Panel)
-        .data(re.plot.legend.dataRingTypes)
-        .top(function() { return padding + 5 + this.index * lineHeight;})
-        .height(lineHeight);
-	datarings.add(pv.Label)
-        .textAlign('left')
-        .left(indent)
-        .text(function (d){return (d);})
-	.textBaseline('bottom')
-        .font("11px helvetica");
-
      var quantPanel = vis.add(pv.Panel)
-        .top(variableTypeBoxHeight + dataRingBoxHeight)
+        .top(variableTypeBoxHeight)
         .left(0);
 
      quantPanel.add(pv.Label)
@@ -818,15 +802,6 @@ function wedge_plot(parsed_data,div) {
 		return  vq.utils.VisUtils.options_map(feature)['label'];},
         Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
     },
-    methband_tooltip_items = {
-        METHQuantile :  function(feature) { return feature.label + " " + feature.qtinfo;}
-    },
-    gexpband_tooltip_items = {
-        GEXPQuantile :  function(feature) { return feature.label + " " + feature.qtinfo;}
-    },
-    cnvrband_tooltip_items = {
-        CNVRQuantile :  function(feature) { return feature.label + " " + feature.qtinfo;}
-    },
         unlocated_tooltip_items = {};
     unlocated_tooltip_items[re.ui.feature1.label] =  function(feature) { return feature.sourceNode.source + ' ' + feature.sourceNode.label +
         (feature.sourceNode.chr ? ' Chr'+ feature.sourceNode.chr : '') +
@@ -886,19 +861,6 @@ function wedge_plot(parsed_data,div) {
         var qistr = f["qtinfo"];
         return f['source'] == 'CNVR' && qistr != null && qistr.indexOf("_") != -1;
     });
-    var qoffset = 750000;	
-    //var meth_qvalue_dic = {"Q1":"#33FF33", "Q2":"#00FF00","Q3":"#009900","Q4":"#006600"};
-    for (var mi = 0; mi < meth_filtered_list.length; mi++){
-        meth_filtered_list[mi] = parse_qt_info(mi, meth_filtered_list, re.plot.colors.quants);
-    }
-    //var gexp_qvalue_dic = {"Q1":"#AD85FF", "Q2":"#9966FF","Q3":"#5C3D99","Q4":"#3D2966"};
-    for (var mi = 0; mi < gexp_filtered_list.length; mi++){
-        gexp_filtered_list[mi] = parse_qt_info(mi, gexp_filtered_list, re.plot.colors.quants);
-    }
-    //var cnvr_qvalue_dic = {"Q1":"#FF3333", "Q2":"#FF0000","Q3":"#B20000","Q4":"#800000"};
-    for (var mi = 0; mi < cnvr_filtered_list.length; mi++){
-        cnvr_filtered_list[mi] = parse_qt_info(mi, cnvr_filtered_list, re.plot.colors.quants);
-    }	
     var data = {
         GENOME: {
             DATA:{
@@ -952,51 +914,7 @@ function wedge_plot(parsed_data,div) {
                     legend_description : 'Chromosomal Cytogenetic Bands',
                     outer_padding : 6,
                     tooltip_items : karyotype_tooltip_items,
-                    background_style: re.display_options.circvis.rings.color_background
-                }
-            },
-	    {
-                PLOT : {
-                    height : ring_radius/4,
-                    type :   'karyotype'
-                },
-                DATA:{
-                    data_array : gexp_filtered_list//methcbmband
-                },
-                OPTIONS: {
-                    legend_label : 'GEXP Quantiled Features' ,
-                    outer_padding : 6,
-                    tooltip_items : gexpband_tooltip_items,
-                    background_style: re.display_options.circvis.rings.color_background
-                }
-            },{
-                PLOT : {
-                    height : ring_radius/4,
-                    type :   'karyotype'
-                },
-                DATA:{
-                    data_array : meth_filtered_list//cnvrcbmband
-                },
-                OPTIONS: {
-                    legend_label : 'METH Quantiled Features' ,
-                    outer_padding : 6,
-                    tooltip_items : methband_tooltip_items,
-                    background_style: re.display_options.circvis.rings.color_background
-                }
-            },
-	    {
-                PLOT : {
-                    height : ring_radius/4,
-                    type :   'karyotype'
-                },
-                DATA:{
-                    data_array : cnvr_filtered_list
-                },
-                OPTIONS: {
-                    legend_label : 'CNVR Quantiled Features' ,
-                    outer_padding : 6,
-                    tooltip_items : cnvrband_tooltip_items,
-                    background_style: re.display_options.circvis.rings.color_background
+                    background_style: re.display_options.circvis.rings.karyotype.color_background
                 }
             },
             {

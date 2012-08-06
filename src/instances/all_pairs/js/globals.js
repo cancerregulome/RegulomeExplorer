@@ -9,7 +9,7 @@ if (re === undefined) {
 
 vq.utils.VisUtils.extend(re, {
 
-    title: 'All Pairs Significance Explorer',
+    title: 'Regulome Explorer: All Pairs',
     google: {
         analytics_id: 'UA-20488457-2'
     },
@@ -44,7 +44,7 @@ vq.utils.VisUtils.extend(re, {
             uri: '/google-dsapi-svc/addama/datasources/csacr'
         },
         rf_ace: {
-            uri: '/google-dsapi-svc/addama/datasources/tcga'
+            uri: '/google-dsapi-svc/addama/datasources/re'
         },
         solr: {
             uri: '/solr',
@@ -64,8 +64,7 @@ vq.utils.VisUtils.extend(re, {
         patient_uri: '',
         feature_data_uri: '',
         pathway_uri: '',
-        pathways: '/pathways',
-        pathway_members: '/pathway_members'
+        pathways:'/pathways'
     },
     /*
      *        URL's
@@ -73,10 +72,10 @@ vq.utils.VisUtils.extend(re, {
      */
     help: {
         links: {
-            user_guide: '/help/crc_agg/user_guide.html',
-            quick_start: '/help/crc_agg/quick_start.html',
-            contact_us: '/help/crc_agg/contact_us.html',
-            analysis_summary: '/help/crc_agg/analysis/analysis_summary.html',
+            user_guide: 'http://cdn.cancerregulome.org/help/msae/user_guide.html',
+            quick_start: 'http://cdn.cancerregulome.org/help/msae/quick_start.html',
+            contact_us: 'http://cdn.cancerregulome.org/help/msae/contact_us.html',
+            analysis_summary: '/help/all_pairs/analysis.html',
             bug_report: 'http://code.google.com/p/regulome-explorer/issues/entry',
             user_group: 'http://groups.google.com/group/regulome-explorer'
         }
@@ -102,7 +101,7 @@ vq.utils.VisUtils.extend(re, {
                 pairwise_scores: {
                     value_field: re.model.association.types[0].query.id,
                     hidden: false,
-                    radius: 80,
+
                     manual_y_color_scale:false,
                     min_y_color:'#0000FF',
                     max_y_color:'#FF0000',
@@ -110,6 +109,11 @@ vq.utils.VisUtils.extend(re, {
                     min_y_value:0,
                     max_y_value:1
                 }
+            },
+             quantiled_data: {
+                    GEXP: true,
+                    CNVR: true,
+                    METH: true
             },
             tooltips: {
                 feature: {
@@ -130,37 +134,47 @@ vq.utils.VisUtils.extend(re, {
                 unlocated_feature : {},
                 karyotype_feature: {},
                 edge: {},
-                link_objects: [{
-                    label: 'UCSC Genome Browser',
-                    url: 'http://genome.ucsc.edu/cgi-bin/hgTracks',
-                    uri: '?db=hg18&position=chr',
-                    config_object: function(feature) {
-                        return 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg18&position=chr' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
-                    }
-                }, //ucsc_genome_browser
-                {
-                    label: 'Ensemble',
-                    url: 'http://uswest.ensembl.org/Homo_sapiens/Location/View',
-                    uri: '?r=',
-                    config_object: function(feature) {
-                        return 'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
-                    }
-                }, //ensemble
-                {
-                    label: 'Cosmic',
-                    url: 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic',
-                    uri: '?action=bygene&ln=',
-                    config_object: function(feature) {
-                        return ['CNVR', 'MIRN','METH'].indexOf(feature.source) < 0 ? 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label : null;
-                    }
-               },  {
-                    label: 'NCBI',
-                    url: 'http://www.ncbi.nlm.nih.gov/gene/',
-                    uri: '',
-                    selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
-                    config_object: function(feature) {
-                        if (['CNVR', 'MIRN','METH'].indexOf(feature.source) >= 0) return null;
-                        Ext.Ajax.request({url:re.node.uri + re.node.services.lookup+'/'+feature.label,success:entrezHandler, failure: lookupFailed});
+                link_objects: [
+                    {
+                        label: 'Pubcrawl',
+                        url: 'http://explorer.cancerregulome.org/pubcrawl/pubcrawl_tcga.html',
+                        uri: '?term=fbxw7&dataset=gbm_1031',
+                        config_object: function(feature) {
+                            return 'http://explorer.cancerregulome.org/pubcrawl/pubcrawl_tcga.html?term='+feature.label+'&dataset=' + re.tables.current_data;
+                        }
+                    }, //pubcrawl
+                    {
+                        label: 'UCSC Genome Browser',
+                        url: 'http://genome.ucsc.edu/cgi-bin/hgTracks',
+                        uri: '?db=hg18&position=chr',
+                        config_object: function(feature) {
+                            return 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg18&position=chr' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
+                        }
+                    }, //ucsc_genome_browser
+                    {
+                        label: 'Ensemble',
+                        url: 'http://uswest.ensembl.org/Homo_sapiens/Location/View',
+                        uri: '?r=',
+                        config_object: function(feature) {
+                            return 'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
+                        }
+                    }, //ensemble
+                    {
+                        label: 'Cosmic',
+                        url: 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic',
+                        uri: '?action=bygene&ln=',
+                        config_object: function(feature) {
+                            return ['CNVR', 'MIRN','METH'].indexOf(feature.source) < 0 ? 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label : null;
+                        }
+                    },  {
+                        label: 'NCBI',
+                        url: 'http://www.ncbi.nlm.nih.gov/gene/',
+                        uri: '',
+                        selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
+                        config_object: function(feature) {
+                            var selector = Ext.DomQuery.compile('a[href*=zzzZZZzzz]');
+                            if (['CNVR', 'MIRN','METH'].indexOf(feature.source) >= 0) return null;
+                            Ext.Ajax.request({url:re.node.uri + re.node.services.lookup+'/'+feature.label,success:entrezHandler, failure: lookupFailed});
 
                         function lookupFailed() {
                             var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
@@ -244,7 +258,7 @@ vq.utils.VisUtils.extend(re, {
         inter_scale: pv.Scale.linear(0.00005, 0.0004).range('lightpink', 'red'),
         linear_unit: 100000,
         chrome_length: [],
-
+        legend: {}, 
         scatterplot_data: null
     },
     ui: {
@@ -253,10 +267,11 @@ vq.utils.VisUtils.extend(re, {
         },
         chromosomes: [],
         dataset_labels: [],
-        getDatasetLabels: function() {
+        // Removes heading and trailing whitespaces from a string
+    getDatasetLabels: function() {
             return re.ui.dataset_labels;
         },
-        setDatasetLabels: function(obj) {
+        setDatasetLabels: function(obj) {   
             re.ui.dataset_labels = obj;
         },
         current_pathway_members: [],
@@ -382,14 +397,14 @@ vq.utils.VisUtils.extend(re, {
     re.label_map = {
         '*': 'All',
         'GEXP': 'Gene Expression',
-        'METH': 'Methylation',
-        'CNVR': 'Copy # Var Region',
+        'METH': 'DNA Methylation ',
+        'CNVR': 'Somatic Copy Number',
         'CLIN': 'Clinical',
-        'MIRN': 'microRNA',
-        'GNAB': 'Gene Aberration',
+        'MIRN': 'MicroRNA Expression',
+        'GNAB': 'Somatic Mutation',
         'SAMP': 'Tumor Sample',
         'PRDM': 'Paradigm Feature',
-        'RPPA': 'RPPA'
+        'RPPA': 'Protein Level - RPPA'
     };
     re.plot.all_source_list = pv.blend([re.plot.locatable_source_list, re.plot.unlocatable_source_list]);
     re.plot.all_source_map = pv.numerate(re.plot.all_source_list);
@@ -416,6 +431,10 @@ vq.utils.VisUtils.extend(re, {
         'SAMP': '#bcbd22'
         //#17becf
     };
+
+    re.plot.legend.dataRingTypes = ['1. Cytoband','2. Gene Expression','3. Methylation','4. Copy Number','5. Unmapped Associations'];
+    re.plot.colors.quants = {"Q1":"#000099", "Q2":"#66A3FF","Q3":"#959595","Q4":"#FF8080","Q5":"#800000"};
+    re.plot.colors.quantinfo = {"Q1":"<5%", "Q2":"5-25%","Q3":"25-75%","Q4":"75-95%","Q5":">95%"};//,"Q6":"90-95%","Q7":">95%"};
 
     re.plot.colors.node_colors = function(source) {
         if (source in re.plot.colors.features) {

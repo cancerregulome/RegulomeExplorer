@@ -2,47 +2,8 @@ if (re.model === undefined) re.model = {};
 
 re.model.association =  {
     types : [
-        { 	id : 'rho_score',
-            label : 'Score',
-            ui : {
-                filter : {
-                    component:   new re.multirangeField(
-                        {   id:'rho_score',
-                            label: 'Score',
-                            default_value: 0,
-                            min_value: -300,
-                            max_value: 300}
-                    )
-                },
-                grid : {
-                    column : { header : "Score", width : 50 , id: 'rho_score' , dataIndex : 'rho_score', hidden: true},
-                    store_index : 'rho_score'
-                }
-            },
-            query : {
-                id : 'rho_score',
-                order_id:'logged_pvalue',
-                clause : flex_field_query,
-                order_direction : 'ASC'
-            },
-            vis : {
-                network : {
-                    edgeSchema : {name: "rho_score", type: "number" }
-                },
-                tooltip : {
-                    entry : { 'Score' : 'rho_score' }
-                },
-                scatterplot: {
-                    values: {
-                        min:-300,
-                        floor : -300,
-                        ceil: 300
-                    },
-                    color_scale : pv.Scale.linear(-300,0,300).range('blue','red')
-                }
-            }
-        },{ 	id : 'logged_pvalue',
-            label : 'log10(p)',
+    {   id : 'logged_pvalue',
+            label : '-log10(p)',
             ui : {
                 filter : {
                     component: {
@@ -53,88 +14,43 @@ re.model.association =  {
                         decimalPrecision : 0,
                         emptyText : 'Input value...',
                         invalidText:'This value is not valid.',
-                        maxValue:0,
-                        minValue:-300.0,
+                        maxValue:300,
+                        minValue:0.0,
                         tabIndex : 1,
                         validateOnBlur : true,
-                        fieldLabel : 'log10(p) <=',
-                        defaultValue: -2,
-                        value : -2
+                        fieldLabel : '-log10(p) >=',
+                        defaultValue: 6,
+                        value : 6
                     }
                 },
                 grid : {
-                    column : { header : "log10(p)", width : 50 , id: 'logged_pvalue' , dataIndex : 'logged_pvalue', hidden: true},
+                    column : { header : "-log10(p)", width : 50 , id: 'logged_pvalue' , dataIndex : 'logged_pvalue', hidden: false},
                     store_index : 'logged_pvalue'
                 }
             },
             query : {
                 id : 'logged_pvalue',
-                clause : 'logged_pvalue <= ',
-                order_direction : 'ASC'
+                clause : 'logged_pvalue >= ',
+                order_direction : 'DESC'
             },
             vis : {
                 network : {
                     edgeSchema : {name: "logged_pvalue", type: "number" }
                 },
                 tooltip : {
-                    entry : { 'log(p)' : 'logged_pvalue' }
+                    entry : { '-log10(p)' : 'logged_pvalue' }
                 },
                 scatterplot: {
                     values: {
-                        min:-300,
-                        floor : -50,
-                        ceil: 0
+                        min:0,
+                        floor : 0,
+                        ceil: 300
                     },
-                    color_scale : pv.Scale.linear(-100,0).range('blue','red')
+                    color_scale : pv.Scale.linear(0,50).range('blue','red')
                 }
             }
         },
-        { 	id : 'num_nonna',
-            label : '# of non-NA',
-            ui : {
-                filter : {
-                    component: {
-                        xtype : 'numberfield',
-                        id:'num_nonna',
-                        name :'num_nonna',
-                        allowNegative: false,
-                        decimalPrecision : 2,
-                        emptyText : 'Input value...',
-                        invalidText:'This value is not valid.',
-                        minValue:0,
-                        tabIndex : 1,
-                        validateOnBlur : true,
-                        fieldLabel : '# of non-NA >=',
-                        defaultValue: 0,
-                        value : 0
-                    }
-                },
-                grid : {
-                    column : { header: "# of non-NA", width:50, id:'num_nonna',dataIndex:'num_nonna' },
-                    store_index : 'num_nonna'
-                }
-            },
-            query : {
-                id : 'num_nonna',
-                clause : 'num_nonna >= ',
-                order_direction : 'DESC'
-            },
-            vis : {
-                network : {
-                    edgeSchema : { name: "num_nonna", type: "number" }
-                },
-                tooltip : {
-                    entry : { ' # of non-NA' : 'num_nonna'}
-                },
-                scatterplot : {
-                    scale_type :'linear',
-                    values : {
-                    },
-                    color_scale : pv.Scale.linear(0,400).range('blue','red')
-                }
-            }
-        },
-        { 	id : 'correlation',
+        {   id : 'correlation',
             label : 'Correlation',
             ui : {
                 filter : {
@@ -172,99 +88,51 @@ re.model.association =  {
                     color_scale : pv.Scale.linear(-1,1).range('blue','red')
                 }
             }
-//		},
-//        { 	id : 'logged_pvalue_bonf',
-//        			label : 'log10(bonf)',
-//        			ui : {
-//        			filter : {
-//
-//        			},
-//        			grid : {
-//        				column : { header: 'log10(bonf)', width:50, id:'logged_pvalue_bonf',dataIndex:'logged_pvalue_bonf'},
-//        				store_index : 'logged_pvalue_bonf'
-//        				}
-//        			},
-//        			query : {
-//        				id : 'logged_pvalue_bonf'
-////        				clause : flex_field_query,
-////        				order_direction : 'DESC'
-//        			},
-//        			vis : {
-//        				network : {
-//        					edgeSchema : { name: "logged_pvalue_bonf", type: "number" }
-//        				},
-//        				tooltip : {
-//        					entry : {  'log10(bonf)' : 'logged_pvalue_bonf'}
-//        				},
-//                        scatterplot : {
-//                                            scale_type :'linear',
-//                                            values : {
-//                                            },
-//                                            color_scale : pv.Scale.linear(-100,0).range('blue','red')
-//                                        }
-//                    }
-//        		},
-//        { 	id : 'num_nonna_f1',
-//        			label : '# of non-NA (f1)',
-//        			ui : {
-//        			filter : {
-//
-//        			},
-//        			grid : {
-//        				column : { header: '# of non-NA (f1)', width:50, id:'num_nonna_f1',dataIndex:'num_nonna_f1'},
-//        				store_index : 'num_nonna_f1'
-//        				}
-//        			},
-//        			query : {
-//        				id : 'num_nonna_f1'
-////        				clause : flex_field_query,
-////        				order_direction : 'DESC'
-//        			},
-//        			vis : {
-//        				network : {
-//        					edgeSchema : { name: "num_nonna_f1", type: "number" }
-//        				},
-//        				tooltip : {
-//        					entry : {  '# of non-NA' : 'num_nonna_f1'}
-//        				},
-//                        scatterplot : {
-//                                            scale_type :'linear',
-//                                            values : {
-//                                            },
-//                                            color_scale : pv.Scale.linear(0,500).range('blue','red')
-//                                        }
-//                    }
-//        		},
-//        { 	id : 'rho_score',
-//                			label : 'Score',
-//                			ui : {
-//                			filter : {
-//
-//                			},
-//                			grid : {
-//                				column : { header: 'Score', width:50, id:'rho_score',dataIndex:'rho_score'},
-//                				store_index : 'rho_score'
-//                				}
-//                			},
-//                			query : {
-//                				id : 'rho_score'
-//        //        				clause : flex_field_query,
-//        //        				order_direction : 'DESC'
-//                			},
-//                			vis : {
-//                				network : {
-//                					edgeSchema : { name: "rho_score", type: "number" }
-//                				},
-//                				tooltip : {
-//                					entry : {  'Score' : 'rho_score'}
-//                				},
-//                                scatterplot : {
-//                                                    scale_type :'linear',
-//                                                    values : {
-//                                                    },
-//                                                    color_scale : pv.Scale.linear(-1,1).range('red','blue','red')
-//                                                }
-//                            }
+        },
+        { 	id : 'num_nonna',
+            label : '# of samples',
+            ui : {
+                filter : {
+                    component: {
+                        xtype : 'numberfield',
+                        id:'num_nonna',
+                        name :'num_nonna',
+                        allowNegative: false,
+                        decimalPrecision : 2,
+                        emptyText : 'Input value...',
+                        invalidText:'This value is not valid.',
+                        minValue:0,
+                        tabIndex : 1,
+                        validateOnBlur : true,
+                        fieldLabel : '# of samples >=',
+                        defaultValue: 0,
+                        value : 0
+                    }
+                },
+                grid : {
+                    column : { header: "# of samples", width:50, id:'num_nonna',dataIndex:'num_nonna' },
+                    store_index : 'num_nonna'
+                }
+            },
+            query : {
+                id : 'num_nonna',
+                clause : 'num_nonna >= ',
+                order_direction : 'DESC'
+            },
+            vis : {
+                network : {
+                    edgeSchema : { name: "num_nonna", type: "number" }
+                },
+                tooltip : {
+                    entry : { ' # of samples' : 'num_nonna'}
+                },
+                scatterplot : {
+                    scale_type :'linear',
+                    values : {
+                    },
+                    color_scale : pv.Scale.linear(0,400).range('blue','red')
+                }
+            }
         }
     ]
 };
