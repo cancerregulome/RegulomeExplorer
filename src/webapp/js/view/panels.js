@@ -60,21 +60,20 @@ re.ui.panels = {
                     text: 'Filter',
                     id:'re_filter_button',
                     disabled: false,
-                    //formBind : true,
                     listeners: {
                         click: function(button, e) {
-                            Ext.getCmp("filter_type").setValue(re.ui.feature1.id);
-                            if ((Ext.getCmp("t_type").getValue() == 'GEXP' && Ext.getCmp("p_type").getValue() != 'Pathway')
-                                || (Ext.getCmp("t_type").getValue() != 'Pathway' && Ext.getCmp("p_type").getValue() == 'GEXP')){
-                            }
+                            // if f1 has a label value and f1 is a list
                             if (Ext.getCmp('t_label').getValue() != null && Ext.getCmp('t_label').getValue().indexOf(",") > -1) {
+                                //set filter type to feature 1, assign pathway, expand panel
+                                Ext.getCmp("filter_type").setValue(re.ui.feature1.id);
                                 re.ui.setCurrentPathwayMembers(Ext.getCmp('t_label').getValue());
-                            } else if (Ext.getCmp('p_label').getValue() != null && Ext.getCmp('p_label').getValue().indexOf(",") > -1) {
-                                re.ui.setCurrentPathwayMembers(Ext.getCmp('p_label').getValue());
-                            }
-                            var ft = Ext.getCmp("filter_type").getValue();
-                            if (ft != "association" && Ext.getCmp('t_label').getValue().indexOf(",") != -1)
                                 Ext.getCmp('pathway_member_panel').expand();
+                            // or if f2 has a lavel value and f2 is a list
+                            } else if (Ext.getCmp('p_label').getValue() != null && Ext.getCmp('p_label').getValue().indexOf(",") > -1) {
+                                Ext.getCmp("filter_type").setValue(re.ui.feature2.id);
+                                re.ui.setCurrentPathwayMembers(Ext.getCmp('p_label').getValue());
+                                Ext.getCmp('pathway_member_panel').expand();
+                            }
                             manualFilterRequest();
                         }
                     }
