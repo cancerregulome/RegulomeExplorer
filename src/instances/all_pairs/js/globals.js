@@ -47,7 +47,7 @@ vq.utils.VisUtils.extend(re, {
             uri: '/google-dsapi-svc/addama/datasources/re'
         },
         solr: {
-            uri: '/solr',
+            uri: '/solr/core0',
             select: '/select/'
         }
     },
