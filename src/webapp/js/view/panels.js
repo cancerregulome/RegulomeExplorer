@@ -569,7 +569,6 @@ re.ui.panels = {
                           defaults: { anchor:'90%'},
                         labelWidth:60,
                         collapsible: true,
-                        collapsed: true,
                         autoHeight: true,
                         labelSeparator: '',
                         title: 'Distance',
@@ -587,8 +586,7 @@ re.ui.panels = {
                                  listeners: {
                                      check: function(cb, checked) {
                                         Ext.getCmp('trans').setDisabled(checked);
-                                        Ext.getCmp('proximal_distance').setDisabled(!checked);
-                                        Ext.getCmp('distal_distance').setDisabled(!checked);
+                                        Ext.getCmp('cis_distance').setDisabled(!checked);
                                     }
                             }
                             }, {
