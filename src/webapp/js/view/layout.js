@@ -884,7 +884,6 @@ Ext.onReady(function() {
                             id: 'target_label',
                             dataIndex: 'target_label',
                             groupName: 'Target',
-                            renderer: addTooltip
                         }, {
                             header: "ChrA",
                             width: 40,
@@ -921,7 +920,6 @@ Ext.onReady(function() {
                             id: 'source_label',
                             dataIndex: 'source_label',
                             groupName: 'Target',
-                            renderer:addTooltip
                         }, {
                             header: "ChrB",
                             width: 40,
