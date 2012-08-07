@@ -524,7 +524,7 @@ function legend_draw(div,anchor) {
 	var dataRingBoxHeight = padding + re.plot.legend.dataRingTypes.length * lineHeight;
 	var quantileBoxHeight = padding + Object.keys(re.plot.colors.quantinfo).length * lineHeight;
 	// Three legend boxes on top of each other
-    var legend_height = variableTypeBoxHeight + dataRingBoxHeight + quantileBoxHeight + 3 * 5;
+    var legend_height = variableTypeBoxHeight + 15;//+ dataRingBoxHeight + quantileBoxHeight + 3 * 5;
 	var legend_width = 150;
     var top = 20, left = 0;
     if (arguments[1] != undefined) {anchor = arguments[1];}
@@ -592,36 +592,36 @@ function legend_draw(div,anchor) {
         .top(variableTypeBoxHeight)
         .left(0); // .top(function(){ return current_locatable_data.length*12;})
 
-     var quantPanel = vis.add(pv.Panel)
-        .top(variableTypeBoxHeight)
-        .left(0);
+ //     var quantPanel = vis.add(pv.Panel)
+ //        .top(variableTypeBoxHeight)
+ //        .left(0);
 
-     quantPanel.add(pv.Label)
-        .textAlign('left')
-        .top(padding)
-        .left(indent)
-        .text('Quantile colors')
-        .font("15px helvetica");
+ //     quantPanel.add(pv.Label)
+ //        .textAlign('left')
+ //        .top(padding)
+ //        .left(indent)
+ //        .text('Quantile colors')
+ //        .font("15px helvetica");
 
-     var qrings =  quantPanel.add(pv.Panel)
-        .data(Object.keys(re.plot.colors.quants))
-        .top(function() { return padding + this.index * lineHeight;})
-        .height(lineHeight);
-       qrings.add(pv.Bar)
-        .left(indent)
-        .width(lineHeight)
-        .top(1)
-        .bottom(0)
-        .fillStyle(function(type) { 
-		return re.plot.colors.quants[type];
-	})
-	qrings.add(pv.Label)
-        .text(function(q) { return q + " " + re.plot.colors.quantinfo[q];})
-        .bottom(0)
-        .left(25)
-        .textAlign('left')
-        .textBaseline('bottom')
-        .font("11px helvetica");
+ //     var qrings =  quantPanel.add(pv.Panel)
+ //        .data(Object.keys(re.plot.colors.quants))
+ //        .top(function() { return padding + this.index * lineHeight;})
+ //        .height(lineHeight);
+ //       qrings.add(pv.Bar)
+ //        .left(indent)
+ //        .width(lineHeight)
+ //        .top(1)
+ //        .bottom(0)
+ //        .fillStyle(function(type) { 
+	// 	return re.plot.colors.quants[type];
+	// })
+	// qrings.add(pv.Label)
+ //        .text(function(q) { return q + " " + re.plot.colors.quantinfo[q];})
+ //        .bottom(0)
+ //        .left(25)
+ //        .textAlign('left')
+ //        .textBaseline('bottom')
+        // .font("11px helvetica");
    vis.render();
 }
 
@@ -693,7 +693,7 @@ function singlefeature_circvis(parsed_data,div) {
                 stroke_style :stroke_style,
                 fill_style : function(tick) {return re.plot.colors.node_colors(tick.source); },
                 tooltip_items :  re.display_options.circvis.tooltips.feature,
-                tooltip_links : re.display_options.circvis.tooltips.links
+                tooltip_links : re.display_options.circvis.tooltips.feature_links
             }
         },
         PLOT: {
@@ -746,7 +746,7 @@ function singlefeature_circvis(parsed_data,div) {
                     fill_style  : function(feature) {return pairwise_settings.color_scale(feature[field]); },
                     stroke_style  : function(feature) {return pairwise_settings.color_scale(feature[field]); },
                     tooltip_items : re.display_options.circvis.tooltips.feature,
-                    tooltip_links : re.display_options.circvis.tooltips.links
+                    tooltip_links : re.display_options.circvis.tooltips.feature_links
                 }
             }
         ]
@@ -883,7 +883,7 @@ function wedge_plot(parsed_data,div) {
                 listener : wedge_listener,
                 stroke_style :stroke_style,
                 fill_style : function(tick) {return re.plot.colors.node_colors(tick.source); },
-                tooltip_links :re.display_options.circvis.tooltips.links,
+                tooltip_links :re.display_options.circvis.tooltips.feature_links,
                 tooltip_items :  re.display_options.circvis.tooltips.feature     //optional
             }
         },
@@ -965,7 +965,7 @@ function wedge_plot(parsed_data,div) {
                     return re.plot.colors.link_sources_colors([link.sourceNode.source,link.targetNode.source]);},
                 constant_link_alpha : 0.7,
                 node_tooltip_items :   re.display_options.circvis.tooltips.feature,
-                node_tooltip_links : re.display_options.circvis.tooltips.links,
+                node_tooltip_links : re.display_options.circvis.tooltips.feature_links,
                 tile_nodes: true,
                 node_overlap_distance : 10000,
                 link_tooltip_items :  link_tooltip_items
@@ -1141,7 +1141,7 @@ function linear_plot(obj) {
                     track_stroke_style: pv.color('#000000')
                 },
                 OPTIONS: {
-                   tooltip_links :re.display_options.circvis.tooltips.links,
+                   tooltip_links :re.display_options.circvis.tooltips.feature_links,
                     tooltip_items :  re.display_options.circvis.tooltips.feature     //optional
                 },
                 data_array : locations
@@ -1368,9 +1368,7 @@ function scatterplot_draw(params) {
             fill_style: fill_style_fn,
             stroke_style: stroke_style_fn,
             y_axis_tick_format: function(d) {
-                if (d >= 1000)
-                    return d/1000 + "E3";
-                return d;
+                return d.toPrecision(3);
             }
         }};
         if (isNonLinear(f2label[0])) {
@@ -1424,14 +1422,10 @@ function scatterplot_draw(params) {
             fill_style: fill_style_fn,
             stroke_style: stroke_style_fn,
             x_axis_tick_format: function(d) {
-                if (d >= 1000)
-                    return d/1000 + "E3";
-                return d;
+                return d.toPrecision(3);
             },
             y_axis_tick_format: function(d) {
-                if (d >= 1000)
-                    return d/1000 + "E3";
-                return d;
+                return d.toPrecision(3);
             }
         }};
         if (reverse_axes) {

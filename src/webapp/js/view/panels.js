@@ -327,7 +327,7 @@ re.ui.panels = {
                     title:re.ui.feature2.label,
                     checkboxToggle:false,
                     maskDisabled:true,
-                    collapsed: true,
+                    collapsed: false,
                     collapsible: true,
                     defaults: {
                         anchor:'100%'
@@ -564,58 +564,7 @@ re.ui.panels = {
                     title:'Association',
                     collapsible: true,
                     autoHeight:true,
-                    items: [{
-                        xtype: 'fieldset',
-                          defaults: { anchor:'90%'},
-                        labelWidth:60,
-                        collapsible: true,
-                        autoHeight: true,
-                        labelSeparator: '',
-                        title: 'Distance',
-                        items: [
-                            {
-                            fieldLabel: 'Inter-Chromasomal',
-                            xtype:'compositefield',
-                            items: [{
-                                xtype: 'checkbox',
-                                name: 'cis',
-                                id: 'cis',
-                                boxLabel: 'Cis',
-                                inputValue: 'false',
-                                defaultValue:false,
-                                 listeners: {
-                                     check: function(cb, checked) {
-                                        Ext.getCmp('trans').setDisabled(checked);
-                                        Ext.getCmp('cis_distance').setDisabled(!checked);
-                                    }
-                            }
-                            }, {
-                                xtype: 'checkbox',
-                                id:'trans',
-                                name: 'trans',
-                                boxLabel: 'Trans',
-                                defaultValue:false,
-                                listeners: {
-                                     check: function(cb, checked) {
-                                        Ext.getCmp('cis').setDisabled(checked);
-                                    }
-                                }
-                        }]
-                        }, 
-                        new re.simplerangeField({
-                                id: 'cis_distance',
-                                name: 'cis_distance',
-                                label:'Distance',
-                                disabled: true,
-                                max_value: 3e8,
-                                min_value: 0,
-                                tabIndex: 1,
-                                validateOnBlur: true,
-                                allowDecimals: false,
-                                default_value: '50000'
-                            })
-                        ]
-                    }].concat(
+                    items: [
                     re.model.association.types.filter(function(assoc) {
                         return assoc.ui != undefined && assoc.ui.filter != undefined && assoc.ui.filter.component != undefined;
                     }).map( function (obj) {
@@ -664,6 +613,57 @@ re.ui.panels = {
                         triggerAction : 'all',
                         defaultValue : 200,
                         value : 200
+                    }].concat([{
+                        xtype: 'fieldset',
+                          defaults: { anchor:'90%'},
+                        labelWidth:60,
+                        collapsible: true,
+                        autoHeight: true,
+                        labelSeparator: '',
+                        title: 'Distance',
+                        items: [
+                            {
+                            fieldLabel: 'Inter-Chromosomal',
+                            xtype:'compositefield',
+                            items: [{
+                                xtype: 'checkbox',
+                                name: 'cis',
+                                id: 'cis',
+                                boxLabel: 'Cis',
+                                inputValue: 'false',
+                                defaultValue:false,
+                                 listeners: {
+                                     check: function(cb, checked) {
+                                        Ext.getCmp('trans').setDisabled(checked);
+                                        Ext.getCmp('cis_distance').setDisabled(!checked);
+                                    }
+                            }
+                            }, {
+                                xtype: 'checkbox',
+                                id:'trans',
+                                name: 'trans',
+                                boxLabel: 'Trans',
+                                defaultValue:false,
+                                listeners: {
+                                     check: function(cb, checked) {
+                                        Ext.getCmp('cis').setDisabled(checked);
+                                    }
+                                }
+                        }]
+                        }, 
+                        new re.simplerangeField({
+                                id: 'cis_distance',
+                                name: 'cis_distance',
+                                label:'Distance',
+                                disabled: true,
+                                max_value: 3e8,
+                                min_value: 0,
+                                tabIndex: 1,
+                                validateOnBlur: true,
+                                allowDecimals: false,
+                                default_value: '50000'
+                            })
+                        ]
                     }])
                 }, {
                     xtype:'combo',

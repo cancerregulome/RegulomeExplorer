@@ -373,7 +373,10 @@ function packFilterSelections() {
 
 
 function resetFormPanel() {
-    Ext.getCmp('t_type').reset(), Ext.getCmp('t_label').reset(), Ext.getCmp('t_chr').reset(), Ext.getCmp('t_clin').reset(), Ext.getCmp('t_start').reset(), Ext.getCmp('t_stop').reset(), Ext.getCmp('p_type').reset(), Ext.getCmp('p_label').reset(), Ext.getCmp('p_chr').reset(), Ext.getCmp('p_clin').reset(), Ext.getCmp('p_start').reset(), Ext.getCmp('p_stop').reset(), Ext.getCmp('order').reset(), Ext.getCmp('limit').reset(), Ext.getCmp('filter_type').reset();
+    Ext.getCmp('t_type').reset(), Ext.getCmp('t_label').reset(), Ext.getCmp('t_chr').reset(), Ext.getCmp('t_clin').reset(), Ext.getCmp('t_start').reset(), Ext.getCmp('t_stop').reset(), Ext.getCmp('p_type').reset(), Ext.getCmp('p_label').reset(), Ext.getCmp('p_chr').reset(), Ext.getCmp('p_clin').reset(), Ext.getCmp('p_start').reset(), 
+    Ext.getCmp('p_stop').reset(), Ext.getCmp('order').reset(), Ext.getCmp('limit').reset(), Ext.getCmp('filter_type').reset(),
+    Ext.getCmp('t_pathway').reset(), Ext.getCmp('p_pathway').reset();
+    Ext.getCmp('t_pathway').setVisible(false),Ext.getCmp('p_pathway').setVisible(false),Ext.getCmp('t_clin').setVisible(false),Ext.getCmp('p_clin').setVisible(false);
 
     re.model.association.types.forEach(function(obj) {
         if (Ext.getCmp(obj.id) === undefined) {
@@ -893,25 +896,25 @@ Ext.onReady(function() {
                             dataIndex: 'target_source',
                             groupName: 'Target'
                         }, {
-                            header: "LabelA",
+                            header: "Label",
                             width: 100,
                             id: 'target_label',
                             dataIndex: 'target_label',
                             groupName: 'Target',
                         }, {
-                            header: "ChrA",
+                            header: "Chr",
                             width: 40,
                             id: 'target_chr',
                             dataIndex: 'target_chr',
                             groupName: 'Target'
                         }, {
-                            header: "StartA",
+                            header: "Start",
                             width: 100,
                             id: 'target_start',
                             dataIndex: 'target_start',
                             groupName: 'Target'
                         }, {
-                            header: "StopA",
+                            header: "Stop",
                             width: 100,
                             id: 'target_stop',
                             dataIndex: 'target_stop',
@@ -929,25 +932,25 @@ Ext.onReady(function() {
                             dataIndex: 'source_source',
                             groupName: 'Target'
                         }, {
-                            header: "LabelB",
+                            header: "Label",
                             width: 100,
                             id: 'source_label',
                             dataIndex: 'source_label',
                             groupName: 'Target',
                         }, {
-                            header: "ChrB",
+                            header: "Chr",
                             width: 40,
                             id: 'source_chr',
                             dataIndex: 'source_chr',
                             groupName: 'Target'
                         }, {
-                            header: "StartB",
+                            header: "Start",
                             width: 100,
                             id: 'source_start',
                             dataIndex: 'source_start',
                             groupName: 'Target'
                         }, {
-                            header: "StopB",
+                            header: "Stop",
                             width: 100,
                             id: 'source_stop',
                             dataIndex: 'source_stop',
@@ -1082,23 +1085,7 @@ Ext.onReady(function() {
                         checked: false,
                         group: 'networklayout_group'
                     }]
-                }, {
-                    id: 'fqiMenu',
-                    text: 'Data Ring',
-                    labelStyle: 'font-weight:bold;',
-                    menu: [{
-                        checked: true,
-                        text: 'Dynamic',
-                        xtype: 'menucheckitem',
-                        handler: networkLayoutHandler,
-                        group: 'fqilayout_group'
-                    }, {
-                        text: 'Global/Static',
-                        xtype: 'menucheckitem',
-                        handler: networkLayoutHandler,
-                        checked: false,
-                        group: 'fqilayout_group'
-                    }]
+                }]
                 }, {
                     text: 'Circular Plot',
                     menu: [{
@@ -1226,27 +1213,6 @@ Ext.onReady(function() {
                                 xtype: 'label',
                                 text: 'degrees'
                             }]
-                        }]
-                    }, {
-                        text: 'Rings:',
-                        menu: [{
-                            xtype: 'menucheckitem',
-                            handler: ringHandler,
-                            checked: !re.isRingHidden('karyotype'),
-                            id: 'karyotype',
-                            text: 'Cytogenetic Bands'
-                        }, {
-                            xtype: 'menucheckitem',
-                            handler: ringHandler,
-                            checked: !re.isRingHidden('cnvr'),
-                            id: 'cnvr',
-                            text: 'Somatic Copy Number Alteration'
-                        }, {
-                            xtype: 'menucheckitem',
-                            handler: ringHandler,
-                            checked: !re.isRingHidden('pairwise_scores'),
-                            id: 'pairwise_scores',
-                            text: 'Aggressiveness Scores'
                         }]
                     }]
                 }, {
