@@ -1,0 +1,27 @@
+[build]
+source=TCGA
+afm=/titan/cancerregulome3/TCGA/outputs/kirc/kirc.bigMerge.25jun.tsv
+annotations=na
+quantile_features=CNVR,GEXP,METH
+associations=/titan/cancerregulome3/TCGA/outputs/kirc/keep.pwpvD.short.sort
+afm_description=Kidney Renal
+comment=Kidney
+dataset_label=kirc_31july_pw
+dataset_date=31-07-12
+contact=re@csacr.org
+disease_code=KIRC
+#python bin must be 2.5+ and imported the MySQLDb package
+python_bin=/tools/bin/python2.7
+
+#the directory needs to exist and end in /
+[results]
+path=/local/tcga/re_dbetl/
+
+[dbetl]
+#only supports blank, absolute, negative, negative_log10
+pvalue_transform=negative_log10
+#collapse_edge_directions=1 implies taking the rf-ace higher important (A->B, B->A) set 
+#n/a for pairwise
+collapse_edge_directions=1
+reverse_directions=1
+
