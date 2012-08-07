@@ -441,8 +441,8 @@ function loadListStores(dataset_labels) {
     Ext.StoreMgr.get('f2_pathway_list_store').loadData(pathway_list);
     Ext.StoreMgr.get('categorical_feature_store').loadData(dataset_labels.categorical_features);
 
-    if (re.ui.default_colorby_feature_alias !== undefined) {
-        Ext.getCmp('scatterplot_colorby_combobox').setValue(re.ui.default_colorby_feature_alias);
+    if (re.plot.default_colorby_feature_alias !== undefined) {
+        Ext.getCmp('scatterplot_colorby_combobox').setValue(re.plot.default_colorby_feature_alias);
     }
 
 }

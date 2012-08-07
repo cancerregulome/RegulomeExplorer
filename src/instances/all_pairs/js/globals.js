@@ -259,7 +259,8 @@ vq.utils.VisUtils.extend(re, {
         linear_unit: 100000,
         chrome_length: [],
         legend: {}, 
-        scatterplot_data: null
+        scatterplot_data: null,
+        default_colorby_feature_alias: 'C:SAMP:ssGSEA:::::'
     },
     ui: {
         filters: {
