@@ -1520,6 +1520,7 @@ function populateGraph(obj) {
     var layout =getNetworkLayout();
 
     re.cytoscape.obj.ready(function() {
+        re.cytoscape.obj.initialized = true;
         re.cytoscape.obj.addListener("click", "edges", function(event){
             var data = event.target.data;
             var target = data.target.split(":");

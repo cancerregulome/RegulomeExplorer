@@ -209,6 +209,20 @@ function exportImage() {
     else convertData(svg, 'export.svg', 'svg', this.value);
 }
 
+function exportCytoscape() {
+//    var parent_panel = 'cytoscape-panel';
+    if (re.cytoscape.obj.initialized == null){
+        Ext.Msg.alert("Export error", "Network tab/image is not initialized");
+        return;
+    }
+    var svg = re.cytoscape.obj.svg();
+    if (svg === undefined) {
+        Ext.Msg.alert('SVG does not exist', 'SVG cannot be exported.');;
+        return;
+    }
+    downloadData(svg, "re_cytoscapeweb_" + re.tables.current_data + ".svg", 'svg');
+}
+
 function loadDataDialog() {
     re.windows.dataset_window.show();
     Ext.getCmp('dataset-grid').store.load();
@@ -1034,6 +1048,10 @@ Ext.onReady(function() {
                             value: 'png',
                             handler: exportImage
                         }]
+                    }, {
+                        text: 'Network',
+                        id: 'network-export-menu',
+                        handler: exportCytoscape
                     }]
                 },
                 org.cancerregulome.explorer.utils.GetGoogleDriveMenu()]
