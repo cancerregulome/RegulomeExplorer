@@ -936,7 +936,7 @@ function wedge_plot(parsed_data,div) {
                     draw_axes : false,
                     shape:'dot',
                     fill_style  : function(feature) {
-                        return re.plot.colors.link_sources_colors([feature.sourceNode.source,feature.targetNode.target]);
+                        return re.plot.colors.link_sources_colors([feature.sourceNode.source,feature.targetNode.source]);
                     },
                     stroke_style : stroke_style,
                     background_style: re.display_options.circvis.rings.color_background,

@@ -63,7 +63,10 @@ re.model.association =  {
                         validateOnBlur : true,
                         default_value: 0,
                         min_value: -1,
-                        max_value: 1}
+                        max_value: 1,
+                        defaultValue: 0,
+                        value : 0
+                    }
                 )
 			},
 			grid : {
