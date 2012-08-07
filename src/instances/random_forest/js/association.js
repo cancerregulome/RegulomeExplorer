@@ -54,13 +54,17 @@ re.model.association =  {
 			label : 'Correlation',
 			ui : {
 			filter : { 
-				 					component:   new re.multirangeField(
-                                                {   id:'correlation',
-                                                    label: 'Correlation',
-                                                    default_value: 0,
-                                                    min_value: -1,
-                                                    max_value: 1}
-                                            )
+			 		component:   new re.multirangeField(
+                    {   id:'correlation',
+                        label: 'Correlation',
+                        decimalPrecision : 3,
+                        emptyText : 'Input value...',
+                        invalidText:'This value is not valid.',
+                        validateOnBlur : true,
+                        default_value: 0,
+                        min_value: -1,
+                        max_value: 1}
+                )
 			},
 			grid : {
 				column : { header: "Correlation", width:50, id:'correlation',dataIndex:'correlation'},
