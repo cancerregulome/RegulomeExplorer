@@ -564,12 +564,12 @@ re.ui.panels = {
                     title:'Association',
                     collapsible: true,
                     autoHeight:true,
-                    items: [
+                    items: 
                     re.model.association.types.filter(function(assoc) {
                         return assoc.ui != undefined && assoc.ui.filter != undefined && assoc.ui.filter.component != undefined;
                     }).map( function (obj) {
                         return obj.ui.filter.component;
-                    })).concat([{
+                    }).concat([{
                         xtype: 'combo',
                         name: 'order',
                         id: 'order',
@@ -613,11 +613,12 @@ re.ui.panels = {
                         triggerAction : 'all',
                         defaultValue : 200,
                         value : 200
-                    }].concat([{
+                    }]).concat([{
                         xtype: 'fieldset',
                           defaults: { anchor:'90%'},
                         labelWidth:60,
                         collapsible: true,
+                        collapsed: true,
                         autoHeight: true,
                         labelSeparator: '',
                         title: 'Distance',
@@ -636,9 +637,9 @@ re.ui.panels = {
                                      check: function(cb, checked) {
                                         Ext.getCmp('trans').setDisabled(checked);
                                         Ext.getCmp('cis_distance').setDisabled(!checked);
+                                        }
                                     }
-                            }
-                            }, {
+                                }, {
                                 xtype: 'checkbox',
                                 id:'trans',
                                 name: 'trans',
@@ -647,10 +648,10 @@ re.ui.panels = {
                                 listeners: {
                                      check: function(cb, checked) {
                                         Ext.getCmp('cis').setDisabled(checked);
+                                        }
                                     }
-                                }
-                        }]
-                        }, 
+                                }]
+                            }, 
                         new re.simplerangeField({
                                 id: 'cis_distance',
                                 name: 'cis_distance',

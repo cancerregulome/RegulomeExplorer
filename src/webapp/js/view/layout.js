@@ -1085,7 +1085,6 @@ Ext.onReady(function() {
                         checked: false,
                         group: 'networklayout_group'
                     }]
-                }]
                 }, {
                     text: 'Circular Plot',
                     menu: [{
