@@ -417,13 +417,19 @@ function loadNetworkDataSingleFeature(params) {
 
     var query_obj = {
         order: params['order'],
-        limit: (parseInt(params['limit']) / feature_types.length) + ''
+        limit: Math.ceil((parseInt(params['limit']) / feature_types.length)) + ''
     };
-    re.model.association.types.forEach(function(obj) {
-        query_obj[obj.query.id] = params[obj.query.id];
-        if (obj.ui.filter.component instanceof re.multirangeField) {
-            query_obj[obj.query.id + '_fn'] = params[obj.query.id + '_fn']
+
+      re.model.association.types.forEach(function(obj) {
+        if (Ext.getCmp(obj.id) === undefined) {
+            return;
         }
+        if (obj.ui.filter.component instanceof re.multirangeField) {
+            query_obj[obj.id + '_value']  = Ext.getCmp(obj.id + '_value').getValue();
+            query_obj[obj.id + '_fn'] = Ext.getCmp(obj.id + '_fn').getValue();
+        } else{
+        query_obj[obj.id] = Ext.getCmp(obj.id).getValue();
+    }
     });
 
     feature_types.forEach(function(f) {
