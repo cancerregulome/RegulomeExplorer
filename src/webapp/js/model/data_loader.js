@@ -85,7 +85,6 @@ function generateNetworkDefinition(responses) {
             }
             obj[assoc.ui.grid.store_index] = row[assoc.query.id];
         });
-	//obj["link_distance"] = row["link_distance"];
         return obj;
     });
 

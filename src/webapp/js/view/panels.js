@@ -143,7 +143,7 @@ re.ui.panels = {
                             select: function(field,record, index) {
                                 switch(record.id)  {
                                 case('CLIN'):
-                                    Ext.getCmp('f1_label_comp').setVisible(false);
+                                    Ext.getCmp('t_label').setVisible(false);
                                     Ext.getCmp('t_clin').setVisible(true);
                                     Ext.getCmp('t_pathway').setVisible(false);
                                     break;
@@ -152,7 +152,7 @@ re.ui.panels = {
                                     Ext.getCmp('t_pathway').setVisible(true);
                                     break;
                                 default:
-                                    Ext.getCmp('f1_label_comp').setVisible(true);
+                                    Ext.getCmp('t_label').setVisible(true);
                                     Ext.getCmp('t_clin').setVisible(false);
                                     Ext.getCmp('t_pathway').setVisible(false);
                                 }
@@ -209,17 +209,12 @@ re.ui.panels = {
                                 Ext.getCmp("pathway_member_panel").setTitle(url + " " + memberDataArray.length + " Genes");
                             }
                         }
-                    }, {
-                        xtype:'compositefield',
-                        fieldLabel:'Label',
-                        id:'f1_label_comp',
-                        items: [{
+                 },{
                             xtype:'textfield',
                             name:'t_label',
                             id:'t_label',
                             emptyText : 'Input Label...',
                             tabIndex: 1,
-                            // width:80,
                             selectOnFocus:true,
                             fieldLabel:'Label',
                             defaultValue : '',
@@ -230,18 +225,6 @@ re.ui.panels = {
                                         Ext.getCmp("filter_type").setValue(re.ui.feature1.id);
                                 }
                             }
-                        // }, {
-                        //     xtype:'button',
-                        //     id:'t_lookup_button',
-                        //     text:'Lookup',
-                        //     width:50,
-                        //     handler:function(evt) {
-                        //         var label = Ext.getCmp('t_label').getValue();
-                        //         if (label.length > 0) {
-                        //             vq.events.Dispatcher.dispatch(new vq.events.Event('data_request','label_position',{ui:'f1',label:label}));
-                        //         }
-                        //     }
-                        }]
                     }, {
                         name:'t_clin',
                         mode:'local',
@@ -289,38 +272,40 @@ re.ui.panels = {
                         emptyText : 'Select Chr...',
                         defaultValue:'*',
                         value : '*'
-                    }, {
-                        xtype : 'numberfield',
-                        id:'t_start',
-                        name :'t_start',
-                        allowNegative: false,
-                        decimalPrecision : 0,
-                        emptyText : 'Input value...',
-                        invalidText:'This value is not valid.',
-                        maxValue: 250999999,
-                        minValue:1,
+                     }, {
+                        xtype:'compositefield',
+                        fieldLabel:'Position',
+                        defaults:{labelWidth:0,width:80,anchor:'100%'},
+                        items:[{ 
+                            xtype : 'numberfield',
+                            id:'t_start',
+                            name :'t_start',
+                            allowNegative: false,
+                            decimalPrecision : 0,
+                            emptyText : 'Start >=',
+                            invalidText:'This value is not valid.',
+                            maxValue: 250999999,
+                            minValue:1,
+                            tabIndex : 1,
+                            validateOnBlur : true,
+                            allowDecimals : false,
+                            defaultValue : '',
+                        },{
+                            xtype : 'numberfield',
+                            id:'t_stop',
+                            name :'t_stop',
+                            allowNegative: false,
+                            decimalPrecision : 0,
+                            emptyText : 'Stop <=',
+                            invalidText:'This value is not valid.',
+                            maxValue: 250999999,
+                            minValue:1,
                         tabIndex : 1,
                         validateOnBlur : true,
-                        allowDecimals : false,
-                        fieldLabel : 'Start >=',
-                        defaultValue : '',
-                        value : ''
-                    }, {
-                        xtype : 'numberfield',
-                        id:'t_stop',
-                        name :'t_stop',
-                        allowNegative: false,
-                        decimalPrecision : 0,
-                        emptyText : 'Input value...',
-                        invalidText:'This value is not valid.',
-                        maxValue: 250999999,
-                        minValue:1,
-                        tabIndex : 1,
-                        validateOnBlur : true,
-                        allowDecimals : false,
-                        fieldLabel : 'Stop <=',
-                        defaultValue : '',
-                        value : ''
+                            allowDecimals : false,
+                            defaultValue : '',
+                            value : ''
+                        }]
                     }]
                 }, {
                     xtype:'fieldset',
@@ -374,7 +359,7 @@ re.ui.panels = {
                             select : function(field,record, index) {
                                 switch(record.id)  {
                                 case('CLIN'):
-                                    Ext.getCmp('f2_label_comp').setVisible(false);
+                                    Ext.getCmp('p_label').setVisible(false);
                                     Ext.getCmp('p_clin').setVisible(true);
                                     Ext.getCmp('p_pathway').setVisible(false);
                                     break;
@@ -383,7 +368,7 @@ re.ui.panels = {
                                     Ext.getCmp('p_pathway').setVisible(true);
                                     break;
                                 default:
-                                    Ext.getCmp('f2_label_comp').setVisible(true);
+                                    Ext.getCmp('p_label').setVisible(true);
                                     Ext.getCmp('p_clin').setVisible(false);
                                     Ext.getCmp('p_pathway').setVisible(false);
                                 }
@@ -439,17 +424,12 @@ re.ui.panels = {
                                 Ext.getCmp("pathway_member_panel").setTitle(url + memberDataArray.length + " Genes");
                             }
                         }
-                    }, {
-                        xtype:'compositefield',
-                        fieldLabel:'Label',
-                        id:'f2_label_comp',
-                        items:[{
+                    }, {                      
                             xtype:'textfield',
                             name:'p_label',
                             id:'p_label',
                             emptyText : 'Input Label...',
                             tabIndex: 1,
-                            // width:80,
                             selectOnFocus:true,
                             fieldLabel:'Label',
                             defaultValue : '',
@@ -460,20 +440,6 @@ re.ui.panels = {
                                         Ext.getCmp("filter_type").setValue(re.ui.feature2.id);
                                 }
                             }
-                        // }, {
-                        //     xtype:'button',
-                        //     text:'Lookup',
-                        //     width:50,
-                        //     handler:function(evt) {
-                        //         var label = Ext.getCmp('p_label').getValue();
-                        //         if (label.length > 0) {
-                        //             vq.events.Dispatcher.dispatch(new vq.events.Event('data_request', 'label_position', {
-                        //                 ui:'f2',
-                        //                 label:label
-                        //             }));
-                        //         }
-                        //     }
-                        }]
                     }, {
                         mode:'local',
                         name:'p_clin',
@@ -522,37 +488,39 @@ re.ui.panels = {
                         defaultValue : '*',
                         value : '*'
                     }, {
-                        xtype : 'numberfield',
-                        id:'p_start',
-                        name :'p_start',
-                        allowNegative: false,
-                        decimalPrecision : 0,
-                        emptyText : 'Input value...',
-                        invalidText:'This value is not valid.',
-                        maxValue: 250999999,
-                        minValue:1,
+                        xtype:'compositefield',
+                        fieldLabel:'Position',
+                        defaults:{labelWidth:0,width:80,anchor:'100%'},
+                        items:[{ 
+                            xtype : 'numberfield',
+                            id:'p_start',
+                            name :'p_start',
+                            allowNegative: false,
+                            decimalPrecision : 0,
+                            emptyText : 'Start >=',
+                            invalidText:'This value is not valid.',
+                            maxValue: 250999999,
+                            minValue:1,
+                            tabIndex : 1,
+                            validateOnBlur : true,
+                            allowDecimals : false,
+                            defaultValue : '',
+                        },{
+                            xtype : 'numberfield',
+                            id:'p_stop',
+                            name :'p_stop',
+                            allowNegative: false,
+                            decimalPrecision : 0,
+                            emptyText : 'Stop <=',
+                            invalidText:'This value is not valid.',
+                            maxValue: 250999999,
+                            minValue:1,
                         tabIndex : 1,
                         validateOnBlur : true,
-                        allowDecimals : false,
-                        fieldLabel : 'Start >=',
-                        defaultValue : '',
-                        value : ''
-                    }, {
-                        xtype : 'numberfield',
-                        id:'p_stop',
-                        name :'p_stop',
-                        allowNegative: false,
-                        decimalPrecision : 0,
-                        emptyText : 'Input value...',
-                        invalidText:'This value is not valid.',
-                        maxValue: 250999999,
-                        minValue:1,
-                        tabIndex : 1,
-                        validateOnBlur : true,
-                        allowDecimals : false,
-                        fieldLabel : 'Stop <=',
-                        defaultValue : '',
-                        value : ''
+                            allowDecimals : false,
+                            defaultValue : '',
+                            value : ''
+                        }]
                     }
                     ]
                 }, {
