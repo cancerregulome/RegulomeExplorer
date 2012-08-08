@@ -1,25 +1,31 @@
+#drwxrwsr-x. 2 erkkila2 csbgroup 4.0K Jul  9 13:59 .
+#-rwxr-x---. 1 erkkila2 csbgroup 1.5G Jul  9 14:00 coadread.merge.12apr.rnaseq.276.hg18Plus.rface
+#
 [build]
 source=TCGA
 afm=/titan/cancerregulome3/TCGA/outputs/kirc/kirc.bigMerge.25jun.tsv
 annotations=na
 quantile_features=CNVR,GEXP,METH
 associations=/titan/cancerregulome3/TCGA/outputs/kirc/keep.pwpvD.short.sort
-afm_description=Kidney Renal
-comment=Kidney
+#/home/csbgroup/re_data/tcga/coadread.nov10/coadread.nov10.trimmed.rface
+#/home/csbgroup/re_data/tcga/crc/coadread.nov10.associations.filtered.rface
+afm_description=Kidney Renal AllPairs 
+comment=
 dataset_label=kirc_31july_pw
 dataset_date=31-07-12
 contact=re@csacr.org
 disease_code=KIRC
 #python bin must be 2.5+ and imported the MySQLDb package
-python_bin=/tools/bin/python2.7
+python_bin=python
 
 #the directory needs to exist and end in /
 [results]
-path=/local/tcga/re_dbetl/
+path=/home/csbgroup/public_html/RE/dataimport/results/
+#/proj/ilyalab/jlin/load_associations/dataimport_meta/python/results/
 
 [dbetl]
 #only supports blank, absolute, negative, negative_log10
-pvalue_transform=negative_log10
+pvalue_transform=absolute
 #collapse_edge_directions=1 implies taking the rf-ace higher important (A->B, B->A) set 
 #n/a for pairwise
 collapse_edge_directions=1
