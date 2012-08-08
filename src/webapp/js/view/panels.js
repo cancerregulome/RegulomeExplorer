@@ -62,18 +62,6 @@ re.ui.panels = {
                     disabled: false,
                     listeners: {
                         click: function(button, e) {
-                            // if f1 has a label value and f1 is a list
-                            if (Ext.getCmp('t_label').getValue() != null && Ext.getCmp('t_label').getValue().indexOf(",") > -1) {
-                                //set filter type to feature 1, assign pathway, expand panel
-                                Ext.getCmp("filter_type").setValue(re.ui.feature1.id);
-                                re.ui.setCurrentPathwayMembers(Ext.getCmp('t_label').getValue());
-                                Ext.getCmp('pathway_member_panel').expand();
-                            // or if f2 has a lavel value and f2 is a list
-                            } else if (Ext.getCmp('p_label').getValue() != null && Ext.getCmp('p_label').getValue().indexOf(",") > -1) {
-                                Ext.getCmp("filter_type").setValue(re.ui.feature2.id);
-                                re.ui.setCurrentPathwayMembers(Ext.getCmp('p_label').getValue());
-                                Ext.getCmp('pathway_member_panel').expand();
-                            }
                             manualFilterRequest();
                         }
                     }
