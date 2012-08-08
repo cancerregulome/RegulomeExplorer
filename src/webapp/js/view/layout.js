@@ -391,6 +391,7 @@ function resetFormPanel() {
             Ext.getCmp(obj.id + '_fn').reset();
         }
     });
+    Ext.getCmp("pathway_member_panel").setTitle("Pathways/Groupings");
 }
 
 function updateFilterPanel() {
@@ -1706,7 +1707,7 @@ re.windows.details_window = new Ext.Window({
             layout: 'anchor',
             margins: '3 0 3 3',
             height: 500,
-            width: 600,
+            width: 660,
             frame: true,
             items: [{
                 xtype: 'panel',

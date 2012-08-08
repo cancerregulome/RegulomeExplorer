@@ -1350,10 +1350,10 @@ function scatterplot_draw(params) {
         sp = new vq.ViolinPlot();
         config ={DATATYPE : "vq.models.ViolinPlotData", CONTENTS : {
             PLOT : {container: div,
-                width : 600,
+                width : 540,
                 height: 300,
                 vertical_padding : 40,
-                horizontal_padding: 40,
+                horizontal_padding: 60,
                 font :"14px sans"},
             data_array: data_array,
             xcolumnid: f1,
@@ -1367,6 +1367,9 @@ function scatterplot_draw(params) {
             regression :regression_type,
             fill_style: fill_style_fn,
             stroke_style: stroke_style_fn,
+            x_axis_tick_format: function(d) {
+                return isNaN(parseFloat(d)) ? d : d.toPrecision(3);
+            },
             y_axis_tick_format: function(d) {
                 return d.toPrecision(3);
             }
@@ -1380,9 +1383,9 @@ function scatterplot_draw(params) {
         sp = new vq.CubbyHole();
         config ={DATATYPE : "vq.models.CubbyHoleData", CONTENTS : {
             PLOT : {container: div,
-                width : 600,
+                width : 540,
                 height: 300,
-                vertical_padding : 40, horizontal_padding: 40, font :"14px sans"},
+                vertical_padding : 40, horizontal_padding: 60, font :"14px sans"},
             data_array: data_array,
             xcolumnid: f1,
             ycolumnid: f2,
@@ -1394,7 +1397,13 @@ function scatterplot_draw(params) {
             show_points : true,
             radial_interval : 7,
             fill_style: fill_style_fn,
-            stroke_style: stroke_style_fn
+            stroke_style: stroke_style_fn,  
+            x_axis_tick_format: function(d) {
+                return isNaN(parseFloat(d)) ? d : d.toPrecision(3);
+            },
+            y_axis_tick_format: function(d) {
+                return isNaN(parseFloat(d)) ? d : d.toPrecision(3);
+            }
         }};
         if (reverse_axes) {
             reverseAxes();
@@ -1406,9 +1415,9 @@ function scatterplot_draw(params) {
 
         config ={DATATYPE : "vq.models.ScatterPlotData", CONTENTS : {
             PLOT : {container: div,
-                width : 600,
+                width : 540,
                 height: 300,
-                vertical_padding : 40, horizontal_padding: 40, font :"14px sans"},
+                vertical_padding : 40, horizontal_padding: 60, font :"14px sans"},
             data_array: data_array,
             xcolumnid: f1,
             ycolumnid: f2,
