@@ -136,6 +136,7 @@ re.ui.panels = {
                                     Ext.getCmp('t_pathway').setVisible(false);
                                     break;
                                 case('Pathway'):
+                                    Ext.getCmp('t_label').setVisible(true);                                  
                                     Ext.getCmp('t_clin').setVisible(false);
                                     Ext.getCmp('t_pathway').setVisible(true);
                                     break;
@@ -352,6 +353,7 @@ re.ui.panels = {
                                     Ext.getCmp('p_pathway').setVisible(false);
                                     break;
                                 case('Pathway'):
+                                    Ext.getCmp('p_label').setVisible(false);
                                     Ext.getCmp('p_clin').setVisible(false);
                                     Ext.getCmp('p_pathway').setVisible(true);
                                     break;
