@@ -170,17 +170,16 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 	efshout.write("\nEOFMYSQL")
 	efshout.close()
 	if (do_pubcrawl == 1 and db_util.getDoSmtp() == 'yes'):
-		smtp.main("jlin@systemsbiology.net", contacts, "Notification - New Pairwise Associations for PubCrawl", "New pairwise associations ready for PubCrawl load\n" + edges_out_pc.name + "\n\n" + str(pcc) + " Total Edges\n\n" + edges_out_re.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "_pw \n\n")
+		smtp.main("jlin@systemsbiology.net", db_util.getPubcrawlContact(config), "Notification - New Pairwise Associations for PubCrawl", "New pairwise associations ready for PubCrawl load\n" + edges_out_pc.name + "\n\n" + str(pcc) + " Total Edges\n\n" + edges_out_re.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "_pw \n\n")
 	#return efshout
 	os.system("sh " + efshout.name)
 	if (db_util.getDoSmtp(config) == 'yes'):
-		smtp.main("jlin@systemsbiology.net", notify, "Notification - New Pairwise Associations loaded for All Pairs Significance Test", "New pairwise associations loaded into All Pairs Significance Test for " + pw_label + "\n\n" + str(totalEdges) + " Total Edges\n\nFeature matrix file:" + feature_matrix + "\nPairwise associations file:" + associations + "\n")
+		smtp.main("jlin@systemsbiology.net", db_util.getNotify(config), "Notification - New Pairwise Associations loaded for All Pairs Significance Test", "New pairwise associations loaded into All Pairs Significance Test for " + pw_label + "\n\n" + str(totalEdges) + " Total Edges\n\nFeature matrix file:" + feature_matrix + "\nPairwise associations file:" + associations + "\n")
 
 def main(dataset_label, feature_matrix, associations, pvalueRepresentation, configfile, resultsPath):
 	print "\n in parse_pairwise : dataset_label = <%s> \n" % dataset_label
 	config = db_util.getConfig(configfile)
 	#results_path = db_util.getResultsPath(config)
-	notify = db_util.getNotify(config)
 	#if (not os.path.exists(results_path + "/" + dataset_label)):
 	#	os.mkdir(results_path + "/" + dataset_label)
 	print "Done with processing features, processing pairwise edges %s " %(time.ctime())
