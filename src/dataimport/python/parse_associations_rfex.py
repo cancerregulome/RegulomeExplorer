@@ -19,8 +19,6 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 	mypw = db_util.getDBPassword(config) 
 	myhost = db_util.getDBHost(config) 
 	myport = db_util.getDBPort(config)
-	imp_cutoff = db_util.getImportanceCutoff(config)
-	#results_path = db_util.getResultsPath(config)
 	contacts = db_util.getNotify(config) 
 	pubcrawl_contacts = db_util.getPubcrawlContact(config) 
 	if (not os.path.isfile(associationsfile)):
@@ -32,9 +30,9 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 	associations_in = open(associationsfile,'r')
 	annotation_hash, ftype = parse_features_rfex.process_feature_annotations(annotations)
 	fshout = open(results_path + 'load_sql_associations_' + dataset_label + '.sh','w')
-	if (not os.path.exists(results_path + dataset_label)):
-		os.mkdir(results_path + dataset_label)
-	unmappedPath = results_path  + dataset_label + '/edges_out_' + dataset_label + '_rface_unmapped.tsv'
+	#if (not os.path.exists(results_path + dataset_label)):
+	#	os.mkdir(results_path + dataset_label)
+	unmappedPath = results_path  + 'edges_out_' + dataset_label + '_rface_unmapped.tsv'
 	unmappedout = open(unmappedPath,'w')
 	features_file = open(results_path + dataset_label + '_features_out.tsv','r')
 	features_hash = {}
@@ -50,8 +48,8 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 		aliasid_hash[ftk[0]] = ftk
 	aliasid_file.close()	
 	
-	tsvout = open(results_path + dataset_label + '/edges_out_' + dataset_label + '_rface_re.tsv','w')
-	pubcrawl_tsvout = open(results_path + dataset_label + '/edges_out_' + dataset_label + '_rface_pc.tsv','w')
+	tsvout = open(results_path + 'edges_out_' + dataset_label + '_rface_re.tsv','w')
+	pubcrawl_tsvout = open(results_path + 'edges_out_' + dataset_label + '_rface_pc.tsv','w')
 	lc = 0
 	edgeCount = 0
 	pcc = 0
@@ -133,8 +131,7 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 			f2id = aliasid_hash[f2alias][1]
 			f2aliasOmic = aliasid_hash[f2alias][2]
 			f2data = f2aliasOmic.split(':')
-			f2data[3] = f2data[3][3:]
-			
+			f2data[3] = f2data[3][3:]			
 
 		f1qtinfo = ""
 		if (features_hash.get(f1alias) != None and len(features_hash.get(f1alias)) >= 14 ):

@@ -29,8 +29,8 @@ def getConfig(path):
 	config.read(path)
 	return config
 
-def getCancerTypes(config):
-	return config.get("cancer_types", "list").split(',')
+#def getCancerTypes(config):
+#	return config.get("cancer_types", "list").split(',')
 
 def getCursor(config):
 	conn = MySQLdb.connect (host = getDBHost(config),
@@ -55,20 +55,19 @@ def getDBUser(config):
 def getDBPassword(config):
 	return config.get("mysql_configs", "password")
 
-def getResultsPath(config):
-	return config.get("results", "path")
-
+"""
 def getImportanceCutoff(config):
 	return config.getfloat("cutoff", "importance")
 
 def getLoggedPVCutoff(config):
 	return config.getint("cutoff", "loggedpvalue")
+"""
 
 def getDoSmtp(config):
-	return config.get("results", "dosmtp")
+	return config.get("notification", "dosmtp")
 
 def getNotify(config):
-	return config.get("results", "notify").split(',')
+	return config.get("notification", "notify").split(',')
 
 def getDoPubcrawl(config):
 	return config.get("pubcrawl", "dopubcrawl")
@@ -191,15 +190,3 @@ if __name__ == "__main__":
 	configfile = sys.argv[1]
 	config = getConfig(configfile) #config.read(configfile)
 	#executeSelect(config, "select * from tcga.regulome_explorer_dataset")	
-	"""
-	myhost = config.get("mysql_configs", "host")
-	myport = int(config.get("mysql_configs", "port"))
-	mydb = config.get("mysql_configs", "db")
-	myuser = config.get("mysql_configs", "username")
-	mypw = config.get("mysql_configs", "password")
-	cancer_type_list = config.get("cancer_types", "list").split(",")
-	results_path = config.get("results", "path")
-	notify = config.get("results", "notify").split(',')
-	dosmtp = config.get("results", "dosmtp")
-	pubcrawlContact = config.get("results", "pubcrawl_contact").split(',')
-	"""

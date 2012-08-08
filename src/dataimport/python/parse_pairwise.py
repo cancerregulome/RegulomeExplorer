@@ -20,7 +20,7 @@ def process_feature_alias(alias):
 		data[3] = data[3][3:]
 	return data
 
-def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, config):
+def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, config, results_path):
 	"""
 	Include edges where nodes are in original set, direction does not matter so do not populate edge if A->B if B->A are in hash
 	Expected tab delimited columns are nodeA nodeB pvalue correlation numNonNA	
@@ -34,19 +34,18 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 	myhost = db_util.getDBHost(config)
 	myport = db_util.getDBPort(config)
 	do_pubcrawl = db_util.getDoPubcrawl(config)
-	results_path = db_util.getResultsPath(config)
+	#results_path = db_util.getResultsPath(config)
 	edges_file = open(pairwised_file)
 	#annotation_hash = parse_features_rfex.process_feature_matrix(dataset_label, matrixfile, 0, config, annotations)
 	print "\nBegin processing pairwise edges\n\n"
 	edge_table = mydb + ".mv_" + dataset_label + "_feature_networks" 
-        efshout = open('./results/load_edges_' + dataset_label + '.sh','w')
-        edges_out_re = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_re.tsv','w')
-	edges_out_pc = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_pc.tsv','w')
-	edges_meta_json = open(results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_meta.json','w')
-	unmappedPath = results_path + '/' + dataset_label + '/edges_out_' + dataset_label + '_pw_unmapped.tsv'
+        efshout = open(results_path + 'load_edges_' + dataset_label + '.sh','w')
+        edges_out_re = open(results_path + 'edges_out_' + dataset_label + '_pw_re.tsv','w')
+	edges_out_pc = open(results_path + 'edges_out_' + dataset_label + '_pw_pc.tsv','w')
+	edges_meta_json = open(results_path + 'edges_out_' + dataset_label + '_meta.json','w')
+	unmappedPath = results_path + 'edges_out_' + dataset_label + '_pw_unmapped.tsv'
 	unmappedout = open(unmappedPath,'w')
-
-	features_file = open(results_path + "/" + dataset_label + '_features_out.tsv','r')
+	features_file = open(results_path + dataset_label + '_features_out.tsv','r')
 	features_hash = {}
 	for fl in features_file.readlines():
 		ftk = fl.strip().split("\t")
@@ -68,8 +67,8 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 			if (validEdgeId == 1):
 				print "Skipping header/line 1 for insufficient token reasons"
 				continue
-			print "Fatal ERROR: requires 11 tokens, found:" + str(len(tokens)) + " and it's not the first line\n" + line
-			sys.exit(1)
+			print "ERROR: requires 11 tokens, found:" + str(len(tokens)) + " Skipping line\n" + line
+			continue
 		nodeA = tokens[0]
 		nodeB = tokens[1]
 		#let's ignore annotations for all pairs for now
@@ -177,13 +176,13 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 	if (db_util.getDoSmtp(config) == 'yes'):
 		smtp.main("jlin@systemsbiology.net", notify, "Notification - New Pairwise Associations loaded for All Pairs Significance Test", "New pairwise associations loaded into All Pairs Significance Test for " + pw_label + "\n\n" + str(totalEdges) + " Total Edges\n\nFeature matrix file:" + feature_matrix + "\nPairwise associations file:" + associations + "\n")
 
-def main(dataset_label, feature_matrix, associations, pvalueRepresentation, configfile):
+def main(dataset_label, feature_matrix, associations, pvalueRepresentation, configfile, resultsPath):
 	print "\n in parse_pairwise : dataset_label = <%s> \n" % dataset_label
 	config = db_util.getConfig(configfile)
-	results_path = db_util.getResultsPath(config)
+	#results_path = db_util.getResultsPath(config)
 	notify = db_util.getNotify(config)
-	if (not os.path.exists(results_path + "/" + dataset_label)):
-		os.mkdir(results_path + "/" + dataset_label)
+	#if (not os.path.exists(results_path + "/" + dataset_label)):
+	#	os.mkdir(results_path + "/" + dataset_label)
 	print "Done with processing features, processing pairwise edges %s " %(time.ctime())
 	pvlambda = db_util.reflective
 	if (pvalueRepresentation == "negative"):
@@ -192,15 +191,15 @@ def main(dataset_label, feature_matrix, associations, pvalueRepresentation, conf
                 pvlambda = db_util.negative_log10
 	elif (pvalueRepresentation == "absolute"):
                 pvlambda = db_util.absolute
-	process_pairwise_edges(dataset_label, feature_matrix, associations, pvlambda, config)
+	process_pairwise_edges(dataset_label, feature_matrix, associations, pvlambda, config, resultsPath)
 	print "Done with processing pairwise edges %s " %(time.ctime())
 
 if __name__ == "__main__":
 	print "Parsing features kicked off %s" %time.ctime()
-	if (len(sys.argv) < 6):
-        	print 'Usage is py2.6 parse_pairwise.py feature_matrix.tsv edges_matrix.tsv  dataset_label pvlambda configfile'
+	if (len(sys.argv) < 7):
+        	print 'Usage is py2.6 parse_pairwise.py feature_matrix.tsv edges_matrix.tsv  dataset_label pvlambda configfile resultsPath'
         	sys.exit(1)
 	annotations = ""
 	dataset_label = sys.argv[3]
-	main(dataset_label, sys.argv[1], sys.argv[2], sys.argv[4], sys.argv[5])
+	main(dataset_label, sys.argv[1], sys.argv[2], sys.argv[4], sys.argv[5], sys.argv[6])
 
