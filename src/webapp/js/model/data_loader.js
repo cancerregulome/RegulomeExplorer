@@ -106,9 +106,7 @@ function parseNetwork(responses) {
     }
 
     var parsed_data = {network : null,unlocated : null, features : null,unlocated_features:null,located_features:null};
-    var timer = new vq.utils.SyncDatasources(400,40,loadComplete,parsed_data,loadFailed);
-    timer.start_poll();
-
+   
     var whole_net = responses.map(function(row) {
             var node1 = row.alias1.split(':');
             var node2 = row.alias2.split(':');
@@ -161,6 +159,8 @@ function parseNetwork(responses) {
     parsed_data['located_features'] = vq.utils.VisUtils.clone(features).filter(function(feature) {
         return feature.chr !='';
     });
+
+    loadComplete();
 }
 
 

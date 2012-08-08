@@ -36,15 +36,9 @@ def addDataset(label, feature_matrix, associations, method, source, description,
 	inputfiles = "{matrix:"+feature_matrix+",associations:"+associations+"}"
 	currentDate = time.strftime("%m-%d-%y")
 	config = db_util.getConfig(configfile)
-	#results_path = db_util.getResultsPath(config)
 	max_logpv = -1.0
-	#contact = "re@csacr.org"
-	#if (label.find('gbm') != -1):
-	#	contact = "Brady Bernard bbernard@systemsbiology.org"
-	#if (label.find('coad') != -1):
-	#	contact = "Vesteinn Thorsson vthorsson@systemsbiology.org"
-	if (os.path.exists(results_path + label + '/edges_out_' + label + '_meta.json')):
-		meta_json_file = open(results_path + label + '/edges_out_' + label + '_meta.json','r')
+	if (os.path.exists(results_path + 'edges_out_' + label + '_meta.json')):
+		meta_json_file = open(results_path + 'edges_out_' + label + '_meta.json','r')
 		metaline = meta_json_file.read()
 		if (len(metaline) > 1):
 			try:

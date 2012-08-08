@@ -1,3 +1,5 @@
+
+
 function errorInQuery(response) {
     return !!~response.indexOf('status:\'error\'');
 }

@@ -17,14 +17,15 @@ def executeSchema(schemafile_path, config):
 	print "Running system call %s" %(cmd)
 	os.system(cmd)	
 
-def updateFromTemplate(label, template, configfile):
+def updateFromTemplate(label, template, configfile, resultsPath):
 	template_file = open(template)
 	schema_out_name = template_file.name.replace('template', label)
 	schema_out_name = schema_out_name.replace('sql', "sql_processing", 1)
-	sql_processing_dir = "/".join(schema_out_name.split("/")[:-1])
+	sql_processing_dir = resultsPath + "/sql_processing"
 	if (not os.path.exists(sql_processing_dir)):
-	        os.system(sql_processing_dir)	
-	#print "schema_out_name " + schema_out_name + " label " + label
+	        os.system("mkdir " + sql_processing_dir)
+		os.system("chmod 777 " + sql_processing_dir)		
+	schema_out_name = sql_processing_dir + "/" + schema_out_name.split("/")[-1]
 	schema_file = open(schema_out_name,'w')
 	config = db_util.getConfig(configfile)
 	schema_file.write("use %s;\n" %(db_util.getDBSchema(config)))
@@ -37,11 +38,12 @@ def updateFromTemplate(label, template, configfile):
 
 
 if __name__ == "__main__":
-	if (len(sys.argv) != 4):
-		print 'Proper usage is python createSchemaFromTemplate.py schema_label schema_sql_template_file configfile'	
+	if (len(sys.argv) != 5):
+		print 'Proper usage is python createSchemaFromTemplate.py schema_label schema_sql_template_file configfile intermediateResultsPath'	
 	label = sys.argv[1]
 	template = sys.argv[2]
 	configfile = sys.argv[3]
-	updateFromTemplate(label, template, configfile)
+	resultsPath = sys.argv[4]
+	updateFromTemplate(label, template, configfile, resultsPath)
 
 

@@ -330,7 +330,9 @@ function getFilterSelections() {
             Ext.getCmp('cis').checked,
             Ext.getCmp('trans').checked,
             Ext.getCmp('cis_distance_value').getValue(),
-            Ext.getCmp('cis_distance_fn').getValue()
+            Ext.getCmp('cis_distance_fn').getValue(),
+            Ext.getCmp('t_pathway').getValue(),
+            Ext.getCmp('p_pathway').getValue()
         );
 }
 
@@ -342,11 +344,13 @@ function packFilterSelections() {
         t_chr: arguments[2] || '',
         t_start: arguments[3] || '',
         t_stop: arguments[4] || '',
+        t_pathway: arguments[18] || '',
         p_type: arguments[5] || '',
         p_label: arguments[6] || '',
         p_chr: arguments[7] || '',
         p_start: arguments[8] || '',
         p_stop: arguments[9] || '',
+        p_pathway: arguments[19] || '',
         order: arguments[10],
         limit: arguments[11],
         filter_type: arguments[12],
@@ -441,8 +445,8 @@ function loadListStores(dataset_labels) {
     Ext.StoreMgr.get('f2_pathway_list_store').loadData(pathway_list);
     Ext.StoreMgr.get('categorical_feature_store').loadData(dataset_labels.categorical_features);
 
-    if (re.ui.default_colorby_feature_alias !== undefined) {
-        Ext.getCmp('scatterplot_colorby_combobox').setValue(re.ui.default_colorby_feature_alias);
+    if (re.plot.default_colorby_feature_alias !== undefined) {
+        Ext.getCmp('scatterplot_colorby_combobox').setValue(re.plot.default_colorby_feature_alias);
     }
 
 }

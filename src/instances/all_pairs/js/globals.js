@@ -177,13 +177,13 @@ vq.utils.VisUtils.extend(re, {
                             Ext.Ajax.request({url:re.node.uri + re.node.services.lookup+'/'+feature.label,success:entrezHandler, failure: lookupFailed});
 
                         function lookupFailed() {
-                            var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
+                            var node = selector('')[0];
                               node.setAttribute('href','http://www.ncbi.nlm.nih.gov/gene?term='+feature.label);
                         }
 
                         function entrezHandler(response) {
                             var gene,entrez;
-                            var node = re.display_options.circvis.tooltips.link_objects[3].selector('')[0];
+                            var node = selector('')[0];
                             try {
                                 gene = Ext.decode(response.responseText);
                                 entrez = gene[Object.keys(gene)[0]];
@@ -204,8 +204,8 @@ vq.utils.VisUtils.extend(re, {
                 }
                    ],
                 //link_objects
-                edge_links: {},
-                feature_links : {}
+                edge_links: new Object(null),
+                feature_links : new Object(null)
             },
             ticks: {
                 tick_overlap_distance: null,
@@ -259,7 +259,8 @@ vq.utils.VisUtils.extend(re, {
         linear_unit: 100000,
         chrome_length: [],
         legend: {}, 
-        scatterplot_data: null
+        scatterplot_data: null,
+        default_colorby_feature_alias: 'C:SAMP:ssGSEA:::::'
     },
     ui: {
         filters: {

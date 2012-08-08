@@ -2,101 +2,62 @@ import os
 import sys
 import time
 import ConfigParser
+import process_meta_config
 
-def getPythonBin(config):
-        return config.get("build", "python_bin")
 
-def getFeatureAnnotations(config):
-	return config.get("build", "annotations")
-
-def getAssociations(config):
-	return config.get("build", "associations")
-
-def getAfm(config):
-	return config.get("build", "afm")
-
-def getAfmDescription(config):
-	return config.get("build", "afm_description")
-
-def getBuildComment(config):
-        return config.get("build", "comment")
-
-def getDatasetLabel(config):
-	return config.get("build", "dataset_label")
-
-def getDatasetDate(config):
-        return config.get("build", "dataset_date")
-
-def getResultsDir(config):
-	return config.get("results", "path")
-
-def getQuantileFeatures(config):
-	return config.get("build", "quantile_features")
-
-def getSource(config):
-	return config.get("build", "source")
-
-def getContact(config):
-	return config.get("build", "contact")
-
-def getDiseaseCode(config):
-	return config.get("build", "disease_code")
-
-#dbetl configs
-def getPValueTransform(config):
-	return config.get("dbetl", "pvalue_transform") 
-
-def getCollapseEdgeDirection(config):
-	return config.get("dbetl", "collapse_edge_directions")
-
-def getReverseDirection(config):
-	return config.get("dbetl", "reverse_directions")
-
-#lambda function for pvalue transform
-#pv_neglog10_lamba
-
-def buildMeta(metaf, config_file=""):
+def buildMeta(meta_file, config_file=""):
 	if (config_file == ""):
 		config_file = "../config/rfex_sql.config"
-	config = ConfigParser.RawConfigParser()
-        config.read(metaf)	
-	source = getSource(config)
-	afm = getAfm(config)
-	associations = getAssociations(config)
-	annotations = getFeatureAnnotations(config)
-	quantileFeatures = getQuantileFeatures(config)
-	dslabel = getDatasetLabel(config)
-	comment = getBuildComment(config)
-	description = getAfmDescription(config)
-	collapseDirection = getCollapseEdgeDirection(config)
-	pvalueRepresentation = getPValueTransform(config)
-	resultsPath = getResultsDir(config)
-	dsdate = getDatasetDate(config)
-        diseaseCode = getDiseaseCode(config)
-        contact = getContact(config)
-	python_bin = getPythonBin(config) 
-
-	print "starting dataimport %s \nlabel %s afm %s annotations %s associations %s collapse_direction %s" %(time.ctime(), dslabel, afm, annotations, associations, collapseDirection)
+	config = process_meta_config.loadMetaConfig(meta_file)	
+	source = process_meta_config.getSource(config)
+	afm = process_meta_config.getAfm(config)
+	associations = process_meta_config.getAssociations(config)
+	annotations = process_meta_config.getFeatureAnnotations(config)
+	quantileFeatures = process_meta_config.getQuantileFeatures(config)
+	dslabel = process_meta_config.getDatasetLabel(config)
+	comment = process_meta_config.getBuildComment(config)
+	description = process_meta_config.getAfmDescription(config)
+	pvalueRepresentation = process_meta_config.getPValueTransform(config)
+	resultsPath = process_meta_config.getResultsDir(config)
+	dsdate = process_meta_config.getDatasetDate(config)
+        diseaseCode = process_meta_config.getDiseaseCode(config)
+        contact = process_meta_config.getContact(config)
+	python_bin = process_meta_config.getPythonBin(config) 
+	slash = "/"
+	if (resultsPath[-1] == "/"):
+		slash = ""
+	if (not os.path.exists(resultsPath)):                  
+		os.system("mkdir " + resultsPath)
+		os.system("chmod 777 " + resultsPath)
+	if (not os.path.exists(resultsPath + slash + dslabel)):
+		os.system("mkdir " + resultsPath + slash + dslabel)
+		os.system("chmod 777 " + resultsPath + slash + dslabel)
+	resultsPath = resultsPath + dslabel
+	if (resultsPath[-1] != "/"):
+		resultsPath = resultsPath + "/"
+	print "Starting pairwise dataimport %s \nlabel %s afm %s annotations %s associations %s" %(time.ctime(), dslabel, afm, annotations, associations)
 	util_cmd = python_bin + " db_util.py " + config_file
 	os.system(util_cmd)
 	#create re schema for dataset label
-	reschema_cmd = python_bin + " createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_re_template.sql " + config_file
+	reschema_cmd = python_bin + " createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_re_template.sql " + config_file + " " + resultsPath
+	print "\nCreating RE schema " + reschema_cmd
 	os.system(reschema_cmd)	
 	#process afm with optional annotations, groupings
 	process_afm_cmd	= python_bin + " parse_features_rfex.py %s %s %s %s %s %s" %(afm, dslabel, config_file, annotations, quantileFeatures, resultsPath)
+	print "\nProcessing feature matrix " + process_afm_cmd + " " + time.ctime()        
 	os.system(process_afm_cmd)
+	
 	#method specific schema 
-	rf_schema_cmd = python_bin + " createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_pairwise_template.sql " + config_file
+	rf_schema_cmd = python_bin + " createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_pairwise_template.sql " + config_file + " " + resultsPath
 	os.system(rf_schema_cmd)	
 	#process associations
-	collapseDirection = getCollapseEdgeDirection(config)
-	reverseDirection = getReverseDirection(config)
-	process_pairwise_associations_cmd = python_bin + " parse_pairwise.py %s %s %s %s %s" %(afm, associations, dslabel, pvalueRepresentation, config_file)
-	print process_pairwise_associations_cmd
+	process_pairwise_associations_cmd = python_bin + " parse_pairwise.py %s %s %s %s %s %s" %(afm, associations, dslabel, pvalueRepresentation, config_file, resultsPath)
+	print "\nProcessing pairwise associations " + process_pairwise_associations_cmd + " " + time.ctime()
 	os.system(process_pairwise_associations_cmd)
 	update_re_store_cmd = python_bin + ' update_rgex_dataset.py %s %s %s %s "%s" "%s" "%s" %s %s %s %s %s' %(dslabel, afm, associations, 'pairwise', source, description, comment, config_file, resultsPath, dsdate, diseaseCode, contact)
+	print "\nRegistering dataset " + update_re_store_cmd
 	os.system(update_re_store_cmd) 		
-	print "completed dataimport %s \nlabel %s afm %s annotations %s associations %s" %(time.ctime(), dslabel, afm, annotations, associations)
+	print "Completed dataimport %s \nlabel %s afm %s annotations %s associations %s" %(time.ctime(), dslabel, afm, annotations, associations)
 
 if __name__ == "__main__":
 	errmsg = "Parameter Error: Data import requires a directory containing a META file"

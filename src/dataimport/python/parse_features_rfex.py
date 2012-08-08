@@ -18,20 +18,21 @@ sample_table = ""
 if (not os.path.exists("./results")):
 	os.system("mkdir results")
 
+#not being used right now
 def populate_sample_meta(sampleList, config):
 	"""
 	sampleList needs to be a list of patients
 	"""
 	global dataset_label
 	labelTokens = dataset_label.split("_")
-	cancer_type = ""
+	cancer_type = labelTokens[0]
 	clabel = ""
-	for label in labelTokens:
-		for ct in db_util.getCancerTypes(config):
-			if (label == ct):
-				cancer_type = cancer_type + label + "_"	
-	cancer_type = cancer_type[0:-1]
-	clabel = dataset_label[len(cancer_type)+1:len(dataset_label)]			
+	#for label in labelTokens:
+	#	for ct in db_util.getCancerTypes(config):
+	#		if (label == ct):
+	#			cancer_type = cancer_type + label + "_"	
+	#cancer_type = cancer_type[labelTokens[0]]
+	#clabel = dataset_label[len(cancer_type)+1:len(dataset_label)]			
 	samColIndex = 0
 	for sam in sampleList:
 		#REPLACE INTO `tcga`.`SampleMeta` (sample_key,cancer_type,dataset_label,matrix_col_offset,meta_json) VALUES ('a' /*not nullable*/,'s' /*not nullable*/,'s' /*not nullable*/,0,'s');		
@@ -110,8 +111,9 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 		gene_interesting_score = ""
 		if (featureId == 0):                
                 	sampleIds = ":".join(tokens[0:len(tokens)-1])
-			if (persist_sample_meta == 1):
-				populate_sample_meta(sampleIds.split(":"), config)				
+			#not part of core function in RE import pipeline
+			#if (persist_sample_meta == 1):
+			#	populate_sample_meta(sampleIds.split(":"), config)				
 			sampleOutfile.write(sampleIds + "\n");
 			featureId += 1
 			continue
@@ -212,7 +214,7 @@ def getGeneInterestScore(featureStr):
 	global gene_interesting_hash
 	return gene_interesting_hash.get(featureStr)
  
-def process_gexp_interest_score(interest_score_file, configfile):
+def process_gexp_interest_score(resultsPath, interest_score_file, configfile):
 	"""
 	Requires valid full path gexp_interest file, extend this to accept other feature specific values, but schema needs to be defined
 	"""
@@ -225,8 +227,8 @@ def process_gexp_interest_score(interest_score_file, configfile):
         myport = db_util.getDBPort(config)
         print "Begin processing feature specific values %s" %(time.ctime())
 	gexp_interesting_file = open(interest_score_file)
-        gexp_sh = open('./results/load_gexp_interesting_' + dataset_label + '.sh','w')
-        gexp_sql = open('./results/gexp_interesting_score_' + dataset_label + '.sql','w')
+        gexp_sh = open(resultsPath + 'load_gexp_interesting_' + dataset_label + '.sh','w')
+        gexp_sql = open(resultsPath + 'gexp_interesting_score_' + dataset_label + '.sql','w')
 	for line in gexp_interesting_file:
                 tokens = line.strip().split("\t")
                 gene_interesting_hash[tokens[0]] = tokens[1]
