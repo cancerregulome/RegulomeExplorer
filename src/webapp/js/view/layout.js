@@ -745,13 +745,6 @@ function registerAllListeners() {
     registerPlotListeners();
 }
 
-function addTooltip(value, metadata, record, rowIndex, colIndex, store){
-    var txt = getGeneName.getValue(value);
-    metadata.attr = 'ext:qtip="' + txt +  '"';
-    return value;
-}
-
-
 Ext.onReady(function() {
     Ext.QuickTips.init();
 
