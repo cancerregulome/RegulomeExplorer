@@ -716,7 +716,7 @@ function singlefeature_circvis(parsed_data,div) {
                     type :   'karyotype'
                 },
                 DATA:{
-                    data_array : cytoband || []
+                    data_array : cytoband
                 },
                 OPTIONS: {
                     legend_label : 'Cytogenetic Bands' ,
