@@ -482,6 +482,7 @@ function loadNetworkDataByFeature(params) {
             return;
         }
     }
+    //some lists have empty labels.
     labels =  labels.filter(function(l) { return l!= null && l!='';})
     labels.forEach(function(label) {
         params[feature + '_label'] = label;
@@ -557,13 +558,16 @@ function loadUndirectedNetworkDataByAssociation(params) {
             throwQueryError('associations', response);
         }
 
-        if (responses.length == 2) {
+        if (responses.length == 1) { flipQuery(); }
+        else if (responses.length == 2) {
             responses = pv.blend(responses);
             if (responses.length < 1) {
                 noResults('associations');
             } else {
                 loadComplete();
             }
+        } else {
+            return;
         }
     }
 
@@ -583,12 +587,14 @@ function loadUndirectedNetworkDataByAssociation(params) {
 
     requestWithRetry(association_query,handleNetworkQuery,'associations',1);
 
-    var flip_params = flipParams(params);
-    re.state.network_query = buildGQLQuery(flip_params);
-    association_query_str = '?' + re.params.query + re.state.network_query + re.params.json_out;
-    association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
+    function flipQuery() {
+        var flip_params = flipParams(params);
+        re.state.network_query = buildGQLQuery(flip_params);
+        association_query_str = '?' + re.params.query + re.state.network_query + re.params.json_out;
+        association_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.network_uri + re.rest.query + association_query_str;
 
     requestWithRetry(association_query,handleNetworkQuery,'associations',1);
+    }
 }
 
 function queryFailed(data_type, response) {
@@ -600,10 +606,11 @@ function queryFailed(data_type, response) {
 }
 
 function requestWithRetry(query, handler, failed_type, times) {
+    var that = this;
     var repeat = times > -1 ? times : 1;
     var requestRetry = function() { 
-        var q = query, h=handler, f=failed_type, r = repeat-1;
-        requestWithRetry.call(q, h, f, r);
+        var q = query, h=handler, f=failed_type, r = repeat;
+        requestWithRetry.call(that,q, h, f, r);
     }
 
     Ext.Ajax.request({
