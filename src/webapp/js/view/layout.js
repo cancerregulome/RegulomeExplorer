@@ -305,20 +305,28 @@ function requestFilteredData() {
 
 function getFilterSelections() {
     var type_1 = Ext.getCmp('t_type').getValue();
-    var label_1;
+    //clean out pathway value if not the selected type
+    var label_1,pathway_1='';
     switch (type_1) {
         case ('CLIN'):
             label_1 = Ext.getCmp('t_clin').getValue();
             break;
+             case ('PATH'):
+             pathway_1 = Ext.getCmp('t_pathway').getValue();
+             break;
         default:
             label_1 = Ext.getCmp('t_label').getValue();
+
     }
     var type_2 = Ext.getCmp('p_type').getValue();
-    var label_2;
+    var label_2,pathway_2='';
     switch (type_2) {
         case ('CLIN'):
             label_2 = Ext.getCmp('p_clin').getValue();
             break;
+            case ('PATH'):
+             pathway_2 = Ext.getCmp('p_pathway').getValue();
+             break;
         default:
             label_2 = Ext.getCmp('p_label').getValue();
     }
@@ -331,8 +339,8 @@ function getFilterSelections() {
             Ext.getCmp('trans').checked,
             Ext.getCmp('cis_distance_value').getValue(),
             Ext.getCmp('cis_distance_fn').getValue(),
-            Ext.getCmp('t_pathway').getValue(),
-            Ext.getCmp('p_pathway').getValue()
+            pathway_1,
+            pathway_2
         );
 }
 
