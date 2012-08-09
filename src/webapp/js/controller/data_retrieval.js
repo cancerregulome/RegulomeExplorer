@@ -482,7 +482,7 @@ function loadNetworkDataByFeature(params) {
             return;
         }
     }
-
+    labels =  labels.filter(function(l) { return l!= null && l!='';})
     labels.forEach(function(label) {
         params[feature + '_label'] = label;
         var network_query = buildGQLQuery(params);
