@@ -1691,7 +1691,7 @@ re.windows.details_window = new Ext.Window({
     modal: false,
     closeAction: 'hide',
     layout: 'fit',
-    width: 600,
+    width: 800,
     height: 530,
     constrain: true,
     title: "Details",
