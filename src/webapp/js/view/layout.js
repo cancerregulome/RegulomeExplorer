@@ -46,6 +46,7 @@ function registerLayoutListeners() {
     });
     d.addListener('render_complete', 'linear', function(obj) {
         exposeLinearPlot(obj);
+        enableLinearExport();
     });
     d.addListener('render_complete', 'scatterplot', function(obj) {
         scatterplot_obj = obj;
@@ -704,6 +705,10 @@ function renderTitle(value, p, record) {
 
 /*clean divs*/
 
+function enableLinearExport() {
+    Ext.getCmp('linear-export-menu').setDisabled(false);
+}
+
 function prepareVisPanels() {
     re.windows.masks.network_mask = new Ext.LoadMask('view-region', {
         msg: "Loading Data...",
@@ -1062,6 +1067,7 @@ Ext.onReady(function() {
                     }, {
                         text: 'Linear',
                         id: 'linear-export-menu',
+                        disabled:true,
                         menu: [{
                             text: 'SVG',
                             value: 'svg',
@@ -1632,7 +1638,7 @@ var datasetGrid = new Ext.grid.GridPanel({
         modal: true,
         closeAction: 'hide',
         layout:'fit',
-        width: 700,
+        width: 800,
         height: 300,
         title: "Load Dataset",
         closable: true,
