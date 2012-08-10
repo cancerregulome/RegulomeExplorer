@@ -2,6 +2,7 @@ import smtplib
 from email.MIMEText import MIMEText
 
 def sendMail(frome, to, subject, text):
+	print "sending dataimport notification from %s to %s" %(frome, to)
 	try:
 		msg = MIMEText(text, 'plain')
 		msg['Subject'] = subject
@@ -18,4 +19,4 @@ def main(frome, to, subject, text):
 
 if __name__ == "__main__":
 	to = ['jlin@systemsbiology.org']
-	main("jlin@systemsbiology.net", "jlin212@gmail.com", "my subject", "full text message")
+	main("jlin@systemsbiology.net", "jlin212@gmail.com", "RE Dataimport Notification", "full text message")
