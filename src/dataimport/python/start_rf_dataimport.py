@@ -54,7 +54,7 @@ def buildMeta(meta_file, config_file):
 	rf_schema_cmd = python_bin + " createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_rface_template.sql " + config_file + " " + resultsPath
 	os.system(rf_schema_cmd)	
 	#process associations
-	process_rf_associations_cmd = python_bin + " parse_associations_rfex.py %s %s %s %s %s %s %s %s %s" %(afm, associations, dslabel, config_file, annotations, collapseDirection, reverseDirection, resultsPath, pvalueRepresentation)
+	process_rf_associations_cmd = python_bin + " parse_associations_rfex.py %s %s %s %s %s %s %s %s %s %s %s %s" %(afm, associations, dslabel, config_file, annotations, collapseDirection, reverseDirection, resultsPath, pvalueRepresentation ,process_meta_config.getDoPubcrawl(config), process_meta_config.getNotify(config), process_meta_config.getKeepUnmapped(config))
 	print "\nProcessing RF-ACE associations " + process_rf_associations_cmd + " " + time.ctime()
 	os.system(process_rf_associations_cmd)
 	update_re_store_cmd = python_bin + ' update_rgex_dataset.py %s %s %s %s "%s" "%s" "%s" %s %s %s %s %s' %(dslabel, afm, associations, 'RF-ACE', source, description, comment, config_file, resultsPath, dsdate, diseaseCode, contact)

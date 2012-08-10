@@ -20,7 +20,7 @@ def process_feature_alias(alias):
 		data[3] = data[3][3:]
 	return data
 
-def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, config, results_path):
+def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, config, results_path, do_pubcrawl, contacts, keep_unmapped):
 	"""
 	Include edges where nodes are in original set, direction does not matter so do not populate edge if A->B if B->A are in hash
 	Expected tab delimited columns are nodeA nodeB pvalue correlation numNonNA	
@@ -33,10 +33,7 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 	mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
 	myhost = db_util.getDBHost(config)
 	myport = db_util.getDBPort(config)
-	do_pubcrawl = db_util.getDoPubcrawl(config)
-	#results_path = db_util.getResultsPath(config)
 	edges_file = open(pairwised_file)
-	#annotation_hash = parse_features_rfex.process_feature_matrix(dataset_label, matrixfile, 0, config, annotations)
 	print "\nBegin processing pairwise edges\n\n"
 	edge_table = mydb + ".mv_" + dataset_label + "_feature_networks" 
         efshout = open(results_path + 'load_edges_' + dataset_label + '.sh','w')
@@ -87,7 +84,7 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 				continue
 			nodeB = annotated_feature.replace("\t", ":")
 		"""
-		if (db_util.isUnmappedAssociation(nodeA, nodeB)):
+		if (db_util.isUnmappedAssociation(nodeA, nodeB) and keep_unmapped == 0):
 	                unmappedout.write(nodeA + "\t" + nodeB + "\n")
         	        unMapped += 1
                 	continue
@@ -169,14 +166,12 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 	efshout.write("\ncommit;")
 	efshout.write("\nEOFMYSQL")
 	efshout.close()
-	if (do_pubcrawl == 1 and db_util.getDoSmtp() == 'yes'):
-		smtp.main("jlin@systemsbiology.net", db_util.getPubcrawlContact(config), "Notification - New Pairwise Associations for PubCrawl", "New pairwise associations ready for PubCrawl load\n" + edges_out_pc.name + "\n\n" + str(pcc) + " Total Edges\n\n" + edges_out_re.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "_pw \n\n")
-	#return efshout
 	os.system("sh " + efshout.name)
-	if (db_util.getDoSmtp(config) == 'yes'):
-		smtp.main("jlin@systemsbiology.net", db_util.getNotify(config), "Notification - New Pairwise Associations loaded for All Pairs Significance Test", "New pairwise associations loaded into All Pairs Significance Test for " + pw_label + "\n\n" + str(totalEdges) + " Total Edges\n\nFeature matrix file:" + feature_matrix + "\nPairwise associations file:" + associations + "\n")
+	if (do_pubcrawl == "yes"):
+		print "senting Pubcrawl notification to " + contacts
+		smtp.main("re@systemsbiology.org", contacts, "Notification - New Pairwise Associations for PubCrawl", "New pairwise associations ready for PubCrawl load\n" + edges_out_pc.name + "\n\n" + str(pcc) + " Total Edges\n\n" + edges_out_re.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + " \n\n")
 
-def main(dataset_label, feature_matrix, associations, pvalueRepresentation, configfile, resultsPath):
+def main(dataset_label, feature_matrix, associations, pvalueRepresentation, configfile, resultsPath, doPubcrawl, contacts, keep_unmapped):
 	print "\n in parse_pairwise : dataset_label = <%s> \n" % dataset_label
 	config = db_util.getConfig(configfile)
 	#results_path = db_util.getResultsPath(config)
@@ -190,15 +185,15 @@ def main(dataset_label, feature_matrix, associations, pvalueRepresentation, conf
                 pvlambda = db_util.negative_log10
 	elif (pvalueRepresentation == "absolute"):
                 pvlambda = db_util.absolute
-	process_pairwise_edges(dataset_label, feature_matrix, associations, pvlambda, config, resultsPath)
+	process_pairwise_edges(dataset_label, feature_matrix, associations, pvlambda, config, resultsPath, doPubcrawl,  contacts, int(keep_unmapped))
 	print "Done with processing pairwise edges %s " %(time.ctime())
 
 if __name__ == "__main__":
 	print "Parsing features kicked off %s" %time.ctime()
-	if (len(sys.argv) < 7):
-        	print 'Usage is py2.6 parse_pairwise.py feature_matrix.tsv edges_matrix.tsv  dataset_label pvlambda configfile resultsPath'
+	if (len(sys.argv) < 10):
+        	print 'Usage is py2.6 parse_pairwise.py feature_matrix.tsv edges_matrix.tsv  dataset_label pvlambda configfile resultsPath doPubcrawl contacts keep_unmapped'
         	sys.exit(1)
 	annotations = ""
 	dataset_label = sys.argv[3]
-	main(dataset_label, sys.argv[1], sys.argv[2], sys.argv[4], sys.argv[5], sys.argv[6])
+	main(dataset_label, sys.argv[1], sys.argv[2], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7],sys.argv[8], sys.argv[9])
 

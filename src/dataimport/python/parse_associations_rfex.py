@@ -13,25 +13,20 @@ import ConfigParser
 import smtp
 import getRFACEInfo
 
-def process_associations_rfex(dataset_label, matrixfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path, pv_lambda):
+def process_associations_rfex(dataset_label, matrixfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path, pv_lambda, do_pubcrawl, contacts, keep_unmapped):
 	mydb = db_util.getDBSchema(config) 
 	myuser = db_util.getDBUser(config) 
 	mypw = db_util.getDBPassword(config) 
 	myhost = db_util.getDBHost(config) 
 	myport = db_util.getDBPort(config)
-	contacts = db_util.getNotify(config) 
-	pubcrawl_contacts = db_util.getPubcrawlContact(config) 
 	if (not os.path.isfile(associationsfile)):
 		print associationsfile + " does not exist; unrecoverable ERROR"
 		sys.exit(-1)
 	associations_table = mydb + ".mv_" + dataset_label + "_feature_networks"
-	do_pubcrawl = db_util.getDoPubcrawl(config)
 	print "Begin processing associations %s Applying processing_pubcrawl %s" %(time.ctime(), do_pubcrawl)
 	associations_in = open(associationsfile,'r')
 	annotation_hash, ftype = parse_features_rfex.process_feature_annotations(annotations)
 	fshout = open(results_path + 'load_sql_associations_' + dataset_label + '.sh','w')
-	#if (not os.path.exists(results_path + dataset_label)):
-	#	os.mkdir(results_path + dataset_label)
 	unmappedPath = results_path  + 'edges_out_' + dataset_label + '_rface_unmapped.tsv'
 	unmappedout = open(unmappedPath,'w')
 	features_file = open(results_path + dataset_label + '_features_out.tsv','r')
@@ -145,7 +140,7 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 		importance = columns[3]
 		correlation = columns[4]
 		patientct = columns[5]
-		if (db_util.isUnmappedAssociation(f1alias, f2alias)):
+		if (db_util.isUnmappedAssociation(f1alias, f2alias) and keep_unmapped == 0):
 			unmappedout.write(f1alias + "\t" + f2alias + "\n")
 			unMapped += 1
 			continue	
@@ -192,14 +187,12 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 	print "\nReport: ValidEdges %i ImportanceCutoff %i edges filtered %i \nunMapped Edges %i Saved to %s" %(len(associations_dic), impCut, pvalueCutCount, unMapped, unmappedPath)
 	print "Begin bulk upload %s os.system sh %s" %(time.ctime(), fshout.name)
 	os.system("sh " + fshout.name)
-	if (do_pubcrawl == 'yes' and db_util.getDoSmtp(config) == 'yes'):
-		smtp.main("jlin@systemsbiology.net", pubcrawl_contacts, "Notification - New RFAce " + dataset_label + " Associations for PubCrawl", "New RFAce associations ready for PubCrawl load\n" + pubcrawl_tsvout.name + "\n" + str(pcc) + " Total Edges\n" + tsvout.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "\n\n")
+	if (do_pubcrawl == 'yes'):
+		smtp.main("re@systemsbiology.net", contacts, "Notification - New RFAce " + dataset_label + " Associations for PubCrawl", "New RFAce associations ready for PubCrawl load\n" + pubcrawl_tsvout.name + "\n" + str(pcc) + " Total Edges\n" + tsvout.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "\n\n")
 	print "Done processing associations %s" %(time.ctime())
-	if (db_util.getDoSmtp(config) == 'yes'):
-		smtp.main("jlin@systemsbiology.net", contacts, "Notification - New RFAce " + dataset_label + " Associations Loaded for RegulomeExplorer", "New RFAce associations loaded for dataset " + dataset_label + "\n\nFeature matrix:" + matrixfile + "\nRF Associations:" + associationsfile + "\n\nParsed associations for db:" + tsvout.name + "\n\n" + str(pcc) + " Total Parsed Associations loaded\n" + str(unMapped) + " Total Unmapped Edges saved here:" + unmappedout.name)
 	associations_dic = None
 
-def main(dataset_label, featuresfile, associationsfile, configfile, annotations, collapse_direction, reverse_direction, results_path, pvalueRepresentation):
+def main(dataset_label, featuresfile, associationsfile, configfile, annotations, collapse_direction, reverse_direction, results_path, pvalueRepresentation, do_pubcrawl, contacts, keep_unmapped):
 	print "\n in parse_associations_rfex : dataset_label = <%s> \n" % dataset_label
 	notify = db_util.getNotify(config)
 	pvlambda = db_util.reflective
@@ -210,13 +203,13 @@ def main(dataset_label, featuresfile, associationsfile, configfile, annotations,
 	elif (pvalueRepresentation == "absolute"):
 		pvlambda = db_util.absolute
 
-	process_associations_rfex(dataset_label, featuresfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path, pvlambda)
+	process_associations_rfex(dataset_label, featuresfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path, pvlambda, do_pubcrawl, contacts, int(keep_unmapped))
 
 
 if __name__ == "__main__":
 	print "Parsing features kicked off %s" %time.ctime()
-	if (len(sys.argv) < 10):
-		print 'ERROR: Usage is py2.6 parse_associations_rfex.py feature_matrix.tsv edges_matrix.tsv  dataset_label configfile annotationsFile doCollapseEdges doReverse resultsPath pvalueRepresentation'
+	if (len(sys.argv) < 13):
+		print 'ERROR: Usage is python2.5+ parse_associations_rfex.py feature_matrix.tsv edges_matrix.tsv  dataset_label configfile annotationsFile doCollapseEdges doReverse resultsPath pvalueRepresentation doPubcrawl pubcrawlContact keepUnmapped'
 		sys.exit(1)
 	insert_features = 0
 	args = sys.argv
@@ -233,6 +226,6 @@ if __name__ == "__main__":
 	if (not os.path.isfile(associationsfile)):
         	print associationsfile + " does not exist; unrecoverable ERROR"
 		sys.exit(-1)
-	main(dataset_label, matrixfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path, pvalueRep)
+	main(dataset_label, matrixfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path, pvalueRep, args[10], args[11], args[12])
 
 

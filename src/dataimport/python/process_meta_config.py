@@ -57,6 +57,22 @@ def getCollapseEdgeDirection(config):
 def getReverseDirection(config):
         return config.get("dbetl", "reverse_directions")
 
+def getKeepUnmapped(config):
+        return config.get("dbetl", "keep_unmapped_associations")
+
+def getNotify(config):
+	notification_str = config.get("pubcrawl", "notify")
+	if (notification_str.find(",") != -1):
+        	return notification_str.split(',')
+	return notification_str
+
+def getDoPubcrawl(config):
+        return config.get("pubcrawl", "dopubcrawl")
+
+#use Notify
+#def getPubcrawlContact(config):
+#        return config.get("pubcrawl", "pubcrawl_contact").split(',')
+
 def main(metafile):
 	meta_config = loadMetaConfig(metafile)	
 

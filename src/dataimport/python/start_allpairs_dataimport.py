@@ -4,10 +4,65 @@ import time
 import ConfigParser
 import process_meta_config
 
+"""
+def getPythonBin(config):
+        return config.get("build", "python_bin")
+
+def getFeatureAnnotations(config):
+	return config.get("build", "annotations")
+
+def getAssociations(config):
+	return config.get("build", "associations")
+
+def getAfm(config):
+	return config.get("build", "afm")
+
+def getAfmDescription(config):
+	return config.get("build", "afm_description")
+
+def getBuildComment(config):
+        return config.get("build", "comment")
+
+def getDatasetLabel(config):
+	return config.get("build", "dataset_label")
+
+def getDatasetDate(config):
+        return config.get("build", "dataset_date")
+
+def getResultsDir(config):
+	return config.get("results", "path")
+
+def getQuantileFeatures(config):
+	return config.get("build", "quantile_features")
+
+def getSource(config):
+	return config.get("build", "source")
+
+def getContact(config):
+	return config.get("build", "contact")
+
+def getDiseaseCode(config):
+	return config.get("build", "disease_code")
+
+#dbetl configs
+def getPValueTransform(config):
+	return config.get("dbetl", "pvalue_transform") 
+
+def getCollapseEdgeDirection(config):
+	return config.get("dbetl", "collapse_edge_directions")
+
+def getReverseDirection(config):
+	return config.get("dbetl", "reverse_directions")
+
+#lambda function for pvalue transform
+#pv_neglog10_lamba
+"""
 
 def buildMeta(meta_file, config_file=""):
 	if (config_file == ""):
 		config_file = "../config/rfex_sql.config"
+	#config = ConfigParser.RawConfigParser()
+        #config.read(metaf)
 	config = process_meta_config.loadMetaConfig(meta_file)	
 	source = process_meta_config.getSource(config)
 	afm = process_meta_config.getAfm(config)
@@ -17,6 +72,7 @@ def buildMeta(meta_file, config_file=""):
 	dslabel = process_meta_config.getDatasetLabel(config)
 	comment = process_meta_config.getBuildComment(config)
 	description = process_meta_config.getAfmDescription(config)
+	#collapseDirection = getCollapseEdgeDirection(config)
 	pvalueRepresentation = process_meta_config.getPValueTransform(config)
 	resultsPath = process_meta_config.getResultsDir(config)
 	dsdate = process_meta_config.getDatasetDate(config)
@@ -51,7 +107,7 @@ def buildMeta(meta_file, config_file=""):
 	rf_schema_cmd = python_bin + " createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_pairwise_template.sql " + config_file + " " + resultsPath
 	os.system(rf_schema_cmd)	
 	#process associations
-	process_pairwise_associations_cmd = python_bin + " parse_pairwise.py %s %s %s %s %s %s" %(afm, associations, dslabel, pvalueRepresentation, config_file, resultsPath)
+	process_pairwise_associations_cmd = python_bin + " parse_pairwise.py %s %s %s %s %s %s %s %s %s" %(afm, associations, dslabel, pvalueRepresentation, config_file, resultsPath, process_meta_config.getDoPubcrawl(config), process_meta_config.getNotify(config), process_meta_config.getKeepUnmapped(config))
 	print "\nProcessing pairwise associations " + process_pairwise_associations_cmd + " " + time.ctime()
 	os.system(process_pairwise_associations_cmd)
 	update_re_store_cmd = python_bin + ' update_rgex_dataset.py %s %s %s %s "%s" "%s" "%s" %s %s %s %s %s' %(dslabel, afm, associations, 'pairwise', source, description, comment, config_file, resultsPath, dsdate, diseaseCode, contact)

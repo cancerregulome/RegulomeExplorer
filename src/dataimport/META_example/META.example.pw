@@ -30,4 +30,9 @@ pvalue_transform=absolute
 #n/a for pairwise
 collapse_edge_directions=1
 reverse_directions=1
+keep_unmapped_associations=1
 
+#ISB specific - requires smtp python module
+#[pubcrawl]
+dopubcrawl=no
+notify=re@systemsbiology.org
