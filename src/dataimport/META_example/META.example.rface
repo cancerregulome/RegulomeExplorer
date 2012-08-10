@@ -1,0 +1,31 @@
+#RE DataImport META configs
+[build]
+source=TCGA
+afm=/home/csbgroup/re_data/tcga/crc/coadread.newMergeB.18jul.hack.TP.afm
+annotations=na
+quantile_features=CNVR,GEXP,METH
+associations=/home/csbgroup/re_data/tcga/crc/coadread.newMergeB.18jul.hack.TP.rface
+#good idea to include method_version
+afm_description=CRC RFACE_1.0.4
+comment=
+dataset_label=crc_31july_test
+dataset_date=31-07-12
+contact=re@csacr.org
+disease_code=COADREAD
+#python bin must be 2.5+ and imported the MySQLDb package
+python_bin=python
+
+#the directory needs to exist and end in /
+[results]
+path=/home/csbgroup/public_html/RE/dataimport/results/
+#/proj/ilyalab/jlin/load_associations/dataimport_meta/python/results/
+
+[dbetl]
+#only supports absolute, negative, negative_log10
+pvalue_transform=negative_log10
+#collapse_edge_directions=1 implies taking the rf-ace higher important (A->B, B->A) set 
+#the following settings are valid for rface only
+collapse_edge_directions=1
+reverse_directions=1
+process_gene_interest_score=0
+
