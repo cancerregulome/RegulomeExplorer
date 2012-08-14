@@ -194,7 +194,6 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 
 def main(dataset_label, featuresfile, associationsfile, configfile, annotations, collapse_direction, reverse_direction, results_path, pvalueRepresentation, do_pubcrawl, contacts, keep_unmapped):
 	print "\n in parse_associations_rfex : dataset_label = <%s> \n" % dataset_label
-	notify = db_util.getNotify(config)
 	pvlambda = db_util.reflective
         if (pvalueRepresentation == "negative"):
                 pvlambda = db_util.negative
