@@ -55,7 +55,8 @@ def addDataset(label, feature_matrix, associations, method, source, description,
 		summary_file = open(results_path + "feature_summary_" + label + ".json", "r")
 		summary_json = summary_file.read().strip()
 		summary_file.close()	
-	insertSql = "replace into regulome_explorer_dataset (label,method,source,contact,comments,dataset_date,description,max_logged_pvalue, input_files, default_display, summary_json, disease) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', %f, '%s', '%i', '%s', '%s');" %(label, method, source, contact, comments,ds_date,description, max_logpv, inputfiles, 1, summary_json, disease)
+	insertSql = "replace into tcga.regulome_explorer_dataset (label,method,source,contact,comments,dataset_date,description,max_logged_pvalue, input_files, default_display,disease,summary_json) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', %f, '%s', '%i', '%s', '%s');" %(label, method, source, contact, comments,ds_date,description, max_logpv, inputfiles, 1, disease, summary_json)
+	print "updating regulome_explorer_dataset\n" + insertSql
 	db_util.executeInsert(config, insertSql)
 
 if __name__=="__main__":

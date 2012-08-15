@@ -214,34 +214,39 @@ def getGeneInterestScore(featureStr):
 	global gene_interesting_hash
 	return gene_interesting_hash.get(featureStr)
  
-def process_gexp_interest_score(resultsPath, interest_score_file, configfile):
+def process_gene_hub_score(datasetlabel, resultsPath, interest_score_file, configfile):
 	"""
 	Requires valid full path gexp_interest file, extend this to accept other feature specific values, but schema needs to be defined
 	"""
-	global features_hash, dataset_label
 	config = db_util.getConfig(configfile)
         mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
         myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
         mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
         myhost = db_util.getDBHost(config) #config.get("mysql_jdbc_configs", "host")
         myport = db_util.getDBPort(config)
-        print "Begin processing feature specific values %s" %(time.ctime())
+        feature_table = mydb + "." + datasetlabel + "_features"
+        
+	#print "Begin processing feature specific values %s" %(time.ctime())
 	gexp_interesting_file = open(interest_score_file)
         gexp_sh = open(resultsPath + 'load_gexp_interesting_' + dataset_label + '.sh','w')
         gexp_sql = open(resultsPath + 'gexp_interesting_score_' + dataset_label + '.sql','w')
+	#skip line 0
+	lc = 0
 	for line in gexp_interesting_file:
-                tokens = line.strip().split("\t")
-                gene_interesting_hash[tokens[0]] = tokens[1]
-                gexp_sql.write("update %s set gene_interesting_score = %s where id = %i;\n" %(feature_table, tokens[1], features_hash.get(tokens[0])))
+		if (lc == 0):
+			lc += 1
+			continue              
+		tokens = line.strip().split("\t")
+                #gene_interesting_hash[tokens[0]] = tokens[-1]
+                gexp_sql.write("update %s set gene_interesting_score = %s where alias = '%s';\n" %(feature_table, tokens[-1], tokens[0]))
         gexp_sql.write("commit;\n")
         gexp_interesting_file.close()
         gexp_sql.close()
         gexp_sh.write("#!/bin/bash\n")
-        gexp_sh.write('mysql -h ' + myhost + ' --port ' + myport + ' -u' + myuser + ' -p'+ mypw + ' < ' + gexp_sql.name + '\n')
-        gexp_sh.write("\necho done updating gexp_interesting")
+        gexp_sh.write('mysql -h ' + myhost + ' --port ' + str(myport) + ' -u' + myuser + ' -p'+ mypw + ' < ' + gexp_sql.name + '\n')
+        #gexp_sh.write("\necho done updating gexp_interesting")
         gexp_sh.close()
-	print "finished feature matrix bulk upload  %s" %(time.ctime())
-	return gexp_sh
+	os.system("sh "+ " " + gexp_sh.name)
 
 def process_pathway_associations(gsea_file_path, configfile):
 	global features_hash, dataset_label
@@ -354,23 +359,10 @@ if __name__ == "__main__":
 	print "\nin parse_features_rfex : dataset_label = <%s>\n" % dataset_label
 	configfile = sys.argv[3]
 	config = db_util.getConfig(configfile)
-	#annotations = ""
-	#if (len(sys.argv) >= 5):
 	annotations = sys.argv[4]
-	#quantileFeatures = ""
-	#if (len(sys.argv) >= 6):
 	quantileFeatures = sys.argv[5]
 	resultsPath = sys.argv[6]
  
 	process_feature_matrix(dataset_label, sys.argv[1], 1, config, annotations, quantileFeatures, resultsPath)	
-	#os.system("sh " + sh.name)
-	#path = sys.argv[2].rsplit("/", 1)[0] 
-	#if (os.path.exists(path + "/GEXP_interestingness.tsv")):
-	#	sh = process_gexp_interest_score(path + "/GEXP_interestingness.tsv", configfile)	
-	#	os.system("sh " + sh.name)
-	#if (os.path.exists(path + "/gsea_associations.tsv")):
-	#	sh = process_pathway_associations(path + "/gsea_associations.tsv", configfile)
-	#	os.system("sh " + sh.name)
-	#processGeneAssociation(path,configfile)		
 	print "Done with processing feature relating loads %s " %(time.ctime())
 

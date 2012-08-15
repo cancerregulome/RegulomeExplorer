@@ -3,6 +3,7 @@ import sys
 import time
 import ConfigParser
 import process_meta_config
+import parse_features_rfex
 
 def buildMeta(meta_file, config_file):
 	if (config_file == ""):
@@ -61,7 +62,18 @@ def buildMeta(meta_file, config_file):
 	print "\nRegistering dataset " + update_re_store_cmd + " " + time.ctime()
 	os.system(update_re_store_cmd) 		
 	print "completed dataimport %s \nlabel %s afm %s annotations %s associations %s" %(time.ctime(), dslabel, afm, annotations, associations)
-
+	doGenehub = process_meta_config.getDoGenehub(config)
+	if (doGenehub == "1"):
+		#python compute_feature_interestingness.py <input> <output> [logged/unlogged]
+		hub_cmd = "python compute_feature_interestingness.py %s %s %s" %(associations, resultsPath + dslabel + "_feature_hubness_rf.out", "unlogged")
+		print "start processing gene hub/interesting score %s\n%s" % (time.ctime(), hub_cmd)
+		os.system(hub_cmd)
+		#update feature table with hubscore
+		print "start updating feature table with hub/interesting score %s" % time.ctime()
+		#process_gene_hub_score(datasetlabel, resultsPath, interest_score_file, configfile)
+		parse_features_rfex.process_gene_hub_score(dslabel, resultsPath, resultsPath + dslabel + "_feature_hubness_rf.out", config_file)
+		print "done updating feature table with hub/interesting score %s" % time.ctime()
+		
 if __name__ == "__main__":
 	errmsg = "Parameter Error: Data import requires a directory containing a META file"
 	if (len(sys.argv) < 2):

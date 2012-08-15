@@ -3,6 +3,7 @@ import sys
 import time
 import ConfigParser
 import process_meta_config
+import parse_features_rfex
 
 """
 def getPythonBin(config):
@@ -113,6 +114,15 @@ def buildMeta(meta_file, config_file=""):
 	update_re_store_cmd = python_bin + ' update_rgex_dataset.py %s %s %s %s "%s" "%s" "%s" %s %s %s %s %s' %(dslabel, afm, associations, 'pairwise', source, description, comment, config_file, resultsPath, dsdate, diseaseCode, contact)
 	print "\nRegistering dataset " + update_re_store_cmd
 	os.system(update_re_store_cmd) 		
+	doGenehub = process_meta_config.getDoGenehub(config)
+        if (doGenehub == "1"):
+		#python compute_feature_interestingness.py <input> <output> [logged/unlogged]
+		hub_cmd = "python compute_feature_interestingness.py %s %s %s" %(associations, resultsPath + dslabel + "_feature_hubness_pw.out", "logged")
+		print "start processing gene hub/interesting score %s\n%s" % (time.ctime(), hub_cmd)
+		os.system(hub_cmd)
+		#update feature table with hubscore
+		parse_features_rfex.process_gene_hub_score(dslabel, resultsPath, resultsPath + dslabel + "_feature_hubness_pw.out", config_file)
+		print "done updating feature table with hub/interesting score %s" % time.ctime()
 	print "Completed dataimport %s \nlabel %s afm %s annotations %s associations %s" %(time.ctime(), dslabel, afm, annotations, associations)
 
 if __name__ == "__main__":
