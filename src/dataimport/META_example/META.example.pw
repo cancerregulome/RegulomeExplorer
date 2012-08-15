@@ -1,3 +1,6 @@
+#drwxrwsr-x. 2 erkkila2 csbgroup 4.0K Jul  9 13:59 .
+#-rwxr-x---. 1 erkkila2 csbgroup 1.5G Jul  9 14:00 coadread.merge.12apr.rnaseq.276.hg18Plus.rface
+#
 [build]
 source=TCGA
 afm=/titan/cancerregulome3/TCGA/outputs/kirc/kirc.bigMerge.25jun.tsv
@@ -29,7 +32,11 @@ collapse_edge_directions=1
 reverse_directions=1
 keep_unmapped_associations=1
 
+[postetl]
+process_genehub=1
+
 #ISB specific - requires smtp python module
 [pubcrawl]
 dopubcrawl=no
 notify=re@systemsbiology.org
+

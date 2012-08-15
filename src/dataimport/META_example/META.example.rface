@@ -3,7 +3,7 @@
 source=TCGA
 afm=/home/csbgroup/re_data/tcga/crc/coadread.newMergeB.18jul.hack.TP.afm
 annotations=na
-quantile_features=CNVR,GEXP,METH
+quantile_features=CNVR
 associations=/home/csbgroup/re_data/tcga/crc/coadread.newMergeB.18jul.hack.TP.rface
 #good idea to include method_version
 afm_description=CRC RFACE_1.0.4
@@ -30,7 +30,10 @@ reverse_directions=1
 process_gene_interest_score=0
 keep_unmapped_associations=1
 
+[postetl]
+process_genehub=1
+
 #ISB specific - requires smtp python module
 [pubcrawl]
 dopubcrawl=no
-notify=re@systemsbiology.org
+notify=aeakin@systemsbiology.org
