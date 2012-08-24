@@ -1,4 +1,41 @@
 
+vq.utils.VisUtils.extend(re, {
+    functions: {
+        convertChrListToQueryClause: function(list_str, column_name) {
+            var tokens = list_str.split(',').map(trim);            
+            var and_tokens = new Array();
+            var or_tokens = new Array();
+            //split the list into inclusions/or's and exclusions/!(and)'s
+            tokens.forEach(function(a){
+                if (a.charAt(0) == '!') {
+                    and_tokens.push(a.slice(1));
+                }
+                else  //take all characters after the !
+                    or_tokens.push(a);
+            }); 
+            var clause = '';
+            if (and_tokens.length) {
+                clause = '(';
+                var u;
+                while ((u=and_tokens.pop()) != null) {
+                   clause += column_name + '!=\'' + u + '\' and '; 
+                }
+                clause = clause.slice(0,-5) + ')';
+            }
+            else {
+            var t;
+                if (or_tokens.length){
+                    clause = '(';
+                    while ((t = or_tokens.pop()) != null) {              
+                        clause += column_name + '=\'' + t + '\' or ';
+                    }
+                    clause =  clause.slice(0,-4) + ')';
+                }
+            }
+            return clause;
+        }
+    }
+});
 
 function errorInQuery(response) {
     return !!~response.indexOf('status:\'error\'');
