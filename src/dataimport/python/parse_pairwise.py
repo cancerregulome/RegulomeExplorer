@@ -20,7 +20,7 @@ def process_feature_alias(alias):
 		data[3] = data[3][3:]
 	return data
 
-def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, config, results_path, do_pubcrawl, contacts, keep_unmapped):
+def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, config, results_path, do_pubcrawl, contacts, keep_unmapped, featureInterestingFile):
 	"""
 	Include edges where nodes are in original set, direction does not matter so do not populate edge if A->B if B->A are in hash
 	Expected tab delimited columns are nodeA nodeB pvalue correlation numNonNA	
@@ -34,7 +34,7 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 	myhost = db_util.getDBHost(config)
 	myport = db_util.getDBPort(config)
 	edges_file = open(pairwised_file)
-	print "\nBegin processing pairwise edges\n\n"
+	fIntHash = parse_features_rfex.get_feature_interest_hash(featureInterestingFile)
 	edge_table = mydb + ".mv_" + dataset_label + "_feature_networks" 
         efshout = open(results_path + 'load_edges_' + dataset_label + '.sh','w')
         edges_out_re = open(results_path + 'edges_out_' + dataset_label + '_pw_re.tsv','w')
@@ -84,6 +84,15 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 				continue
 			nodeB = annotated_feature.replace("\t", ":")
 		"""
+		try:
+			f1genescore = fIntHash[nodeA]
+		except KeyError:
+			f1genescore = 0
+		try:
+			f2genescore = fIntHash[nodeB]
+		except KeyError:
+			f2genescore = 0
+
 		if (db_util.isUnmappedAssociation(nodeA, nodeB) and keep_unmapped == 0):
 	                unmappedout.write(nodeA + "\t" + nodeB + "\n")
         	        unMapped += 1
@@ -142,7 +151,7 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 				f2qtinfo = ""
 				if (features_hash.get(nodeB) != None and len(features_hash.get(nodeB)) >= 14):
 					f2qtinfo = features_hash.get(nodeB)[13] + "_" + features_hash.get(nodeB)[14]               
-				edges_out_re.write(feature1id + "\t" + feature2id + "\t" + nodeA + "\t" + "\t".join(dataA) + "\t" + nodeB + "\t" + "\t".join(dataB) + "\t" + correlation + "\t" + numna + "\t" + pv + "\t" + bonf + "\t" + pv_bonf + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\t" + rho + "\t" + str(link_distance) + "\t" + f1qtinfo + "\t" + f2qtinfo + "\n")
+				edges_out_re.write(feature1id + "\t" + feature2id + "\t" + nodeA + "\t" + "\t".join(dataA) + "\t" + nodeB + "\t" + "\t".join(dataB) + "\t" + correlation + "\t" + numna + "\t" + pv + "\t" + bonf + "\t" + pv_bonf + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\t" + rho + "\t" + str(link_distance) + "\t" + f1qtinfo + "\t" + f2qtinfo + "\t" + str(f1genescore) + "\t" + str(f2genescore) + "\n")
 				if (do_pubcrawl == "yes"):
 					#call andrea code
 					getPairwiseInfo.processLine(line, edges_out_pc)
@@ -166,12 +175,13 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 	efshout.write("\ncommit;")
 	efshout.write("\nEOFMYSQL")
 	efshout.close()
+	print "Begin pairwise db bulk upload " + time.ctime() 
 	os.system("sh " + efshout.name)
 	if (do_pubcrawl == "yes"):
 		print "senting Pubcrawl notification to " + contacts
 		smtp.main("re@systemsbiology.org", contacts, "Notification - New Pairwise Associations for PubCrawl", "New pairwise associations ready for PubCrawl load\n" + edges_out_pc.name + "\n\n" + str(pcc) + " Total Edges\n\n" + edges_out_re.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + " \n\n")
 
-def main(dataset_label, feature_matrix, associations, pvalueRepresentation, configfile, resultsPath, doPubcrawl, contacts, keep_unmapped):
+def main(dataset_label, feature_matrix, associations, pvalueRepresentation, configfile, resultsPath, doPubcrawl, contacts, keep_unmapped, featureInterestingFile):
 	print "\n in parse_pairwise : dataset_label = <%s> \n" % dataset_label
 	config = db_util.getConfig(configfile)
 	#results_path = db_util.getResultsPath(config)
@@ -185,7 +195,7 @@ def main(dataset_label, feature_matrix, associations, pvalueRepresentation, conf
                 pvlambda = db_util.negative_log10
 	elif (pvalueRepresentation == "absolute"):
                 pvlambda = db_util.absolute
-	process_pairwise_edges(dataset_label, feature_matrix, associations, pvlambda, config, resultsPath, doPubcrawl,  contacts, int(keep_unmapped))
+	process_pairwise_edges(dataset_label, feature_matrix, associations, pvlambda, config, resultsPath, doPubcrawl,  contacts, int(keep_unmapped), featureInterestingFile)
 	print "Done with processing pairwise edges %s " %(time.ctime())
 
 if __name__ == "__main__":
@@ -195,5 +205,8 @@ if __name__ == "__main__":
         	sys.exit(1)
 	annotations = ""
 	dataset_label = sys.argv[3]
-	main(dataset_label, sys.argv[1], sys.argv[2], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7],sys.argv[8], sys.argv[9])
+	featureInterestingFile = ""
+	if (len(sys.argv) == 11):
+		featureInterestingFile = sys.argv[10]
+	main(dataset_label, sys.argv[1], sys.argv[2], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7],sys.argv[8], sys.argv[9], featureInterestingFile)
 
