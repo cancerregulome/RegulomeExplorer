@@ -17,6 +17,8 @@ CREATE TABLE tcga.regulome_explorer_dataset
   dataset_date varchar(30) default NULL,
   max_logged_pvalue float default NULL,
   input_files varchar(255) default NULL,
+  summary_json text default NULL,  
+  disease varchar(255) default NULL,
   PRIMARY KEY  (label)
 );
 
