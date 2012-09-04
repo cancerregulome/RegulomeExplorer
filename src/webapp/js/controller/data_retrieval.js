@@ -696,11 +696,13 @@ function buildGQLQuery(args) {
     }
     if (args['t_chr'] != '' && args['t_chr'] != '*') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f1chr = \'' + args['t_chr'] + '\'';
+     //   where += 'f1chr = \'' + args['t_chr'] + '\'';
+      where += re.functions.convertChrListToQueryClause(args['t_chr'],'f1chr');
     }
     if (args['p_chr'] != '' && args['p_chr'] != '*') {
         where += (where.length > whst.length ? ' and ' : ' ');
-        where += 'f2chr = \'' + args['p_chr'] + '\'';
+        //where += 'f2chr = \'' + args['p_chr'] + '\'';
+        where += re.functions.convertChrListToQueryClause(args['p_chr'],'f2chr');
     }
     if (args['t_start'] != '') {
         where += (where.length > whst.length ? ' and ' : ' ');
