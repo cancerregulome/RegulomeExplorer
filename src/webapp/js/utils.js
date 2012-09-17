@@ -1,5 +1,5 @@
 
-vq.utils.VisUtils.extend(re, {
+re.utils.VisUtils.extend(re, {
     functions: {
         convertChrListToQueryClause: function(list_str, column_name) {
             var tokens = list_str.split(',').map(trim);            
@@ -365,4 +365,3 @@ re.build_tooltips = function() {
    });
 
 };
-

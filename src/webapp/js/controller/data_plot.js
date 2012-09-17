@@ -1368,10 +1368,10 @@ function scatterplot_draw(params) {
             fill_style: fill_style_fn,
             stroke_style: stroke_style_fn,
             x_axis_tick_format: function(d) {
-                return isNaN(parseFloat(d)) ? d : d.toPrecision(3);
+                return isNaN(parseFloat(d)) ? d : parseFloat(d).toPrecision(3);
             },
             y_axis_tick_format: function(d) {
-                return d.toPrecision(3);
+                return parseFloat(d).toPrecision(3);
             }
         }};
         if (isNonLinear(f2label[0])) {
@@ -1399,10 +1399,10 @@ function scatterplot_draw(params) {
             fill_style: fill_style_fn,
             stroke_style: stroke_style_fn,  
             x_axis_tick_format: function(d) {
-                return isNaN(parseFloat(d)) ? d : d.toPrecision(3);
+                return isNaN(parseFloat(d)) ? d : parseFloat(d).toPrecision(3);
             },
             y_axis_tick_format: function(d) {
-                return isNaN(parseFloat(d)) ? d : d.toPrecision(3);
+                return isNaN(parseFloat(d)) ? d : parseFloat(d).toPrecision(3);
             }
         }};
         if (reverse_axes) {
