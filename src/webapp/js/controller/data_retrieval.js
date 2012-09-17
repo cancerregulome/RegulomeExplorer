@@ -736,6 +736,11 @@ function buildGQLQuery(args) {
             where += ((clause1.length < 1) ? '' : ((where.length > whst.length ? ' and ' : ' ') + '(' + clause1 + ' )'));
     }
 
+    if(args['trans']) {
+        where += (where.length > whst.length ? ' and ' : ' ');
+        where += 'f1chr!=f2chr'; 
+    }
+
     re.model.association.types.forEach(function(obj) {
         if (typeof obj.query.clause == 'function') {
             var clause = flex_field_query(obj.query.id, args[obj.query.id+'_value'], args[obj.query.id + '_fn']);
@@ -757,7 +762,6 @@ function buildGQLQuery(args) {
 
     return query;
 }
-
 
 
 function buildSingleFeatureGQLQuery(args, feature) {
@@ -823,6 +827,11 @@ function buildSingleFeatureGQLQuery(args, feature) {
     if(args['cis'] && args['cis_distance_value'] != '') {
         var clause1 = flex_field_query('link_distance',args['cis_distance_value'], args['cis_distance_fn']);
          where += ((clause1.length < 1) ? '' : ((where.length > whst.length ? ' and ' : ' ') + '(' + clause1 +')'));
+    }
+
+    if(args['trans']) {
+        where += (where.length > whst.length ? ' and ' : ' ');
+        where += 'f1chr!=f2chr'; 
     }
 
     re.model.association.types.forEach(function(obj) {

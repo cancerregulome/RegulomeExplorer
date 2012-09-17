@@ -77,7 +77,8 @@ vq.utils.VisUtils.extend(re, {
             contact_us: 'http://cdn.cancerregulome.org/help/msae/contact_us.html',
             analysis_summary: '/help/all_pairs/analysis.html',
             bug_report: 'http://code.google.com/p/regulome-explorer/issues/entry',
-            user_group: 'http://groups.google.com/group/regulome-explorer'
+            user_group: 'http://groups.google.com/group/regulome-explorer',
+            ideogram: '/help/msae/images/ideogram.png'
         }
     },
     pathways: {

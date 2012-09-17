@@ -1411,7 +1411,10 @@ Ext.onReady(function() {
                 openBrowserTab(re.help.links.quick_start)
             }
         }, {
-            text: 'Circular Ideogram'
+            text: 'Circular Ideogram',
+             handler: function() {
+                openBrowserTab(re.help.links.ideogram)
+            }
         }, {
             handler: function() {
                 openBrowserTab(re.help.links.user_group)
