@@ -672,7 +672,10 @@ function flipParams(params) {
 };
 
 function buildGQLQuery(args) {
-    var query = 'select alias1, alias2, f1qtinfo, f2qtinfo, link_distance';
+    var query = 'select alias1, alias2, f1qtinfo, f2qtinfo';
+    if (re.ui.filters.link_distance) {
+        query+= ',link_distance';
+    }
     re.model.association.types.forEach(function(obj) {
         query += ', ' + obj.query.id;
     });
@@ -766,6 +769,9 @@ function buildGQLQuery(args) {
 
 function buildSingleFeatureGQLQuery(args, feature) {
     var query = 'select ' + (feature == re.ui.feature2.id ? 'alias1' : 'alias2');
+    if (re.ui.filters.link_distance) {
+        query+= ',link_distance';
+    }
     re.model.association.types.forEach(function(obj) {
         query += ', ' + obj.query.id;
     });

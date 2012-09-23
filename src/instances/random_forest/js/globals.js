@@ -71,7 +71,7 @@ vq.utils.VisUtils.extend(re, {
      */
     help: {
         links: {
-            user_guide: 'http://cdn.cancerregulome.org/help/msae/user_guide.html',
+            user_guide: 'http://wiki.cancerregulome.org',
             quick_start: 'http://cdn.cancerregulome.org/help/msae/quick_start.html',
             contact_us: 'http://cdn.cancerregulome.org/help/msae/contact_us.html',
             analysis_summary: '/help/all_pairs/analysis.html',
@@ -263,7 +263,8 @@ vq.utils.VisUtils.extend(re, {
     },
     ui: {
         filters: {
-            single_feature: true
+            single_feature: true,
+            link_distance: true
         },
         chromosomes: [],
         dataset_labels: [],

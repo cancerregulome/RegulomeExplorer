@@ -476,7 +476,7 @@ function loadListStores(dataset_labels) {
 }
 
 function loadDataTableStore(data) {
-    var columns = ['source_source', 'source_label', 'source_chr', 'source_start', 'source_stop'];
+    var columns = ['source_source', 'source_label', 'source_chr', 'source_start'];
     var colModel = Ext.getCmp('data_grid').getColumnModel();
     var load_data = [];
     if (data['unlocated'] === undefined) {
@@ -486,9 +486,11 @@ function loadDataTableStore(data) {
                 target_source: node.source,
                 target_label: node.label,
                 target_chr: node.chr,
-                target_start: node.start,
-                target_stop: node.end
+                target_start: node.start
             };
+               if(re.ui.filters.link_distance) {
+                obj['link_distance'] = row.link_distance;
+            }
             re.model.association.types.forEach(function(assoc) {
                 obj[assoc.ui.grid.store_index] = node[assoc.query.id];
             });
@@ -507,14 +509,15 @@ function loadDataTableStore(data) {
                 target_label: row.node1.label,
                 target_chr: row.node1.chr,
                 target_start: row.node1.start,
-                target_stop: row.node1.end,
                 source_id: row.node2.id,
                 source_source: row.node2.source,
                 source_label: row.node2.label,
                 source_chr: row.node2.chr,
                 source_start: row.node2.start,
-                source_stop: row.node2.end
             };
+            if(re.ui.filters.link_distance) {
+                obj['link_distance'] = row.link_distance;
+            }
             re.model.association.types.forEach(function(assoc) {
                 obj[assoc.ui.grid.store_index] = row[assoc.query.id];
             });
@@ -939,12 +942,6 @@ Ext.onReady(function() {
                             dataIndex: 'target_start',
                             groupName: 'Target'
                         }, {
-                            header: "Stop",
-                            width: 100,
-                            id: 'target_stop',
-                            dataIndex: 'target_stop',
-                            groupName: 'Target'
-                        }, {
                             header: "Id",
                             width: 40,
                             hidden: true,
@@ -974,13 +971,20 @@ Ext.onReady(function() {
                             id: 'source_start',
                             dataIndex: 'source_start',
                             groupName: 'Target'
-                        }, {
-                            header: "Stop",
-                            width: 100,
-                            id: 'source_stop',
-                            dataIndex: 'source_stop',
-                            groupName: 'Target'
-                        }].concat(re.model.association.types.map(function(obj) {
+                        }
+                        ].concat(re.ui.filters.link_distance ? 
+                               {
+                            header: "Distance",
+                            width: 50,
+                            id: 'link_distance',
+                            dataIndex: 'link_distance',
+                            renderer: function(value) {
+                                 return value >= 500000000 ? 'Inf' : value;
+                                }
+                            }  :
+                            []
+                            )
+                            .concat(re.model.association.types.map(function(obj) {
                             if (obj.ui != null)
                                 return obj.ui.grid.column;
                         })),
@@ -992,7 +996,10 @@ Ext.onReady(function() {
                     store: new Ext.data.JsonStore({
                         autoLoad: false,
                         storeId: 'data_grid_store',
-                        fields: ['target_id', 'target_source', 'target_label', 'target_chr', 'target_start', 'target_stop', 'source_id', 'source_source', 'source_label', 'source_chr', 'source_start', 'source_stop'].concat(re.model.association.types.map(function(obj) {
+                        fields: ['target_id', 'target_source', 'target_label', 'target_chr', 'target_start',
+                        'source_id', 'source_source', 'source_label', 'source_chr', 'source_start']
+                        .concat( re.ui.filters.link_distance ? 'link_distance': [])
+                        .concat(re.model.association.types.map(function(obj) {
                             return obj.ui.grid.store_index;
                         }))
                     }),

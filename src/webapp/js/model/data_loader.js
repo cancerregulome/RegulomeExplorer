@@ -69,7 +69,9 @@ function generateNetworkDefinition(responses) {
                 end:rectifyChrPosition(node1[5]) != -1 ? rectifyChrPosition(node1[5]) : rectifyChrPosition(node1[4])}
         )-1) :
             source_map[f1id]);
+
         source_map[f1id] = source_id;
+        
         var target_id = (source_map[f2id] === undefined ? (source_array.push({id : f2id,
                 type : node2[1], label : node2[2], chr : node2[3].slice(3),
                 start: rectifyChrPosition(node2[4]) ,
@@ -78,7 +80,13 @@ function generateNetworkDefinition(responses) {
             source_map[f2id]);
 
         source_map[f2id] = target_id;
-        var obj = {id:f1id + '-' + f2id, label : f1id + ' -> ' + f2id, source:f1id ,target: f2id};
+        
+        var obj = {id:f1id + '-' + f2id, label : source_id.label + ' -> ' + target_id.label, source:f1id ,target: f2id, directed: re.analysis.directed_association};
+
+        if (re.ui.filters.link_distance) {
+            obj.link_distance = row.link_distance;
+        }
+
         re.model.association.types.forEach(function(assoc) {
             if (row[assoc.query.id] === undefined) {
                 console.error('Association attribute is malformed. Expected attribute with label \'' + assoc.query.id + '\'');
@@ -125,15 +133,19 @@ function parseNetwork(responses) {
                     start: node2[4] != '' ? parseInt(node2[4]) : -1,
                     end:node2[5] != '' ? parseInt(node2[5]) : parseInt(node2[4]), qtinfo: row.f2qtinfo}
             };
-            re.model.association.types.forEach(function(assoc) {
-                if (row[assoc.query.id] === undefined) {
-                    console.error('Association attribute is malformed. Expected attribute with label \'' + assoc.query.id + '\'');
-                }
-                obj[assoc.ui.grid.store_index] = row[assoc.query.id];
-            });
-	    if (re.model.association.link_distance != undefined)
-	    	obj["link_distance"] = row["link_distance"];	
-            return obj;
+
+
+        if (re.ui.filters.link_distance) {
+            obj.link_distance = row.link_distance;
+        }
+        re.model.association.types.forEach(function(assoc) {
+            if (row[assoc.query.id] === undefined) {
+                console.error('Association attribute is malformed. Expected attribute with label \'' + assoc.query.id + '\'');
+            }
+            obj[assoc.ui.grid.store_index] = row[assoc.query.id];
+        });
+
+        return obj;
         }
     );
     var located_responses = whole_net.filter(function(feature) {
@@ -204,6 +216,9 @@ function parseFeatureAlias(row) {
         start: start,
         end:end
     };
+    if (re.ui.filters.link_distance) {
+            obj.link_distance = row.link_distance;
+        }
     re.model.association.types.forEach(function(assoc) {
         obj[assoc.ui.grid.store_index] = row[assoc.query.id];
     });

@@ -73,9 +73,9 @@ function layoutGraph() {
 }
 
 function getNetworkLayout() {
-    var layout =  {name : "ForceDirected", options  : {gravitation : -500,mass: 3,
-        tension: .01,drag:0.1,maxDistance:10000, minDistance: 1,
-        iterations:200, autoStabilize: true, maxTime: 3000, restLength: 30}};
+    var layout = {name : "ForceDirected", options  : {gravitation : -500,mass: 3,
+        tension: .01,drag:0.1,maxDistance:1000, minDistance: 30,
+        iterations:400, autoStabilize: false, maxTime: 3000, restLength: 30}};
 
     switch(re.display_options.cytoscape.layout) {
         case('tree'):
@@ -96,9 +96,6 @@ function getNetworkLayout() {
             break;
         case('force_directed'):
         default:
-            layout =  {name : "ForceDirected", options  : {gravitation : -500,mass: 3,
-                tension: .01,drag:0.1,maxDistance:10000, minDistance: 1,
-                iterations:200, autoStabilize: true, maxTime: 3000, restLength: 30}};
             break;
     }
 
@@ -704,8 +701,8 @@ function singlefeature_circvis(parsed_data,div) {
             container : div,
             enable_pan : false,
             enable_zoom : false,
-            show_legend: true,
-            legend_include_genome : true,
+            show_legend: false,
+            legend_include_genome : false,
             legend_corner : 'ne',
             legend_radius  : width / 15
         },
@@ -1480,7 +1477,9 @@ function populateGraph(obj) {
                 { name: "end", type: "int" }
             ],
             edges: [ { name: "label", type:"string"},
-                { name: "directed", type: "boolean", defValue: false} ].concat(
+                { name: "directed", type: "boolean", defValue: false} ]
+                .concat( re.ui.filters.link_distance ? {name:'link_distance', type: 'int'}: [])
+                .concat(
                 re.model.association.types.map(function(obj) { return obj.vis.network.edgeSchema;}))
         },
         data:  re.cytoscape.data
