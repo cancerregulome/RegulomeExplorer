@@ -73,8 +73,8 @@ vq.utils.VisUtils.extend(re, {
     help: {
         links: {
             user_guide: 'http://wiki.cancerregulome.org',
-            quick_start: 'http://cdn.cancerregulome.org/help/msae/quick_start.html',
-            contact_us: 'http://cdn.cancerregulome.org/help/msae/contact_us.html',
+            quick_start: 'http://wiki.cancerregulome.org/bin/view/All+Pairs+Analysis/8.1+Quick+Walk-through+for+One+Feature',
+            contact_us: 'http://wiki.cancerregulome.org',
             analysis_summary: '/help/all_pairs/analysis.html',
             bug_report: 'http://code.google.com/p/regulome-explorer/issues/entry',
             user_group: 'http://groups.google.com/group/regulome-explorer',
