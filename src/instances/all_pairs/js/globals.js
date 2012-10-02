@@ -32,11 +32,14 @@ vq.utils.VisUtils.extend(re, {
     rest: {
         query: '/query',
         echo: '/echo',
-        convert: '/convert'
+        convert: '/convert',
+        select: '/select'
     },
     params: {
         json_out: '&tqx=out:json_array',
-        query: 'tq='
+        query: 'tq=',
+        network_query: 'q=',
+        network_json_out: '&wt=json'
     },
     databases: {
         base_uri: '',
@@ -46,7 +49,10 @@ vq.utils.VisUtils.extend(re, {
         rf_ace: {
             uri: '/google-dsapi-svc/addama/datasources/re'
         },
-        solr: {
+        networks: {
+            uri: '/data'
+        },
+        medline: {
             uri: '/solr/core0',
             select: '/select/'
         }

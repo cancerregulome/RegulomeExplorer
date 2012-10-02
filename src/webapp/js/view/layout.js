@@ -685,7 +685,7 @@ function retrieveMedlineDocuments(term1, term2) {
     Ext.StoreMgr.get('dataDocument_grid_store').on({
         beforeload: {
             fn: function(store, options) {
-                store.proxy.setUrl(re.databases.solr.uri + re.databases.solr.select + '?qt=distributed_select&q=%2Btext%3A\"' + term1 + '\" %2Btext%3A\"' + term2 + '\"&fq=%2Bpub_date_year%3A%5B1991 TO 2011%5D&wt=json' + '&hl=true&hl.fl=article_title,abstract_text&hl.snippets=100&hl.fragsize=50000&h.mergeContiguous=true&sort=pub_date_year%20desc');
+                store.proxy.setUrl(re.databases.medline.uri + re.databases.medline.select + '?qt=distributed_select&q=%2Btext%3A\"' + term1 + '\" %2Btext%3A\"' + term2 + '\"&fq=%2Bpub_date_year%3A%5B1991 TO 2011%5D&wt=json' + '&hl=true&hl.fl=article_title,abstract_text&hl.snippets=100&hl.fragsize=50000&h.mergeContiguous=true&sort=pub_date_year%20desc');
             }
         }
     });
@@ -1691,7 +1691,7 @@ var medlineStore = new Ext.data.JsonStore({
     storeId: 'dataDocument_grid_store',
     fields: ['pmid', 'article_title', 'abstract_text', 'pub_date_month', 'pub_date_year'],
     proxy: new Ext.data.HttpProxy({
-        url: re.databases.solr.uri + re.databases.solr.select + '?'
+        url: re.databases.medline.uri + re.databases.medline.select + '?'
     })
 });
 

@@ -57,8 +57,26 @@ function flex_field_query(label, value, fn) {
         }
     }
     return where;
-
 }
+
+function solr_flex_field_query(label, value, fn) {
+    var qparam = '';
+    if (value + '' != '') {
+        if (fn == 'Btw') {
+            qparam += '+' + label + ':[-' + value + ' TO ' + value + ']';
+        } else if (fn == '<=') {
+            qparam += '+' + label +':[* TO ' + value + ']';
+        } else if (fn == '>=') {
+            qparam += '+' + label +':[' + value + ' TO *]';
+        } else {
+            if (parseFloat(value) != '0') {
+                qparam += '+(' + label + ':[* TO ' + value + '] OR [' + value + ' TO*])';
+            }
+        }
+    }
+    return qparam;
+}
+
 
 function trim (str) {
     return str.replace(/^\s+/, '').replace(/\s+$/, '');
