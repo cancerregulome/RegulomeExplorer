@@ -1,0 +1,65 @@
+.floating_topbar {
+    border-radius: 6px;
+    background: #F6F6F6;
+    border: 2px solid #ccc;
+    height: 50px;
+    width:  25px;
+    float: right;
+    z-index: 1000;
+    box-shadow: 5px 5px 5px #ccc;
+}
+
+.floating_topbar img {
+        width: 50px;
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    z-index: 1000;
+}
+
+.floating_topbar div {
+    width: 750px;
+    padding: 5px 30px 5px 5px;
+    z-index: 999;
+    top: 3px;
+    float: inherit;
+    border-radius: 8px 0 0 8px;
+}
+
+/*MESSAGE STYLES*/
+.msg {
+    font-size:14px;
+    border-radius: 8px;
+    background: #F6F6F6;
+    border: 2px solid #ccc;
+    margin-top: 2px;
+    padding: 10px 15px;
+    color: #555;
+}
+
+.msg-error {
+    font-size:14px;
+    border-radius: 8px;
+    background: #FFB2B2;
+    border: 2px solid #ccc;
+    margin-top: 2px;
+    padding: 10px 15px;
+    color: #555;
+}
+
+.msg-container {
+    position:absolute;
+    left:35%;
+    top:10px;
+    width:300px;
+    z-index:20000;
+}
+
+.msg-container h3 {
+    margin: 0 0 8px;
+    font-weight: bold;
+    font-size: 15px;
+}
+.msg-container p {
+    margin: 0;
+}
