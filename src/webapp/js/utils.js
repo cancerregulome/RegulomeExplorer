@@ -33,7 +33,42 @@ vq.utils.VisUtils.extend(re, {
                 }
             }
             return clause;
-        }
+        },
+    
+      convertChrListToSolrQueryClause: function(list_str, column_name) {
+                   var tokens = list_str.split(',').map(trim);
+                   var and_tokens = new Array();
+                   var or_tokens = new Array();
+                   //split the list into inclusions/or's and exclusions/!(and)'s
+                   tokens.forEach(function(a){
+                       if (a.charAt(0) == '!') {
+                           and_tokens.push(a.slice(1));
+                       }
+                       else  //take all characters after the !
+                           or_tokens.push(a);
+                   });
+                   var clause = '';
+                   if (and_tokens.length) {
+                       clause +='-' + column_name + ':(';
+                       var u;
+                       while ((u=and_tokens.pop()) != null) {
+
+                          clause +=  '"' + u + '"';
+                       }
+                       clause += ')';
+                   }
+                   else {
+                   var t;
+                       if (or_tokens.length){
+                           clause += '+' + column_name + ':(';
+                           while ((t = or_tokens.pop()) != null) {
+                               clause += '"' + t + '"';
+                           }
+                           clause += ')';
+                       }
+                   }
+                   return clause;
+               }
     }
 });
 
@@ -70,7 +105,7 @@ function solr_flex_field_query(label, value, fn) {
             qparam += '+' + label +':[' + value + ' TO *]';
         } else {
             if (parseFloat(value) != '0') {
-                qparam += '+(' + label + ':[* TO ' + value + '] OR [' + value + ' TO*])';
+                qparam += '-' + label + ':[-'+value+' TO ' + value + ']';
             }
         }
     }
@@ -109,6 +144,14 @@ function parseLabel(label) {
         return 'like \'' + return_label.replace(new RegExp('[*%]', 'g'), '%25') + '\'';
     } else {
         return '=\'' + return_label + '\'';
+    }
+}
+function parseSolrLabel(label) {
+    var return_label = label.toUpperCase();
+    if (return_label.length > 1 && (return_label.indexOf('*') >= 0 || return_label.indexOf('%') >= 0)) {
+        return return_label.replace(new RegExp('[*%]', 'g'), '*');
+    } else {
+        return return_label;
     }
 }
 

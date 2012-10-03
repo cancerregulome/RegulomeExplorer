@@ -39,7 +39,8 @@ vq.utils.VisUtils.extend(re, {
         json_out: '&tqx=out:json_array',
         query: 'tq=',
         network_query: 'q=',
-        network_json_out: '&wt=json'
+        network_json_out: '&wt=json',
+        network_dataset_select: '&fq=%2Bdataset%3A'
     },
     databases: {
         base_uri: '',
@@ -54,7 +55,7 @@ vq.utils.VisUtils.extend(re, {
         },
         medline: {
             uri: '/solr/core0',
-            select: '/select/'
+            select: '/distributed_select/'
         }
     },
     tables: {
