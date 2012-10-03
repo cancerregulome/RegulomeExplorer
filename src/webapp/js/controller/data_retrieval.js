@@ -488,7 +488,7 @@ function loadNetworkDataByFeature(params) {
     labels.forEach(function(label) {
         params[feature + '_label'] = label;
         var network_query = buildGQLQuery(params);
-        var association_query_str = '?' + re.params.network_query + re.state.network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data.replace(/_pw/g,'');
+        var association_query_str = '?' + re.params.network_query + network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data.replace(/_pw/g,'');
         var association_query = re.databases.networks.uri + re.rest.select + '/' + association_query_str;
         
         requestWithRetry(association_query,handleNetworkQuery,'associations',1);
@@ -848,7 +848,7 @@ function buildSingleFeatureGQLQuery(args, feature) {
 
     var order_id = (re.model.association.types[re.model.association_map[args['order']]].query.order_id === undefined) ? args['order'] : re.model.association.types[re.model.association_map[args['order']]].query.order_id;
     var fn;
-        if(fn = args[order_id+'_fn'] =='Abs'){
+        if ((fn = args[order_id+'_fn'] =='Abs') || (fn === '<=' && parseFloat(arg[order_id+'_value']) <= 0)){
             order_id = 'abs(' + order_id +')';
         }
 

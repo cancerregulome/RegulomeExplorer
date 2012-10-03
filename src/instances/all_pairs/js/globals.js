@@ -145,10 +145,10 @@ vq.utils.VisUtils.extend(re, {
                 link_objects: [
                     {
                         label: 'Pubcrawl',
-                        url: 'http://explorer.cancerregulome.org/pubcrawl/pubcrawl_tcga.html',
+                        url: 'http://explorer.cancerregulome.org/pubcrawl/',
                         uri: '?term=fbxw7&dataset=gbm_1031',
                         config_object: function(feature) {
-                            return 'http://explorer.cancerregulome.org/pubcrawl/pubcrawl_tcga.html?term='+feature.label+'&dataset=' + re.tables.current_data;
+                            return 'http://explorer.cancerregulome.org/pubcrawl/?term='+feature.label+'&dataset=' + re.tables.current_data;
                         }
                     }, //pubcrawl
                     {

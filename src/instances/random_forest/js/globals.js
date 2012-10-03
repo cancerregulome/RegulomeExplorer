@@ -32,11 +32,15 @@ vq.utils.VisUtils.extend(re, {
     rest: {
         query: '/query',
         echo: '/echo',
-        convert: '/convert'
+        convert: '/convert',
+        select: '/select'
     },
     params: {
         json_out: '&tqx=out:json_array',
-        query: 'tq='
+        query: 'tq=',
+        network_query: 'q=',
+        network_json_out: '&wt=json',
+        network_dataset_select: '&fq=%2Bdataset%3A'
     },
     databases: {
         base_uri: '',
@@ -46,9 +50,12 @@ vq.utils.VisUtils.extend(re, {
         rf_ace: {
             uri: '/google-dsapi-svc/addama/datasources/re'
         },
-        solr: {
+       networks: {
+            uri: '/data'
+        },
+        medline: {
             uri: '/solr/core0',
-            select: '/select/'
+            select: '/distributed_select/'
         }
     },
     tables: {
@@ -59,6 +66,7 @@ vq.utils.VisUtils.extend(re, {
         current_data: '',
         network_uri: '',
         feature_uri: '',
+        features_uri: '',
         clin_uri: '',
         patient_uri: '',
         feature_data_uri: '',
@@ -76,7 +84,8 @@ vq.utils.VisUtils.extend(re, {
             contact_us: 'http://wiki.cancerregulome.org',
             analysis_summary: '/help/all_pairs/analysis.html',
             bug_report: 'http://code.google.com/p/regulome-explorer/issues/entry',
-            user_group: 'http://groups.google.com/group/regulome-explorer'
+            user_group: 'http://groups.google.com/group/regulome-explorer',
+            ideogram: '/help/msae/images/ideogram.png'
         }
     },
     pathways: {
@@ -137,10 +146,10 @@ vq.utils.VisUtils.extend(re, {
                 link_objects: [
                     {
                         label: 'Pubcrawl',
-                        url: 'http://explorer.cancerregulome.org/pubcrawl/pubcrawl_tcga.html',
+                        url: 'http://explorer.cancerregulome.org/pubcrawl/',
                         uri: '?term=fbxw7&dataset=gbm_1031',
                         config_object: function(feature) {
-                            return 'http://explorer.cancerregulome.org/pubcrawl/pubcrawl_tcga.html?term='+feature.label+'&dataset=' + re.tables.current_data;
+                            return 'http://explorer.cancerregulome.org/pubcrawl/?term='+feature.label+'&dataset=' + re.tables.current_data;
                         }
                     }, //pubcrawl
                     {
