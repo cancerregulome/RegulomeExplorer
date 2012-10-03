@@ -185,12 +185,32 @@ function parseSFValues(responses) {
     function loadFailed() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('load_fail','associations',{msg:'Zero mappable features found.'}));
     }
-    var data = [];
+    
 
-    data = responses.map(parseFeatureAlias);
+    var row1 = responses.data[0], row2 = responses.data[1];
+    var alias = '';
+    var aliases = {};
+    [row1,row2].forEach(function(row){
+        aliases[row.alias1] = aliases[row.alias1] + 1 || 1;
+        aliases[row.alias2] = aliases[row.alias2] + 1 || 1;
+    });
+    var keys = Object.keys(aliases);
+    for (i in keys) {
+        if (aliases[keys[i]] == 2) { alias = keys[i];}
+    }
+    if (alias === '') { loadFailed();}
+
+    var data = [];
+    data = responses.data.map(function(row) { 
+        var obj = row; 
+        obj.alias = (row.alias1 == alias ? row.alias2 : row.alias1);
+        return obj;
+    })
+        .map(parseFeatureAlias);
     if (data.length < 1)loadFailed();
 
     parsed_data.features = data.filter(function(feature) { return feature.chr != '' && feature.start != '';});
+    parsed_data['isolated_feature'] = alias;
     if (parsed_data.features.length > 0) loadComplete();
     else loadFailed();
 }

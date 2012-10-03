@@ -489,7 +489,7 @@ function loadDataTableStore(data) {
                 target_start: node.start
             };
                if(re.ui.filters.link_distance) {
-                obj['link_distance'] = row.link_distance;
+                obj['link_distance'] = node.link_distance;
             }
             re.model.association.types.forEach(function(assoc) {
                 obj[assoc.ui.grid.store_index] = node[assoc.query.id];

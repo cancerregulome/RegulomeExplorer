@@ -382,7 +382,7 @@ function loadNetworkDataSingleFeature(params) {
     var feature_types = ['t', 'p'];
 
     function loadComplete() {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'sf_associations', responses));
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'sf_associations', {data: responses, isolated_feature:params['t_label']}));
     }
 
     function loadFailed() {
@@ -437,7 +437,7 @@ function loadNetworkDataSingleFeature(params) {
         obj[f + '_label'] = params['t_label'];
         obj[f + '_type'] = params['t_type'];
         var network_query = buildSingleFeatureGQLQuery(obj, f == 't' ? re.ui.feature1.id : re.ui.feature2.id);
-        var association_query_str = '?' + re.params.network_query + re.state.network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data.replace(/_pw/g,'');
+        var association_query_str = '?' + re.params.network_query + network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data.replace(/_pw/g,'');
         var association_query = re.databases.networks.uri + re.rest.select +'/' + association_query_str;
         requestWithRetry(association_query,handleNetworkQuery,'associations',1);
     });
@@ -770,7 +770,7 @@ function buildGQLQuery(args) {
 
 
 function buildSingleFeatureGQLQuery(args, feature) {
-    var flparam = (feature == re.ui.feature2.id ? 'alias1' : 'alias2');
+    var flparam = 'alias1,alias2';
     if (re.ui.filters.link_distance) {
         flparam+= ',link_distance';
     }
@@ -852,9 +852,9 @@ function buildSingleFeatureGQLQuery(args, feature) {
             order_id = 'abs(' + order_id +')';
         }
 
-    var sort = 'sort=' + order_id + ' ' + ((re.model.association.types[re.model.association_map[args['order']]].query.order_direction).toLowerCase() || 'desc');
-    var limit = 'rows=' + args['limit'];
-    flparam += (feature == re.ui.feature2.id ? 'alias1:\'alias\'' : 'alias2:\'alias\'');
+    var sort =  order_id + ' ' + ((re.model.association.types[re.model.association_map[args['order']]].query.order_direction).toLowerCase() || 'desc');
+    var limit = args['limit'];
+    
     
      return encodeURIComponent(qparam) + '&sort=' + encodeURIComponent(sort) + '&rows=' + encodeURIComponent(limit) + '&fl=' + encodeURIComponent(flparam);
 }

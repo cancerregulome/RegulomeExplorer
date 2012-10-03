@@ -666,6 +666,7 @@ function singlefeature_circvis(parsed_data,div) {
 
     var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
     var ticks = vq.utils.VisUtils.clone(parsed_data['features']);
+    var isolated_feature = parsed_data['isolated_feature'];
 
     var data = {
         GENOME: {
@@ -739,6 +740,7 @@ function singlefeature_circvis(parsed_data,div) {
                     max_value : max,
                     radius : 2,
                     draw_axes : true,
+                    listener: function(node) { initiateDetailsPopup({sourceNode:node,targetNode:{id:isolated_feature}});},
                     shape:'dot',
                     fill_style  : function(feature) {return pairwise_settings.color_scale(feature[field]); },
                     stroke_style  : function(feature) {return pairwise_settings.color_scale(feature[field]); },
