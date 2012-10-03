@@ -437,7 +437,7 @@ function loadNetworkDataSingleFeature(params) {
         obj[f + '_label'] = params['t_label'];
         obj[f + '_type'] = params['t_type'];
         var network_query = buildSingleFeatureGQLQuery(obj, f == 't' ? re.ui.feature1.id : re.ui.feature2.id);
-        var association_query_str = '?' + re.params.network_query + network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data.replace(/_pw/g,'');
+        var association_query_str = '?' + re.params.network_query + network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data;
         var association_query = re.databases.networks.uri + re.rest.select +'/' + association_query_str;
         requestWithRetry(association_query,handleNetworkQuery,'associations',1);
     });
@@ -488,7 +488,7 @@ function loadNetworkDataByFeature(params) {
     labels.forEach(function(label) {
         params[feature + '_label'] = label;
         var network_query = buildGQLQuery(params);
-        var association_query_str = '?' + re.params.network_query + network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data.replace(/_pw/g,'');
+        var association_query_str = '?' + re.params.network_query + network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data;
         var association_query = re.databases.networks.uri + re.rest.select + '/' + association_query_str;
         
         requestWithRetry(association_query,handleNetworkQuery,'associations',1);
@@ -512,7 +512,7 @@ function loadDirectedNetworkDataByAssociation(params) {
     var responses = [];
 
     re.state.network_query = buildGQLQuery(params);
-    var association_query_str = '?' + re.params.network_query + re.state.network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data.replace(/_pw/g,'');
+    var association_query_str = '?' + re.params.network_query + re.state.network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data;
     var association_query = re.databases.networks.uri + re.rest.select +  association_query;
 
     function handleNetworkQuery(response) {
@@ -584,7 +584,7 @@ function loadUndirectedNetworkDataByAssociation(params) {
     }
 
     re.state.network_query = buildGQLQuery(params);
-    var association_query_str = '?' + re.params.network_query + re.state.network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data.replace(/_pw/g,'');
+    var association_query_str = '?' + re.params.network_query + re.state.network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data;
     var association_query = re.databases.networks.uri + re.rest.select + '/' + association_query_str;
 
     requestWithRetry(association_query,handleNetworkQuery,'associations',1);
@@ -592,7 +592,7 @@ function loadUndirectedNetworkDataByAssociation(params) {
     function flipQuery() {
         var flip_params = flipParams(params);
         re.state.network_query = buildGQLQuery(flip_params);
-        association_query_str = '?' + re.params.network_query + re.state.network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data.replace(/_pw/g,'');
+        association_query_str = '?' + re.params.network_query + re.state.network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data;
         association_query = re.databases.networks.uri + re.rest.select + '/' + association_query_str;
 
     requestWithRetry(association_query,handleNetworkQuery,'associations',1);
