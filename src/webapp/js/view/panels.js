@@ -52,7 +52,10 @@ re.ui.panels = {
                 monitorValid: true,
                 keys: [{
                     key: [Ext.EventObject.ENTER],
-                    fn: function() {
+                    fn: function(key,e) {
+                        var cmp = Ext.getCmp(e.browserEvent.target.id);
+                        if (cmp.assertValue) cmp.assertValue();
+                        else cmp.setValue(cmp.getRawValue());
                         Ext.ComponentMgr.get('re_filter_button').fireEvent('click');
                     }
                 }],
