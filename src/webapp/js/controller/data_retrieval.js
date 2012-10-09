@@ -513,7 +513,7 @@ function loadDirectedNetworkDataByAssociation(params) {
 
     re.state.network_query = buildGQLQuery(params);
     var association_query_str = '?' + re.params.network_query + re.state.network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data;
-    var association_query = re.databases.networks.uri + re.rest.select +  association_query;
+    var association_query = re.databases.networks.uri + re.rest.select +  association_query_str;
 
     function handleNetworkQuery(response) {
         try {
