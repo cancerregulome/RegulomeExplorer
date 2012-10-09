@@ -63,6 +63,9 @@ def getLoggedPVCutoff(config):
 	return config.getint("cutoff", "loggedpvalue")
 """
 
+def getSolrPath(config):
+    return config.get("solr_configs","solrpath")
+
 def getDoSmtp(config):
 	return config.get("notification", "dosmtp")
 

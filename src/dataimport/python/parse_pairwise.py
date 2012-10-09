@@ -33,11 +33,14 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 	mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
 	myhost = db_util.getDBHost(config)
 	myport = db_util.getDBPort(config)
+    	mysolr = db_util.getSolrPath(config)
 	edges_file = open(pairwised_file)
 	fIntHash = parse_features_rfex.get_feature_interest_hash(featureInterestingFile)
 	edge_table = mydb + ".mv_" + dataset_label + "_feature_networks" 
         efshout = open(results_path + 'load_edges_' + dataset_label + '.sh','w')
-        edges_out_re = open(results_path + 'edges_out_' + dataset_label + '_pw_re.tsv','w')
+        solrshout = open(results_path + 'load_solr_' + dataset_label + '.sh','w')
+	edges_out_re = open(results_path + 'edges_out_' + dataset_label + '_pw_re.tsv','w')
+    	edges_out_solr = 'edges_out_' + dataset_label + '_pw_re_solr.tsv';
 	edges_out_pc = open(results_path + 'edges_out_' + dataset_label + '_pw_pc.tsv','w')
 	edges_meta_json = open(results_path + 'edges_out_' + dataset_label + '_meta.json','w')
 	unmappedPath = results_path + 'edges_out_' + dataset_label + '_pw_unmapped.tsv'
@@ -99,6 +102,17 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
                 	continue
 		#nodeA = nodeA.replace('|', '_')
 		#nodeB = nodeB.replace('|', '_')
+		try:
+			features_hash[nodeA]
+		except KeyError:
+			print "key error in resolving featureId for " + nodeA + " skipping edge."
+			continue
+		try:
+			features_hash[nodeB]
+		except KeyError:
+			print "key error in resolving featureId for " + nodeB + " skipping edge."
+			continue
+
 		if (features_hash[nodeA] and features_hash[nodeB]):
 			if (not edges_hash.get(nodeA + "_" + nodeB) and not edges_hash.get(nodeA + "_" + nodeB)):
 				feature1id = ""#str(features_hash[nodeA]) 
@@ -130,6 +144,9 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 					cnan += 1
 					continue
 				numna = tokens[3]
+				if(tokens[4].lower() == "nan" or tokens[6].lower() == "nan" or tokens[8].lower() == "nan" or tokens[10].lower() == "nan"):
+					#error in pairwise script, ignore these associations for now
+					continue;
 				pv = str(pvlambda(float(tokens[4])))
 				if (float(pv) > max_pv):
 					max_pv = float(pv)
@@ -177,6 +194,20 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 	efshout.close()
 	print "Begin pairwise db bulk upload " + time.ctime() 
 	os.system("sh " + efshout.name)
+    	#create sharded association files for solr import
+    	solrshout.write("#!/bin/bash\n");
+    	solrshout.write("python createPWShardedDataset.py " + edges_out_re.name + " " + dataset_label + "\n") 
+    	solrshout.write("curl '" + mysolr + "/core0/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core0_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+    	solrshout.write("curl '" + mysolr + "/core1/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core1_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+    	solrshout.write("curl '" + mysolr + "/core2/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core2_final.tsv  -H 'Content-type:text/plain;charset=utf-8' &\n")
+    	solrshout.write("curl '" + mysolr + "/core3/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core3_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+    	solrshout.write("curl '" + mysolr + "/core4/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core4_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+    	solrshout.write("curl '" + mysolr + "/core5/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core5_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+    	solrshout.write("curl '" + mysolr + "/core6/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core6_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+    	solrshout.write("curl '" + mysolr + "/core7/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core7_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+    	solrshout.close()
+	print "Begin pairwise solr upload " + time.ctime()
+	os.system("sh " + solrshout.name)
 	if (do_pubcrawl == "yes"):
 		print "senting Pubcrawl notification to " + contacts
 		smtp.main("re@systemsbiology.org", contacts, "Notification - New Pairwise Associations for PubCrawl", "New pairwise associations ready for PubCrawl load\n" + edges_out_pc.name + "\n\n" + str(pcc) + " Total Edges\n\n" + edges_out_re.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + " \n\n")
