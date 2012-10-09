@@ -1,0 +1,16 @@
+body{font:13px/1.231 "Lucida Grande",verdana,arial,helvetica,sans-serif;*font-size:small;*font:x-small;}
+select,input,button,textarea,button{font:99% "Lucida Grande",verdana,arial,helvetica,sans-serif;}
+table{font-size:inherit;font:100%;}
+pre,code,kbd,samp,tt{font-family:monospace;*font-size:108%;line-height:100%;}
+body{font-size:75%;}
+.shadow{-moz-box-shadow:0 3px 30px black;-webkit-box-shadow:0 3px 30px black;}
+body{background:#FFFFFF;color:#004e72;background-image:url(base_bg.png);background-repeat:repeat-x;background-position:top;margin:10px;}
+img{border:0;}
+a:link,a:visited,a:active{color:#004e72;}
+
+.orange_background {background:#f48234;}
+.blue_background {background: #004e72;}
+.gray_background  {background: }
+.orange_font {color:#f48234;}
+.blue_font {color: #004e72;}
+.gray_font {color:#aaa;}
