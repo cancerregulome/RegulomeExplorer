@@ -520,7 +520,7 @@ function loadDirectedNetworkDataByAssociation(params) {
             if (errorInQuery(response.responseText)) {
                 throwQueryError('associations', response);
             }
-           reponses = Ext.decode(response.responseText).response.docs;
+           responses = Ext.decode(response.responseText).response.docs;
             // responses = Ext.decode(response.responseText);
         } catch (err) {
             throwQueryError('associations', response);
