@@ -145,10 +145,19 @@ function removeDefaultValues(json) {
     return json;
 }
 
+function removeDisabledValues(json){
+    if (!Ext.getCmp('cis').checked){
+        delete json['cis_distance_fn'];
+        delete json['cis_distance_value'];
+    }
+    return json;
+}
+
 function generateStateJSON() {
     var json = getFilterSelections();
     //don't preserve empty or obvious values
     json = removeDefaultValues(json);
+    json = removeDisabledValues(json);
     var obj = {};
     var dataset = getSelectedDatasetLabel();
     if(dataset) obj.dataset = dataset;
