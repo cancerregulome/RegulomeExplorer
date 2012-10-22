@@ -616,7 +616,7 @@ function requestWithRetry(query, handler, failed_type, times) {
     }
 
     Ext.Ajax.request({
-        timeout:8000, //decrease timeout
+        //timeout:8000, //decrease timeout
         url: query,
         success: handler,
         failure: function(response) {
