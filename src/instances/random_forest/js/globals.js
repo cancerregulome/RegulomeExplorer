@@ -33,7 +33,7 @@ vq.utils.VisUtils.extend(re, {
         query: '/query',
         echo: '/echo',
         convert: '/convert',
-        select: '/select'
+        select: '/distributed_select'
     },
     params: {
         json_out: '&tqx=out:json_array',

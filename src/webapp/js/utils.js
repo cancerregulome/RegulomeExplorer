@@ -151,7 +151,7 @@ function parseSolrLabel(label) {
     if (return_label.length > 1 && (return_label.indexOf('*') >= 0 || return_label.indexOf('%') >= 0)) {
         return return_label.replace(new RegExp('[*%]', 'g'), '*');
     } else {
-        return return_label;
+        return '\"' + return_label + '\"';
     }
 }
 

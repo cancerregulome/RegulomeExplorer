@@ -850,16 +850,6 @@ function wedge_plot(parsed_data,div) {
             return node;
         }));
 
-    var meth_filtered_list = ticks.filter(function(f){        
-	return f['source'] == 'METH';
-    });
-    var gexp_filtered_list = ticks.filter(function(f){
-        return f['source'] == 'GEXP';
-    });
-    var cnvr_filtered_list = ticks.filter(function(f){
-        var qistr = f["qtinfo"];
-        return f['source'] == 'CNVR' && qistr != null && qistr.indexOf("_") != -1;
-    });
     var data = {
         GENOME: {
             DATA:{

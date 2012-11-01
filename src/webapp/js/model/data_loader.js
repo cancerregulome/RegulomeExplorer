@@ -113,6 +113,16 @@ function parseNetwork(responses) {
     }
 
     var parsed_data = {network : null,unlocated : null, features : null,unlocated_features:null,located_features:null};
+    var null_node = {
+                id : '', 
+                source : '', 
+                label : '', 
+                chr : '',
+                label_mod : '',
+                start: -1,
+                end:-1, 
+                qtinfo: ''
+    };
    
     var whole_net = responses.map(function(row) {
             var node1 = row.alias1.split(':');
@@ -124,14 +134,17 @@ function parseNetwork(responses) {
 
             var label_mod1 = node1.length >=8 ? node1[7] : '';
             var label_mod2 = node2.length >=8 ? node2[7] : '';
-            var obj =  {node1: {id : row.alias1, source : node1[1], label : node1[2], chr : node1[3].slice(3),
+            var new_node1 = vq.utils.VisUtils.clone(null_node),
+                new_node2 = vq.utils.VisUtils.clone(null_node);
+            var obj =  {node1: 
+                vq.utils.VisUtils.extend(new_node1, {id : row.alias1, source : node1[1], label : node1[2], chr : node1[3].slice(3),
                 label_mod : label_mod1,
                 start: node1[4] != '' ? parseInt(node1[4]) : -1,
-                end:node1[5] != '' ? parseInt(node1[5]) : parseInt(node1[4]), qtinfo: row.f1qtinfo},
-                node2: {id : row.alias2, source : node2[1], label : node2[2], chr : node2[3].slice(3),
+                end:node1[5] != '' ? parseInt(node1[5]) : parseInt(node1[4]), qtinfo: row.f1qtinfo}),
+                node2: vq.utils.VisUtils.extend(new_node2,{id : row.alias2, source : node2[1], label : node2[2], chr : node2[3].slice(3),
                     label_mod : label_mod2,
                     start: node2[4] != '' ? parseInt(node2[4]) : -1,
-                    end:node2[5] != '' ? parseInt(node2[5]) : parseInt(node2[4]), qtinfo: row.f2qtinfo}
+                    end:node2[5] != '' ? parseInt(node2[5]) : parseInt(node2[4]), qtinfo: row.f2qtinfo})
             };
 
 

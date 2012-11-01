@@ -717,8 +717,8 @@ function buildGQLQuery(args) {
     }
 
     if ((args['t_start'] != '') && (args['t_stop'] != '')) {
-        qparam += '+f2start:['+ args['t_start'] + ' TO ' + args['t_stop'] + '] '
-                  '+f2end:['+ args['t_start'] + ' TO ' + args['t_stop'] + ']';
+        qparam += '+f1start:['+ args['t_start'] + ' TO ' + args['t_stop'] + '] '
+                  '+f1end:['+ args['t_start'] + ' TO ' + args['t_stop'] + ']';
         }
 
     else if (args['t_start'] != '') {
