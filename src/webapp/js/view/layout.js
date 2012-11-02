@@ -4,6 +4,7 @@ function registerLayoutListeners() {
         loadListStores(obj);
         resetFormPanel();
         checkFormURL();
+        if (invalidFilter()) {return;}
         requestFilteredData();
         re.state.once_loaded = true;
     });
@@ -291,11 +292,37 @@ function invalidIsolateRequest(request_obj) {
     return invalid;
 }
 
-function manualFilterRequest() {
+function invalidFeatureFilterCheck() {
+
+    //make sure labels are defined for a filter query
+    if ((Ext.getCmp('filter_type').getValue() === re.ui.feature1.id && Ext.getCmp('t_label').getValue().length === 0) || 
+        (Ext.getCmp('filter_type').getValue() === re.ui.feature2.id && Ext.getCmp('p_label').getValue().length === 0)) {
+        Ext.Msg.alert('Invalid Request', 'At least one feature label must be specified for the filtered feature.');
+        return true;
+    }
+    return false;
+}
+
+function invalidFilter() {
+        //make sure a label is defined for feature isolation query
     if (Ext.getCmp('isolate').checked && invalidIsolateRequest(getFilterSelections())) {
         Ext.Msg.alert('Invalid Request', 'An exact feature label must be specified.');
+        return true;
+    }
+    //make sure labels are defined for a filter query
+    if (invalidFeatureFilterCheck()) {
+        return true;
+    }
+    return false;
+}
+
+function manualFilterRequest() {
+   
+    //make sure labels are defined for a filter query
+    if (invalidFilter()) {
         return;
     }
+
     re.state.query_cancel = false;
     re.display_options.cytoscape.ready = false;
     preserveState();
