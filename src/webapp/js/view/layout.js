@@ -536,7 +536,6 @@ function loadDataTableStore(data) {
         columns.forEach(function(col) {
             colModel.setHidden(colModel.getIndexById(col), true);
         });
-
     } else {
         load_data = pv.blend([data['network'], data['unlocated']]).map(function(row) {
             var obj = {
@@ -562,6 +561,25 @@ function loadDataTableStore(data) {
         columns.forEach(function(col) {
             colModel.setHidden(colModel.getIndexById(col), false);
         });
+    }
+    
+    var order = Ext.getCmp('order').getValue();
+    var fn = Ext.getCmp(order + '_fn') ? Ext.getCmp(order + '_fn').getValue() : '';
+    var config = re.model.association.types[re.model.association_map[order]];
+    var store_index = config.ui.grid.store_index;
+    var c,d;
+    if(fn ==='Abs'){
+          load_data.sort(function(a,b) {
+            c = a[store_index];
+            c = c >= 0 ? c : c * -1;
+            d = b[store_index];
+            d = d >= 0 ? d : d * -1;
+            return d - c;
+          });        
+        } else {
+    Ext.StoreMgr.get('data_grid_store').setDefaultSort(config.ui.grid.column.id,
+                                                        (config.query.order_direction).toUpperCase()
+                                                        );
     }
     Ext.StoreMgr.get('data_grid_store').loadData(load_data);
 
