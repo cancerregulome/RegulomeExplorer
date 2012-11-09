@@ -1746,7 +1746,13 @@ var medlineStore = new Ext.data.JsonStore({
     fields: ['pmid', 'article_title', 'abstract_text', 'pub_date_month', 'pub_date_year'],
     proxy: new Ext.data.HttpProxy({
         url: re.databases.medline.uri + re.databases.medline.select + '?'
-    })
+    }),
+    listeners: {
+        'load' : function(store, records) {
+            if (records.length < 1) { Ext.getCmp('details-tabpanel').items.get(1).setDisabled(true);}
+            else { Ext.getCmp('details-tabpanel').items.get(1).setDisabled(false);}
+        }
+    }
 });
 
 re.windows.details_window = new Ext.Window({
