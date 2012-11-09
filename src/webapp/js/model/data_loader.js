@@ -41,8 +41,10 @@ function parsePatientCategories(data) {
 }
 
 function parseFeatures(data) {
-    //data is only in the first row of this array
-    var features = data['data'][0];
+    //data is only in the first and second row of this array
+    var feature1 = data['data'][0];
+    var feature2 = data['data'][1];
+    var features = {f1alias : feature1.alias, f1values: feature1.patient_values, f2alias: feature2.alias, f2values:feature2.patient_values};
     vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready','features', features));
 }
 

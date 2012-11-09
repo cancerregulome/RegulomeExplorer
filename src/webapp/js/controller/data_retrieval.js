@@ -27,7 +27,6 @@ function selectDataset(set_label) {
     re.tables.feature_uri = '/v_' + set_label + '_feature_sources';
     re.tables.clin_uri = '/v_' + set_label + '_feature_clinlabel';
     re.tables.patient_uri = '/v_' + set_label + '_patients';
-    re.tables.feature_data_uri = '/v_' + set_label + '_patient_values';
     re.tables.pathway_uri = '/' + set_label + '_feature_pathways';
     re.tables.features_uri = '/' + set_label + '_features';
 }
@@ -235,13 +234,13 @@ function loadFeatureData(link) {
     var patients = {
         data: null
     };
-    var query_str = 'select f1alias, f1values, f2alias, f2values ' + 'where f1alias  = \'' + link.sourceNode.id + '\' and f2alias = \'' + link.targetNode.id + '\' or (f2alias = \'' + link.sourceNode.id + '\' and f1alias = \'' + link.targetNode.id+  '\') limit 1';
+    var query_str = 'select alias, patient_values ' + 'where alias  = \'' + link.sourceNode.id + '\' or alias = \'' + link.targetNode.id + '\' limit 2';
     var query_json = {
         tq: query_str,
         tqx: 'out:json_array'
     };
     var patient_query_str = '?' + Ext.urlEncode(query_json);
-    var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.feature_data_uri + re.rest.query + patient_query_str;
+    var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.features_uri + re.rest.query + patient_query_str;
 
     function patientQueryHandle(response) {
         try {
@@ -253,7 +252,7 @@ function loadFeatureData(link) {
             throwQueryError('features', response);
         }
 
-        if (patients['data'].length == 1) {
+        if (patients['data'].length == 2) {
             loadComplete();
         } else {
             noResults('features');
