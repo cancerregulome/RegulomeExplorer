@@ -55,7 +55,7 @@ vq.utils.VisUtils.extend(re, {
         },
         medline: {
             uri: '/solr/core0',
-            select: '/distributed_select/'
+            select: '/select/'
         }
     },
     tables: {
