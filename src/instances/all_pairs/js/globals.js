@@ -277,6 +277,8 @@ vq.utils.VisUtils.extend(re, {
         },
         chromosomes: [],
         dataset_labels: [],
+        categorical_sources_map = {},
+
         // Removes heading and trailing whitespaces from a string
     getDatasetLabels: function() {
             return re.ui.dataset_labels;
