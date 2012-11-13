@@ -25,7 +25,7 @@ function selectDataset(set_label) {
     re.tables.current_data = set_label;
     re.tables.network_uri = '/mv_' + set_label + '_feature_networks';
     re.tables.feature_uri = '/v_' + set_label + '_feature_sources';
-    re.tables.clin_uri = '/v_' + set_label + '_feature_clinlabel';
+    re.tables.clin_uri = '/v_' + set_label + '_feature_categorical_labels';
     re.tables.patient_uri = '/v_' + set_label + '_patients';
     re.tables.pathway_uri = '/' + set_label + '_feature_pathways';
     re.tables.features_uri = '/' + set_label + '_features';
@@ -34,21 +34,21 @@ function selectDataset(set_label) {
 function loadDatasetLabels() {
     var dataset_labels = {
         feature_sources: null,
-        clin_labels: null,
+        categorical_feature_labels: null,
         patients: null,
-	pathways: null
+	    pathways: null
     };
-    var clin_label_query_str = '?' + re.params.query + 'select `label`' + re.params.json_out;
+    var clin_label_query_str = '?' + re.params.query + 'select `alias`, `label`, `source` order by `gene_interesting_score`' + re.params.json_out;
     var clin_label_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.clin_uri + re.rest.query + clin_label_query_str;
     var synchronizer = new vq.utils.SyncCallbacks(loadComplete, this);
     function clinicalLabelQueryHandler(response) {
         try {
             if (errorInQuery(response.responseText)) {
-                throwQueryError('clin_labels', response);
+                throwQueryError('categorical_feature_labels', response);
             }
-            dataset_labels['clin_labels'] = Ext.decode(response.responseText);
+            dataset_labels['categorical_feature_labels'] = Ext.decode(response.responseText);
         } catch (err) {
-            throwQueryError('clin_labels', response);
+            throwQueryError('categorical_feature_labels', response);
         }
     }
     function loadComplete() {
@@ -121,30 +121,30 @@ function loadDatasetLabels() {
         }
     });
 
-    var category_query_json = {
-        tq: "select alias, `label` where (TYPE=\'C\' or TYPE=\'B\') and (SOURCE=\'SAMP\' or SOURCE=\'CLIN\')",
-        tqx: 'out:json_array'
-    };
+    // var category_query_json = {
+    //     tq: "select alias, `label` where (TYPE=\'C\' or TYPE=\'B\') and (SOURCE=\'SAMP\' or SOURCE=\'CLIN\')",
+    //     tqx: 'out:json_array'
+    // };
 
-    var category_query_str = '?' + Ext.urlEncode(category_query_json);
-    var category_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.features_uri + re.rest.query + category_query_str;
+    // var category_query_str = '?' + Ext.urlEncode(category_query_json);
+    // var category_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.features_uri + re.rest.query + category_query_str;
 
-    function categoryQueryHandle(response) {
-        try {
-            dataset_labels.categorical_features = Ext.decode(response.responseText);
-        }
-        catch (err) {
-            throwQueryError('categorical_features', response);
-        }
-    }
+    // function categoryQueryHandle(response) {
+    //     try {
+    //         dataset_labels.categorical_features = Ext.decode(response.responseText);
+    //     }
+    //     catch (err) {
+    //         throwQueryError('categorical_features', response);
+    //     }
+    // }
 
-    Ext.Ajax.request({
-        url: category_query,
-        success: synchronizer.add(categoryQueryHandle,this),
-        failure: function(response) {
-            queryFailed('categorical_features', response);
-        }
-    });
+    // Ext.Ajax.request({
+    //     url: category_query,
+    //     success: synchronizer.add(categoryQueryHandle,this),
+    //     failure: function(response) {
+    //         queryFailed('categorical_features', response);
+    //     }
+    // });
 }
 
 function lookupLabelPosition(label_obj) {

@@ -426,6 +426,7 @@ function resetFormPanel() {
     Ext.getCmp('p_stop').reset(), Ext.getCmp('order').reset(), Ext.getCmp('limit').reset(), Ext.getCmp('filter_type').reset(),
     Ext.getCmp('t_pathway').reset(), Ext.getCmp('p_pathway').reset();
     Ext.getCmp('t_pathway').setVisible(false),Ext.getCmp('p_pathway').setVisible(false),Ext.getCmp('t_clin').setVisible(false),Ext.getCmp('p_clin').setVisible(false);
+    Ext.getCmp('t_label').setVisible(true); Ext.getCmp('p_label').setVisible(true);
 
     re.model.association.types.forEach(function(obj) {
         if (Ext.getCmp(obj.id) === undefined) {
@@ -477,20 +478,38 @@ function loadListStores(dataset_labels) {
     Ext.getCmp('t_type').setValue('GEXP');
     Ext.StoreMgr.get('f2_type_combo_store').loadData(label_list);
     Ext.getCmp('p_type').setValue('*');
-    var clin_list = dataset_labels['clin_labels'].map(function(row) {
-        return {
+    var label_map = {};
+    var label_list = [
+            { 
+                source: '*',
+                value: '*',
+                label: 'All'
+            }
+                ];
+
+    dataset_labels['categorical_feature_labels'].forEach(function(row) {
+        if (label_map[row.source] === undefined) { 
+            label_map[row.source] = 1;
+        }
+        label_list.push({
+            source: row.source,
             value: row.label,
             label: row.label
-        };
+        });
     });
-    clin_list.unshift({
-        value: '*',
-        label: 'All'
-    });
-    Ext.StoreMgr.get('f1_clin_list_store').loadData(clin_list);
+    re.ui.categorical_sources_map = label_map;
+    var label_source_list = Object.keys(label_map);
+    var feature_filter = (label_map['CLIN'])  ? 'CLIN' : label_source_list[0];
+    var filter_regexp = new RegExp('\\*|' + feature_filter,'g')
+    if (label_list.length > 0) {
+        Ext.StoreMgr.get('f1_clin_list_store').loadData(label_list);
+        Ext.StoreMgr.get('f2_clin_list_store').loadData(label_list);
+        Ext.StoreMgr.get('f1_clin_list_store').filter('source',filter_regexp);
+        Ext.StoreMgr.get('f1_clin_list_store').filter('source',filter_regexp);
+    }
+
     Ext.getCmp('t_clin').setValue('*');
     Ext.getCmp('t_clin').defaultValue = '*';
-    Ext.StoreMgr.get('f2_clin_list_store').loadData(clin_list);
     Ext.getCmp('p_clin').setValue('*');
     Ext.getCmp('p_clin').defaultValue = '*';
    
@@ -503,10 +522,18 @@ function loadListStores(dataset_labels) {
     });
     Ext.StoreMgr.get('f1_pathway_list_store').loadData(pathway_list);
     Ext.StoreMgr.get('f2_pathway_list_store').loadData(pathway_list);
-    Ext.StoreMgr.get('categorical_feature_store').loadData(dataset_labels.categorical_features);
+
+    var scatterplot_categorical_features = dataset_labels['categorical_feature_labels'].filter( function(feature) {
+        var type = feature.alias[0];
+        return type === 'C' || type === 'B';
+    });
+
+    Ext.StoreMgr.get('categorical_feature_store').loadData(scatterplot_categorical_features);
 
     if (re.plot.default_colorby_feature_alias !== undefined) {
         Ext.getCmp('scatterplot_colorby_combobox').setValue(re.plot.default_colorby_feature_alias);
+    } else {
+
     }
 
 }

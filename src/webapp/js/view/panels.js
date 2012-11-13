@@ -114,6 +114,7 @@ re.ui.panels = {
                             fields : ['value','label'],
                             idProperty:'value',
                             data: [{
+                                source: '*',
                                 value: '*',
                                 label:'All'
                             }],
@@ -131,19 +132,21 @@ re.ui.panels = {
                         defaultValue : 'GEXP',
                         value: 'GEXP',
                         listeners: {
-                            select: function(field,record, index) {
-                                switch(record.id)  {
-                                case('CLIN'):
+                            select : function(field,record, index) {
+                                if (re.ui.categorical_sources_map[record.id]) {
+                                    var filter_regexp = new RegExp('\\*|' + record.id,'g');
+                                    Ext.StoreMgr.get('f1_clin_list_store').clearFilter();
+                                    Ext.StoreMgr.get('f1_clin_list_store').filter('source',filter_regexp);
+                                    Ext.getCmp('t_clin').setValue('*');
+                                    
                                     Ext.getCmp('t_label').setVisible(false);
                                     Ext.getCmp('t_clin').setVisible(true);
                                     Ext.getCmp('t_pathway').setVisible(false);
-                                    break;
-                                case('Pathway'):
-                                    Ext.getCmp('t_label').setVisible(true);                                  
+                                } else if (record.id === 'Pathway') {
+                                    Ext.getCmp('t_label').setVisible(false);
                                     Ext.getCmp('t_clin').setVisible(false);
                                     Ext.getCmp('t_pathway').setVisible(true);
-                                    break;
-                                default:
+                                } else {
                                     Ext.getCmp('t_label').setVisible(true);
                                     Ext.getCmp('t_clin').setVisible(false);
                                     Ext.getCmp('t_pathway').setVisible(false);
@@ -227,12 +230,12 @@ re.ui.panels = {
                         store: new Ext.data.JsonStore({
                             autoLoad : false,
                             data: [],
-                            fields : ['value','label'],
+                            fields : ['value','label','source'],
                             idProperty:'value',
                             storeId:'f1_clin_list_store'
                         }),
                         listWidth:200,
-                        fieldLabel:'Clinical Feature',
+                        fieldLabel:'Features',
                         selectOnFocus:true,
                         forceSelection : true,
                         triggerAction : 'all',
@@ -328,9 +331,10 @@ re.ui.panels = {
                         allowBlank : true,
                         store: new Ext.data.JsonStore({
                             autoLoad : false,
-                            fields : ['value','label'],
+                            fields : ['value','label','source'],
                             idProperty:'value',
                             data: [{
+                                source: '*',
                                 value: '*',
                                 label:'All'
                             }],
@@ -349,18 +353,20 @@ re.ui.panels = {
                         value : '*',
                         listeners : {
                             select : function(field,record, index) {
-                                switch(record.id)  {
-                                case('CLIN'):
+                                if (re.ui.categorical_sources_map[record.id]) {
+                                    var filter_regexp = new RegExp('\\*|' + record.id,'g');
+                                    Ext.StoreMgr.get('f2_clin_list_store').clearFilter();
+                                    Ext.StoreMgr.get('f2_clin_list_store').filter('source',filter_regexp);
+                                    Ext.getCmp('p_clin').setValue('*');
+                                    
                                     Ext.getCmp('p_label').setVisible(false);
                                     Ext.getCmp('p_clin').setVisible(true);
                                     Ext.getCmp('p_pathway').setVisible(false);
-                                    break;
-                                case('Pathway'):
+                                } else if (record.id === 'Pathway') {
                                     Ext.getCmp('p_label').setVisible(false);
                                     Ext.getCmp('p_clin').setVisible(false);
                                     Ext.getCmp('p_pathway').setVisible(true);
-                                    break;
-                                default:
+                                } else {
                                     Ext.getCmp('p_label').setVisible(true);
                                     Ext.getCmp('p_clin').setVisible(false);
                                     Ext.getCmp('p_pathway').setVisible(false);
@@ -443,12 +449,12 @@ re.ui.panels = {
                         store: new Ext.data.JsonStore({
                             autoLoad : false,
                             data: [],
-                            fields : ['value','label'],
+                            fields : ['value','label','source'],
                             idProperty:'value',
                             storeId:'f2_clin_list_store'
                         }),
                         listWidth:200,
-                        fieldLabel:'Clinical Feature',
+                        fieldLabel:'Features',
                         selectOnFocus:true,
                         forceSelection : true,
                         triggerAction : 'all',
