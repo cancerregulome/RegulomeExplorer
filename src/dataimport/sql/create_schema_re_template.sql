@@ -55,9 +55,16 @@ CREATE VIEW v_#REPLACE#_features as
 SELECT id, chr,start,end,strand,type,source,label,alias,gene_interesting_score,label_desc 
 FROM #REPLACE#_features;
 
-DROP VIEW IF EXISTS v_#REPLACE#_feature_clinlabel;
-CREATE VIEW v_#REPLACE#_feature_clinlabel as
-SELECT DISTINCT label from #REPLACE#_features where source = 'CLIN';
+-- DROP VIEW IF EXISTS v_#REPLACE#_feature_clinlabel;
+-- CREATE VIEW v_#REPLACE#_feature_clinlabel as
+-- SELECT DISTINCT label from #REPLACE#_features where source = 'CLIN';
+
+/*replace individual categorical label tables with one label table */
+DROP VIEW IF EXISTS v_#REPLACE#_feature_categorical_labels;
+CREATE VIEW v_#REPLACE#_feature_categorical_labels as
+SELECT DISTINCT label, alias, source, gene_interesting_score from #REPLACE#_features where source = 'CLIN'
+UNION SELECT DISTINCT label, alias, source, gene_interesting_score from #REPLACE#_features where source = 'SAMP'
+UNION SELECT DISTINCT label, alias, source, gene_interesting_score from #REPLACE#_features where source = 'PRDM';
 
 DROP VIEW IF EXISTS v_#REPLACE#_feature_sources;
 CREATE VIEW v_#REPLACE#_feature_sources as 
