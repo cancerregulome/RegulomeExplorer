@@ -1,6 +1,64 @@
 
 vq.utils.VisUtils.extend(re, {
     functions: {
+
+        parseFeatureLabel : function(alias) {
+            var feature = alias.split(':');
+            return {type:feature[0],source:feature[1],label:feature[2],chr:feature[3],
+                start:feature[4],stop:feature[5],strand:feature[6],modifier:feature[7]};
+        },
+        getValueToLabelFunction: function(alias) { 
+            var feature = re.functions.parseFeatureLabel(alias);
+            var value_map = {'NA' : 'NA'};
+            if (!!~feature.label.indexOf('I(')) {
+                var values = feature.label.slice(2,-1);
+                var conditions = values.split('|');
+                if (conditions.length > 1) { 
+                    var alternatives = conditions[0].split(',');
+                    if (alternatives.length > 1) {
+                        value_map['0'] = 'Yes for ' + alternatives[1]; value_map['1'] = 'Yes for ' + alternatives[0];    
+                    } else {
+                        value_map['0'] = 'Not ' + alternatives[0]; value_map['1'] = 'Yes ' + alternatives[0];    
+                    }
+                } else{
+                    value_map['0'] = 'True'; value_map['1'] = 'False';
+                }
+            } else if (feature.type === 'B' && feature.label === 'GNAB') {
+                value_map['0'] = 'Non-mutated';
+                value_map['1'] = 'Mutated';
+            }
+            if (Object.keys(value_map).length > 1) {
+                return function(value) {
+                        return value_map[value] ? value_map[value] : value;
+                };
+            } else {
+                return null;
+            }
+        },
+
+        assignValueColors : function(value_array) {
+            var uniq_values = pv.uniq(value_array);
+            
+            var plot_obj = re.plot;
+            var color_obj = plot_obj.colors;
+            var color_map = {'NA':color_obj.categorical_values['NA']};
+            var num_colors = color_obj.category_colors.length
+            if (uniq_values.length > num_colors +1) { return pv.Colors.category10(uniq_values); }
+            var index = 0;
+            uniq_values.forEach(function(val) { 
+                if (color_obj.categorical_values[val]){
+                    color_map[val] = color_obj.categorical_values[val];
+                }else if (plot_obj.category_equivalents[val]){
+                    color_map[val] = color_obj.categorical_values[plot_obj.category_equivalents[val]];
+                } else {
+                    color_map[val] = color_obj.category_colors[index];
+                    index = index + 1;
+                    if (index >= num_colors) { return color_map;}
+                }
+            });
+            return color_map;
+        },
+
         convertChrListToQueryClause: function(list_str, column_name) {
             var tokens = list_str.split(',').map(trim);            
             var and_tokens = new Array();
@@ -146,6 +204,18 @@ function parseLabel(label) {
         return '=\'' + return_label + '\'';
     }
 }
+
+function querifySolrLabelList(labellist) {
+    var labels = parseLabelList(labellist);
+    var clause = '(';
+    if (labels.length < 1) return '';
+    labels.forEach(function(label) {
+        clause += parseSolrLabel(label);
+    });
+    clause += ')';
+    return clause;
+}
+
 function parseSolrLabel(label) {
     var return_label = label.toUpperCase();
     if (return_label.length > 1 && (return_label.indexOf('*') >= 0 || return_label.indexOf('%') >= 0)) {
