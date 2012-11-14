@@ -36,8 +36,7 @@ function parseAnnotations(data) {
 }
 
 function parsePatientCategories(data) {
-    var categories = data.patient_values;
-    vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready','patient_categories', categories));
+    vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready','patient_categories', data));
 }
 
 function parseFeatures(data) {
