@@ -194,7 +194,7 @@ function lookupLabelPosition(label_obj) {
 }
 
 function loadPatientCategories(alias) {
-    var query_str = 'select patient_values where alias = \'' + alias + '\' limit 1';
+    var query_str = 'select alias, patient_values where alias = \'' + alias + '\' limit 1';
     var query_json = {
         tq: query_str,
         tqx: 'out:json_array'
@@ -690,10 +690,10 @@ function buildGQLQuery(args) {
                qparam += '+f2source:"'+ args['p_type'] + '"';
     }
     if (args['t_label'] != '' && args['t_label'] != '*') {
-               qparam += '+f1label:'+ parseSolrLabel(args['t_label']) + ' ';
+               qparam += '+f1label:'+ querifySolrLabelList(args['t_label']) + ' ';
     }
     if (args['p_label'] != '' && args['p_label'] != '*') {
-               qparam += '+f2label:'+ parseSolrLabel(args['p_label']) + ' ';
+               qparam += '+f2label:'+ querifySolrLabelList(args['p_label']) + ' ';
     }
     if (args['t_chr'] != '' && args['t_chr'] != '*') {
         qparam += re.functions.convertChrListToSolrQueryClause(args['t_chr'],'f1chr');
