@@ -4,6 +4,7 @@ function registerLayoutListeners() {
         loadListStores(obj);
         resetFormPanel();
         checkFormURL();
+        rectifyForm();
         if (invalidFilter()) {return;}
         requestFilteredData();
         re.state.once_loaded = true;
@@ -102,18 +103,23 @@ function checkDatasetURL() {
     }
 }
 
+function rectifyForm() {
+ ['t', 'p'].forEach(function(f) {
+        if (Ext.getCmp(f+'_clin').isVisible()) {
+            var value = Ext.getCmp(f+'_label').getValue();
+            Ext.getCmp(f+'_clin').setValue(value || '*',true);
+            Ext.getCmp(f+'_label').setValue('',true);
+        }
+    });
+}
+
 function checkFormURL() {
     var json = extractURL();
     if (json != null) setFormState(json);
 }
 
 function setFormState(json) {
-    ['t', 'p'].forEach(function(f) {
-        if (json[f + '_type'] == 'CLIN') {
-            json[f + '_clin'] = json[f + '_label'];
-            delete json[f + '_label']
-        }
-    });
+   
     Ext.iterate(json, setComponentState)
 }
 
@@ -131,7 +137,7 @@ function getURI() {
 function removeDefaultValues(json) {
     //remove default clinical label values.  They've already been copied to the label field
     ['t', 'p'].forEach(function(f) {
-        if (json[f + '_type'] == 'CLIN') {
+        if (Ext.getCmp(f+'_clin').isVisible()) {
             if (json[f + '_label'] == Ext.getCmp(f + '_clin').defaultValue) {
                 delete json[f + '_label'];
             }
@@ -344,29 +350,22 @@ function getFilterSelections() {
     var type_1 = Ext.getCmp('t_type').getValue();
     //clean out pathway value if not the selected type
     var label_1,pathway_1='';
-    switch (type_1) {
-        case ('CLIN'):
+    if (Ext.getCmp('t_clin').isVisible()) {
             label_1 = Ext.getCmp('t_clin').getValue();
-            break;
-             case ('PATH'):
+        } else if (Ext.getCmp('t_pathway').isVisible()) {
              pathway_1 = Ext.getCmp('t_pathway').getValue();
-             break;
-        default:
+        } else {
             label_1 = Ext.getCmp('t_label').getValue();
-
-    }
+        }
     var type_2 = Ext.getCmp('p_type').getValue();
     var label_2,pathway_2='';
-    switch (type_2) {
-        case ('CLIN'):
+   if (Ext.getCmp('p_clin').isVisible()) {
             label_2 = Ext.getCmp('p_clin').getValue();
-            break;
-            case ('PATH'):
+        } else if (Ext.getCmp('p_pathway').isVisible()) {
              pathway_2 = Ext.getCmp('p_pathway').getValue();
-             break;
-        default:
+        } else {
             label_2 = Ext.getCmp('p_label').getValue();
-    }
+        }
     return packFilterSelections(
         type_1, label_1, Ext.getCmp('t_chr').getValue(), Ext.getCmp('t_start').getValue(), Ext.getCmp('t_stop').getValue(),
         type_2, label_2, Ext.getCmp('p_chr').getValue(), Ext.getCmp('p_start').getValue(), Ext.getCmp('p_stop').getValue(),
@@ -442,13 +441,13 @@ function resetFormPanel() {
 
 function updateFilterPanel() {
      // if f1 has a label value and f1 is a list
-                    if (Ext.getCmp('t_label').getValue() != null && Ext.getCmp('t_label').getValue().indexOf(",") > -1) {
+                    if (Ext.getCmp('t_pathway').getValue() !== '' && Ext.getCmp('t_label').getValue().indexOf(",") > -1) {
                         //set filter type to feature 1, assign pathway, expand panel
                         Ext.getCmp("filter_type").setValue(re.ui.feature1.id);
                         re.ui.setCurrentPathwayMembers(Ext.getCmp('t_label').getValue());
                         Ext.getCmp('pathway_member_panel').expand();
                     // or if f2 has a lavel value and f2 is a list
-                    } else if (Ext.getCmp('p_label').getValue() != null && Ext.getCmp('p_label').getValue().indexOf(",") > -1) {
+                    } else if (Ext.getCmp('p_pathway').getValue() !== '' && Ext.getCmp('p_label').getValue().indexOf(",") > -1) {
                         Ext.getCmp("filter_type").setValue(re.ui.feature2.id);
                         re.ui.setCurrentPathwayMembers(Ext.getCmp('p_label').getValue());
                         Ext.getCmp('pathway_member_panel').expand();
@@ -1789,7 +1788,7 @@ re.windows.details_window = new Ext.Window({
     closeAction: 'hide',
     layout: 'fit',
     width: 800,
-    height: 530,
+    height: 600,
     constrain: true,
     title: "Details",
     closable: true,
@@ -1808,20 +1807,30 @@ re.windows.details_window = new Ext.Window({
             id: 'scatterplot_parent',
             name: 'scatterplot_parent',
             title: 'Data Plot',
-            layout: 'anchor',
+            layout: 'border',
             margins: '3 0 3 3',
-            height: 500,
+            height: 550,
             width: 660,
             frame: true,
             items: [{
                 xtype: 'panel',
                 id: 'scatterplot_panel',
                 name: 'scatterplot_panel',
-                anchor: '100% -100'
+                region: 'center'
             }, {
+
+                xtype: 'panel',
+                id: 'scatterplot-legend-panel',
+                name: 'scatterplot-legend-panel',
+                region: 'east',
+                width:120
+            },{
                 xtype: 'panel',
                 id: 'scatterplot_controls',
                 name: 'scatterplot_controls',
+                region:'south',
+                height:100,
+                split:false,
                 layout: 'form',
                 items: [{
                     xtype: 'radiogroup',
@@ -1885,6 +1894,7 @@ re.windows.details_window = new Ext.Window({
                             displayField: 'label',
                             valueField: 'alias',
                             mode: 'local',
+                            width:250,
                             triggerAction : 'all',
                             store: new Ext.data.JsonStore({
                                 id: 'categorical_feature_store',
@@ -1917,7 +1927,7 @@ re.windows.details_window = new Ext.Window({
                                         }
                                         else {
                                             Ext.getCmp('scatterplot_colorby_combobox').disable();
-                                            re.plot.scatterplot_categories = undefined;
+                                            re.plot.scatterplot_category = undefined;
                                             renderScatterPlot();
                                         }
                                     }
