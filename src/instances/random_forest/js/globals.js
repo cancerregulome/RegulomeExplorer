@@ -262,13 +262,44 @@ vq.utils.VisUtils.extend(re, {
             },
             setStrokeStyleAttribute: function(attr) {
                 re.plot.colors.stroke_style_attribute = attr;
-            }
+            },
+             categorical_values: {
+                        'NA' :'#444444',
+                        '0': '#1f77b4', //blue
+                        '1': '#ff7f0e',  //orange
+           },
+           category_colors : [
+              '#2ca02c',        
+                '#9467bd',
+                '#d62728',
+                '#8c564b',
+                '#e377c2',
+                '#7f7f7f',
+                '#bcbd22',
+                "#c2c4ff", 
+                "#e7cb94", 
+                "#cedb9c", 
+                "#e7969c", 
+                "#e1daf9", 
+                "#b8e2ef"
+            ]
         },
         inter_scale: pv.Scale.linear(0.00005, 0.0004).range('lightpink', 'red'),
         linear_unit: 100000,
         chrome_length: [],
         legend: {},
-        scatterplot_data: null
+        scatterplot_data: null,
+
+           category_equivalents :{
+                'NEG': '0' ,
+                'NEGATIVE' : '0', 
+                'TUMOR_FREE' : '0',
+                'NO': '0',
+                'POS': '1', 
+                'POSITIVE' : '1', 
+                'WITH_TUMOR' : '1',
+                'YES': '1'
+            }
     },
     ui: {
         filters: {
@@ -277,7 +308,7 @@ vq.utils.VisUtils.extend(re, {
         },
         chromosomes: [],
         dataset_labels: [],
-        categorical_sources_map = {},
+        categorical_sources_map : {},
         
       // Removes heading and trailing whitespaces from a string
     getDatasetLabels: function() {
