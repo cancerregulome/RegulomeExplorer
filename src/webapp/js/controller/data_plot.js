@@ -41,6 +41,7 @@ function registerPlotListeners() {
         re.plot.pw_name = obj['pw_name'];
     });
     d.addListener('render_scatterplot','details', function(obj){
+        wipeScatterplotLegend();
         scatterplot_draw(obj);
     });
     d.addListener('render_linearbrowser', function(obj){
@@ -64,7 +65,9 @@ function registerPlotListeners() {
 
 }
 function updatePatientCategories(data) {
-    re.plot.scatterplot_categories = data.split(':');
+    re.plot.scatterplot_category = {};
+    re.plot.scatterplot_category.values = data.patient_values.split(':');
+    re.plot.scatterplot_category.alias = data.alias;
     vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready', 'features', re.plot.scatterplot_data));
 }
 
@@ -167,6 +170,14 @@ function renderLinearLegend(anchor) {
     legend_draw(document.getElementById('linear-legend-panel'));
 }
 
+function wipeScatterplotLegend(categories,color_map) {
+    document.getElementById('scatterplot-legend-panel').innerHTML = "";
+}
+
+function renderScatterplotLegend(categories,color_map) {
+    scatterplot_legend_draw(document.getElementById('scatterplot-legend-panel'),categories,color_map);
+}
+
 function renderCircleData(data) {
     Ext.getCmp('circle-colorscale-panel').el.dom.innerHTML = '';
     buildNetworkCircvis(data, document.getElementById('circle-panel'));
@@ -238,6 +249,48 @@ function colorscale_draw(association_obj, div) {
     vis.render();
 
 }
+
+function scatterplot_legend_draw(div,categories,color_map) {
+    
+    var width = 100,
+        offset = 10,
+        lineHeight = 10,
+        box_width = 10;
+
+    var vis= new pv.Panel()
+        .height(400)
+        .width(width)
+        .strokeStyle(null)
+        .canvas(div);
+    var legend = vis.add(pv.Panel)
+        .top(30)
+        .left(offset)
+        .right(width-offset)
+        .strokeStyle(null);
+
+    var entry = legend.add(pv.Panel)
+            .data(categories)
+            .top(function() { return this.index * lineHeight;})
+            .height(lineHeight);
+        
+        entry.add(pv.Bar)         
+            .width(lineHeight)
+            .left(1)
+            .top(1)
+            .bottom(0)
+            .fillStyle(function(cat) { return color_map[cat];});
+        
+        entry.add(pv.Label)
+            .left(lineHeight)
+            .bottom(0)
+            .textAlign('left')
+            .textBaseline('bottom')
+            .font("11px helvetica");
+
+    vis.render();
+
+}
+
 function pathway_members_draw(div,anchor,networks) {
     var dataset_labels = re.ui.getDatasetLabels();
     if (re.ui.getCurrentPathwayMembers() == null || re.ui.getCurrentPathwayMembers().length == 0)
@@ -1260,15 +1313,35 @@ function scatterplot_draw(params) {
     var f1 = data.f1alias, f2 = data.f2alias;
     var f1label = data.f1alias, f2label = data.f2alias;
     var f1values, f2values;
-    var categories = re.plot.scatterplot_categories;
+    var category_labels = new Array(2);
+    var categories = re.plot.scatterplot_category ? re.plot.scatterplot_category.values : undefined;
+    var label_fn, uniq_cat, temp;
+
+    function makeLabelMap(label_fn) {
+        var fn = label_fn;
+        return function(cat) { 
+            return fn ? fn(cat) : cat;
+        };
+    }
 
     if (isNonLinear(f1label[0])) {
         f1values = data.f1values.split(':');
+        //calculate human readable tick labels:
+         label_fn= re.functions.getValueToLabelFunction(f1label);
+        //labels to display for category values;
+        uniq_cat = pv.uniq(f1values);
+         category_labels[0] = makeLabelMap(label_fn);
     } else {
         f1values = data.f1values.split(':').map(function(val) {return parseFloat(val);});
     }
+    
     if (isNonLinear(f2label[0])) {
         f2values = data.f2values.split(':');
+         //calculate human readable tick labels:
+         label_fn= re.functions.getValueToLabelFunction(f2label);
+        //labels to display for category values;
+        uniq_cat = pv.uniq(f2values);
+        category_labels[1] = makeLabelMap(label_fn);
     } else {
         f2values = data.f2values.split(':').map(function(val) {return parseFloat(val);});
     }
@@ -1277,15 +1350,27 @@ function scatterplot_draw(params) {
     var fill_style_fn = undefined;
     var stroke_style_fn = undefined;
     if (categories !== undefined) {
-        var unique_categories = pv.uniq(categories);
-        dot_colors = pv.Colors.category10(unique_categories);
+        var category_feature_alias = re.plot.scatterplot_category.alias;
+        var labelFunction = re.functions.getValueToLabelFunction(category_feature_alias);
+        //labels to display for category values;
+        var uniq_categories = pv.uniq(categories);
+        var mappedValues = labelFunction ? uniq_categories.map(labelFunction) : uniq_categories;
+
+        dot_colors = re.functions.assignValueColors(categories);
+
+        var mappedColors = {};
+        Object.keys(dot_colors).forEach(function(category){
+            var modified_cat = labelFunction ? labelFunction(category) : category;
+            mappedColors[modified_cat] = dot_colors[category];
+        });
 
         fill_style_fn = function(d) {
-            return dot_colors(d.category);
+            return dot_colors[d.category];
         };
         stroke_style_fn = function(d) {
-            return dot_colors(d.category);
+            return dot_colors[d.category];
         }
+        renderScatterplotLegend(mappedValues,mappedColors);
     }
     else {
         fill_style_fn = function() {return pv.color('steelblue').alpha(0.2);};
@@ -1311,6 +1396,8 @@ function scatterplot_draw(params) {
         config.CONTENTS.xcolumnid = f2;config.CONTENTS.ycolumnid=f1;config.CONTENTS.xcolumnlabel=f2label;config.CONTENTS.ycolumnlabel=f1label;
         tooltip[data.f1alias]=f2;tooltip[data.f2alias]=f1;
         config.CONTENTS.tooltip_items=tooltip;
+            //swap label maps        
+        if (cubbyhole) { category_labels.unshift(category_labels[1]); category_labels.pop(); }
     }
     var tooltip = {};
     tooltip[data.f1alias] = f1,tooltip[data.f2alias] = f2,tooltip['Sample'] = 'patient_id';
@@ -1318,17 +1405,33 @@ function scatterplot_draw(params) {
     if(discretize_x && !isNonLinear(f1label[0])) {
         var values1 = data_array.map(function(obj){return obj[f1];});
         var binFunc1 = binData(values1);
+        var cat1 = new Array();
         data_array.forEach(function(val) {
             val[f1] = binFunc1(val[f1]);
+            cat1.push(val[f1]);
         });
+        //calculate human readable tick labels:
+         label_fn= re.functions.getValueToLabelFunction(f2label);
+        //labels to display for category values;
+        uniq_cat = pv.uniq(cat1);
+        category_labels[0] = makeLabelMap(label_fn);
     }
+
     if(discretize_y && !isNonLinear(f2label[0])) {
         var values2 = data_array.map(function(obj){return obj[f2];});
         var binFunc2 = binData(values2);
+        var cat2 = new Array();
         data_array.forEach(function(val) {
             val[f2] = binFunc2(val[f2]);
+            cat2.push(val[f2]);
         });
+          //calculate human readable tick labels:
+         label_fn= re.functions.getValueToLabelFunction(f2label);
+        //labels to display for category values;
+        uniq_cat = pv.uniq(cat2);
+        category_labels[1] = makeLabelMap(label_fn);
     }
+
     f1label = (discretize_x ? 'C' : f1label[0]) + f1label.slice(1);
     f2label = (discretize_y ? 'C' : f2label[0]) + f2label.slice(1);
     var violin = (isNonLinear(f1label[0]) ^ isNonLinear(f2label[0])); //one is nonlinear, one is not
@@ -1357,7 +1460,7 @@ function scatterplot_draw(params) {
             fill_style: fill_style_fn,
             stroke_style: stroke_style_fn,
             x_axis_tick_format: function(d) {
-                return isNaN(parseFloat(d)) ? d : parseFloat(d).toPrecision(3);
+                return isNaN(parseFloat(d)) ? (category_labels[0](d) ? category_labels[0](d) : d) : parseFloat(d).toPrecision(3)  ;
             },
             y_axis_tick_format: function(d) {
                 return parseFloat(d).toPrecision(3);
@@ -1388,10 +1491,10 @@ function scatterplot_draw(params) {
             fill_style: fill_style_fn,
             stroke_style: stroke_style_fn,  
             x_axis_tick_format: function(d) {
-                return isNaN(parseFloat(d)) ? d : parseFloat(d).toPrecision(3);
+                return isNaN(parseFloat(d)) ? (category_labels[0](d) ? category_labels[0](d) : d) : parseFloat(d).toPrecision(3)  ;
             },
             y_axis_tick_format: function(d) {
-                return isNaN(parseFloat(d)) ? d : parseFloat(d).toPrecision(3);
+                return isNaN(parseFloat(d)) ? (category_labels[1](d) ? category_labels[1](d) : d) : parseFloat(d).toPrecision(3)  ;
             }
         }};
         if (reverse_axes) {
