@@ -134,9 +134,9 @@ re.ui.panels = {
                         listeners: {
                             select : function(field,record, index) {
                                 if (re.ui.categorical_sources_map[record.id]) {
-                                    var filter_regexp = new RegExp('\\*|' + record.id,'g');
-                                    Ext.StoreMgr.get('f1_clin_list_store').clearFilter();
-                                    Ext.StoreMgr.get('f1_clin_list_store').filter('source',filter_regexp);
+                                          //get filtered list
+                                    var list = re.ui.categorical_feature_list.filter(function(l) { return l.source === record.id || l.source ==='*';});
+                                    Ext.StoreMgr.get('f1_clin_list_store').loadData(list,false);
                                     Ext.getCmp('t_clin').setValue('*');
                                     
                                     Ext.getCmp('t_label').setVisible(false);
@@ -354,9 +354,9 @@ re.ui.panels = {
                         listeners : {
                             select : function(field,record, index) {
                                 if (re.ui.categorical_sources_map[record.id]) {
-                                    var filter_regexp = new RegExp('\\*|' + record.id,'g');
-                                    Ext.StoreMgr.get('f2_clin_list_store').clearFilter();
-                                    Ext.StoreMgr.get('f2_clin_list_store').filter('source',filter_regexp);
+                                    //get filtered list
+                                    var list = re.ui.categorical_feature_list.filter(function(l) { return l.source === record.id || l.source === '*';});
+                                    Ext.StoreMgr.get('f2_clin_list_store').loadData(list,false);
                                     Ext.getCmp('p_clin').setValue('*');
                                     
                                     Ext.getCmp('p_label').setVisible(false);

@@ -478,11 +478,12 @@ function loadListStores(dataset_labels) {
     Ext.StoreMgr.get('f2_type_combo_store').loadData(label_list);
     Ext.getCmp('p_type').setValue('*');
     var label_map = {};
-    var label_list = [
+    var cat_feature_list = [
             { 
                 source: '*',
                 value: '*',
-                label: 'All'
+                label: 'All',
+                alias: '*'
             }
                 ];
 
@@ -490,21 +491,22 @@ function loadListStores(dataset_labels) {
         if (label_map[row.source] === undefined) { 
             label_map[row.source] = 1;
         }
-        label_list.push({
+        cat_feature_list.push({
             source: row.source,
             value: row.label,
-            label: row.label
+            label: row.label,
+            alias: row.alias
         });
     });
     re.ui.categorical_sources_map = label_map;
+    re.ui.categorical_feature_list = cat_feature_list;
+    
     var label_source_list = Object.keys(label_map);
     var feature_filter = (label_map['CLIN'])  ? 'CLIN' : label_source_list[0];
-    var filter_regexp = new RegExp('\\*|' + feature_filter,'g')
-    if (label_list.length > 0) {
-        Ext.StoreMgr.get('f1_clin_list_store').loadData(label_list);
-        Ext.StoreMgr.get('f2_clin_list_store').loadData(label_list);
-        Ext.StoreMgr.get('f1_clin_list_store').filter('source',filter_regexp);
-        Ext.StoreMgr.get('f1_clin_list_store').filter('source',filter_regexp);
+    if (cat_feature_list.length > 0) {       
+        var list = re.ui.categorical_feature_list.filter(function(l) { return l.source === feature_filter || l.source ==='*';});
+        Ext.StoreMgr.get('f1_clin_list_store').loadData(list,false);
+        Ext.StoreMgr.get('f2_clin_list_store').loadData(list,false);
     }
 
     Ext.getCmp('t_clin').setValue('*');
