@@ -630,7 +630,8 @@ re.ui.panels = {
                                 tabIndex: 12,
                                 validateOnBlur: true,
                                 allowDecimals: false,
-                                default_value: '50000'
+                                default_value: '50000',
+                                default_fn: '<='
                             })
                         ]
                     }])

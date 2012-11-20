@@ -253,6 +253,7 @@ re.simplerangeField = Ext.extend(Ext.form.CompositeField, {
         var max_value = config.max_value || 1;
         var label = config.label || '';
         var id = config.id || label+ 'id';
+        var default_fn = config.default_fn || '>=';
 
         config = Ext.apply( {
             anchor: '-20',
@@ -267,8 +268,8 @@ re.simplerangeField = Ext.extend(Ext.form.CompositeField, {
                     name :id + '_fn',
                     xtype:          'combo',
                     mode:           'local',
-                    defaultValue:          '>=',
-                    value:          '>=',
+                    defaultValue:  default_fn,
+                    value:          default_fn,
                     triggerAction:  'all',
                     forceSelection: true,
                     editable:       false,
