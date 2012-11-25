@@ -1173,9 +1173,9 @@ function linear_plot(obj) {
                     fill_style : function(node) { return re.plot.colors.node_colors(node.source);},          //required
                     stroke_style : function(node) { return re.plot.colors.node_colors(node.source);},          //required
                     track_height : 50,           //required
-                    tile_height:20,                //required
-                    track_padding: 20,             //required
-                    tile_padding:6,              //required
+                    tile_height:13,                //required
+                    track_padding: 10,             //required
+                    tile_padding:5,              //required
                     tile_overlap_distance:1 * re.MILLION,
                     notifier:tile_listener,         //optional
                     track_fill_style : pv.color('#EEDEDD'),
