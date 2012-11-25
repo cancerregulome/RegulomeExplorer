@@ -23,7 +23,7 @@ vq.utils.VisUtils.extend(re, {
                 } else{
                     value_map['0'] = 'True'; value_map['1'] = 'False';
                 }
-            } else if (feature.type === 'B' && feature.label === 'GNAB') {
+            } else if (feature.type === 'B' && feature.source === 'GNAB') {
                 value_map['0'] = 'Non-mutated';
                 value_map['1'] = 'Mutated';
             }
