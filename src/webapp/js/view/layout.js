@@ -1181,10 +1181,10 @@ var options = function(t) { return {
                             text: 'SVG',
                             value: 'svg',
                             handler: exportImage
-                        }, {
-                            text: 'PNG',
-                            value: 'png',
-                            handler: exportImage
+                        // }, {
+                        //     text: 'PNG',
+                        //     value: 'png',
+                        //     handler: exportImage
                         }]
                     }, {
                         text: 'Linear',
@@ -1194,10 +1194,10 @@ var options = function(t) { return {
                             text: 'SVG',
                             value: 'svg',
                             handler: exportImage
-                        }, {
-                            text: 'PNG',
-                            value: 'png',
-                            handler: exportImage
+                        // }, {
+                        //     text: 'PNG',
+                        //     value: 'png',
+                        //     handler: exportImage
                         }]
                     }, {
                         text: 'Network',
