@@ -1098,6 +1098,14 @@ Ext.onReady(function() {
                             //initiateDetailsPopup(link);
                             vq.events.Dispatcher.dispatch(new vq.events.Event('click_association', 'associations_table', link));
                         }
+                        mouseover: function (e,t) {
+                            var row;
+                            if((row = this.findRowIndex(t)) !== false){
+                                var record = this.store.getAt(row);
+                                var id = record.get('Id');
+                                var col = this.getView().findCellIndex(t); 
+                            }
+                        }
                     }
                 }]
             }]

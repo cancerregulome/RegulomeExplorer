@@ -1465,7 +1465,9 @@ function scatterplot_draw(params) {
             fill_style: fill_style_fn,
             stroke_style: stroke_style_fn,
             x_axis_tick_format: function(d) {
-                return isNaN(parseFloat(d)) ? (category_labels[0](d) ? category_labels[0](d) : d) : parseFloat(d).toPrecision(3)  ;
+                var e = d + '';
+                var c = category_labels[0](e);
+                return c !== e ? c : (isNaN(parseFloat(d)) ? e : parseFloat(d).toPrecision(3))  ;
             },
             y_axis_tick_format: function(d) {
                 return parseFloat(d).toPrecision(3);
@@ -1496,10 +1498,14 @@ function scatterplot_draw(params) {
             fill_style: fill_style_fn,
             stroke_style: stroke_style_fn,  
             x_axis_tick_format: function(d) {
-                return isNaN(parseFloat(d)) ? (category_labels[0](d) ? category_labels[0](d) : d) : parseFloat(d).toPrecision(3)  ;
+                var e = d + '';
+                var c = category_labels[0](e);
+                return c !== e ? c : (isNaN(parseFloat(d)) ? e : parseFloat(d).toPrecision(3))  ;
             },
             y_axis_tick_format: function(d) {
-                return isNaN(parseFloat(d)) ? (category_labels[1](d) ? category_labels[1](d) : d) : parseFloat(d).toPrecision(3)  ;
+                 var e = d + '';
+                var c = category_labels[1](e);
+                return c !== e ? c : (isNaN(parseFloat(d)) ? e : parseFloat(d).toPrecision(3))  ;
             }
         }};
         if (reverse_axes) {
