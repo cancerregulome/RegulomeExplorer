@@ -1097,7 +1097,7 @@ Ext.onReady(function() {
                             link.targetNode.label = record.get('source_label');
                             //initiateDetailsPopup(link);
                             vq.events.Dispatcher.dispatch(new vq.events.Event('click_association', 'associations_table', link));
-                        }
+                        },
                         mouseover: function (e,t) {
                             var row;
                             if((row = this.findRowIndex(t)) !== false){
