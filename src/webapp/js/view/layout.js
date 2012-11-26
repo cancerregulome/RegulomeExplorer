@@ -1100,10 +1100,23 @@ Ext.onReady(function() {
                         },
                         mouseover: function (e,t) {
                             var row;
-                            if((row = this.findRowIndex(t)) !== false){
+                             var col;
+                            if((row = this.getView().findRowIndex(t)) !== false && (col = this.getView().findCellIndex(t)) != false ){
                                 var record = this.store.getAt(row);
-                                var id = record.get('Id');
-                                var col = this.getView().findCellIndex(t); 
+                                var fieldName = this.getColumnModel().getDataIndex(col);
+                                // var anchor = this.getView().getCell(row+1, col+1) || this.getView().getCell(row+1, col-1) ||
+                                //                 this.getView().getCell(row-5, colorscale_draw+1);
+                                
+                                var feature = fieldName.split('_')[0];
+                                if(record.json[feature+'_id']===undefined) { return false;}
+                                var data = {
+                                            source:record.json[feature+'_source'],
+                                            label:record.json[feature+'_label'], chr:record.json[feature+'_chr'],
+                                            start:record.json[feature+'_start'], end:''
+                                        };
+                                        var hovercard = new vq.Hovercard(options(t));
+                                        hovercard.show(t, data)
+
                             }
                         }
                     }
@@ -1113,6 +1126,18 @@ Ext.onReady(function() {
             re.ui.panels.east]
     });
 
+var options = function(t) { return {        
+            include_header : false,
+            include_footer : true,
+            include_frame : true,
+            self_hover : true,
+            timeout : 800,
+            target : t,
+            data_config : re.display_options.circvis.tooltips.feature,
+            tool_config : re.display_options.circvis.tooltips.feature_links,
+        };
+    };
+            
 
 
     new Ext.Viewport({
