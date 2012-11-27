@@ -175,34 +175,14 @@ vq.utils.VisUtils.extend(re, {
                         config_object: function(feature) {
                             return ['CNVR', 'MIRN','METH'].indexOf(feature.source) < 0 ? 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label : null;
                         }
-                    },  {
-                        label: 'NCBI',
-                        url: 'http://www.ncbi.nlm.nih.gov/gene/',
-                        uri: '',
-                        selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
-                        config_object: function(feature) {
-                            var selector = Ext.DomQuery.compile('a[href*=zzzZZZzzz]');
-                            if (['CNVR', 'MIRN','METH'].indexOf(feature.source) >= 0) return null;
-                            Ext.Ajax.request({url:re.node.uri + re.node.services.lookup+'/'+feature.label,success:entrezHandler, failure: lookupFailed});
-
-                            function lookupFailed() {
-                                var node = selector('')[0];
-                                node.setAttribute('href','http://www.ncbi.nlm.nih.gov/gene?term='+feature.label);
-                            }
-
-                            function entrezHandler(response) {
-                                var gene,entrez;
-                                var node = selector('')[0];
-                                try {
-                                    gene = Ext.decode(response.responseText);
-                                    entrez = gene[Object.keys(gene)[0]];
-                                    node.setAttribute('href',node.getAttribute('href').replace('zzzZZZzzz',entrez));
-                                } catch (err) {
-                                    lookupFailed();
-                                }
-                            }
-                            return 'http://www.ncbi.nlm.nih.gov/gene/' + 'zzzZZZzzz';
-                        }
+                  },  {
+                      label: 'NCBI',
+                      url: 'http://www.ncbi.nlm.nih.gov/gene/',
+                      uri: '',
+                      selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
+                      config_object: function(feature) {
+                          return 'http://www.ncbi.nlm.nih.gov/gene?term='+feature.label;                      
+                      }
                     }, {
                         label: 'miRBase',
                         url: 'http://mirbase.org/cgi-bin/query.pl',

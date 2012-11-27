@@ -180,27 +180,7 @@ vq.utils.VisUtils.extend(re, {
                         uri: '',
                         selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
                         config_object: function(feature) {
-                            var selector = Ext.DomQuery.compile('a[href*=zzzZZZzzz]');
-                            if (['CNVR', 'MIRN','METH'].indexOf(feature.source) >= 0) return null;
-                            Ext.Ajax.request({url:re.node.uri + re.node.services.lookup+'/'+feature.label,success:entrezHandler, failure: lookupFailed});
-
-                        function lookupFailed() {
-                            var node = selector('')[0];
-                              node.setAttribute('href','http://www.ncbi.nlm.nih.gov/gene?term='+feature.label);
-                        }
-
-                        function entrezHandler(response) {
-                            var gene,entrez;
-                            var node = selector('')[0];
-                            try {
-                                gene = Ext.decode(response.responseText);
-                                entrez = gene[Object.keys(gene)[0]];
-                                node.setAttribute('href',node.getAttribute('href').replace('zzzZZZzzz',entrez));
-                            } catch (err) {
-                                lookupFailed();
-                            }
-                        }
-                        return 'http://www.ncbi.nlm.nih.gov/gene/' + 'zzzZZZzzz';
+                            return 'http://www.ncbi.nlm.nih.gov/gene?term='+feature.label;                      
                     }
                 }, {
                     label: 'miRBase',
