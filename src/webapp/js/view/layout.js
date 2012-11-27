@@ -1000,6 +1000,25 @@ Ext.onReady(function() {
                             id: 'target_id',
                             dataIndex: 'target_id'
                         }, {
+                            width: 30,
+                            align: 'center',
+                            icon: '../images/icons/zoom.png',
+                            id: 'target_info',
+                            xtype: 'actioncolumn',
+                            handler: function(grid, rowIndex, colIndex) {
+                                 var record = grid.store.getAt(rowIndex);
+                                 var fieldName = grid.getColumnModel().getColumnId(colIndex);
+                                 var feature = fieldName.split('_')[0];
+                                 var t = grid.getView().getCell(rowIndex,colIndex);
+                                  var data = {
+                                            source:record.json[feature+'_source'],
+                                            label:record.json[feature+'_label'], chr:record.json[feature+'_chr'],
+                                            start:record.json[feature+'_start'], end:''
+                                        };
+                                        var hovercard = new vq.Hovercard(options(t));
+                                        hovercard.show(t, data);
+                            }
+                        },{
                             header: "Type",
                             width: 40,
                             id: 'target_source',
@@ -1007,7 +1026,7 @@ Ext.onReady(function() {
                             groupName: 'Target'
                         }, {
                             header: "Label",
-                            width: 100,
+                            width: 70,
                             id: 'target_label',
                             dataIndex: 'target_label',
                             groupName: 'Target',
@@ -1019,7 +1038,7 @@ Ext.onReady(function() {
                             groupName: 'Target'
                         }, {
                             header: "Start",
-                            width: 100,
+                            width: 70,
                             id: 'target_start',
                             dataIndex: 'target_start',
                             groupName: 'Target'
@@ -1029,7 +1048,26 @@ Ext.onReady(function() {
                             hidden: true,
                             id: 'source_id',
                             dataIndex: 'source_id'
-                        }, {
+                         }, {
+                            width: 30,
+                            align: 'center',
+                            icon: '../images/icons/zoom.png',
+                            id: 'source_info',
+                            xtype: 'actioncolumn',
+                            handler: function(grid, rowIndex, colIndex) {
+                                 var record = grid.store.getAt(rowIndex);
+                                 var fieldName = grid.getColumnModel().getColumnId(colIndex);
+                                 var feature = fieldName.split('_')[0];
+                                 var t = grid.getView().getCell(rowIndex,colIndex);
+                                  var data = {
+                                            source:record.json[feature+'_source'],
+                                            label:record.json[feature+'_label'], chr:record.json[feature+'_chr'],
+                                            start:record.json[feature+'_start'], end:''
+                                        };
+                                        var hovercard = new vq.Hovercard(options(t));
+                                        hovercard.show(t, data);
+                            }
+                        },{
                             header: "Type",
                             width: 40,
                             id: 'source_source',
@@ -1037,7 +1075,7 @@ Ext.onReady(function() {
                             groupName: 'Target'
                         }, {
                             header: "Label",
-                            width: 100,
+                            width: 70,
                             id: 'source_label',
                             dataIndex: 'source_label',
                             groupName: 'Target',
@@ -1049,7 +1087,7 @@ Ext.onReady(function() {
                             groupName: 'Target'
                         }, {
                             header: "Start",
-                            width: 100,
+                            width: 70,
                             id: 'source_start',
                             dataIndex: 'source_start',
                             groupName: 'Target'
@@ -1087,6 +1125,11 @@ Ext.onReady(function() {
                     }),
                     listeners: {
                         rowclick: function(grid, rowIndex, event) {
+                            
+                            var target = event.getTarget(null, null, true);
+                            if (target.hasClass('x-action-col-icon')) {
+                                    return;
+                            }
                             var record = grid.getStore().getAt(rowIndex);
                             var link = {};
                             link.sourceNode = {};
@@ -1097,28 +1140,28 @@ Ext.onReady(function() {
                             link.targetNode.label = record.get('source_label');
                             //initiateDetailsPopup(link);
                             vq.events.Dispatcher.dispatch(new vq.events.Event('click_association', 'associations_table', link));
-                        },
-                        mouseover: function (e,t) {
-                            var row;
-                             var col;
-                            if((row = this.getView().findRowIndex(t)) !== false && (col = this.getView().findCellIndex(t)) != false ){
-                                var record = this.store.getAt(row);
-                                var fieldName = this.getColumnModel().getDataIndex(col);
-                                // var anchor = this.getView().getCell(row+1, col+1) || this.getView().getCell(row+1, col-1) ||
-                                //                 this.getView().getCell(row-5, colorscale_draw+1);
-                                
-                                var feature = fieldName.split('_')[0];
-                                if(record.json[feature+'_id']===undefined) { return false;}
-                                var data = {
-                                            source:record.json[feature+'_source'],
-                                            label:record.json[feature+'_label'], chr:record.json[feature+'_chr'],
-                                            start:record.json[feature+'_start'], end:''
-                                        };
-                                        var hovercard = new vq.Hovercard(options(t));
-                                        hovercard.show(t, data)
-
-                            }
                         }
+                        // mouseover: function (e,t) {
+                        //     var row;
+                        //      var col;
+                        //     if((row = this.getView().findRowIndex(t)) !== false && (col = this.getView().findCellIndex(t)) != false ){
+                        //         var record = this.store.getAt(row);
+                        //         var fieldName = this.getColumnModel().getDataIndex(col);
+                        //         // var anchor = this.getView().getCell(row+1, col+1) || this.getView().getCell(row+1, col-1) ||
+                        //         //                 this.getView().getCell(row-5, colorscale_draw+1);
+                                
+                        //         var feature = fieldName.split('_')[0];
+                        //         if(record.json[feature+'_id']===undefined) { return false;}
+                        //         var data = {
+                        //                     source:record.json[feature+'_source'],
+                        //                     label:record.json[feature+'_label'], chr:record.json[feature+'_chr'],
+                        //                     start:record.json[feature+'_start'], end:''
+                        //                 };
+                        //                 var hovercard = new vq.Hovercard(options(t));
+                        //                 hovercard.show(t, data)
+
+                        //     }
+                        // }
                     }
                 }]
             }]
@@ -1130,8 +1173,8 @@ var options = function(t) { return {
             include_header : false,
             include_footer : true,
             include_frame : true,
-            self_hover : true,
-            timeout : 800,
+            self_hover : false,
+            timeout : 0,
             target : t,
             data_config : re.display_options.circvis.tooltips.feature,
             tool_config : re.display_options.circvis.tooltips.feature_links,
