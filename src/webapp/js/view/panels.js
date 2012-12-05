@@ -179,31 +179,9 @@ re.ui.panels = {
                         emptyText:'Select Pathway...',
                         listeners : {
                             select : function(field,record,index) {
-                                Ext.getCmp("filter_type").setValue(re.ui.feature1.id);
-                                record.json.label = record.json.label.replace('\\r', '');
-                                Ext.getCmp('t_label').setValue(record.json.label);
-                                Ext.getCmp('limit').setValue('25');
-                                                            re.ui.setCurrentPathwayMembers(record.json.label);
-                                                            var memberDataArray = [];
-                                var memberTokens = (record.json.label).split(",").sort();
-                                for (var tk = 0; tk<memberTokens.length; tk++){
-                                    var mjson = {};
-                                    var member = memberTokens[tk];
-                                    if (member == null || member == "")
-                                        continue;
-                                    mjson["pmember"] = member;
-                                    mjson["display_count"] = Math.floor(5*Math.random());
-                                    mjson["hidden_count"] = Math.floor(10*Math.random());
-                                    memberDataArray.push(mjson);
-                                    loadFeaturesInAFM(member);
+                                pathwaySelection(record,re.ui.feature1.id,'t');
                                 }
-                                renderPathwayMembers('below-top-right');
-                                var url = record.json.value;
-                                if (record.json.url != null && record.json.url.length > 1)
-                                    url = "<a href='" + record.json.url + "' target='_blank'>" + record.json.value  + "</a> ";
-                                Ext.getCmp("pathway_member_panel").setTitle(url + " " + memberDataArray.length + " Genes");
                             }
-                        }
                  },{
                             xtype:'textfield',
                             name:'t_label',
@@ -399,30 +377,9 @@ re.ui.panels = {
                         emptyText:'Select Pathway...',
                         listeners : {
                             select : function(field,record,index) {
-                                Ext.getCmp("filter_type").setValue(re.ui.feature2.id);
-                                Ext.getCmp('p_label').setValue(record.json.label);
-                                Ext.getCmp('limit').setValue('25');
-                                re.ui.setCurrentPathwayMembers(record.json.label);
-                                var memberDataArray = [];
-                                var memberTokens = (record.json.label).split(",");
-                                for (var tk = 0; tk<memberTokens.length; tk++){
-                                    var mjson = {};
-                                    var member = memberTokens[tk];
-                                    if (member == null || member == "")
-                                            continue;
-                                    mjson["pmember"] = member;
-                                    mjson["display_count"] = Math.floor(5*Math.random());
-                                    mjson["hidden_count"] = Math.floor(10*Math.random());
-                                    memberDataArray.push(mjson);
-                                    loadFeaturesInAFM(member);
+                                pathwaySelection(record,re.ui.feature2.id,'p');
                                 }
-                                renderPathwayMembers('below-top-right');
-                                var url = record.json.value;
-                                if (record.json.url != null && record.json.url.length > 1)
-                                        url = "<a href='" + record.json.url + "' target='_blank'>" + record.json.value  + "</a> ";
-                                Ext.getCmp("pathway_member_panel").setTitle(url + memberDataArray.length + " Genes");
                             }
-                        }
                     }, {                      
                             xtype:'textfield',
                             name:'p_label',

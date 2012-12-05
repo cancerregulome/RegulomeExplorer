@@ -111,6 +111,16 @@ function rectifyForm() {
             Ext.getCmp(f+'_label').setValue('',true);
         }
     });
+    //if pathway is selected on either form panel
+  ['t', 'p'].forEach(function(f) {
+    var combo = Ext.getCmp(f+'_pathway');
+        if (combo.isVisible()) {
+            var value = combo.getValue();
+            var record = combo.findRecord(combo.valueField, value);
+            var id = f === 't' ? re.ui.feature1.id : re.ui.feature2.id;
+            pathwaySelection(record,id, f);
+        }
+    });
 }
 
 function checkFormURL() {
@@ -156,6 +166,12 @@ function removeDisabledValues(json){
     if (!Ext.getCmp('cis').checked){
         delete json['cis_distance_fn'];
         delete json['cis_distance_value'];
+    }
+    if (Ext.getCmp('t_pathway').isVisible()){
+        delete json['t_label'];
+    }
+     if (Ext.getCmp('p_pathway').isVisible()){
+        delete json['p_label'];
     }
     return json;
 }
@@ -284,6 +300,33 @@ function openBrowserTab(url) {
     new_window.focus();
 }
 
+function pathwaySelection(record, feature_id, prefix) {
+    var prefix = prefix || 't';
+    Ext.getCmp("filter_type").setValue(feature_id);
+    record.json.label = record.json.label.replace('\\r', '');
+    Ext.getCmp(prefix + '_label').setValue(record.json.label);
+    Ext.getCmp('limit').setValue('25');
+                                re.ui.setCurrentPathwayMembers(record.json.label);
+                                var memberDataArray = [];
+    var memberTokens = (record.json.label).split(",").sort();
+    for (var tk = 0; tk<memberTokens.length; tk++){
+        var mjson = {};
+        var member = memberTokens[tk];
+        if (member == null || member == "")
+            continue;
+        mjson["pmember"] = member;
+        mjson["display_count"] = Math.floor(5*Math.random());
+        mjson["hidden_count"] = Math.floor(10*Math.random());
+        memberDataArray.push(mjson);
+        loadFeaturesInAFM(member);
+    }
+    renderPathwayMembers('below-top-right');
+    var url = record.json.value;
+    if (record.json.url != null && record.json.url.length > 1)
+        url = "<a href='" + record.json.url + "' target='_blank'>" + record.json.value  + "</a> ";
+                    Ext.getCmp("pathway_member_panel").setTitle(url + " " + memberDataArray.length + " Genes");
+}
+
 /*
  Filters
  */
@@ -354,6 +397,7 @@ function getFilterSelections() {
             label_1 = Ext.getCmp('t_clin').getValue();
         } else if (Ext.getCmp('t_pathway').isVisible()) {
              pathway_1 = Ext.getCmp('t_pathway').getValue();
+             label_1 = Ext.getCmp('t_label').getValue();
         } else {
             label_1 = Ext.getCmp('t_label').getValue();
         }
@@ -363,6 +407,7 @@ function getFilterSelections() {
             label_2 = Ext.getCmp('p_clin').getValue();
         } else if (Ext.getCmp('p_pathway').isVisible()) {
              pathway_2 = Ext.getCmp('p_pathway').getValue();
+             label_2 = Ext.getCmp('p_label').getValue();
         } else {
             label_2 = Ext.getCmp('p_label').getValue();
         }
