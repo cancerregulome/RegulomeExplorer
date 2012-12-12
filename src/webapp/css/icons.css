@@ -1,0 +1,14 @@
+
+     /*icons*/
+       .data { background-image:url(../images/control_equalizer.png) !important  }
+        .advParameters { background-image:url(../images/table_gear.png) !important }
+        .home { background-image:url(../images/house.png) !important}
+        .circvis {background-image:url(../images/color_wheel.png) !important }
+        .fastbreak {  background-image:url(../images/link_break.png) !important }
+        .gene_select { background-image:url(../images/zoom.png) !important}
+        .navigation {background-image:url(../images/world.png) !important }
+        .table { background-image:url(../images/table.png) !important}
+         .forest { background-image:url(../images/forest.png) !important}
+        .parallel_coordinates { background-image:url(../images/control_equalizer.png) !important }
+        .comparator { background-image:url(../images/contrast.png) !important }
+        .feature_associations { background-image:url(../images/arrow_refresh.png) !important }
