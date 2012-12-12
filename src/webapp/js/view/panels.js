@@ -191,13 +191,7 @@ re.ui.panels = {
                             selectOnFocus:true,
                             fieldLabel:'Label',
                             defaultValue : '',
-                            value : '',
-                            listeners: {
-                                change: function(t,o,n){
-                                    if (n.indexOf(",") != -1)
-                                        Ext.getCmp("filter_type").setValue(re.ui.feature1.id);
-                                }
-                            }
+                            value : ''
                     }, {
                         name:'t_clin',
                         mode:'local',
@@ -389,13 +383,7 @@ re.ui.panels = {
                             selectOnFocus:true,
                             fieldLabel:'Label',
                             defaultValue : '',
-                            value: '',
-                            listeners: {
-                                change: function(t,o,n){
-                                    if (n.indexOf(",") != -1)
-                                        Ext.getCmp("filter_type").setValue(re.ui.feature2.id);
-                                }
-                            }
+                            value: ''
                     }, {
                         mode:'local',
                         name:'p_clin',
