@@ -1402,7 +1402,7 @@ function scatterplot_draw(params) {
         tooltip[data.f1alias]=f2;tooltip[data.f2alias]=f1;
         config.CONTENTS.tooltip_items=tooltip;
             //swap label maps        
-        if (cubbyhole) { category_labels.unshift(category_labels[1]); category_labels.pop(); }
+        if (cubbyhole || violin) { category_labels.unshift(category_labels[1]); category_labels.pop(); }
     }
     var tooltip = {};
     tooltip[data.f1alias] = f1,tooltip[data.f2alias] = f2,tooltip['Sample'] = 'patient_id';

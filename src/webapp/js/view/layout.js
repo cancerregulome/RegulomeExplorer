@@ -1968,6 +1968,11 @@ re.windows.details_window = new Ext.Window({
                         boxLabel: 'Linear',
                         inputValue: 'linear',
                         name: 'sp_rb'
+                    },
+                    {
+                        boxLabel: 'Median-median',
+                        inputValue: 'median',
+                        name: 'sp_rb'
                     }],
                     listeners: {
                         change: function(checked_radio) {
