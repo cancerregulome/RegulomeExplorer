@@ -121,30 +121,6 @@ function loadDatasetLabels() {
         }
     });
 
-    // var category_query_json = {
-    //     tq: "select alias, `label` where (TYPE=\'C\' or TYPE=\'B\') and (SOURCE=\'SAMP\' or SOURCE=\'CLIN\')",
-    //     tqx: 'out:json_array'
-    // };
-
-    // var category_query_str = '?' + Ext.urlEncode(category_query_json);
-    // var category_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.features_uri + re.rest.query + category_query_str;
-
-    // function categoryQueryHandle(response) {
-    //     try {
-    //         dataset_labels.categorical_features = Ext.decode(response.responseText);
-    //     }
-    //     catch (err) {
-    //         throwQueryError('categorical_features', response);
-    //     }
-    // }
-
-    // Ext.Ajax.request({
-    //     url: category_query,
-    //     success: synchronizer.add(categoryQueryHandle,this),
-    //     failure: function(response) {
-    //         queryFailed('categorical_features', response);
-    //     }
-    // });
 }
 
 function lookupLabelPosition(label_obj) {
