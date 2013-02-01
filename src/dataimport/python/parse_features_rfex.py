@@ -104,7 +104,7 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 	sub_afm_out = {}
 	for q in quantileFeatures.split(","):
 		sub_afm_out[q] = open(results_path + dataset_label + '_' + q + '.afm','w')
-	for line in feature_matrix_file:
+	for line in feature_matrix_file:   #the headers of this file must have changed.  TODO eliminate M:CLIN+SAMP+GEXP+....
 		tokens = line.strip().split('\t')
 		afmid = ""
 		ftype = ""
