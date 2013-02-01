@@ -261,6 +261,23 @@ function loadDataDialog() {
     Ext.getCmp('dataset-grid').store.load();
 }
 
+
+function exportScatterplotData(format) {
+    convertData(retrieveFeatures(), re.tables.current_data + '_features','json', format);
+}
+
+function retrieveFeatures() {
+    var data = re.plot.scatterplot_data;
+    var f1 = data.f1alias, f2 = data.f2alias;
+    var columns = ['id'].concat(re.ui.getDatasetLabels()['patients']);
+    var rows = [[f1].concat(data.f1values.split(':')),[f2].concat(data.f2values.split(':'))];
+    if (re.plot.scatterplot_category ) {
+        var category = [re.plot.scatterplot_category.alias].concat(re.plot.scatterplot_category.values);
+        rows = rows.concat([category]);
+    }
+    return Ext.encode([columns].concat(rows));
+}
+
 function exportData() {
     convertData(retrieveEdges(), 'data_table', 'json', this.value);
 }
@@ -1933,7 +1950,7 @@ re.windows.details_window = new Ext.Window({
             layout: 'border',
             margins: '3 0 3 3',
             height: 550,
-            width: 660,
+            width: 680,
             frame: true,
             items: [{
                 xtype: 'panel',
@@ -1952,7 +1969,7 @@ re.windows.details_window = new Ext.Window({
                 id: 'scatterplot_controls',
                 name: 'scatterplot_controls',
                 region:'south',
-                height:100,
+                height:130,
                 split:false,
                 layout: 'form',
                 items: [{
@@ -1972,6 +1989,11 @@ re.windows.details_window = new Ext.Window({
                     {
                         boxLabel: 'Median-median',
                         inputValue: 'median',
+                        name: 'sp_rb'
+                    },
+                     {
+                        boxLabel: 'Loess tri-cube',
+                        inputValue: 'loess',
                         name: 'sp_rb'
                     }],
                     listeners: {
@@ -2063,7 +2085,24 @@ re.windows.details_window = new Ext.Window({
                             }
                         }
                     ]
-                }]
+                }],
+                buttons:[{
+                            id:'csv_scatterplot_export',
+                            text:'CSV',
+                            listeners: {
+                                click: function(button, e) {
+                                    exportScatterplotData('csv');
+                                }
+                            }
+                        },{
+                            id:'tsv_scatterplot_export',
+                            text:'TSV',
+                            listeners: {
+                                click: function(button, e) {
+                                    exportScatterplotData('tsv');
+                                }
+                            }
+                    }]
             }]
         }, {
             xtype: 'panel',
