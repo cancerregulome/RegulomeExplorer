@@ -75,7 +75,22 @@ def accumulate_summary_counts(summary_hash, feature_type):
 		summary_hash[feature_type] = 1
 	summary_hash[feature_type] = summary_hash[feature_type] + 1 
 
-def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, config, annotations, quantileFeatures, results_path):	
+def get_feature_interest_hash(results_file):
+	fIntHash = {}
+	if (results_file == ""):
+		return fIntHash
+	fIntReader = open(results_file, "r")
+	lc = 0
+	for line in fIntReader.readlines():
+		if (lc == 0):
+			lc += 1
+			continue
+		tk = line.strip().split("\t")
+		fIntHash[tk[0]] = tk[-1]
+	fIntReader.close()
+	return fIntHash
+
+def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, config, annotations, quantileFeatures, results_path, interestingFile):	
 	global features_hash
 	print ("processing feature set: matrix file %s annotation file %s"%(matrix_file, annotations))
 	out_hash = {}
@@ -86,8 +101,6 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 	mypw = db_util.getDBPassword(config)
 	myhost = db_util.getDBHost(config)
 	myport = db_util.getDBPort(config)
-	#results_path = db_util.getResultsPath(config)
-        
 	if (not os.path.isfile(matrix_file)):
 	        print "ERROR\n" + matrix_file + " does not exist; unrecoverable ERROR"
 		sys.exit(-1)
@@ -99,23 +112,19 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 	alidfile = open(results_path + dataset_label + '_features_alias_id.tsv','w')
 	sampleOutfile = open(results_path + dataset_label + '_sample_values_out.tsv','w')
 	featureId = 0
-	#hasAnnotations = False
 	annotation_hash, ftypes = process_feature_annotations(annotations)
 	sub_afm_out = {}
 	for q in quantileFeatures.split(","):
 		sub_afm_out[q] = open(results_path + dataset_label + '_' + q + '.afm','w')
-	for line in feature_matrix_file:   #the headers of this file must have changed.  TODO eliminate M:CLIN+SAMP+GEXP+....
+	fIntHash = get_feature_interest_hash(interestingFile) 
+	for line_num, line in enumerate(feature_matrix_file):
 		tokens = line.strip().split('\t')
 		afmid = ""
 		ftype = ""
-		gene_interesting_score = ""
-		if (featureId == 0):                
-                	sampleIds = ":".join(tokens[0:len(tokens)-1])
-			#not part of core function in RE import pipeline
-			#if (persist_sample_meta == 1):
-			#	populate_sample_meta(sampleIds.split(":"), config)				
-			sampleOutfile.write(sampleIds + "\n");
-			featureId += 1
+		gene_interesting_score = 0
+		if (line_num == 0):       
+			#the first column header is a dummy of the form M:GEXP+CLIN+etc+etc
+           	sampleIds = tokens[1:]
 			continue
 		if (not features_hash.get(tokens[0]) and len(tokens[0]) > 1):
 			valuesArray = []
@@ -137,6 +146,12 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 			if (ftype == ""):
 				ftype = data[1]
 			afmid = alias
+			#if (fIntHash[alias] != None):
+			try:
+				gene_interesting_score = fIntHash[originalAFM]
+			except KeyError:
+				#print "Key error with fInterestingHash " + alias
+				gene_interesting_score = 0
 			if (sub_afm_out.get(ftype) != None):
 				sub_afm_out[ftype].write(alias + "\t" + "\t".join(tokens[1:]) + "\n")
 			features_hash[tokens[0]] = featureId
@@ -148,19 +163,24 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 					data.append("")
 			if len(data[3]) > 3:
 				data[3] = data[3][3:]
-			patient_values = ":".join(tokens[1:len(tokens)-1])
-			for val in tokens[1:(len(tokens)-1)]:
+			patient_values = ":".join(tokens[1:])
+			for val in tokens[1:]:
 				if (db_util.is_numeric(val)):
 					valuesArray.append(float(val))
 				else:
 					valuesArray.append(0.0)
+			#make sure that the number patient ids match values
+			if (line_num == 1):
+				start = len(sampleIds) - len(valuesArray)
+				sampleStr = ":".join(sampleIds[start:])
+				sampleOutfile.write(sampleStr + "\n");
+
 			patient_value_mean = sum(valuesArray)/len(valuesArray)
 			accumulate_summary_counts(summary_hash,data[1])
 			alidfile.write(originalAFM + "\t" + str(featureId) + "\t" +  alias + "\n")
-			out_hash[afmid] = str(featureId) + "\t" + alias + "\t" + "\t".join(data) + "\t" + patient_values + "\t" + str(patient_value_mean) + "\t" + gene_interesting_score
+			out_hash[afmid] = str(featureId) + "\t" + alias + "\t" + "\t".join(data) + "\t" + patient_values + "\t" + str(patient_value_mean) + "\t" + str(gene_interesting_score)
 		else:
 			print "duplicated feature in feature set:" + tokens[0]
-		featureId += 1
 	quantiles_out = {} 
 	for ftype in sub_afm_out.keys():
                         sub_afm_out[ftype].close()
@@ -210,9 +230,9 @@ def getFeatures():
 def getFeatureId(featureStr):
         return features_hash.get(featureStr)
 
-def getGeneInterestScore(featureStr):
-	global gene_interesting_hash
-	return gene_interesting_hash.get(featureStr)
+#def getGeneInterestScore(featureStr):
+#	global gene_interesting_hash
+#	return gene_interesting_hash.get(featureStr)
  
 def process_gene_hub_score(datasetlabel, resultsPath, interest_score_file, configfile):
 	"""
@@ -225,7 +245,7 @@ def process_gene_hub_score(datasetlabel, resultsPath, interest_score_file, confi
         myhost = db_util.getDBHost(config) #config.get("mysql_jdbc_configs", "host")
         myport = db_util.getDBPort(config)
         feature_table = mydb + "." + datasetlabel + "_features"
-        
+        mv_feature_network_table = mydb + ".mv_" + datasetlabel + "_feature_networks"
 	#print "Begin processing feature specific values %s" %(time.ctime())
 	gexp_interesting_file = open(interest_score_file)
         gexp_sh = open(resultsPath + 'load_gexp_interesting_' + dataset_label + '.sh','w')
@@ -239,6 +259,8 @@ def process_gene_hub_score(datasetlabel, resultsPath, interest_score_file, confi
 		tokens = line.strip().split("\t")
                 #gene_interesting_hash[tokens[0]] = tokens[-1]
                 gexp_sql.write("update %s set gene_interesting_score = %s where alias = '%s';\n" %(feature_table, tokens[-1], tokens[0]))
+		#gexp_sql.write("update %s set f1genescore = %s where alias1 = '%s';\n" %(mv_feature_network_table, tokens[-1], tokens[0]))
+		#gexp_sql.write("update %s set f2genescore = %s where alias2 = '%s';\n" %(mv_feature_network_table, tokens[-1], tokens[0]))
         gexp_sql.write("commit;\n")
         gexp_interesting_file.close()
         gexp_sql.close()
@@ -362,7 +384,9 @@ if __name__ == "__main__":
 	annotations = sys.argv[4]
 	quantileFeatures = sys.argv[5]
 	resultsPath = sys.argv[6]
- 
-	process_feature_matrix(dataset_label, sys.argv[1], 1, config, annotations, quantileFeatures, resultsPath)	
+	featureInterestingFile = ""
+	if (len(sys.argv) == 8):
+		featureInterestingFile = sys.argv[7]
+	process_feature_matrix(dataset_label, sys.argv[1], 1, config, annotations, quantileFeatures, resultsPath, featureInterestingFile)	
 	print "Done with processing feature relating loads %s " %(time.ctime())
 
