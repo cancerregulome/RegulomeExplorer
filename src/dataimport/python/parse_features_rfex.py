@@ -117,14 +117,18 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 	for q in quantileFeatures.split(","):
 		sub_afm_out[q] = open(results_path + dataset_label + '_' + q + '.afm','w')
 	fIntHash = get_feature_interest_hash(interestingFile) 
-	for line_num, line in enumerate(feature_matrix_file):
+	for line in feature_matrix_file:
 		tokens = line.strip().split('\t')
 		afmid = ""
 		ftype = ""
 		gene_interesting_score = 0
-		if (line_num == 0):       
-			#the first column header is a dummy of the form M:GEXP+CLIN+etc+etc
-           	sampleIds = tokens[1:]
+		if (featureId == 0):               
+                	sampleIds = tokens
+			#not part of core function in RE import pipeline
+			#if (persist_sample_meta == 1):
+			#	populate_sample_meta(sampleIds.split(":"), config)	
+			#sampleOutfile.write(sampleIds + "\n");
+			featureId += 1
 			continue
 		if (not features_hash.get(tokens[0]) and len(tokens[0]) > 1):
 			valuesArray = []
@@ -170,7 +174,7 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 				else:
 					valuesArray.append(0.0)
 			#make sure that the number patient ids match values
-			if (line_num == 1):
+			if (featureId == 1):
 				start = len(sampleIds) - len(valuesArray)
 				sampleStr = ":".join(sampleIds[start:])
 				sampleOutfile.write(sampleStr + "\n");
@@ -181,6 +185,7 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 			out_hash[afmid] = str(featureId) + "\t" + alias + "\t" + "\t".join(data) + "\t" + patient_values + "\t" + str(patient_value_mean) + "\t" + str(gene_interesting_score)
 		else:
 			print "duplicated feature in feature set:" + tokens[0]
+		featureId += 1
 	quantiles_out = {} 
 	for ftype in sub_afm_out.keys():
                         sub_afm_out[ftype].close()
