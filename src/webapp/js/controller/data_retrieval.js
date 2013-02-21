@@ -714,17 +714,18 @@ function buildGQLQuery(args) {
         qparam += '+link_distance:"500000000"';
     }
 
+    var fqparam='';
     re.model.association.types.forEach(function(obj) {
         if (typeof obj.query.clause == 'function') {
             var clause = solr_flex_field_query(obj.query.id, args[obj.query.id+'_value'], args[obj.query.id + '_fn']);
-                   qparam += ((clause.length < 1) ? '' : clause);
+                   fqparam += ((clause.length < 1) ? '' : clause);
             return;
         }
         if (args[obj.query.id] != '') {
             var clause_array=trim(obj.query.clause).split(" ");
             if(clause_array.length > 1){
             var clause = solr_flex_field_query(obj.query.id, args[obj.query.id],clause_array[clause_array.length-1] );
-             qparam += ((clause.length < 1) ? '' : clause);
+             fqparam += ((clause.length < 1) ? '' : clause);
             }
         }
     });
@@ -737,7 +738,7 @@ function buildGQLQuery(args) {
         var sort =  order_id + ' ' + ((re.model.association.types[re.model.association_map[args['order']]].query.order_direction).toLowerCase() || 'desc');
         var limit = args['limit'];
     
-     return encodeURIComponent(qparam) + '&sort=' + encodeURIComponent(sort) + '&rows=' + encodeURIComponent(limit) + '&fl=' + encodeURIComponent(flparam);
+     return encodeURIComponent(qparam) + '&fq=' + encodeURIComponent(fqparam) + '&sort=' + encodeURIComponent(sort) + '&rows=' + encodeURIComponent(limit) + '&fl=' + encodeURIComponent(flparam);
 }
 
 
@@ -803,17 +804,18 @@ function buildSingleFeatureGQLQuery(args, feature) {
                qparam += '+link_distance:"500000000"';
     }
 
+    var fqparam='';
     re.model.association.types.forEach(function(obj) {
         if (typeof obj.query.clause == 'function') {
             var clause = solr_flex_field_query(obj.query.id, args[obj.query.id+'_value'], args[obj.query.id + '_fn']);
-                      qparam += ((clause.length < 1) ? '' :  clause);
+                      fqparam += ((clause.length < 1) ? '' :  clause);
             return;
         }
         if (args[obj.query.id] != '') {
             var clause_array=trim(obj.query.clause).split(" ");
                        if(clause_array.length > 1){
                        var clause = solr_flex_field_query(obj.query.id, args[obj.query.id],clause_array[clause_array.length-1] );
-                        qparam += ((clause.length < 1) ? '' : clause);
+                        fqparam += ((clause.length < 1) ? '' : clause);
                        }
         }
     });
@@ -828,5 +830,5 @@ function buildSingleFeatureGQLQuery(args, feature) {
     var limit = args['limit'];
     
     
-     return encodeURIComponent(qparam) + '&sort=' + encodeURIComponent(sort) + '&rows=' + encodeURIComponent(limit) + '&fl=' + encodeURIComponent(flparam);
+     return encodeURIComponent(qparam) + '&fq=' + encodeURIComponent(fqparam) + '&sort=' + encodeURIComponent(sort) + '&rows=' + encodeURIComponent(limit) + '&fl=' + encodeURIComponent(flparam);
 }
