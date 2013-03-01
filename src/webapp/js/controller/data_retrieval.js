@@ -737,7 +737,10 @@ function buildGQLQuery(args) {
         }
         var sort =  order_id + ' ' + ((re.model.association.types[re.model.association_map[args['order']]].query.order_direction).toLowerCase() || 'desc');
         var limit = args['limit'];
-    
+
+    if(qparam == ''){
+        qparam='*:*';
+    }
      return encodeURIComponent(qparam) + '&fq=' + encodeURIComponent(fqparam) + '&sort=' + encodeURIComponent(sort) + '&rows=' + encodeURIComponent(limit) + '&fl=' + encodeURIComponent(flparam);
 }
 
@@ -752,6 +755,7 @@ function buildSingleFeatureGQLQuery(args, feature) {
     });
 
     var qparam = '';
+
 
     if (args['t_type'] && args['t_type'] != '' && args['t_type'] != '*') {
         qparam += '+f1source:"'+ args['t_type'] + '"';
@@ -829,6 +833,8 @@ function buildSingleFeatureGQLQuery(args, feature) {
     var sort =  order_id + ' ' + ((re.model.association.types[re.model.association_map[args['order']]].query.order_direction).toLowerCase() || 'desc');
     var limit = args['limit'];
     
-    
+     if(qparam == ''){
+         qparam='*:*';
+     }
      return encodeURIComponent(qparam) + '&fq=' + encodeURIComponent(fqparam) + '&sort=' + encodeURIComponent(sort) + '&rows=' + encodeURIComponent(limit) + '&fl=' + encodeURIComponent(flparam);
 }
