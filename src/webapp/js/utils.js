@@ -60,7 +60,7 @@ vq.utils.VisUtils.extend(re, {
         },
 
         convertChrListToQueryClause: function(list_str, column_name) {
-            var tokens = list_str.split(',').map(trim);            
+            var tokens = list_str.split(',').map(trim).map(unescapeComma);            
             var and_tokens = new Array();
             var or_tokens = new Array();
             //split the list into inclusions/or's and exclusions/!(and)'s
@@ -94,7 +94,7 @@ vq.utils.VisUtils.extend(re, {
         },
     
       convertListToSolrQueryClause: function(list_str, column_name) {
-                   var tokens = list_str.split(',').map(trim);
+                   var tokens = list_str.split(',').map(trim).map(unescapeComma);
                    var and_tokens = new Array();
                    var or_tokens = new Array();
                    //split the list into inclusions/or's and exclusions/!(and)'s
@@ -166,6 +166,14 @@ function solr_flex_field_query(label, value, fn) {
         }
     }
     return qparam;
+}
+
+function escapeComma(string) {
+    return string.replace(",","%2C");
+}
+
+function unescapeComma(string) {
+    return string.replace("%2C",",");
 }
 
 function trim (str) {

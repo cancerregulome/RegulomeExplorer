@@ -515,6 +515,7 @@ function updateFilterPanel() {
                         Ext.getCmp('pathway_member_panel').expand();
                     }
                 }
+
 /*
  should be called by an event listener
  */
@@ -555,7 +556,7 @@ function loadListStores(dataset_labels) {
         }
         cat_feature_list.push({
             source: row.source,
-            value: row.label,
+            value: escapeComma(row.label),
             label: row.label,
             alias: row.alias
         });
