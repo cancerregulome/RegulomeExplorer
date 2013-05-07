@@ -93,8 +93,12 @@ vq.utils.VisUtils.extend(re, {
             return clause;
         },
     
+        parseLabelList: function(list_str) {
+            return list_str.split(',').map(trim).map(unescapeComma);
+        },
+
       convertListToSolrQueryClause: function(list_str, column_name) {
-                   var tokens = list_str.split(',').map(trim).map(unescapeComma);
+                   var tokens = re.functions.parseLabelList(list_str);     
                    var and_tokens = new Array();
                    var or_tokens = new Array();
                    //split the list into inclusions/or's and exclusions/!(and)'s

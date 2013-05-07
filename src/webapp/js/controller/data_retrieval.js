@@ -423,7 +423,7 @@ function loadNetworkDataByFeature(params) {
     var feature = params['filter_type'] == re.ui.feature1.id ? 't' : 'p';
     if (params[feature + '_type'] && params[feature + '_type'] == 'Pathway')
 		params[feature + '_type'] = '';
-    var labels = parseLabelList(params[feature + '_label']);
+    var labels = re.functions.parseLabelList(params[feature + '_label']);
     function loadComplete() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', responses));
     }
