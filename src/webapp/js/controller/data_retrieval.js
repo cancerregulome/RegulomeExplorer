@@ -764,10 +764,10 @@ function buildSingleFeatureGQLQuery(args, feature) {
         qparam += '+f2source:"'+ args['p_type'] + '"';
     }
     if (args['t_label'] && args['t_label'] != '' && args['t_label'] != '*') {
-        qparam += '+f1label:'+ parseSolrLabel(args['t_label']) + ' ';
+        qparam += '+f1label:'+ re.functions.parseSolrLabel(args['t_label']) + ' ';
     }
     if (args['p_label'] && args['p_label'] != '' && args['p_label'] != '*') {
-        qparam += '+f2label:'+ parseSolrLabel(args['p_label']) + ' ';
+        qparam += '+f2label:'+ re.functions.parseSolrLabel(args['p_label']) + ' ';
     }
     if (args['t_chr'] && args['t_chr'] != '' && args['t_chr'] != '*') {
         qparam += '+f1chr:"'+ args['t_chr'] + '"';

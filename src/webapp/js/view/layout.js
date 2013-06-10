@@ -361,8 +361,10 @@ function invalidIsolateRequest(request_obj) {
 function invalidFeatureFilterCheck() {
 
     //make sure labels are defined for a filter query
-    if ((Ext.getCmp('filter_type').getValue() === re.ui.feature1.id && Ext.getCmp('t_label').getValue().length === 0) || 
-        (Ext.getCmp('filter_type').getValue() === re.ui.feature2.id && Ext.getCmp('p_label').getValue().length === 0)) {
+    if ( (!Ext.getCmp('t_clin').isVisible() && (Ext.getCmp('filter_type').getValue() === re.ui.feature1.id && Ext.getCmp('t_label').getValue().length  === 0)) || 
+        (Ext.getCmp('t_clin').isVisible() && (Ext.getCmp('filter_type').getValue() === re.ui.feature1.id && Ext.getCmp('t_clin').getValue().length  === 0)) ||
+        (!Ext.getCmp('t_clin').isVisible() && (Ext.getCmp('filter_type').getValue() === re.ui.feature2.id && Ext.getCmp('p_label').getValue().length === 0)) || 
+        (Ext.getCmp('t_clin').isVisible() && (Ext.getCmp('filter_type').getValue() === re.ui.feature2.id && Ext.getCmp('p_clin').getValue().length === 0))) {
         Ext.Msg.alert('Invalid Request', 'At least one feature label must be specified for the filtered feature.');
         return true;
     }

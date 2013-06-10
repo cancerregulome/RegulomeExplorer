@@ -97,6 +97,10 @@ vq.utils.VisUtils.extend(re, {
             return list_str.split(',').map(trim).map(unescapeComma);
         },
 
+        parseSolrLabel: function(label) {
+            return !~label.indexOf('*') ? '"' + label + '"' : label;
+        },
+
       convertListToSolrQueryClause: function(list_str, column_name) {
                    var tokens = re.functions.parseLabelList(list_str);     
                    var and_tokens = new Array();
@@ -115,7 +119,7 @@ vq.utils.VisUtils.extend(re, {
                        clause +='-' + column_name + ':(';
                        var u;
                        while ((u=and_tokens.pop()) != null) {
-                          clause +=  !~u.indexOf('*') ? '"' + u + '"' : u; //don't add quotes for wildcard
+                          clause +=  re.functions.parseSolrLabel(u); //don't add quotes for wildcard
                        }
                        clause += ')';
                    }
@@ -123,7 +127,7 @@ vq.utils.VisUtils.extend(re, {
                            var t;
                            clause += '+' + column_name + ':(';
                            while ((t = or_tokens.pop()) != null) {
-                                 clause +=  !~t.indexOf('*') ? '"' + t + '"' : t; //don't add quotes for wildcard
+                                 clause +=  re.functions.parseSolrLabel(t);
                            }
                            clause += ')';
                    }

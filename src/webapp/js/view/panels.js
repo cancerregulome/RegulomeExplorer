@@ -101,6 +101,7 @@ re.ui.panels = {
                                 Ext.getCmp('t_start').setDisabled(checked);
                                 Ext.getCmp('t_stop').setDisabled(checked);
                                 Ext.getCmp('filter_type').setDisabled(checked);
+                                Ext.getCmp('filter_type').setValue(checked ? 'feature1' : 'association');
                             }
                         }
                     }, {
