@@ -26,6 +26,8 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 	associations_table = mydb + ".mv_" + dataset_label + "_feature_networks"
 	print "Begin processing associations %s Applying processing_pubcrawl %s" %(time.ctime(), do_pubcrawl)
 	fIntHash = parse_features_rfex.get_feature_interest_hash(featureInterestingFile)
+
+	edges_out_re = open(results_path + 'edges_out_' + dataset_label + '_rface_re.tsv','w')
 	associations_in = open(associationsfile,'r')
 	annotation_hash, ftype = parse_features_rfex.process_feature_annotations(annotations)
 	fshout = open(results_path + 'load_sql_associations_' + dataset_label + '.sh','w')
@@ -205,18 +207,26 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 	os.system("sh " + fshout.name)
 	solrshout.write("#!/bin/bash\n")
 	solrshout.write("python createRFShardedDataset.py " + edges_out_re.name + " " + dataset_label + "\n")
-        solrshout.write("curl '" + mysolr + "/core0/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core0_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
-        solrshout.write("curl '" + mysolr + "/core1/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core1_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
-        solrshout.write("curl '" + mysolr + "/core2/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core2_final.tsv  -H 'Content-type:text/plain;charset=utf-8' &\n")
-        solrshout.write("curl '" + mysolr + "/core3/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core3_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
-        solrshout.write("curl '" + mysolr + "/core4/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core4_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
-        solrshout.write("curl '" + mysolr + "/core5/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core5_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
-        solrshout.write("curl '" + mysolr + "/core6/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core6_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
-        solrshout.write("curl '" + mysolr + "/core7/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core7_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
-        solrshout.close()
-        print "Begin rface solr upload " + time.ctime()
-        os.system("sh " + solrshout.name)
-	
+	solrshout.write("curl '" + mysolr + "/core0/update/?commit=true' -H 'Content-type:text/xml' --data-binary '<delete><query>dataset:\"" + dataset_label + "\"</query></delete>'\n")
+	solrshout.write("curl '" + mysolr + "/core1/update/?commit=true' -H 'Content-type:text/xml' --data-binary '<delete><query>dataset:\"" + dataset_label + "\"</query></delete>'\n")
+	solrshout.write("curl '" + mysolr + "/core2/update/?commit=true' -H 'Content-type:text/xml' --data-binary '<delete><query>dataset:\"" + dataset_label + "\"</query></delete>'\n")
+	solrshout.write("curl '" + mysolr + "/core3/update/?commit=true' -H 'Content-type:text/xml' --data-binary '<delete><query>dataset:\"" + dataset_label + "\"</query></delete>'\n")
+	solrshout.write("curl '" + mysolr + "/core4/update/?commit=true' -H 'Content-type:text/xml' --data-binary '<delete><query>dataset:\"" + dataset_label + "\"</query></delete>'\n")
+	solrshout.write("curl '" + mysolr + "/core5/update/?commit=true' -H 'Content-type:text/xml' --data-binary '<delete><query>dataset:\"" + dataset_label + "\"</query></delete>'\n")
+	solrshout.write("curl '" + mysolr + "/core6/update/?commit=true' -H 'Content-type:text/xml' --data-binary '<delete><query>dataset:\"" + dataset_label + "\"</query></delete>'\n")
+	solrshout.write("curl '" + mysolr + "/core7/update/?commit=true' -H 'Content-type:text/xml' --data-binary '<delete><query>dataset:\"" + dataset_label + "\"</query></delete>'\n")
+	solrshout.write("curl '" + mysolr + "/core0/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core0_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+	solrshout.write("curl '" + mysolr + "/core1/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core1_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+	solrshout.write("curl '" + mysolr + "/core2/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core2_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+	solrshout.write("curl '" + mysolr + "/core3/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core3_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+	solrshout.write("curl '" + mysolr + "/core4/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core4_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+	solrshout.write("curl '" + mysolr + "/core5/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core5_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+	solrshout.write("curl '" + mysolr + "/core6/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core6_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+	solrshout.write("curl '" + mysolr + "/core7/update/csv?commit=true&separator=%09&overwrite=false&escape=\ ' --data-binary @" + edges_out_re.name + "_core7_final.tsv -H 'Content-type:text/plain;charset=utf-8' &\n")
+	solrshout.close()
+	print "Begin rface solr upload " + time.ctime()
+	os.system("sh " + solrshout.name)
+
 	if (do_pubcrawl == 'yes'):
 		smtp.main("re@systemsbiology.net", contacts, "Notification - New RFAce " + dataset_label + " Associations for PubCrawl", "New RFAce associations ready for PubCrawl load\n" + pubcrawl_tsvout.name + "\n" + str(pcc) + " Total Edges\n" + tsvout.name + " loaded into RegulomeExplorer, dataset label is " + dataset_label + "\n\n")
 	print "Done processing associations %s" %(time.ctime())
@@ -256,7 +266,7 @@ if __name__ == "__main__":
 	if (len(args) == 14):
 		featureInterestingFile = args[13]
 	if (not os.path.isfile(associationsfile)):
-        	print associationsfile + " does not exist; unrecoverable ERROR"
+	    	print associationsfile + " does not exist; unrecoverable ERROR"
 		sys.exit(-1)
 	main(dataset_label, matrixfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path, pvalueRep, args[10], args[11], args[12], featureInterestingFile)
 

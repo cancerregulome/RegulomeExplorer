@@ -18,20 +18,13 @@ dataset=sys.argv[2]
 
 count=1;
 outFile1.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdataset\tdatasetId\n");
-outFile2.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdata
-set\tdatasetId\n");
-outFile3.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdata
-set\tdatasetId\n");
-outFile4.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdata
-set\tdatasetId\n");
-outFile5.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdata
-set\tdatasetId\n");
-outFile6.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdata
-set\tdatasetId\n");
-outFile7.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdata
-set\tdatasetId\n");
-outFile8.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdata
-set\tdatasetId\n");
+outFile2.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdataset\tdatasetId\n");
+outFile3.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdataset\tdatasetId\n");
+outFile4.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdataset\tdatasetId\n");
+outFile5.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdataset\tdatasetId\n");
+outFile6.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdataset\tdatasetId\n");
+outFile7.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdataset\tdatasetId\n");
+outFile8.writelines("alias1\talias2\tlogged_pvalue\timportance\tcorrelation\tpatientct\tfeature1id\tf1type\tf1source\tf1label\tf1chr\tf1start\tf1end\tf1strand\tf1label_desc\tfeature2id\tf2type\tf2source\tf2label\tf2chr\tf2start\tf2end\tf2strand\tf2label_desc\tf1genescore\tf2genescore\tf1qtinfo\tf2qtinfo\trho_score\tlink_distance\tid\tdataset\tdatasetId\n");
 
 numrec=1;
 for line in datasetFile:
