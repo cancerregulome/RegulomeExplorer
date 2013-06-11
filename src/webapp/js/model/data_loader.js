@@ -200,17 +200,25 @@ function parseSFValues(responses) {
         vq.events.Dispatcher.dispatch(new vq.events.Event('load_fail','associations',{msg:'Zero mappable features found.'}));
     }
     
-
     var row1 = responses.data[0], row2 = responses.data[1];
     var alias = '';
     var aliases = {};
-    [row1,row2].forEach(function(row){
-        aliases[row.alias1] = aliases[row.alias1] + 1 || 1;
-        aliases[row.alias2] = aliases[row.alias2] + 1 || 1;
-    });
-    var keys = Object.keys(aliases);
-    for (i in keys) {
-        if (aliases[keys[i]] == 2) { alias = keys[i];}
+    if (row1 && row2) {
+        [row1,row2].forEach(function(row){
+            aliases[row.alias1] = aliases[row.alias1] + 1 || 1;
+            aliases[row.alias2] = aliases[row.alias2] + 1 || 1;
+        });
+        var keys = Object.keys(aliases);
+        for (i in keys) {
+            if (aliases[keys[i]] == 2) { alias = keys[i];}
+        }
+    } else {
+        if (row1.alias2.indexOf('chr') >=0 ) {
+            alias = row1.alias1;
+        } 
+        else if (row1.alias1.indexOf('chr') >=0 ) {
+            alias = row1.alias2;
+        }
     }
     if (alias === '') { loadFailed();}
 
