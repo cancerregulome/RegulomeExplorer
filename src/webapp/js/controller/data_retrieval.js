@@ -378,7 +378,7 @@ function loadNetworkDataSingleFeature(params) {
         }
         if (responses.length >= feature_types.length) {
             responses = pv.blend(responses);
-            if (responses.length >= 1) {
+            if (responses.length == 2) {
                 loadComplete();
                 return;
             } else { //no matching results
@@ -409,8 +409,14 @@ function loadNetworkDataSingleFeature(params) {
 
     feature_types.forEach(function(f) {
         var obj = vq.utils.VisUtils.clone(query_obj);
+        var of = (f === 't' ? 'p' : 't'); // other feature
         obj[f + '_label'] = params['t_label'];
         obj[f + '_type'] = params['t_type'];
+        obj[of + '_label'] = params['p_label'];
+        obj[of + '_type'] = params['p_type'];
+        obj[of + '_chr'] = params['p_chr'];
+        obj[of + '_start'] = params['p_start'];
+        obj[of + '_stop'] = params['p_stop'];
         var network_query = buildSingleFeatureGQLQuery(obj, f == 't' ? re.ui.feature1.id : re.ui.feature2.id);
         var association_query_str = '?' + re.params.network_query + network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data;
         var association_query = re.databases.networks.uri + re.rest.select +'/' + association_query_str;
@@ -424,6 +430,7 @@ function loadNetworkDataByFeature(params) {
     if (params[feature + '_type'] && params[feature + '_type'] == 'Pathway')
 		params[feature + '_type'] = '';
     var labels = re.functions.parseLabelList(params[feature + '_label']);
+
     function loadComplete() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', responses));
     }
