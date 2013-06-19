@@ -696,7 +696,7 @@ function loadDataset() {
 }
 
 function selectDatasetByLabel(label) {
-    var record_index = Ext.StoreMgr.get('dataset_grid_store').find('label', label);
+    var record_index = Ext.StoreMgr.get('dataset_grid_store').findExact('label', label);
     if (record_index >= 0) {
         Ext.getCmp('dataset-grid').getSelectionModel().selectRow(record_index);
     }
@@ -709,7 +709,7 @@ function getSelectedDataset() {
     if (Ext.getCmp('dataset-tabpanel').layout.activeItem.id == 'dataset-tree' &&
         Ext.getCmp('dataset-tree').getSelectionModel().getSelectedNode() !== null) {
         var label = Ext.getCmp('dataset-tree').getSelectionModel().getSelectedNode().attributes.label;
-        var record_index = Ext.StoreMgr.get('dataset_grid_store').find('label', label);
+        var record_index = Ext.StoreMgr.get('dataset_grid_store').findExact('label', label);
         if (record_index >= 0) {
             Ext.getCmp('dataset-grid').getSelectionModel().selectRow(record_index);
         }
