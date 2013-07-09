@@ -130,8 +130,9 @@ re.ui.panels = {
                         triggerAction : 'all',
                         forceSelection : true,
                         emptyText : 'Select a Type...',
-                        defaultValue : 'GEXP',
-                        value: 'GEXP',
+                        defaultValue : "*",
+                        value : "*",
+                        trackResetOnLoad : true,
                         listeners: {
                             select : function(field,record, index) {
                                 if (re.ui.categorical_sources_map[record.id]) {
@@ -192,6 +193,17 @@ re.ui.panels = {
                             selectOnFocus:true,
                             fieldLabel:'Label',
                             defaultValue : '',
+                            value : ''
+                    }, {
+                            xtype:'textfield',
+                            name:'t_label_desc',
+                            id:'t_label_desc',
+                            emptyText : 'Input Label Modifier',
+                            tabIndex: 1,
+                            selectOnFocus:true,
+                            fieldLabel:'Label Modifier',
+                            defaultValue : '',
+                            hidden: true,
                             value : ''
                     }, {
                         name:'t_clin',
@@ -386,6 +398,17 @@ re.ui.panels = {
                             defaultValue : '',
                             value: ''
                     }, {
+                            xtype:'textfield',
+                            name:'p_label_desc',
+                            id:'p_label_desc',
+                            emptyText : 'Input Label Modifier',
+                            tabIndex: 1,
+                            selectOnFocus:true,
+                            fieldLabel:'Label Modifier',
+                            defaultValue : '',
+                            hidden: true,
+                            value : ''
+                    },{
                         mode:'local',
                         name:'p_clin',
                         id:'p_clin',

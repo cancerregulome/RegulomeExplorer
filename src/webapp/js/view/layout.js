@@ -2,7 +2,7 @@ function registerLayoutListeners() {
     var d = vq.events.Dispatcher;
     d.addListener('data_ready', 'dataset_labels', function(obj) {
         loadListStores(obj);
-        resetFormPanel();
+        // resetFormPanel();
         checkFormURL();
         rectifyForm();
         if (invalidFilter()) {return;}
@@ -439,8 +439,8 @@ function getFilterSelections() {
             Ext.getCmp('trans').checked,
             Ext.getCmp('cis_distance_value').getValue(),
             Ext.getCmp('cis_distance_fn').getValue(),
-            pathway_1,
-            pathway_2
+            Ext.getCmp('t_label_desc').getValue(),
+            Ext.getCmp('p_label_desc').getValue()
         );
 }
 
@@ -466,7 +466,9 @@ function packFilterSelections() {
         cis: arguments[14],
         trans: arguments[15],
         cis_distance_value: arguments[16],
-        cis_distance_fn: arguments[17]
+        cis_distance_fn: arguments[17],
+        t_label_desc: arguments[18],
+        p_label_desc: arguments[19],
     };
 
     re.model.association.types.forEach(function(obj) {
@@ -538,10 +540,13 @@ function loadListStores(dataset_labels) {
         label: 'Pathway'
     });
 
+    var obj = label_list.filter(function(b) { return re.plot.locatable_source_list.indexOf(b.value) >= 0 });
+    var t_type = obj ? obj[0].value : label_list[1].value;
     Ext.StoreMgr.get('f1_type_combo_store').loadData(label_list);
-    Ext.getCmp('t_type').setValue('GEXP');
+    Ext.getCmp('t_type').setValue(t_type);
+    Ext.getCmp('t_type').defaultValue = t_type;
     Ext.StoreMgr.get('f2_type_combo_store').loadData(label_list);
-    Ext.getCmp('p_type').setValue('*');
+    Ext.getCmp('p_type').setValue("*");
     var label_map = {};
     var cat_feature_list = [
             { 

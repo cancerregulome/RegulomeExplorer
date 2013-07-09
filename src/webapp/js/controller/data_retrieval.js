@@ -643,6 +643,9 @@ function flipParams(params) {
         t_label: params['p_label'],
         p_label: params['t_label'],
 
+        t_label_desc: params['p_label_desc'],
+        p_label_desc: params['t_label_desc'],
+        
         t_chr: params['p_chr'],
         p_chr: params['t_chr'],
 
@@ -677,6 +680,12 @@ function buildGQLQuery(args) {
     }
     if (args['p_label'] != '' && args['p_label'] != '*') {
                qparam += re.functions.convertListToSolrQueryClause(args['p_label'],'f2label');
+    }
+    if (args['t_label_desc'] != '') {
+        qparam += '+f1label_desc:"'+ args['t_label_desc'] + '"';
+    }
+    if (args['p_label_desc'] != '' && args['p_label_desc'] != '*') {
+        qparam += '+f2label_desc:"'+ args['p_label_desc'] + '"';
     }
     if (args['t_chr'] != '' && args['t_chr'] != '*') {
         qparam += re.functions.convertListToSolrQueryClause(args['t_chr'],'f1chr');
@@ -775,6 +784,12 @@ function buildSingleFeatureGQLQuery(args, feature) {
     }
     if (args['p_label'] && args['p_label'] != '' && args['p_label'] != '*') {
         qparam += '+f2label:'+ re.functions.parseSolrLabel(args['p_label']) + ' ';
+    }
+    if (args['t_label_desc'] != '' && args['t_label_desc'] != '*') {
+        qparam += '+f1label_desc:"'+ args['t_label_desc'] + '"';
+    }
+    if (args['p_label_desc'] != '' && args['p_label_desc'] != '*') {
+        qparam += '+f2label_desc:"'+ args['p_label_desc'] + '"';
     }
     if (args['t_chr'] && args['t_chr'] != '' && args['t_chr'] != '*') {
         qparam += '+f1chr:"'+ args['t_chr'] + '"';
