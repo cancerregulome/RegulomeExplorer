@@ -525,10 +525,11 @@ function updateFilterPanel() {
  */
 
 function loadListStores(dataset_labels) {
-    var label_list = dataset_labels['feature_sources'].map(function(row) {
+    var labels = dataset_labels['feature_sources'].map(function(row) { return row.source;});
+    var label_list = labels.map(function(l) {
         return {
-            value: row.source,
-            label: re.label_map[row.source] || row.source
+            value: l,
+            label: re.label_map[l] || l
         };
     });
     label_list.unshift({
@@ -540,8 +541,8 @@ function loadListStores(dataset_labels) {
         label: 'Pathway'
     });
 
-    var obj = label_list.filter(function(b) { return re.plot.locatable_source_list.indexOf(b.value) >= 0 });
-    var t_type = obj ? obj[0].value : label_list[1].value;
+    var obj = re.plot.locatable_source_list.filter(function(b) { return labels.indexOf(b) >= 0 });
+    var t_type = obj ? obj[0] : labels[0];
     Ext.StoreMgr.get('f1_type_combo_store').loadData(label_list);
     Ext.getCmp('t_type').setValue(t_type);
     Ext.getCmp('t_type').defaultValue = t_type;
