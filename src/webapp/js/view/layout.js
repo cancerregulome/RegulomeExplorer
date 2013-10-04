@@ -487,8 +487,11 @@ function packFilterSelections() {
 
 
 function resetFormPanel() {
-    Ext.getCmp('t_type').reset(), Ext.getCmp('t_label').reset(), Ext.getCmp('t_chr').reset(), Ext.getCmp('t_clin').reset(), Ext.getCmp('t_start').reset(), Ext.getCmp('t_stop').reset(), Ext.getCmp('p_type').reset(), Ext.getCmp('p_label').reset(), Ext.getCmp('p_chr').reset(), Ext.getCmp('p_clin').reset(), Ext.getCmp('p_start').reset(), 
-    Ext.getCmp('p_stop').reset(), Ext.getCmp('order').reset(), Ext.getCmp('limit').reset(), Ext.getCmp('filter_type').reset(),
+    Ext.getCmp('t_type').setValue(Ext.getCmp('t_type').defaultValue), Ext.getCmp('t_label').reset(), 
+    Ext.getCmp('t_chr').reset(), Ext.getCmp('t_clin').reset(), Ext.getCmp('t_start').reset(), Ext.getCmp('t_stop').reset(), 
+    Ext.getCmp('p_type').setValue(Ext.getCmp('p_type').defaultValue), Ext.getCmp('p_label').reset(), Ext.getCmp('p_chr').reset(), Ext.getCmp('p_clin').reset(), 
+    Ext.getCmp('p_start').reset(), Ext.getCmp('p_stop').reset(), 
+    Ext.getCmp('order').reset(), Ext.getCmp('limit').reset(), Ext.getCmp('filter_type').reset(),
     Ext.getCmp('t_pathway').reset(), Ext.getCmp('p_pathway').reset();
     Ext.getCmp('t_pathway').setVisible(false),Ext.getCmp('p_pathway').setVisible(false),Ext.getCmp('t_clin').setVisible(false),Ext.getCmp('p_clin').setVisible(false);
     Ext.getCmp('t_label').setVisible(true); Ext.getCmp('p_label').setVisible(true);

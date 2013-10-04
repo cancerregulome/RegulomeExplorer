@@ -542,7 +542,14 @@ function loadUndirectedNetworkDataByAssociation(params) {
             throwQueryError('associations', response);
         }
 
-        if (responses.length == 1) { flipQuery(); }
+        if (responses.length == 1) { 
+            if ( isEqual(params, flipParams(params)) ) {
+                responses = pv.blend(responses);
+                loadComplete();
+            } else {
+                flipQuery();
+            }
+        }
         else if (responses.length == 2) {
             responses = pv.blend(responses);
             if (responses.length < 1) {

@@ -132,7 +132,6 @@ re.ui.panels = {
                         emptyText : 'Select a Type...',
                         defaultValue : "*",
                         value : "*",
-                        trackResetOnLoad : true,
                         listeners: {
                             select : function(field,record, index) {
                                 if (re.ui.categorical_sources_map[record.id]) {
