@@ -345,47 +345,47 @@ re.ui.panels = {
                                     
                                     Ext.getCmp('p_label').setVisible(false);
                                     Ext.getCmp('p_clin').setVisible(true);
-                                    Ext.getCmp('p_pathway').setVisible(false);
+                                    // Ext.getCmp('p_pathway').setVisible(false);
                                 } else if (record.id === 'Pathway') {
                                     Ext.getCmp('p_label').setVisible(false);
                                     Ext.getCmp('p_clin').setVisible(false);
-                                    Ext.getCmp('p_pathway').setVisible(true);
+                                    // Ext.getCmp('p_pathway').setVisible(true);
                                 } else {
                                     Ext.getCmp('p_label').setVisible(true);
                                     Ext.getCmp('p_clin').setVisible(false);
-                                    Ext.getCmp('p_pathway').setVisible(false);
+                                    // Ext.getCmp('p_pathway').setVisible(false);
                                 }
                             }
                         }
-                    },{
-                        name:'p_pathway',
-                        mode:'local',
-                        id:'p_pathway',
-                        xtype:'combo',
-                        allowBlank : false,
-                        hidden:true,
-                        store: new Ext.data.JsonStore({
-                            autoLoad : false,
-                            data: [],
-                            fields : ['value','label', "url"],
-                            idProperty:'value',
-                            storeId:'f2_pathway_list_store'
-                        }),
-                        listWidth:300,
-                        fieldLabel:'Pathway',
-                        selectOnFocus:true,
-                        forceSelection : true,
-                        triggerAction : 'all',
-                        defaultValue:'',
-                        value:'',
-                        valueField:'value',
-                        displayField:'value',
-                        emptyText:'Select Pathway...',
-                        listeners : {
-                            select : function(field,record,index) {
-                                pathwaySelection(record,re.ui.feature2.id,'p');
-                                }
-                            }
+                    // },{
+                    //     name:'p_pathway',
+                    //     mode:'local',
+                    //     id:'p_pathway',
+                    //     xtype:'combo',
+                    //     allowBlank : false,
+                    //     hidden:true,
+                    //     store: new Ext.data.JsonStore({
+                    //         autoLoad : false,
+                    //         data: [],
+                    //         fields : ['value','label', "url"],
+                    //         idProperty:'value',
+                    //         storeId:'f2_pathway_list_store'
+                    //     }),
+                    //     listWidth:300,
+                    //     fieldLabel:'Pathway',
+                    //     selectOnFocus:true,
+                    //     forceSelection : true,
+                    //     triggerAction : 'all',
+                    //     defaultValue:'',
+                    //     value:'',
+                    //     valueField:'value',
+                    //     displayField:'value',
+                    //     emptyText:'Select Pathway...',
+                    //     listeners : {
+                    //         select : function(field,record,index) {
+                    //             pathwaySelection(record,re.ui.feature2.id,'p');
+                    //             }
+                    //         }
                     }, {                      
                             xtype:'textfield',
                             name:'p_label',

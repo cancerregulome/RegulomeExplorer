@@ -94,7 +94,7 @@ vq.utils.VisUtils.extend(re, {
         },
     
         parseLabelList: function(list_str) {
-            return list_str.split(',').map(trim).map(unescapeComma);
+            return list_str.trim().split(',').map(trim).filter(function(s) { return s !== ''; }).map(unescapeComma);
         },
 
         parseSolrLabel: function(label) {

@@ -112,7 +112,7 @@ function rectifyForm() {
         }
     });
     //if pathway is selected on either form panel
-  ['t', 'p'].forEach(function(f) {
+  ['t'].forEach(function(f) {
     var combo = Ext.getCmp(f+'_pathway');
         if (combo.isVisible()) {
             var value = combo.getValue();
@@ -128,8 +128,7 @@ function checkFormURL() {
     if (json != null) setFormState(json);
 }
 
-function setFormState(json) {
-   
+function setFormState(json) {   
     Ext.iterate(json, setComponentState)
 }
 
@@ -137,6 +136,10 @@ function setComponentState(key, value) {
     var field = Ext.getCmp(key);
     if (field !== undefined && 'setValue' in field) {
         Ext.getCmp(key).setValue(value, true);
+    }
+    if (key.indexOf('_pathway') >= 0) {
+        field.setVisible(true);
+        Ext.getCmp(key[0] + '_label').setVisible(false);
     }
 }
 
@@ -167,12 +170,15 @@ function removeDisabledValues(json){
         delete json['cis_distance_fn'];
         delete json['cis_distance_value'];
     }
+    return json;
+}
+
+function fixPathwayValues(json) {
     if (Ext.getCmp('t_pathway').isVisible()){
         delete json['t_label'];
+        json['t_type'] = "Pathway";
     }
-     if (Ext.getCmp('p_pathway').isVisible()){
-        delete json['p_label'];
-    }
+
     return json;
 }
 
@@ -181,6 +187,7 @@ function generateStateJSON() {
     //don't preserve empty or obvious values
     json = removeDefaultValues(json);
     json = removeDisabledValues(json);
+    json = fixPathwayValues(json);
     var obj = {};
     var dataset = getSelectedDatasetLabel();
     if(dataset) obj.dataset = dataset;
@@ -410,26 +417,21 @@ function requestFilteredData() {
 
 function getFilterSelections() {
     var type_1 = Ext.getCmp('t_type').getValue();
-    //clean out pathway value if not the selected type
-    var label_1,pathway_1='';
+    var label_1=Ext.getCmp('t_label').getValue();
+
     if (Ext.getCmp('t_clin').isVisible()) {
-            label_1 = Ext.getCmp('t_clin').getValue();
-        } else if (Ext.getCmp('t_pathway').isVisible()) {
-             pathway_1 = Ext.getCmp('t_pathway').getValue();
-             label_1 = Ext.getCmp('t_label').getValue();
-        } else {
-            label_1 = Ext.getCmp('t_label').getValue();
-        }
+        label_1 = Ext.getCmp('t_clin').getValue();
+    } else if (type_1 === 'Pathway') {
+        type_1 = "*";
+    }
+
     var type_2 = Ext.getCmp('p_type').getValue();
-    var label_2,pathway_2='';
-   if (Ext.getCmp('p_clin').isVisible()) {
-            label_2 = Ext.getCmp('p_clin').getValue();
-        } else if (Ext.getCmp('p_pathway').isVisible()) {
-             pathway_2 = Ext.getCmp('p_pathway').getValue();
-             label_2 = Ext.getCmp('p_label').getValue();
-        } else {
-            label_2 = Ext.getCmp('p_label').getValue();
-        }
+    var label_2=Ext.getCmp('p_label').getValue();
+
+    if (Ext.getCmp('p_clin').isVisible()) {
+        label_2 = Ext.getCmp('p_clin').getValue();
+    } 
+
     return packFilterSelections(
         type_1, label_1, Ext.getCmp('t_chr').getValue(), Ext.getCmp('t_start').getValue(), Ext.getCmp('t_stop').getValue(),
         type_2, label_2, Ext.getCmp('p_chr').getValue(), Ext.getCmp('p_start').getValue(), Ext.getCmp('p_stop').getValue(),
@@ -440,7 +442,8 @@ function getFilterSelections() {
             Ext.getCmp('cis_distance_value').getValue(),
             Ext.getCmp('cis_distance_fn').getValue(),
             Ext.getCmp('t_label_desc').getValue(),
-            Ext.getCmp('p_label_desc').getValue()
+            Ext.getCmp('p_label_desc').getValue(),
+            Ext.getCmp('t_pathway').getValue()
         );
 }
 
@@ -452,13 +455,11 @@ function packFilterSelections() {
         t_chr: arguments[2] || '',
         t_start: arguments[3] || '',
         t_stop: arguments[4] || '',
-        t_pathway: arguments[18] || '',
         p_type: arguments[5] || '',
         p_label: arguments[6] || '',
         p_chr: arguments[7] || '',
         p_start: arguments[8] || '',
         p_stop: arguments[9] || '',
-        p_pathway: arguments[19] || '',
         order: arguments[10],
         limit: arguments[11],
         filter_type: arguments[12],
@@ -469,6 +470,7 @@ function packFilterSelections() {
         cis_distance_fn: arguments[17],
         t_label_desc: arguments[18],
         p_label_desc: arguments[19],
+        t_pathway: arguments[20] || ''
     };
 
     re.model.association.types.forEach(function(obj) {
@@ -492,8 +494,8 @@ function resetFormPanel() {
     Ext.getCmp('p_type').setValue(Ext.getCmp('p_type').defaultValue), Ext.getCmp('p_label').reset(), Ext.getCmp('p_chr').reset(), Ext.getCmp('p_clin').reset(), 
     Ext.getCmp('p_start').reset(), Ext.getCmp('p_stop').reset(), 
     Ext.getCmp('order').reset(), Ext.getCmp('limit').reset(), Ext.getCmp('filter_type').reset(),
-    Ext.getCmp('t_pathway').reset(), Ext.getCmp('p_pathway').reset();
-    Ext.getCmp('t_pathway').setVisible(false),Ext.getCmp('p_pathway').setVisible(false),Ext.getCmp('t_clin').setVisible(false),Ext.getCmp('p_clin').setVisible(false);
+    Ext.getCmp('t_pathway').reset(),
+    Ext.getCmp('t_pathway').setVisible(false),Ext.getCmp('t_clin').setVisible(false),Ext.getCmp('p_clin').setVisible(false);
     Ext.getCmp('t_label').setVisible(true); Ext.getCmp('p_label').setVisible(true);
 
     re.model.association.types.forEach(function(obj) {
@@ -514,11 +516,6 @@ function updateFilterPanel() {
                         //set filter type to feature 1, assign pathway, expand panel
                         Ext.getCmp("filter_type").setValue(re.ui.feature1.id);
                         re.ui.setCurrentPathwayMembers(Ext.getCmp('t_label').getValue());
-                        Ext.getCmp('pathway_member_panel').expand();
-                    // or if f2 has a lavel value and f2 is a list
-                    } else if (Ext.getCmp('p_pathway').getValue() !== '' && Ext.getCmp('p_label').getValue().indexOf(",") > -1) {
-                        Ext.getCmp("filter_type").setValue(re.ui.feature2.id);
-                        re.ui.setCurrentPathwayMembers(Ext.getCmp('p_label').getValue());
                         Ext.getCmp('pathway_member_panel').expand();
                     }
                 }
@@ -549,7 +546,7 @@ function loadListStores(dataset_labels) {
     Ext.StoreMgr.get('f1_type_combo_store').loadData(label_list);
     Ext.getCmp('t_type').setValue(t_type);
     Ext.getCmp('t_type').defaultValue = t_type;
-    Ext.StoreMgr.get('f2_type_combo_store').loadData(label_list);
+    Ext.StoreMgr.get('f2_type_combo_store').loadData(label_list.filter(function (b){ return b.label !== 'Pathway'; }));
     Ext.getCmp('p_type').setValue("*");
     var label_map = {};
     var cat_feature_list = [
@@ -596,7 +593,6 @@ function loadListStores(dataset_labels) {
         };
     });
     Ext.StoreMgr.get('f1_pathway_list_store').loadData(pathway_list);
-    Ext.StoreMgr.get('f2_pathway_list_store').loadData(pathway_list);
 
     var scatterplot_categorical_features = dataset_labels['categorical_feature_labels'].filter( function(feature) {
         var type = feature.alias[0];
