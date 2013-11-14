@@ -357,7 +357,7 @@ function loadNetworkDataSingleFeature(params) {
     var feature_types = ['t', 'p'];
 
     function loadComplete() {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'sf_associations', {data: responses, isolated_feature:params['t_label']}));
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'sf_associations', {results: responses, isolated_feature:params['t_label'], query: params}));
     }
 
     function loadFailed() {
@@ -392,7 +392,8 @@ function loadNetworkDataSingleFeature(params) {
 
     var query_obj = {
         order: params['order'],
-        limit: Math.ceil((parseInt(params['limit']) / feature_types.length)) + ''
+        // limit: Math.ceil((parseInt(params['limit']) / feature_types.length)) + ''
+         limit: params['limit']
     };
 
       re.model.association.types.forEach(function(obj) {
@@ -432,7 +433,7 @@ function loadNetworkDataByFeature(params) {
     var labels = re.functions.parseLabelList(params[feature + '_label']);
 
     function loadComplete() {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', responses));
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', {results: responses, query: params}));
     }
 
     function loadFailed() {
@@ -516,7 +517,7 @@ function loadDirectedNetworkDataByAssociation(params) {
     }
 
     function loadComplete() {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', responses));
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', {results: responses, query: params}));
     }
 
     function loadFailed() {
@@ -563,7 +564,7 @@ function loadUndirectedNetworkDataByAssociation(params) {
     }
 
     function loadComplete() {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', responses));
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', {results: responses, query: params}));
     }
 
     function loadFailed() {

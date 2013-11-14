@@ -5,7 +5,7 @@ function registerModelListeners() {
     d.addListener('query_complete','associations',function(data) {
         if (re.state.query_cancel) { return;}
         parseNetwork(data);
-        generateNetworkDefinition(data)
+        // generateNetworkDefinition(data);
     });
     d.addListener('query_complete','sf_associations',function(data) {
         if (re.state.query_cancel) { return;}
@@ -103,9 +103,37 @@ function generateNetworkDefinition(responses) {
     e.dispatch();
 }
 
-function parseNetwork(responses) {
+function cleanResults(response) {
+
+    var map = {},
+    distinct_responses = [];
+
+   response.results.forEach( function(val,index,resp) {
+        if (map[val.alias1 + '__' + val.alias2] || map[val.alias2 + '__' + val.alias1]) {
+            return;
+        }
+        map[val.alias1 + '__' + val.alias2] = 1;
+        map[val.alias2 + '__' + val.alias1] = 1;
+        distinct_responses.push(val);
+        return;
+    });
+
+    var params = response.query;
+    var orderBy = params['order'];
+    var orderDir = re.model.association.types[re.model.association_map[params['order']]].query.order_direction || 'desc';
+    var orderFunc = orderDir === 'asc' ? function(a,b) { return a - b; } : function(a,b) { return b-a;};
+    
+    distinct_responses.sort(function(a,b) {
+        return orderFunc(a[orderBy], b[orderBy]);
+    });
+
+    return distinct_responses.slice(0, params['limit']);
+}
+
+function parseNetwork(response) {
 
     function loadComplete() {
+        generateNetworkDefinition(sorted_sliced_responses);
         vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready','associations', parsed_data));
     }
 
@@ -125,26 +153,14 @@ function parseNetwork(responses) {
                 qtinfo: ''
     };
 
-    var map = {};
+    var sorted_sliced_responses = cleanResults(response);
 
-    var distinct_responses = [];
-
-    responses.forEach( function(val,index,resp) {
-        if (map[val.alias1 + '__' + val.alias2] || map[val.alias2 + '__' + val.alias1]) {
-            return;
-        }
-        map[val.alias1 + '__' + val.alias2] = 1;
-        map[val.alias2 + '__' + val.alias1] = 1;
-        distinct_responses.push(val);
-        return;
-    });
-
-    var whole_net = distinct_responses.map(function(row) {
+    var whole_net = sorted_sliced_responses.map(function(row) {
             var node1 = row.alias1.split(':');
             var node2 = row.alias2.split(':');
 
             if (node1.length < 7 || node2.length < 7) {
-                console.error('Feature data is malformed. RF-ACE features consist of 7 required properties.');
+                console.error('Feature data is malformed. RE features consist of 7 required properties.');
             }
 
             var label_mod1 = node1.length >=8 ? node1[7] : '';
@@ -216,7 +232,7 @@ function parseNetwork(responses) {
 }
 
 
-function parseSFValues(responses) {
+function parseSFValues(response) {
 
     var parsed_data = {features:[]};
     function loadComplete() {
@@ -226,8 +242,10 @@ function parseSFValues(responses) {
     function loadFailed() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('load_fail','associations',{msg:'Zero mappable features found.'}));
     }
+
+    var sorted_sliced_responses = cleanResults(response);
     
-    var row1 = responses.data[0], row2 = responses.data[1];
+    var row1 = sorted_sliced_responses[0], row2 = sorted_sliced_responses[1];
     var alias = '';
     var aliases = {};
     if (row1 && row2) {
@@ -250,7 +268,7 @@ function parseSFValues(responses) {
     if (alias === '') { loadFailed();}
 
     var data = [];
-    data = responses.data.map(function(row) { 
+    data = sorted_sliced_responses.map(function(row) { 
         var obj = row; 
         obj.alias = (row.alias1 == alias ? row.alias2 : row.alias1);
         return obj;
