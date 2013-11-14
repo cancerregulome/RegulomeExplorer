@@ -378,7 +378,7 @@ function loadNetworkDataSingleFeature(params) {
         }
         if (responses.length >= feature_types.length) {
             responses = pv.blend(responses);
-            if (responses.length == 2) {
+            if (responses.length >= 1) {
                 loadComplete();
                 return;
             } else { //no matching results
@@ -691,7 +691,7 @@ function buildGQLQuery(args) {
     if (args['t_label_desc'] != '') {
         qparam += '+f1label_desc:"'+ args['t_label_desc'] + '"';
     }
-    if (args['p_label_desc'] != '' && args['p_label_desc'] != '*') {
+    if (args['p_label_desc'] != '') {
         qparam += '+f2label_desc:"'+ args['p_label_desc'] + '"';
     }
     if (args['t_chr'] != '' && args['t_chr'] != '*') {
@@ -792,10 +792,10 @@ function buildSingleFeatureGQLQuery(args, feature) {
     if (args['p_label'] && args['p_label'] != '' && args['p_label'] != '*') {
         qparam += '+f2label:'+ re.functions.parseSolrLabel(args['p_label']) + ' ';
     }
-    if (args['t_label_desc'] != '' && args['t_label_desc'] != '*') {
+    if (args['t_label_desc'] && args['t_label_desc'] != '') {
         qparam += '+f1label_desc:"'+ args['t_label_desc'] + '"';
     }
-    if (args['p_label_desc'] != '' && args['p_label_desc'] != '*') {
+    if (args['p_label_desc'] && args['p_label_desc'] != '') {
         qparam += '+f2label_desc:"'+ args['p_label_desc'] + '"';
     }
     if (args['t_chr'] && args['t_chr'] != '' && args['t_chr'] != '*') {
