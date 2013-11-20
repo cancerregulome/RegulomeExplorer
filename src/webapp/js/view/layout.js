@@ -953,7 +953,7 @@ Ext.onReady(function() {
                     tools: [{
                         id: 'help',
                         handler: function(event, toolEl, panel) {
-                            openHelpWindow('Genome-level View', genomeLevelHelpString);
+                            openHelpWindow('Genome-level View', re.help.strings.genomeLevelHelpString);
                         }
                     }],
                     items: [{
@@ -992,7 +992,7 @@ Ext.onReady(function() {
                     tools: [{
                         id: 'help',
                         handler: function(event, toolEl, panel) {
-                            openHelpWindow('Chromosome-level View', chromosomeLevelHelpString);
+                            openHelpWindow('Chromosome-level View', re.help.strings.chromosomeLevelHelpString);
                         }
                     }],
                     items: [{
@@ -1048,7 +1048,7 @@ Ext.onReady(function() {
                 tools: [{
                     id: 'help',
                     handler: function(event, toolEl, panel) {
-                        openHelpWindow('Data-level View', dataLevelViewHelpString);
+                        openHelpWindow('Data-level View', re.help.strings.dataLevelViewHelpString);
                     }
                 }],
                 items: [{
@@ -1767,7 +1767,7 @@ re.windows.export_window = new Ext.Window({
     tools: [{
         id: 'help',
         handler: function(event, toolEl, panel) {
-            openHelpWindow('Export', exportHelpString);
+            openHelpWindow('Export', re.help.strings.exportHelpString);
         }
     }],
     layoutConfig: {

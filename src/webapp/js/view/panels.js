@@ -21,7 +21,7 @@ re.ui.panels = {
         tools: [{
             id: 'help',
             handler: function(event, toolEl, panel){
-                openHelpWindow('Tools',toolsHelpString);
+                openHelpWindow('Tools',re.help.strings.toolsHelpString);
             }
         }],
         items: [{
@@ -33,7 +33,7 @@ re.ui.panels = {
             tools: [{
                 id: 'help',
                 handler: function(event, toolEl, panel){
-                    openHelpWindow('Filtering',filteringHelpString);
+                    openHelpWindow('Filtering',re.help.strings.filteringHelpString);
                 }
             }],
             items: [{
@@ -651,7 +651,7 @@ re.ui.panels = {
             tools: [{
                 id: 'help',
                 handler: function(event, toolEl, panel){
-                    openHelpWindow('Filtering',filteringHelpString);
+                    openHelpWindow('Filtering',re.help.strings.filteringHelpString);
                 }
             }],
             items: [{
