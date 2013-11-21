@@ -94,9 +94,20 @@ function isDatasetURLSpecified() {
     return false;
 }
 
+function isHiddenDatasetURLSpecified() {
+    var json = extractURL();
+    if ( json != null && json.dataset !== undefined && json.hidden == "true" ) {
+        return true;
+    }
+    return false;
+}
+
 function checkDatasetURL() {
     var json = extractURL();
     if (isDatasetURLSpecified()) {
+        if (isHiddenDatasetURLSpecified()) {
+            insertDatasetToStore(json.dataset);
+        } 
         selectDatasetByLabel(json.dataset);
     } else {
        selectDatasetByLabel(null);
@@ -698,6 +709,20 @@ function loadDataset() {
         return;
     }
     loadSelectedDataset();
+}
+
+function insertDatasetToStore(label) {
+    var obj =  { 
+                description : "Hidden dataset",
+                dataset_date : 'Now',
+                label : label,
+                method: 'hidden',
+                source : 'Unknown source',
+                disease : 'disease',
+                contact : '',
+                comments : ''
+            };
+    Ext.StoreMgr.get('dataset_grid_store').loadData(obj, true);
 }
 
 function selectDatasetByLabel(label) {
