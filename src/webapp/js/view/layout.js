@@ -104,13 +104,16 @@ function isHiddenDatasetURLSpecified() {
 
 function checkDatasetURL() {
     var json = extractURL();
+        re.analysis.hidden = false;
     if (isDatasetURLSpecified()) {
-        if (isHiddenDatasetURLSpecified()) {
-            insertDatasetToStore(json.dataset);
-        } 
-        selectDatasetByLabel(json.dataset);
-    } else {
-       selectDatasetByLabel(null);
+        var exists = selectDatasetByLabel(json.dataset);
+        if (isHiddenDatasetURLSpecified() ) {
+            re.analysis.hidden = true;
+            if (!exists) {
+                insertDatasetToStore(json.dataset);
+                selectDatasetByLabel(json.dataset);
+            }
+        }
     }
 }
 
@@ -202,6 +205,9 @@ function generateStateJSON() {
     var obj = {};
     var dataset = getSelectedDatasetLabel();
     if(dataset) obj.dataset = dataset;
+    if (re.analysis.hidden === true) {
+        obj.hidden = "true";
+    } 
     obj = vq.utils.VisUtils.extend(obj, json);
     return obj;
 }
@@ -725,24 +731,29 @@ function insertDatasetToStore(label) {
     Ext.StoreMgr.get('dataset_grid_store').loadData(obj, true);
 }
 
+
+
 function selectDatasetByLabel(label) {
     var record_index = Ext.StoreMgr.get('dataset_grid_store').findExact('label', label);
     if (record_index >= 0) {
         Ext.getCmp('dataset-grid').getSelectionModel().selectRow(record_index);
+        return true;
     }
     else {
         Ext.getCmp('dataset-grid').getSelectionModel().clearSelections(true);
+        return false;
     }
 }
 
 function getSelectedDataset() {
     if (Ext.getCmp('dataset-tabpanel').layout.activeItem.id == 'dataset-tree' &&
-        Ext.getCmp('dataset-tree').getSelectionModel().getSelectedNode() !== null) {
+        Ext.getCmp('dataset-tree').getSelectionModel().getSelectedNode() !== null &&
+        re.analysis.hidden !== true ) {
         var label = Ext.getCmp('dataset-tree').getSelectionModel().getSelectedNode().attributes.label;
         var record_index = Ext.StoreMgr.get('dataset_grid_store').findExact('label', label);
         if (record_index >= 0) {
             Ext.getCmp('dataset-grid').getSelectionModel().selectRow(record_index);
-        }
+        } 
     }
     return  Ext.getCmp('dataset-grid').getSelectionModel().getSelected();
 }
@@ -767,6 +778,7 @@ function getSelectedDatasetDescription() {
 
 
 function manualLoadSelectedDataset() {
+    re.analysis.hidden = false;
     preserveState();
     loadSelectedDataset();
 }

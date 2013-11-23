@@ -9,12 +9,12 @@ if (re === undefined) {
 
 vq.utils.VisUtils.extend(re, {
 
-    title: 'Regulome Explorer: Random Forest',
+    title: 'Regulome Explorer: Georgetown',
     google: {
         analytics_id: 'UA-20488457-2'
     },
     analysis: {
-        dataset_method_clause: ' where method=\'RF-ACE\'',
+        dataset_method_clause: ' where method=\'gtown\'',
         directed_association: true,
         hidden: false
     },
@@ -51,7 +51,7 @@ vq.utils.VisUtils.extend(re, {
         rf_ace: {
             uri: '/google-dsapi-svc/addama/datasources/re'
         },
-       networks: {
+        networks: {
             uri: '/data'
         },
         medline: {
@@ -79,18 +79,9 @@ vq.utils.VisUtils.extend(re, {
      *            addresses to pathways used by MEDLINE tab
      */
     help: {
-        strings: {
-            // help strings
-            filteringHelpString: 'The Filter Panel can be used to specify the type of associations to display in the View Panels.  Queries may specify attributes of each feature, as well as the attributes of the association.',
-            pathwaysHelpString: 'The Pathway Panel provides a view onto the individual members of the selected pathway.  It displays the distribution of assoication types for each member.  Hovering over a member activates a highlight mode on the cirular layout panel.  Clicking on a feature locks that highlight mode in.',
-            toolsHelpString: 'The Tool Panel provides a way for filtering, selecting, and exporting different datasets.  ' + 'The Panel can also be minimized by clicking the `>>` icon, which then expands main panel view.  ' + 'See each individual tool help for further details on their capabilities.',
-            dataLevelViewHelpString: 'The Data-level View is a data table displaying the feature selected in the Genome-level ' + 'view and its related links.  This view allows the user to easily navigate all the related data values ' + 'associated with a single feature.',
-            chromosomeLevelHelpString: 'The Chromosome-level View provides a way to navigate the features of a given dataset on ' + 'a single chromosome level.  The view will be populated with chromosome information once a chromosome is ' + 'selected by either clicking on a specific chromosome number  or end-point of a link in the Genome-level view.<p>' + 'Feature information on a given chromosome is displayed in 4 different plots.  The Distal Intra-Chromosome ' + 'Correlates plot shows the location of the predictors for a target within a chromosome.  The Proximal Feature ' + 'Predictors plot also displays feature associations within the chromosome, but only displays ones where the ' + 'start and end location of a predictor is less than 250,000 bp in length.  The Unmapped Feature Coorelates ' + 'shows features for which there does not exist a mapped location.  Finally, the Feature Locations plot shows ' + 'the locations of the various targets involved in the links.   All plots have tooltips giving more details of ' + 'the underlying data. Coorelation scatterplots are displayed when an item is selected within a plot.<p>' + 'A sliding scale showing all feature locations is given at the bottom of the view.  A range can be selected to zoom ' + 'in on a given chromosome location by clicking the mouse and dragging it over a region.  The same zoom and ' + 'selection capability is also available within the top 4 plots.',
-            genomeLevelHelpString: 'The Genome-level View is an interactive circular plot showing the links between target and ' + 'predictor features within the dataset.  Tooltips over various points give the underlying data associated with ' + 'a node or link.  Clicking on the links within the plot will display a coorelation scatterplot of the associated ' + 'features.  Mouse clicks on chromosomes, links, and nodes within the plot also bring up drill-down information ' + 'in the Chromosome-level and Data-level views.<p>' + 'The subset of data shown in the circular plot can be filtered by using the tools panel filtering section.  Once a plot ' + 'of interest has been found, an export of the plot can be achieved by using the tools panel export option.  ' + 'The mouse-click behavior of the interactive plot can be changed by choosing different options in the tools ' + 'panel selection area.'
-        },
         links: {
             user_guide: 'http://wiki.cancerregulome.org',
-            quick_start: 'http://cdn.cancerregulome.org/help/msae/quick_start.html',
+            quick_start: 'http://wiki.cancerregulome.org/bin/view/All+Pairs+Analysis/8.1+Quick+Walk-through+for+One+Feature',
             contact_us: 'http://wiki.cancerregulome.org',
             analysis_summary: '/help/all_pairs/analysis.html',
             bug_report: 'http://code.google.com/p/regulome-explorer/issues/entry',
@@ -118,8 +109,7 @@ vq.utils.VisUtils.extend(re, {
                 },
                 pairwise_scores: {
                     value_field: re.model.association.types[0].query.id,
-                    hidden: true,
-                    radius: 80,
+                    hidden: false,
 
                     manual_y_color_scale:false,
                     min_y_color:'#0000FF',
@@ -130,9 +120,9 @@ vq.utils.VisUtils.extend(re, {
                 }
             },
              quantiled_data: {
-                    GEXP: true,
-                    CNVR: true,
-                    METH: true
+                    GEXP: false,
+                    CNVR: false,
+                    METH: false
             },
             tooltips: {
                 feature: {
@@ -143,7 +133,7 @@ vq.utils.VisUtils.extend(re, {
                         return label;
                     },
                     Source: function(node) {
-                        return re.label_map[node.source]
+                        return re.label_map[node.source];
                     },
                     'Location': function(node) {
                         return 'Chr' + node.chr + ' ' + node.start + (node.end == '' ? '' : '-' + node.end) + ' ';
@@ -185,26 +175,26 @@ vq.utils.VisUtils.extend(re, {
                         config_object: function(feature) {
                             return ['CNVR', 'MIRN','METH'].indexOf(feature.source) < 0 ? 'http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action=bygene&ln=' + feature.label : null;
                         }
-                  },  {
-                      label: 'NCBI',
-                      url: 'http://www.ncbi.nlm.nih.gov/gene/',
-                      uri: '',
-                      selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
-                      config_object: function(feature) {
-                          return 'http://www.ncbi.nlm.nih.gov/gene?term='+feature.label;                      
-                      }
-                    }, {
-                        label: 'miRBase',
-                        url: 'http://mirbase.org/cgi-bin/query.pl',
-                        uri: '?terms=',
+                    },  {
+                        label: 'NCBI',
+                        url: 'http://www.ncbi.nlm.nih.gov/gene/',
+                        uri: '',
+                        selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
                         config_object: function(feature) {
-                            return feature.source == 'MIRN' ? 'http://www.mirbase.org/cgi-bin/query.pl?terms=' + feature.label : null;
-                        }
+                            return 'http://www.ncbi.nlm.nih.gov/gene?term='+feature.label;                      
                     }
-                ],
+                }, {
+                    label: 'miRBase',
+                    url: 'http://mirbase.org/cgi-bin/query.pl',
+                    uri: '?terms=',
+                    config_object: function(feature) {
+                        return feature.source == 'MIRN' ? 'http://www.mirbase.org/cgi-bin/query.pl?terms=' + feature.label : null;
+                    }
+                }
+                   ],
                 //link_objects
-                edge_links: {},
-                feature_links : {}
+                edge_links: new Object(null),
+                feature_links : new Object(null)
             },
             ticks: {
                 tick_overlap_distance: null,
@@ -238,8 +228,8 @@ vq.utils.VisUtils.extend(re, {
         flashInstallerPath: "http://cdn.cancerregulome.org/js/cytoscape_web/1.0/swf/playerProductInstall"
     },
     plot: {
-        locatable_source_list: ['GEXP', 'METH', 'CNVR', 'MIRN', 'GNAB', 'RPPA'],
-        unlocatable_source_list: ['CLIN', 'SAMP', 'PRDM'],
+        locatable_source_list: ['GEXP', 'CNVR', 'MIRN' ],
+        unlocatable_source_list: ['CLIN', 'METB_Serum', 'METB_Urine'],
         link_sources_array: [],
 
         colors: {
@@ -253,7 +243,8 @@ vq.utils.VisUtils.extend(re, {
             setStrokeStyleAttribute: function(attr) {
                 re.plot.colors.stroke_style_attribute = attr;
             },
-             categorical_values: {
+           
+            categorical_values: {
                         'NA' :'#444444',
                         '0': '#1f77b4', //blue
                         '1': '#ff7f0e',  //orange
@@ -277,10 +268,10 @@ vq.utils.VisUtils.extend(re, {
         inter_scale: pv.Scale.linear(0.00005, 0.0004).range('lightpink', 'red'),
         linear_unit: 100000,
         chrome_length: [],
-        legend: {},
+        legend: {}, 
         scatterplot_data: null,
-
-           category_equivalents :{
+        default_colorby_feature_alias: '',
+         category_equivalents :{
                 'NEG': '0' ,
                 'NEGATIVE' : '0', 
                 'TUMOR_FREE' : '0',
@@ -299,8 +290,8 @@ vq.utils.VisUtils.extend(re, {
         chromosomes: [],
         dataset_labels: [],
         categorical_sources_map : {},
-        
-      // Removes heading and trailing whitespaces from a string
+
+        // Removes heading and trailing whitespaces from a string
     getDatasetLabels: function() {
             return re.ui.dataset_labels;
         },
@@ -308,12 +299,12 @@ vq.utils.VisUtils.extend(re, {
             re.ui.dataset_labels = obj;
         },
         current_pathway_members: [],
-    getCurrentPathwayMembers: function() {
+        getCurrentPathwayMembers: function() {
             return re.ui.current_pathway_members;
-        },     
+        },
         setCurrentPathwayMembers: function(obj) {
             re.ui.current_pathway_members = obj;
-    },
+        },
         pathway_members_query_counts: {},
         getPathwayMembersQueryCounts: function() {
             return re.ui.pathway_members_query_counts;
@@ -321,14 +312,14 @@ vq.utils.VisUtils.extend(re, {
         setPathwayMembersQueryCounts: function(obj, ct) {
             re.ui.pathway_members_query_counts[obj] = ct;
         },
-        pathway_bar_mouseover_behavior: {},
-        getPathwayBarBehavior: function() {
+	    pathway_bar_mouseover_behavior: {},
+	    getPathwayBarBehavior: function() {
             return re.ui.pathway_bar_mouseover_behavior;
         },
         setPathwayBarBehavior: function(obj) {
             re.ui.pathway_bar_mouseover_behavior = obj;
         },
-        pathway_bar_mouseover_behavior_reset: {},
+	    pathway_bar_mouseover_behavior_reset: {},
         getPathwayBarBehaviorReset: function() {
             return re.ui.pathway_bar_mouseover_behavior_reset;
         },
@@ -427,17 +418,14 @@ vq.utils.VisUtils.extend(re, {
      Label map
      Hash maps feature type id to feature type label
      */
-     re.label_map = {
+    re.label_map = {
         '*': 'All',
         'GEXP': 'Gene Expression',
-        'METH': 'DNA Methylation ',
         'CNVR': 'Somatic Copy Number',
         'CLIN': 'Clinical',
         'MIRN': 'MicroRNA Expression',
-        'GNAB': 'Somatic Mutation',
-        'SAMP': 'Tumor Sample',
-        'PRDM': 'Paradigm Feature',
-        'RPPA': 'Protein Level - RPPA'
+        'METB_Urine': 'Metabolic - Urine',
+        'METB_Serum': 'Metabolic - Serum'
     };
     re.plot.all_source_list = pv.blend([re.plot.locatable_source_list, re.plot.unlocatable_source_list]);
     re.plot.all_source_map = pv.numerate(re.plot.all_source_list);
@@ -454,9 +442,9 @@ vq.utils.VisUtils.extend(re, {
         //orange
         'MIRN': '#9467bd',
         //purple
-        'GNAB': '#d62728',
+        'METB_Urine': '#d62728',
         //red
-        'PRDM': '#8c564b',
+        'METB_Serum': '#8c564b',
         //pink
         'RPPA': '#e377c2',
         //brown

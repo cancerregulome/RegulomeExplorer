@@ -15,7 +15,8 @@ vq.utils.VisUtils.extend(re, {
     },
     analysis: {
         dataset_method_clause: ' where method=\'pairwise\'',
-        directed_association: false
+        directed_association: false,
+        hidden: false
     },
     state: {
         once_loaded: false,
