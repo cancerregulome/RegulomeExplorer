@@ -2,7 +2,37 @@ if (re.model === undefined) re.model = {};
 
 re.model.association =  {
     types : [
-    {   id : 'logged_pvalue',
+     {   id : 'logged_pvalue_bonf',
+            label : 'Adjusted -log10(p)',
+            ui : {
+                grid : {
+                    column : { header : "Adjusted -log10(p)", width : 50 , id: 'adj_logged_pvalue' , dataIndex : 'adj_logged_pvalue', hidden: false},
+                    store_index : 'adj_logged_pvalue'
+                }
+            },
+            query : {
+                id : 'logged_pvalue_bonf',
+                clause : '',
+                order_direction : 'desc'
+            },
+            vis : {
+                network : {
+                    edgeSchema : {name: "logged_pvalue_bonf", type: "number" }
+                },
+                tooltip : {
+                    entry : { 'Adjusted -log10(p)' : 'logged_pvalue_bonf' }
+                },
+                scatterplot: {
+                    values: {
+                        min:0,
+                        floor : 0,
+                        ceil: 300
+                    },
+                    color_scale : pv.Scale.linear(0,50).range('blue','red')
+                }
+            }
+    },
+       {   id : 'logged_pvalue',
             label : '-log10(p)',
             ui : {
                 filter : {
@@ -18,7 +48,7 @@ re.model.association =  {
                         minValue:0.0,
                         tabIndex : 1,
                         validateOnBlur : true,
-                        fieldLabel : '-log10(p) >=',
+                        fieldLabel : '-log10(p) &GreaterEqual;',
                         defaultValue: 6,
                         value : 6
                     }
@@ -49,7 +79,7 @@ re.model.association =  {
                     color_scale : pv.Scale.linear(0,50).range('blue','red')
                 }
             }
-        },
+    },
         {   id : 'correlation',
             label : 'Correlation',
             ui : {
@@ -96,7 +126,7 @@ re.model.association =  {
                 }
             }
         },
-        { 	id : 'num_nonna',
+        {   id : 'num_nonna',
             label : '# of samples',
             ui : {
                 filter : {
