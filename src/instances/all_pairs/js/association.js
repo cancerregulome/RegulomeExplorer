@@ -141,7 +141,7 @@ re.model.association =  {
                         minValue:0,
                         tabIndex : 1,
                         validateOnBlur : true,
-                        fieldLabel : '# of samples >=',
+                        fieldLabel : '# of samples &GreaterEqual;',
                         defaultValue: 0,
                         value : 0
                     }
