@@ -476,6 +476,7 @@ vq.utils.VisUtils.extend(re, {
         return "blue";
     };
     re.model.association.types.forEach(function(obj) {
+        if ( obj.ui.filter === undefined || obj.ui.filter.component === undefined) { return; }
         re.ui.order_list.push({
             value: obj.id,
             label: obj.label

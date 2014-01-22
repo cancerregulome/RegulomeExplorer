@@ -142,10 +142,10 @@ vq.utils.VisUtils.extend(re, {
                         return label;
                     },
                     Source: function(node) {
-                        return re.label_map[node.source]
+                        return re.label_map[node.source];
                     },
                     'Location': function(node) {
-                        return 'Chr' + node.chr + ' ' + node.start + (node.end == '' ? '' : '-' + node.end) + ' ';
+                        return 'Chr' + node.chr + ' ' + node.start + (node.end === '' ? '' : '-' + node.end) + ' ';
                     },
                     Annotations: parseAnnotationList
                 },
@@ -166,7 +166,7 @@ vq.utils.VisUtils.extend(re, {
                         url: 'http://genome.ucsc.edu/cgi-bin/hgTracks',
                         uri: '?db=hg18&position=chr',
                         config_object: function(feature) {
-                            return 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg18&position=chr' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
+                            return 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg18&position=chr' + feature.chr + ':' + feature.start + (feature.end === '' ? '' : '-' + feature.end);
                         }
                     }, //ucsc_genome_browser
                     {
@@ -174,7 +174,7 @@ vq.utils.VisUtils.extend(re, {
                         url: 'http://uswest.ensembl.org/Homo_sapiens/Location/View',
                         uri: '?r=',
                         config_object: function(feature) {
-                            return 'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' + feature.start + (feature.end == '' ? '' : '-' + feature.end);
+                            return 'http://uswest.ensembl.org/Homo_sapiens/Location/View?r=' + feature.chr + ':' + feature.start + (feature.end === '' ? '' : '-' + feature.end);
                         }
                     }, //ensemble
                     {
@@ -190,7 +190,7 @@ vq.utils.VisUtils.extend(re, {
                         uri: '',
                         selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
                         config_object: function(feature) {
-                            return 'http://www.ncbi.nlm.nih.gov/gene?term='+feature.label;                      
+                            return 'http://www.ncbi.nlm.nih.gov/gene?term='+feature.label;
                     }
                 }, {
                     label: 'miRBase',
@@ -259,34 +259,34 @@ vq.utils.VisUtils.extend(re, {
                         '1': '#ff7f0e',  //orange
            },
            category_colors : [
-              '#2ca02c',        
+              '#2ca02c',
                 '#9467bd',
                 '#d62728',
                 '#8c564b',
                 '#e377c2',
                 '#7f7f7f',
                 '#bcbd22',
-                "#c2c4ff", 
-                "#e7cb94", 
-                "#cedb9c", 
-                "#e7969c", 
-                "#e1daf9", 
+                "#c2c4ff",
+                "#e7cb94",
+                "#cedb9c",
+                "#e7969c",
+                "#e1daf9",
                 "#b8e2ef"
             ]
         },
         inter_scale: pv.Scale.linear(0.00005, 0.0004).range('lightpink', 'red'),
         linear_unit: 100000,
         chrome_length: [],
-        legend: {}, 
+        legend: {},
         scatterplot_data: null,
         default_colorby_feature_alias: '',
          category_equivalents :{
                 'NEG': '0' ,
-                'NEGATIVE' : '0', 
+                'NEGATIVE' : '0',
                 'TUMOR_FREE' : '0',
                 'NO': '0',
-                'POS': '1', 
-                'POSITIVE' : '1', 
+                'POS': '1',
+                'POSITIVE' : '1',
                 'WITH_TUMOR' : '1',
                 'YES': '1'
             }
@@ -304,7 +304,7 @@ vq.utils.VisUtils.extend(re, {
     getDatasetLabels: function() {
             return re.ui.dataset_labels;
         },
-        setDatasetLabels: function(obj) {   
+        setDatasetLabels: function(obj) {
             re.ui.dataset_labels = obj;
         },
         current_pathway_members: [],
@@ -321,14 +321,14 @@ vq.utils.VisUtils.extend(re, {
         setPathwayMembersQueryCounts: function(obj, ct) {
             re.ui.pathway_members_query_counts[obj] = ct;
         },
-	    pathway_bar_mouseover_behavior: {},
-	    getPathwayBarBehavior: function() {
+        pathway_bar_mouseover_behavior: {},
+        getPathwayBarBehavior: function() {
             return re.ui.pathway_bar_mouseover_behavior;
         },
         setPathwayBarBehavior: function(obj) {
             re.ui.pathway_bar_mouseover_behavior = obj;
         },
-	    pathway_bar_mouseover_behavior_reset: {},
+        pathway_bar_mouseover_behavior_reset: {},
         getPathwayBarBehaviorReset: function() {
             return re.ui.pathway_bar_mouseover_behavior_reset;
         },
@@ -476,6 +476,7 @@ vq.utils.VisUtils.extend(re, {
         return "blue";
     };
     re.model.association.types.forEach(function(obj) {
+        if ( obj.ui.filter === undefined || obj.ui.filter.component === undefined) { return; }
         re.ui.order_list.push({
             value: obj.id,
             label: obj.label
