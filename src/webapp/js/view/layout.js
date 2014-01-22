@@ -311,6 +311,7 @@ function retrieveEdges() {
     var id_list = colModel.columns.map(function(col) {
         return col.id;
     });
+    id_list = id_list.filter(function(id) { return id.indexOf('info_') !== 0; });
     return Ext.encode( //make into JSON
         [id_list].concat( //append headers first
             Ext.StoreMgr.get('data_grid_store').getRange() //grab all records from last query
@@ -627,23 +628,23 @@ function loadListStores(dataset_labels) {
 }
 
 function loadDataTableStore(data) {
-    var columns = ['source_source', 'source_label', 'source_chr', 'source_start'];
+    var columns = ['datatype_b', 'label_b', 'chr_b', 'start_b'];
     var colModel = Ext.getCmp('data_grid').getColumnModel();
     var load_data = [];
     if (data['unlocated'] === undefined) {
         load_data = data['features'].map(function(node) {
             var obj = {
-                target_id: node.id,
-                target_source: node.source,
-                target_label: node.label,
-                target_chr: node.chr,
-                target_start: node.start
+                id_a: node.id,
+                datatype_a: node.source,
+                label_a: node.label,
+                chr_a: node.chr,
+                start_a: node.start
             };
                if(re.ui.filters.link_distance) {
                 obj['link_distance'] = node.link_distance;
             }
             re.model.association.types.forEach(function(assoc) {
-                obj[assoc.ui.grid.store_index] = node[assoc.query.id];
+                obj[assoc.ui.grid.store_index] = node[assoc.ui.grid.store_index];
             });
             return obj;
         });
@@ -654,22 +655,22 @@ function loadDataTableStore(data) {
     } else {
         load_data = pv.blend([data['network'], data['unlocated']]).map(function(row) {
             var obj = {
-                target_id: row.node1.id,
-                target_source: row.node1.source,
-                target_label: row.node1.label,
-                target_chr: row.node1.chr,
-                target_start: row.node1.start,
-                source_id: row.node2.id,
-                source_source: row.node2.source,
-                source_label: row.node2.label,
-                source_chr: row.node2.chr,
-                source_start: row.node2.start,
+                id_a: row.node1.id,
+                datatype_a: row.node1.source,
+                label_a: row.node1.label,
+                chr_a: row.node1.chr,
+                start_a: row.node1.start,
+                id_b: row.node2.id,
+                datatype_b: row.node2.source,
+                label_b: row.node2.label,
+                chr_b: row.node2.chr,
+                start_b: row.node2.start,
             };
             if(re.ui.filters.link_distance) {
                 obj['link_distance'] = row.link_distance;
             }
             re.model.association.types.forEach(function(assoc) {
-                obj[assoc.ui.grid.store_index] = row[assoc.query.id];
+                obj[assoc.ui.grid.store_index] = row[assoc.ui.grid.store_index];
             });
             return obj;
         });
@@ -1104,23 +1105,23 @@ Ext.onReady(function() {
                             header: "Id",
                             width: 40,
                             hidden: true,
-                            id: 'target_id',
-                            dataIndex: 'target_id'
+                            id: 'id_a',
+                            dataIndex: 'id_a'
                         }, {
                             width: 30,
                             align: 'center',
                             icon: '../images/icons/zoom.png',
-                            id: 'target_info',
+                            id: 'info_a',
                             xtype: 'actioncolumn',
                             handler: function(grid, rowIndex, colIndex) {
                                  var record = grid.store.getAt(rowIndex);
                                  var fieldName = grid.getColumnModel().getColumnId(colIndex);
-                                 var feature = fieldName.split('_')[0];
+                                 var feature = fieldName.split('_')[1];
                                  var t = grid.getView().getCell(rowIndex,colIndex);
                                   var data = {
-                                            source:record.json[feature+'_source'],
-                                            label:record.json[feature+'_label'], chr:record.json[feature+'_chr'],
-                                            start:record.json[feature+'_start'], end:''
+                                            source:record.json['datatype_' + feature],
+                                            label:record.json['label_ ' + feature], chr:record.json['chr_' + feature],
+                                            start:record.json['start_' + feature], end:''
                                         };
                                         var hovercard = new vq.Hovercard(options(t));
                                         hovercard.show(t, data);
@@ -1128,48 +1129,48 @@ Ext.onReady(function() {
                         },{
                             header: "Type",
                             width: 40,
-                            id: 'target_source',
-                            dataIndex: 'target_source',
+                            id: 'datatype_a',
+                            dataIndex: 'datatype_a',
                             groupName: 'Target'
                         }, {
                             header: "Label",
                             width: 70,
-                            id: 'target_label',
-                            dataIndex: 'target_label',
+                            id: 'label_a',
+                            dataIndex: 'label_a',
                             groupName: 'Target',
                         }, {
                             header: "Chr",
                             width: 40,
-                            id: 'target_chr',
-                            dataIndex: 'target_chr',
+                            id: 'chr_a',
+                            dataIndex: 'chr_a',
                             groupName: 'Target'
                         }, {
                             header: "Start",
                             width: 70,
-                            id: 'target_start',
-                            dataIndex: 'target_start',
+                            id: 'start_a',
+                            dataIndex: 'start_a',
                             groupName: 'Target'
                         }, {
                             header: "Id",
                             width: 40,
                             hidden: true,
-                            id: 'source_id',
-                            dataIndex: 'source_id'
+                            id: 'id_b',
+                            dataIndex: 'id_b'
                          }, {
                             width: 30,
                             align: 'center',
                             icon: '../images/icons/zoom.png',
-                            id: 'source_info',
+                            id: 'info_b',
                             xtype: 'actioncolumn',
                             handler: function(grid, rowIndex, colIndex) {
                                  var record = grid.store.getAt(rowIndex);
                                  var fieldName = grid.getColumnModel().getColumnId(colIndex);
-                                 var feature = fieldName.split('_')[0];
+                                 var feature = fieldName.split('_')[1];
                                  var t = grid.getView().getCell(rowIndex,colIndex);
                                   var data = {
-                                            source:record.json[feature+'_source'],
-                                            label:record.json[feature+'_label'], chr:record.json[feature+'_chr'],
-                                            start:record.json[feature+'_start'], end:''
+                                            source:record.json['datatype_' + feature],
+                                            label:record.json['label_ ' + feature], chr:record.json['chr_' + feature],
+                                            start:record.json['start_' + feature], end:''
                                         };
                                         var hovercard = new vq.Hovercard(options(t));
                                         hovercard.show(t, data);
@@ -1177,26 +1178,26 @@ Ext.onReady(function() {
                         },{
                             header: "Type",
                             width: 40,
-                            id: 'source_source',
-                            dataIndex: 'source_source',
+                            id: 'datatype_b',
+                            dataIndex: 'datatype_b',
                             groupName: 'Target'
                         }, {
                             header: "Label",
                             width: 70,
-                            id: 'source_label',
-                            dataIndex: 'source_label',
+                            id: 'label_b',
+                            dataIndex: 'label_b',
                             groupName: 'Target',
                         }, {
                             header: "Chr",
                             width: 40,
-                            id: 'source_chr',
-                            dataIndex: 'source_chr',
+                            id: 'chr_b',
+                            dataIndex: 'chr_b',
                             groupName: 'Target'
                         }, {
                             header: "Start",
                             width: 70,
-                            id: 'source_start',
-                            dataIndex: 'source_start',
+                            id: 'start_b',
+                            dataIndex: 'start_b',
                             groupName: 'Target'
                         }
                         ].concat(re.ui.filters.link_distance ? 
@@ -1223,8 +1224,8 @@ Ext.onReady(function() {
                     store: new Ext.data.JsonStore({
                         autoLoad: false,
                         storeId: 'data_grid_store',
-                        fields: ['target_id', 'target_source', 'target_label', 'target_chr', 'target_start',
-                        'source_id', 'source_source', 'source_label', 'source_chr', 'source_start']
+                        fields: ['id_a', 'datatype_a', 'label_a', 'chr_a', 'start_a',
+                        'id_b', 'datatype_b', 'label_b', 'chr_b', 'start_b']
                         .concat( re.ui.filters.link_distance ? 'link_distance': [])
                         .concat(re.model.association.types.map(function(obj) {
                             return obj.ui.grid.store_index;
@@ -1241,10 +1242,10 @@ Ext.onReady(function() {
                             var link = {};
                             link.sourceNode = {};
                             link.targetNode = {};
-                            link.sourceNode.id = record.get('target_id');
-                            link.targetNode.id = record.get('source_id');
-                            link.sourceNode.label = record.get('target_label');
-                            link.targetNode.label = record.get('source_label');
+                            link.sourceNode.id = record.get('id_a');
+                            link.targetNode.id = record.get('id_b');
+                            link.sourceNode.label = record.get('label_a');
+                            link.targetNode.label = record.get('label_b');
                             //initiateDetailsPopup(link);
                             vq.events.Dispatcher.dispatch(new vq.events.Event('click_association', 'associations_table', link));
                         }
@@ -1898,7 +1899,7 @@ var datasetGrid = new Ext.grid.GridPanel({
             storeId: 'dataset_grid_store',
             idProperty: 'label',
             proxy: new Ext.data.HttpProxy({
-                url: re.databases.base_uri + re.databases.rf_ace.uri + re.tables.dataset + re.rest.query + '?' + re.params.query + 'select `description`, `dataset_date`,`label`, `method`, `source`, `disease`, `contact`, `comments`' + re.analysis.dataset_method_clause + ' order by default_display DESC' + re.params.json_out
+            url: re.databases.base_uri + re.databases.rf_ace.uri + re.tables.dataset + re.rest.query + '?' + re.params.query + 'select `description`, `dataset_date`,`label`, `method`, `source`, `disease`, `contact`, `comments`' + re.analysis.dataset_method_clause + ' order by default_display DESC' + re.params.json_out
             }),
             fields: ['description', 'label', 'dataset_date', 'method', 'source', 'disease', 'contact', 'comments'],
             listeners: {
