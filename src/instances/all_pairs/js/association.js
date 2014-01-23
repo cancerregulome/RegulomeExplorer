@@ -17,10 +17,10 @@ re.model.association =  {
             },
             vis : {
                 network : {
-                    edgeSchema : {name: "logged_pvalue_bonf", type: "number" }
+                    edgeSchema : {name: "adj_logged_pvalue", type: "number" }
                 },
                 tooltip : {
-                    entry : { 'Adjusted -log10(p)' : 'logged_pvalue_bonf' }
+                    entry : { 'Adjusted -log10(p)' : 'adj_logged_pvalue' }
                 },
                 scatterplot: {
                     values: {
