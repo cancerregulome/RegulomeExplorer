@@ -325,6 +325,80 @@ re.simplerangeField = Ext.extend(Ext.form.CompositeField, {
     }
 });
 
+re.modalNumericField = Ext.extend(Ext.form.CompositeField, {
+    constructor: function(config) {
+        var default_value = config.default_value || 0;
+        var min_value = config.min_value || -1;
+        var max_value = config.max_value || 1;
+        var modes = config.modes;
+        var label = config.label || '';
+        var id = config.id || label + 'id';
+
+        var fieldLabel = config.fieldLabel;
+        config.fieldLabel = '';
+
+        var mode_items = modes.map(function(mode){
+            return {
+                            name: id + '_radio',
+                            boxLabel: mode.label,
+                            inputValue: mode.value
+                        };
+        });
+        if (mode_items.length) { mode_items[0].checked = true; }
+
+        config = Ext.apply( {
+
+            title: label,
+            autoHeight: true,
+            items : [
+                {
+                    xtype : 'numberfield',
+                    id:id+'_value',
+                    name :id+'_value',
+                    anchor: '95%',
+
+                    allowNegative: true,
+                    decimalPrecision : 2,
+                    emptyText : 'Input value...',
+                    invalidText:'This value is not valid.',
+                    minValue:min_value,
+                    maxValue:max_value,
+                    tabIndex : 1,
+                    validateOnBlur : true,
+                    fieldLabel : fieldLabel,
+                    defaultValue : default_value,
+                    value : default_value,
+                    listeners: {
+                        render: function(c) {
+                            Ext.QuickTips.register({
+                                target: c,
+                                title: '',
+                                text: 'Numeric field with 2 decimal precision'
+                            });
+                        }
+                    }
+                },{
+                    id: id + '_fn',
+                    name :id + '_fn',
+                        xtype: 'radiogroup',
+                        anchor: '95%',
+                        columns: mode_items.length,
+                        items: mode_items,
+                     listeners: {
+                        render: function(c) {
+                            Ext.QuickTips.register({
+                                target: c,
+                                title: '',
+                                text: 'Select the type of ' + label
+                            });
+                        }
+                    }
+                }
+            ]}, config);
+        re.modalNumericField.superclass.constructor.call(this, config);
+    }
+});
+
 re.multirangeField = Ext.extend(Ext.form.CompositeField, {
     constructor: function(config) {
         var default_value = config.default_value || 0;
@@ -407,7 +481,7 @@ re.multirangeField = Ext.extend(Ext.form.CompositeField, {
   Ext.override(Ext.form.ComboBox, {
         setValue: function(v, fireSelect) {
             var text = v;
-            if (this.valueField) {
+            if (this.val.loadFromObject(TargetPhenotypes);ueField) {
                 var r = this.findRecord(this.valueField, v);
                 if (r) {
                     text = r.data[this.displayField];
@@ -428,4 +502,4 @@ re.multirangeField = Ext.extend(Ext.form.CompositeField, {
             this.value = v;
             return this;
         }
-    });
+    });.loadFromObject(TargetPhenotypes);
