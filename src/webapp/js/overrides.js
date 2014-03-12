@@ -481,7 +481,7 @@ re.multirangeField = Ext.extend(Ext.form.CompositeField, {
   Ext.override(Ext.form.ComboBox, {
         setValue: function(v, fireSelect) {
             var text = v;
-            if (this.val.loadFromObject(TargetPhenotypes);ueField) {
+            if (this.valueField) {
                 var r = this.findRecord(this.valueField, v);
                 if (r) {
                     text = r.data[this.displayField];
@@ -502,4 +502,4 @@ re.multirangeField = Ext.extend(Ext.form.CompositeField, {
             this.value = v;
             return this;
         }
-    });.loadFromObject(TargetPhenotypes);
+    });
