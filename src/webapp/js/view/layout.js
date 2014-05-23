@@ -638,7 +638,8 @@ function loadDataTableStore(data) {
                 datatype_a: node.source,
                 label_a: node.label,
                 chr_a: node.chr,
-                start_a: node.start
+                start_a: node.start,
+                end_a: node.end
             };
                if(re.ui.filters.link_distance) {
                 obj['link_distance'] = node.link_distance;
@@ -660,11 +661,13 @@ function loadDataTableStore(data) {
                 label_a: row.node1.label,
                 chr_a: row.node1.chr,
                 start_a: row.node1.start,
+                end_a: row.node1.end,
                 id_b: row.node2.id,
                 datatype_b: row.node2.source,
                 label_b: row.node2.label,
                 chr_b: row.node2.chr,
                 start_b: row.node2.start,
+                end_b: row.node2.end
             };
             if(re.ui.filters.link_distance) {
                 obj['link_distance'] = row.link_distance;
@@ -1120,8 +1123,8 @@ Ext.onReady(function() {
                                  var t = grid.getView().getCell(rowIndex,colIndex);
                                   var data = {
                                             source:record.json['datatype_' + feature],
-                                            label:record.json['label_ ' + feature], chr:record.json['chr_' + feature],
-                                            start:record.json['start_' + feature], end:''
+                                            label:record.json['label_' + feature], chr:record.json['chr_' + feature],
+                                            start:record.json['start_' + feature], end:record.json['end_' + feature] || ''
                                         };
                                         var hovercard = new vq.Hovercard(options(t));
                                         hovercard.show(t, data);
@@ -1151,6 +1154,13 @@ Ext.onReady(function() {
                             dataIndex: 'start_a',
                             groupName: 'Target'
                         }, {
+                            header: "End",
+                            width: 70,
+                            id: 'end_a',
+                            dataIndex: 'end_a',
+                            hidden: true,
+                            groupName: 'Target'
+                        }, {
                             header: "Id",
                             width: 40,
                             hidden: true,
@@ -1169,8 +1179,8 @@ Ext.onReady(function() {
                                  var t = grid.getView().getCell(rowIndex,colIndex);
                                   var data = {
                                             source:record.json['datatype_' + feature],
-                                            label:record.json['label_ ' + feature], chr:record.json['chr_' + feature],
-                                            start:record.json['start_' + feature], end:''
+                                            label:record.json['label_' + feature], chr:record.json['chr_' + feature],
+                                            start:record.json['start_' + feature],  end:record.json['end_' + feature] || ''
                                         };
                                         var hovercard = new vq.Hovercard(options(t));
                                         hovercard.show(t, data);
@@ -1199,8 +1209,15 @@ Ext.onReady(function() {
                             id: 'start_b',
                             dataIndex: 'start_b',
                             groupName: 'Target'
+                        }, {
+                            header: "End",
+                            width: 70,
+                            id: 'end_b',
+                            dataIndex: 'end_b',
+                            hidden: true,
+                            groupName: 'Target'
                         }
-                        ].concat(re.ui.filters.link_distance ? 
+                        ].concat(re.ui.filters.link_distance ?
                                {
                             header: "Distance",
                             width: 50,
@@ -1224,8 +1241,8 @@ Ext.onReady(function() {
                     store: new Ext.data.JsonStore({
                         autoLoad: false,
                         storeId: 'data_grid_store',
-                        fields: ['id_a', 'datatype_a', 'label_a', 'chr_a', 'start_a',
-                        'id_b', 'datatype_b', 'label_b', 'chr_b', 'start_b']
+                        fields: ['id_a', 'datatype_a', 'label_a', 'chr_a', 'start_a', 'end_a',
+                        'id_b', 'datatype_b', 'label_b', 'chr_b', 'start_b', 'end_b']
                         .concat( re.ui.filters.link_distance ? 'link_distance': [])
                         .concat(re.model.association.types.map(function(obj) {
                             return obj.ui.grid.store_index;
