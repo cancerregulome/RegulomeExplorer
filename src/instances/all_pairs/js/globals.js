@@ -164,9 +164,9 @@ vq.utils.VisUtils.extend(re, {
                     {
                         label: 'UCSC Genome Browser',
                         url: 'http://genome.ucsc.edu/cgi-bin/hgTracks',
-                        uri: '?db=hg18&position=chr',
+                        uri: '?db=hg19&position=chr',
                         config_object: function(feature) {
-                            return 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg18&position=chr' + feature.chr + ':' + feature.start + (feature.end === '' ? '' : '-' + feature.end);
+                            return 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr' + feature.chr + ':' + feature.start + (feature.end === '' ? '' : '-' + feature.end);
                         }
                     }, //ucsc_genome_browser
                     {
