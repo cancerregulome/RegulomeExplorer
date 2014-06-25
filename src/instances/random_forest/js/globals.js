@@ -57,6 +57,9 @@ vq.utils.VisUtils.extend(re, {
         medline: {
             uri: '/solr/core0',
             select: '/select/'
+        },
+        ffn : {
+            uri: '/addama/services/datastores/dev_ffn_20140520'
         }
     },
     tables: {
@@ -72,7 +75,8 @@ vq.utils.VisUtils.extend(re, {
         patient_uri: '',
         feature_data_uri: '',
         pathway_uri: '',
-        pathways:'/pathways'
+        pathways:'/pathways',
+        ffn: '/feature_matrix'
     },
     /*
      *        URL's
@@ -398,6 +402,9 @@ vq.utils.VisUtils.extend(re, {
         },
         patients: {
             data: null
+        },
+        lookups: {
+            friendleFeatureNames: []
         }
     }
 });
