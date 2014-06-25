@@ -57,7 +57,7 @@ def buildMeta(meta_file, config_file):
 		lg = "logged"
 	if (doGenehub == "1"):
 		#python compute_feature_interestingness.py <input> <output> [logged/unlogged]
-		hub_cmd = "python compute_feature_interestingness_fixed.py %s %s %s" %(associations, resultsPath + dslabel + "_feature_hubness_rf.out", lg)
+		hub_cmd = "python compute_feature_interestingness.py %s %s %s" %(associations, resultsPath + dslabel + "_feature_hubness_rf.out", lg)
 		print "start processing gene hub/interesting score %s\n%s" % (time.ctime(), hub_cmd)
 		os.system(hub_cmd)
 		fIntOutFile = resultsPath + dslabel + "_feature_hubness_rf.out"
@@ -87,7 +87,7 @@ def buildMeta(meta_file, config_file):
 	"""doGenehub = process_meta_config.getDoGenehub(config)
 	if (doGenehub == "1"):
 		#python compute_feature_interestingness.py <input> <output> [logged/unlogged]
-		hub_cmd = "python compute_feature_interestingness_fixed.py %s %s %s" %(associations, resultsPath + dslabel + "_feature_hubness_rf.out", "unlogged")
+		hub_cmd = "python compute_feature_interestingness.py %s %s %s" %(associations, resultsPath + dslabel + "_feature_hubness_rf.out", "unlogged")
 		print "start processing gene hub/interesting score %s\n%s" % (time.ctime(), hub_cmd)
 		os.system(hub_cmd)
 		#update feature table with hubscore
