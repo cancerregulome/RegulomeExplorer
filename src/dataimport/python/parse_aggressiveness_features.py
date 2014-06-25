@@ -77,7 +77,6 @@ def process_feature_aggressiveness(matrix_file, table_name, dognab):
 		line = line.strip()	
 		tokens = line.split('\t')
 		if (not features_hash.get(tokens[0])):
-			valuesArray = []
 			features_hash[tokens[0]] = featureId
 			alias = tokens[0]
 			data = alias.split(':')
@@ -85,7 +84,6 @@ def process_feature_aggressiveness(matrix_file, table_name, dognab):
 				#print "GNAB " + alias
 				alias = gnabhash.get(alias)
 				data = alias.split(":")
-			label_desc = ""
 			if len(data) > 4 and len(data[3]) > 3:
 				data[3] = data[3][3:]
 			#METH, use start pos for end pos
@@ -94,8 +92,6 @@ def process_feature_aggressiveness(matrix_file, table_name, dognab):
 			
 			signed = tokens[2]
 			spv = tokens[1]
-			if (len(data) == 8):
-				label_desc = data[7]
 			floorlogged_pv = 0
 			if (signed != "0" and signed != "NA"):
 				if (spv == "0"):
@@ -152,9 +148,7 @@ def process_feature_edges(pairwised_file, table_name):
 				validEdgeId += 1
 				#add edge info into file, tokenized nodeA and nodeB
 				dataA = process_feature_alias(nodeA)
-				label1_desc = ""
 				dataB = process_feature_alias(nodeB)
-				label2_desc = ""
 				if (len(dataA) == 7):
 					dataA.append("")
 					nodeA = nodeA + ":"
@@ -175,7 +169,7 @@ def process_feature_edges(pairwised_file, table_name):
 		else:
 			print "Invalid edge, not found in feature matrix:" + nodeA + "_" + nodeB
 			dupeEdges += 1
-	print "Valid Edges %i Duped %i Total %i " %(validEdgeId-1, dupeEdges, totalEdges)	
+	print "Valid Edges %i Duped %i Total %i " % (validEdgeId-1, dupeEdges, totalEdges)	
 	circin_file.close()
 	edges_out_tsv.close()	
 	efshout.write("#!/bin/bash\n")
@@ -194,58 +188,6 @@ def getGeneInterestScore(featureStr):
 	global gene_interesting_hash
 	return gene_interesting_hash.get(featureStr)
  
-def process_pathway_associations(gsea_file_path):
-	global features_hash, dataset_label
-	gsea_file = open(gsea_file_path, 'r')
-	pathway_hash = {}
-	feature_pathways_table = mydb + "." + dataset_label + "_feature_pathways" 
-	gsea_sh = open('./results/load_gsea_' + dataset_label + '.sh','w')   
-	gsea_tsv_out = open('./results/gsea_processed_' + dataset_label + '.tsv','w')     
-	for line in gsea_file:
-		tokens = line.strip().split('\t')
-		pathway = tokens[0].split(":")[2]
-		feature = tokens[1]
-		pvalue = tokens[2]
-		pathway_type = ""
-		pathway_name = ""
-		if (not pathway_hash.get(tokens[0])):
-			pathway_hash[tokens[0]] = tokens[0]
-		if (pathway.find("KEGG") != -1):
-			pathway_type = "KEGG"
-			pathway_name = pathway.replace("KEGG_", "")
-		elif (pathway.find("WIKIPW") != -1):
-			pathway_type = "WIKIPW"
-			pathway_name = pathway.replace("_WIKIPW", "")
-		elif (pathway.find("BIOCARTA") != -1):
-			pathway_type = "BIOCARTA"
-			pathway_name = pathway.replace("BIOCARTA", "")
-		else:
-			pathway_type = ""
-			pathway_name = pathway
-		gsea_tsv_out.write(str(features_hash.get(feature)) + "\t" + feature + "\t" + pathway_name + "\t" + pathway_type + "\t" + pvalue + "\n")
-	#print "%i Unique pathways" %(len(pathway_hash))				
-	gsea_file.close()
-	gsea_tsv_out.close()
-	gsea_sh.write("#!/bin/bash\n")
-	gsea_sh.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
-	gsea_sh.write("load data local infile '" + gsea_tsv_out.name + "' replace INTO TABLE " + feature_pathways_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';")
-	gsea_sh.write("\ncommit;")
-	gsea_sh.write("\nEOFMYSQL")
-	gsea_sh.close()	
-	#os.system("sh " + gsea_sh.name)
-	print "done loading pathway associations %s" %(time.ctime())
-	return gsea_sh
-
-def subprocessAssociationIndex(assoc_file_path, assoc_type, association_index_out):
-	global features_hash
-	assoc_file = open(assoc_file_path,'r')
-	for line in assoc_file:
-		tokens = line.strip().split("\t")
-		feature = tokens[0]
-		score = tokens[1]
-		association_index_out.write(str(features_hash.get(feature)) + "\t" + feature + "\t" + assoc_type + "\t" + score + "\n")
-	assoc_file.close()
-	return
 
 if __name__ == "__main__":
 	print "Parsing features kicked off %s" %time.ctime()

@@ -27,6 +27,7 @@ def buildMeta(meta_file, config_file):
 	collapseDirection = process_meta_config.getCollapseEdgeDirection(config)
 	reverseDirection = process_meta_config.getReverseDirection(config)
 	pvalueRepresentation = process_meta_config.getPValueTransform(config)
+	fIntOutFile = process_meta_config.getInterestingScore(config)
 	#store intermediate sql files, tsv, bash files here
 	resultsPath = process_meta_config.getResultsDir(config)
 	slash = "/"
@@ -48,7 +49,7 @@ def buildMeta(meta_file, config_file):
 	reschema_cmd = python_bin + " createSchemaFromTemplate.py " + dslabel + " ../sql/create_schema_re_template.sql " + config_file + " " + resultsPath
 	print "\nCreating schema " + reschema_cmd + " " + time.ctime()
 	os.system(reschema_cmd)
-	fIntOutFile = ""
+
 	lg = "unlogged"	
 	#doGenehub = process_meta_config.getDoGenehub(config)
 	method_schema = "../sql/create_schema_rface_template.sql";

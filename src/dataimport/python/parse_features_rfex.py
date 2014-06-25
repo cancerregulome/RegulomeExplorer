@@ -27,13 +27,8 @@ def populate_sample_meta(sampleList, config):
 	labelTokens = dataset_label.split("_")
 	cancer_type = labelTokens[0]
 	clabel = ""
-	#for label in labelTokens:
-	#	for ct in db_util.getCancerTypes(config):
-	#		if (label == ct):
-	#			cancer_type = cancer_type + label + "_"	
-	#cancer_type = cancer_type[labelTokens[0]]
-	#clabel = dataset_label[len(cancer_type)+1:len(dataset_label)]			
 	samColIndex = 0
+
 	for sam in sampleList:
 		#REPLACE INTO `tcga`.`SampleMeta` (sample_key,cancer_type,dataset_label,matrix_col_offset,meta_json) VALUES ('a' /*not nullable*/,'s' /*not nullable*/,'s' /*not nullable*/,0,'s');		
 		insertSampleSql = "replace into sample_meta (sample_key,cancer_type,dataset_label,matrix_col_offset,meta_json) values ('%s', '%s', '%s', '%i', '%s');" %(sam, cancer_type,clabel,samColIndex,"{age:X,status:someStatus,comments:some comments}")
@@ -46,7 +41,6 @@ def process_feature_annotations(annotation_path):
 	annotation_hash = {}
 	feature_types = {}	
 	if (annotation_path == "" or (not os.path.isfile(annotation_path))):
-		#annotation_hash["empty"] = 1
 		print "annotations path %s not defined or not a file " %(annotation_path)
 		return (annotation_hash, feature_types)
 	anno_file = open(annotation_path, "r")
@@ -60,9 +54,7 @@ def process_feature_annotations(annotation_path):
 		if (len(tk) >= 4 and len(tk[3]) < 3):
 			tk[3] = "chr" + tk[3]		
 		annotation_hash[tk[0]] = l[0:1] + "\t" + "\t".join(tk[1:]) + "\t" + str(lc)
-		#else:
-		#for clinical and other unmapped features
-		#	annotation_hash[tk[0]] = l[0:1] + "\t" + "\t".join(tk[1:])
+
 		if (feature_types.get(tk[1]) == None):			
 			feature_types[tk[1]] = 1;
 		lc += 1
@@ -80,7 +72,7 @@ def get_feature_interest_hash(results_file):
 	if (results_file == ""):
 		return fIntHash
 	fIntReader = open(results_file, "r")
-	lc = 0
+	# lc = 0
 	for line in fIntReader.readlines():
 		#if (lc == 0):
 		#	lc += 1
@@ -208,7 +200,6 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 		outfile.write(val + "\n")
 	summary_out = open(resultsPath + "feature_summary_" + dataset_label + ".json", "w")
 	summary_json = "{"
-        #{"CLIN":61,"CNVR":3831,"GEXP":5485,"GNAB":5482,"METH":4982,"MIRN":605,"RPPA":165,"SAMP":315};
 
 	for feature_type in summary_hash:
 		summary_json = summary_json + '"%s":%i,' %(feature_type, summary_hash[feature_type])
@@ -234,147 +225,6 @@ def getFeatures():
 
 def getFeatureId(featureStr):
         return features_hash.get(featureStr)
-
-#def getGeneInterestScore(featureStr):
-#	global gene_interesting_hash
-#	return gene_interesting_hash.get(featureStr)
- 
-def process_gene_hub_score(datasetlabel, resultsPath, interest_score_file, configfile):
-	"""
-	Requires valid full path gexp_interest file, extend this to accept other feature specific values, but schema needs to be defined
-	"""
-	config = db_util.getConfig(configfile)
-        mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
-        myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
-        mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
-        myhost = db_util.getDBHost(config) #config.get("mysql_jdbc_configs", "host")
-        myport = db_util.getDBPort(config)
-        feature_table = mydb + "." + datasetlabel + "_features"
-        mv_feature_network_table = mydb + ".mv_" + datasetlabel + "_feature_networks"
-	#print "Begin processing feature specific values %s" %(time.ctime())
-	gexp_interesting_file = open(interest_score_file)
-        gexp_sh = open(resultsPath + 'load_gexp_interesting_' + dataset_label + '.sh','w')
-        gexp_sql = open(resultsPath + 'gexp_interesting_score_' + dataset_label + '.sql','w')
-	#skip line 0
-	lc = 0
-	for line in gexp_interesting_file:
-		if (lc == 0):
-			lc += 1
-			continue              
-		tokens = line.strip().split("\t")
-                #gene_interesting_hash[tokens[0]] = tokens[-1]
-                gexp_sql.write("update %s set gene_interesting_score = %s where alias = '%s';\n" %(feature_table, tokens[-1], tokens[0]))
-		#gexp_sql.write("update %s set f1genescore = %s where alias1 = '%s';\n" %(mv_feature_network_table, tokens[-1], tokens[0]))
-		#gexp_sql.write("update %s set f2genescore = %s where alias2 = '%s';\n" %(mv_feature_network_table, tokens[-1], tokens[0]))
-        gexp_sql.write("commit;\n")
-        gexp_interesting_file.close()
-        gexp_sql.close()
-        gexp_sh.write("#!/bin/bash\n")
-        gexp_sh.write('mysql -h ' + myhost + ' --port ' + str(myport) + ' -u' + myuser + ' -p'+ mypw + ' < ' + gexp_sql.name + '\n')
-        #gexp_sh.write("\necho done updating gexp_interesting")
-        gexp_sh.close()
-	os.system("sh "+ " " + gexp_sh.name)
-
-def process_pathway_associations(gsea_file_path, configfile):
-	global features_hash, dataset_label
-	config = db_util.getConfig(configfile)
-        mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
-        myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
-        mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
-        myhost = db_util.getDBHost(config) #config.get("mysql_jdbc_configs", "host")
-        myport = db_util.getDBPort(config)
-
-	gsea_file = open(gsea_file_path, 'r')
-	pathway_hash = {}
-	feature_pathways_table = mydb + "." + dataset_label + "_feature_pathways" 
-	gsea_sh = open('./results/load_gsea_' + dataset_label + '.sh','w')   
-	gsea_tsv_out = open('./results/gsea_processed_' + dataset_label + '.tsv','w')     
-	for line in gsea_file:
-		tokens = line.strip().split('\t')
-		pathway = tokens[0].split(":")[2]
-		feature = tokens[1]
-		pvalue = tokens[2]
-		pathway_type = ""
-		pathway_name = ""
-		if (not pathway_hash.get(tokens[0])):
-			pathway_hash[tokens[0]] = tokens[0]
-		if (pathway.find("KEGG") != -1):
-			pathway_type = "KEGG"
-			pathway_name = pathway.replace("KEGG_", "")
-		elif (pathway.find("WIKIPW") != -1):
-			pathway_type = "WIKIPW"
-			pathway_name = pathway.replace("_WIKIPW", "")
-		elif (pathway.find("BIOCARTA") != -1):
-			pathway_type = "BIOCARTA"
-			pathway_name = pathway.replace("BIOCARTA", "")
-		else:
-			pathway_type = ""
-			pathway_name = pathway
-		gsea_tsv_out.write(str(features_hash.get(feature)) + "\t" + feature + "\t" + pathway_name + "\t" + pathway_type + "\t" + pvalue + "\n")
-	gsea_file.close()
-	gsea_tsv_out.close()
-	gsea_sh.write("#!/bin/bash\n")
-	gsea_sh.write("mysql -h % --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
-	gsea_sh.write("load data local infile '" + gsea_tsv_out.name + "' replace INTO TABLE " + feature_pathways_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';")
-	gsea_sh.write("\ncommit;")
-	gsea_sh.write("\nEOFMYSQL")
-	gsea_sh.close()	
-	print "done loading pathway associations %s" %(time.ctime())
-	return gsea_sh
-
-def subprocessAssociationIndex(assoc_file_path, assoc_type, association_index_out):
-	global features_hash
-	assoc_file = open(assoc_file_path,'r')
-	for line in assoc_file:
-		tokens = line.strip().split("\t")
-		feature = tokens[0]
-		score = tokens[1]
-		association_index_out.write(str(features_hash.get(feature)) + "\t" + feature + "\t" + assoc_type + "\t" + score + "\n")
-	assoc_file.close()
-	return
-
-def processGeneAssociation(datapath, configfile):
-	"""
-	-rwxr-xr-- 1 terkkila cncrreg    624887 May 31 00:20 GEXP_CLIN_association_index.tsv*
-	-rwxr-xr-- 1 terkkila cncrreg    642188 May 31 00:16 GEXP_CNVR_association_index.tsv*
-	-rwxr-xr-- 1 terkkila cncrreg    625082 May 31 00:18 GEXP_GNAB_association_index.tsv*
-	-rwxr-xr-- 1 terkkila cncrreg    645677 May 31 00:14 GEXP_METH_association_index.tsv*
-	-rwxr-xr-- 1 terkkila cncrreg    626148 May 31 00:17 GEXP_MIRN_association_index.tsv*
-	-rwxr-xr-- 1 terkkila cncrreg    629823 May 31 00:21 GEXP_SAMP_association_index.tsv*
-	"""
-	global features_hash, dataset_label
-	config = db_util.getConfig(configfile)
-        mydb = db_util.getDBSchema(config) #config.get("mysql_jdbc_configs", "db")
-        myuser = db_util.getDBUser(config) #config.get("mysql_jdbc_configs", "username")
-        mypw = db_util.getDBPassword(config) #config.get("mysql_jdbc_configs", "password")
-        myhost = db_util.getDBHost(config) #config.get("mysql_jdbc_configs", "host")
-        myport = db_util.getDBPort(config)
-
-	association_index_table = mydb + "." + dataset_label + "_association_index"
-	association_index_out = open('./results/association_index_processed_' + dataset_label + '.tsv','w')
-	association_index_sh = open('./results/load_association_index_' + dataset_label + '.sh','w')
-	
-	if (os.path.exists(path + "/GEXP_CLIN_association_index.tsv")):
-		subprocessAssociationIndex(path + "/GEXP_CLIN_association_index.tsv", "GEXP_CLIN", association_index_out)
-	if (os.path.exists(path + "/GEXP_CNVR_association_index.tsv")):
-		subprocessAssociationIndex(path + "/GEXP_CNVR_association_index.tsv", "GEXP_CNVR", association_index_out) 
-	if (os.path.exists(path + "/GEXP_GNAB_association_index.tsv")):
-		subprocessAssociationIndex(path + "/GEXP_GNAB_association_index.tsv", "GEXP_GNAB", association_index_out)
-	if (os.path.exists(path + "/GEXP_METH_association_index.tsv")):
-		subprocessAssociationIndex(path + "/GEXP_METH_association_index.tsv", "GEXP_METH", association_index_out)
-	if (os.path.exists(path + "/GEXP_MIRN_association_index.tsv")):
-		subprocessAssociationIndex(path + "/GEXP_MIRN_association_index.tsv", "GEXP_MIRN", association_index_out)
-	if (os.path.exists(path + "/GEXP_SAMP_association_index.tsv")):
-		subprocessAssociationIndex(path + "/GEXP_SAMP_association_index.tsv", "GEXP_SAMP", association_index_out)
-	
-	association_index_out.close()
-	association_index_sh.write("#!/bin/bash\n")
-        association_index_sh.write("mysql -h %s --port %s --user=%s --password=%s --database=%s<<EOFMYSQL\n" %(myhost, myport, myuser, mypw, mydb))
-        association_index_sh.write("load data local infile '" + association_index_out.name + "' replace INTO TABLE " + association_index_table + " fields terminated by '\\t' LINES TERMINATED BY '\\n';")
-        association_index_sh.write("\ncommit;")
-        association_index_sh.write("\nEOFMYSQL")
-        association_index_sh.close()
-	os.system("sh " + association_index_sh.name)
 
 if __name__ == "__main__":
 	global datast_label

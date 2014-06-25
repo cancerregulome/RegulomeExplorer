@@ -7,9 +7,7 @@ import sys
 import db_util
 import os
 import time
-import math
 import parse_features_rfex
-import ConfigParser
 import smtp
 import getRFACEInfo
 
@@ -83,33 +81,28 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 				continue
 			f2alias = annotated_feature.replace("\t", ":")
 		try:
-                        f1genescore = fIntHash[f1alias]
-                except KeyError:
-                        f1genescore = 0
-                try:
-                        f2genescore = fIntHash[f1alias]
-                except KeyError:
-                        f2genescore = 0
+			f1genescore = fIntHash[f1alias]
+		except KeyError:
+			f1genescore = 0
+		try:
+			f2genescore = fIntHash[f2alias]
+		except KeyError:
+			f2genescore = 0
+		
 		f1data = f1alias.split(':')
-                f2data = f2alias.split(':')
+		f2data = f2alias.split(':')
 
 		if len(f1data) > 4:
 			f1data[3] = f1data[3][3:]
-		#else:
- 		#	f1alias = ":".join(f1data) + ":::::"
 		if len(f2data) > 4:
 			f2data[3] = f2data[3][3:]
- 		#else:
-		#	f2alias = ":".join(f2data) + ":::::"
 		
 		if (len(f1data) <= 7 and (f1data[1] == 'CLIN' or f1data[1] == 'SAMP')):
-			#if (f1data[1] == 'CLIN' or f1data[1] == 'SAMP'):
 			f1alias = ":".join(f1data[0:3]) + ":::::"
 			f1data = f1alias.split(':')
 		elif (len(f1data) == 7):
 			f1data.append("")
 		if (len(f2data) <= 7 and (f2data[1] == 'CLIN' or f2data[1] == 'SAMP')):
-			#if (f2data[1] == 'CLIN' or f2data[1] == 'SAMP'):
 			f2alias = ":".join(f2data[0:3]) + ":::::"
 			f2data = f2alias.split(':')
 		elif (len(f2data) == 7):
@@ -118,7 +111,7 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 		f2aliasOmic = f2alias
 		#for annotations
 		try:    
-			f1id = features_hash[f1alias][0]#f1alias.split(":")[-1]
+			f1id = features_hash[f1alias][0]
 		except KeyError:
 			try:
 				f1id = aliasid_hash[f1alias][1]
@@ -143,7 +136,7 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 
 		pvalue = float(columns[2])
 		pvalue = str(pv_lambda(pvalue))
-		#round(-1*(math.log10(pvalue)),3))
+		
 		importance = columns[3]
 		correlation = columns[4]
 		patientct = columns[5]
@@ -252,7 +245,7 @@ if __name__ == "__main__":
 	if (len(args) == 14):
 		featureInterestingFile = args[13]
 	if (not os.path.isfile(associationsfile)):
-	    	print associationsfile + " does not exist; unrecoverable ERROR"
+		print associationsfile + " does not exist; unrecoverable ERROR"
 		sys.exit(-1)
 	main(dataset_label, matrixfile, associationsfile, config, annotations, collapse_direction, reverse_direction, results_path, pvalueRep, args[10], args[11], args[12], featureInterestingFile)
 

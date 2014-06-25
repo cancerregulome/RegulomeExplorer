@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 import ConfigParser
 
 def loadMetaConfig(metafile):
@@ -68,6 +67,9 @@ def getNotify(config):
 
 def getDoPubcrawl(config):
         return config.get("pubcrawl", "dopubcrawl")
+
+def getInterestingScore(config):
+        return config.get("build","interesting_scores")
 
 #use Notify
 #def getPubcrawlContact(config):
