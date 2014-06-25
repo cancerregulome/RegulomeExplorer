@@ -628,7 +628,7 @@ function loadListStores(dataset_labels) {
 }
 
 function loadDataTableStore(data) {
-    var columns = ['datatype_b', 'pretty_label_b', 'label_b', 'chr_b', 'start_b'];
+    var columns = ['datatype_b', 'pretty_label_b', 'chr_b', 'start_b'];
     var colModel = Ext.getCmp('data_grid').getColumnModel();
     var load_data = [];
     if (data['unlocated'] === undefined) {
@@ -1146,7 +1146,7 @@ Ext.onReady(function() {
                             }
                         },{
                             header: "Label",
-                            width: 40,
+                            width: 80,
                             id: 'pretty_label_a',
                             dataIndex: 'pretty_label_a',
                             groupName: 'Target'
@@ -1157,15 +1157,8 @@ Ext.onReady(function() {
                             dataIndex: 'datatype_a',
                             groupName: 'Target'
                         }, {
-                            header: "Label",
-                            width: 70,
-                            id: 'label_a',
-                            hidden: true,
-                            dataIndex: 'label_a',
-                            groupName: 'Target',
-                        }, {
                             header: "Chr",
-                            width: 40,
+                            width: 30,
                             id: 'chr_a',
                             dataIndex: 'chr_a',
                             groupName: 'Target'
@@ -1209,7 +1202,7 @@ Ext.onReady(function() {
                             }
                         },{
                             header: "Label",
-                            width: 40,
+                            width: 80,
                             id: 'pretty_label_b',
                             dataIndex: 'pretty_label_b',
                             groupName: 'Target'
@@ -1219,13 +1212,6 @@ Ext.onReady(function() {
                             id: 'datatype_b',
                             dataIndex: 'datatype_b',
                             groupName: 'Target'
-                        }, {
-                            header: "Label",
-                            width: 70,
-                            id: 'label_b',
-                            hidden: true,
-                            dataIndex: 'label_b',
-                            groupName: 'Target',
                         }, {
                             header: "Chr",
                             width: 40,
@@ -1270,8 +1256,8 @@ Ext.onReady(function() {
                     store: new Ext.data.JsonStore({
                         autoLoad: false,
                         storeId: 'data_grid_store',
-                        fields: ['id_a', 'datatype_a', 'pretty_label_a', 'label_a', 'chr_a', 'start_a', 'end_a',
-                        'id_b', 'datatype_b', 'pretty_label_b', 'label_b', 'chr_b', 'start_b', 'end_b']
+                        fields: ['id_a', 'datatype_a', 'pretty_label_a', 'chr_a', 'start_a', 'end_a',
+                        'id_b', 'datatype_b', 'pretty_label_b', 'chr_b', 'start_b', 'end_b']
                         .concat( re.ui.filters.link_distance ? 'link_distance': [])
                         .concat(re.model.association.types.map(function(obj) {
                             return obj.ui.grid.store_index;
