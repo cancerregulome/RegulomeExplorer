@@ -871,17 +871,6 @@ function wedge_plot(parsed_data,div) {
         vq.utils.VisUtils.extend(unlocated_tooltip_items, assoc.vis.tooltip.entry);
     });
 
-    function parse_qt_info(feature_index, filtered_list, qvalue_dic){
-        var feature = filtered_list[feature_index];
-        var qistr = feature["qtinfo"];
-        if (qistr != null && qistr.indexOf("_") != -1){
-                feature["value"] = qvalue_dic[qistr.split("_")[1]];
-                feature["start"] = feature["start"] - qoffset;
-                feature["end"] = feature["end"] + qoffset;
-        }
-        return feature;
-    };
-
     var chrom_leng = vq.utils.VisUtils.clone(re.plot.chrome_length);
     var ticks = vq.utils.VisUtils.clone(parsed_data['features']);
     var types = re.model.association.types.map(function(assoc) { return assoc.query.id;});

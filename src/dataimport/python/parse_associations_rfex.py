@@ -92,14 +92,7 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
                         f2genescore = 0
 		f1data = f1alias.split(':')
                 f2data = f2alias.split(':')
-		"""if len(f1data) == 7:
-                        f1alias = f1alias + ":"
-                        f1data.append("")
-		
-                if len(f2data) == 7:
-                        f2alias = f2alias + ":"
-                        f2data.append("")
-		"""
+
 		if len(f1data) > 4:
 			f1data[3] = f1data[3][3:]
 		#else:
@@ -148,12 +141,6 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 				print "Skipping Key error with alias2 " + f2alias
 				continue		
 
-		f1qtinfo = ""
-		if (features_hash.get(f1alias) != None and len(features_hash.get(f1alias)) >= 14 ):
-			f1qtinfo = features_hash.get(f1alias)[13] + "_" + features_hash.get(f1alias)[14]		
-		f2qtinfo = ""
-		if (features_hash.get(f2alias) != None and len(features_hash.get(f2alias)) >= 14):
-			f2qtinfo = features_hash.get(f2alias)[13] + "_" + features_hash.get(f2alias)[14]		
 		pvalue = float(columns[2])
 		pvalue = str(pv_lambda(pvalue))
 		#round(-1*(math.log10(pvalue)),3))
@@ -169,12 +156,12 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 		if (len(f1data) >=5 and len(f2data)>=5 and db_util.is_numeric(f1data[4]) >= 1 and db_util.is_numeric(f2data[4]) >= 1 and f1data[3] == f2data[3]):
 			link_distance = abs(int(f2data[4]) - int(f1data[4]))
 		if (collapse_direction == 0):
-			associations_dic[f1afm_id + "_" + f2afm_id] = f1aliasOmic + "\t" + f2aliasOmic + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + str(f1genescore) + "\t" + str(f2genescore) + "\t" + f1qtinfo + "\t" + f2qtinfo + "\t" + rhoscore + "\t" + str(link_distance) + "\n"
+			associations_dic[f1afm_id + "_" + f2afm_id] = f1aliasOmic + "\t" + f2aliasOmic + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + str(f1genescore) + "\t" + str(f2genescore) + "\t" + rhoscore + "\t" + str(link_distance) + "\n"
 		else:
 			#check whether (f1 -> f2 or f2 -> f1) exists, if yes, take the more important
 			#if not, store pair
 			if ((associations_dic.get(f1afm_id + "_" + f2afm_id) == None) and (associations_dic.get(f2afm_id + "_" + f1afm_id) == None)):
-				associations_dic[f1afm_id + "_" + f2afm_id] = f1aliasOmic + "\t" + f2aliasOmic + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + str(f1genescore) + "\t" + str(f2genescore) + "\t" + f1qtinfo + "\t" + f2qtinfo +  "\t" + rhoscore + "\t" + str(link_distance) + "\n"
+				associations_dic[f1afm_id + "_" + f2afm_id] = f1aliasOmic + "\t" + f2aliasOmic + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + str(f1genescore) + "\t" + str(f2genescore) + "\t" + rhoscore + "\t" + str(link_distance) + "\n"
 			else:
 				existingLink = associations_dic.get(f1afm_id + "_" + f2afm_id)
 				ekey = f1afm_id + "_" + f2afm_id
@@ -183,10 +170,9 @@ def process_associations_rfex(dataset_label, matrixfile, associationsfile, confi
 					ekey = f2afm_id + "_" + f1afm_id
 				prevImportance = existingLink.split("\t")[3]
 				if (float(importance) > float(prevImportance)):
-					associations_dic[ekey] = f1aliasOmic + "\t" + f2aliasOmic + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + str(f1genescore) + "\t" + str(f2genescore) + "\t" + f1qtinfo + "\t" + f2qtinfo +  "\t" + rhoscore + "\t" + str(link_distance) + "\n"					 			 
-		#tsvout.write(f1alias + "\t" + f2alias + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + str(parse_features_rfex.getFeatureId(columns[0])) + "\t" + "\t".join(f1data) + "\t" + str(parse_features_rfex.getFeatureId(columns[1])) + "\t" + "\t".join(f2data) + "\t" + f1genescore + "\t" + f2genescore + "\n")
+					associations_dic[ekey] = f1aliasOmic + "\t" + f2aliasOmic + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + str(f1genescore) + "\t" + str(f2genescore) + "\t" + rhoscore + "\t" + str(link_distance) + "\n"					 			 
 		if (reverse_direction == 1):
-			associations_dic[f2afm_id + "_" + f1afm_id] = f2aliasOmic + "\t" + f1aliasOmic + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + str(f2genescore) + "\t" + str(f1genescore) + "\t" + f2qtinfo + "\t" + f1qtinfo +  "\t" + rhoscore + "\t" + str(link_distance) + "\n"
+			associations_dic[f2afm_id + "_" + f1afm_id] = f2aliasOmic + "\t" + f1aliasOmic + "\t" + pvalue + "\t" + importance + "\t" + correlation + "\t" + patientct + "\t" + f2id + "\t" + "\t".join(f2data) + "\t" + f1id + "\t" + "\t".join(f1data) + "\t" + str(f2genescore) + "\t" + str(f1genescore) + "\t" + rhoscore + "\t" + str(link_distance) + "\n"
 			edgeCount = edgeCount + 1
 		edgeCount = edgeCount + 1
 		if (do_pubcrawl == "yes"):

@@ -162,13 +162,7 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 				link_distance = 500000000 
 				if (len(dataA) >=5 and len(dataB)>=5 and db_util.is_numeric(dataA[4]) >= 1 and db_util.is_numeric(dataB[4]) >= 1 and dataA[3] == dataB[3]):
 					link_distance = abs(int(dataB[4]) - int(dataA[4]))
-				f1qtinfo = ""
-				if (features_hash.get(nodeA) != None and len(features_hash.get(nodeA)) >= 14 ):
-					f1qtinfo = features_hash.get(nodeA)[13] + "_" + features_hash.get(nodeA)[14]               
-				f2qtinfo = ""
-				if (features_hash.get(nodeB) != None and len(features_hash.get(nodeB)) >= 14):
-					f2qtinfo = features_hash.get(nodeB)[13] + "_" + features_hash.get(nodeB)[14]               
-				edges_out_re.write(feature1id + "\t" + feature2id + "\t" + nodeA + "\t" + "\t".join(dataA) + "\t" + nodeB + "\t" + "\t".join(dataB) + "\t" + correlation + "\t" + numna + "\t" + pv + "\t" + bonf + "\t" + pv_bonf + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\t" + rho + "\t" + str(link_distance) + "\t" + f1qtinfo + "\t" + f2qtinfo + "\t" + str(f1genescore) + "\t" + str(f2genescore) + "\n")
+				edges_out_re.write(feature1id + "\t" + feature2id + "\t" + nodeA + "\t" + "\t".join(dataA) + "\t" + nodeB + "\t" + "\t".join(dataB) + "\t" + correlation + "\t" + numna + "\t" + pv + "\t" + bonf + "\t" + pv_bonf + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\t" + rho + "\t" + str(link_distance) + "\t" + str(f1genescore) + "\t" + str(f2genescore) + "\n")
 				if (do_pubcrawl == "yes"):
 					#call andrea code
 					getPairwiseInfo.processLine(line, edges_out_pc)

@@ -60,10 +60,6 @@ def getReverseDirection(config):
 def getKeepUnmapped(config):
         return config.get("dbetl", "keep_unmapped_associations")
 
-#postetl - hub/interesting pipeline
-def getDoGenehub(config):
-        return config.get("postetl", "process_genehub")
-
 def getNotify(config):
 	notification_str = config.get("pubcrawl", "notify")
 	if (notification_str.find(",") != -1):

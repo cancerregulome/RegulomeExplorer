@@ -697,7 +697,7 @@ function flipParams(params) {
 };
 
 function buildGQLQuery(args) {
-    var flparam = 'alias1,alias2,f1qtinfo,f2qtinfo';
+    var flparam = 'alias1,alias2,';
     if (re.ui.filters.link_distance) {
         flparam+= ',link_distance';
     }

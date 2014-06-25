@@ -10,7 +10,7 @@ import time
 import compute_quantiles
 
 features_hash = {}
-gene_interesting_hash = {}
+interesting_hash = {}
 dataset_label = ""
 feature_table = ""
 sample_table = ""
@@ -82,11 +82,11 @@ def get_feature_interest_hash(results_file):
 	fIntReader = open(results_file, "r")
 	lc = 0
 	for line in fIntReader.readlines():
-		if (lc == 0):
-			lc += 1
-			continue
+		#if (lc == 0):
+		#	lc += 1
+		#	continue
 		tk = line.strip().split("\t")
-		fIntHash[tk[0]] = tk[-1]
+		fIntHash[tk[1]] = tk[-1]
 	fIntReader.close()
 	return fIntHash
 
@@ -121,7 +121,7 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 		tokens = line.strip().split('\t')
 		afmid = ""
 		ftype = ""
-		gene_interesting_score = 0
+		interesting_score = 0
 		if (featureId == 0):               
                 	sampleIds = tokens
 			#not part of core function in RE import pipeline
@@ -152,10 +152,10 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 			afmid = alias
 			#if (fIntHash[alias] != None):
 			try:
-				gene_interesting_score = fIntHash[originalAFM]
+				interesting_score = fIntHash[originalAFM]
 			except KeyError:
 				#print "Key error with fInterestingHash " + alias
-				gene_interesting_score = 0
+				interesting_score = 0
 			if (sub_afm_out.get(ftype) != None):
 				sub_afm_out[ftype].write(alias + "\t" + "\t".join(tokens[1:]) + "\n")
 			features_hash[tokens[0]] = featureId
@@ -182,7 +182,7 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 			patient_value_mean = sum(valuesArray)/len(valuesArray)
 			accumulate_summary_counts(summary_hash,data[1])
 			alidfile.write(originalAFM + "\t" + str(featureId) + "\t" +  alias + "\n")
-			out_hash[afmid] = str(featureId) + "\t" + alias + "\t" + "\t".join(data) + "\t" + patient_values + "\t" + str(patient_value_mean) + "\t" + str(gene_interesting_score)
+			out_hash[afmid] = str(featureId) + "\t" + alias + "\t" + "\t".join(data) + "\t" + patient_values + "\t" + str(patient_value_mean) + "\t" + str(interesting_score)
 		else:
 			print "duplicated feature in feature set:" + tokens[0]
 		featureId += 1
