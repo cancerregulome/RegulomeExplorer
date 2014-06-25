@@ -118,7 +118,7 @@ vq.utils.VisUtils.extend(re, {
                    if (and_tokens.length) {
                        clause +='-' + column_name + ':(';
                        var u;
-                       while ((u=and_tokens.pop()) !== null) {
+                       while ((u=and_tokens.pop()) != null) {
                           clause +=  re.functions.parseSolrLabel(u); //don't add quotes for wildcard
                        }
                        clause += ')';
@@ -126,7 +126,7 @@ vq.utils.VisUtils.extend(re, {
                        if (or_tokens.length){
                            var t;
                            clause += '+' + column_name + ':(';
-                           while ((t = or_tokens.pop()) !== null) {
+                           while ((t = or_tokens.pop()) != null) {
                                  clause +=  re.functions.parseSolrLabel(t);
                            }
                            clause += ')';
