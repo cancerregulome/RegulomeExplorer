@@ -843,10 +843,10 @@ function wedge_plot(parsed_data,div) {
     }
 
     var link_tooltip_items = { };
-    link_tooltip_items[re.ui.feature1.label] = function(link) { return link.sourceNode.label+ ' ' + link.sourceNode.source + ' Chr' + link.sourceNode.chr + ' ' + link.sourceNode.start +
+    link_tooltip_items[re.ui.feature1.label] = function(link) { return link.sourceNode.pretty_label+ ' ' + link.sourceNode.source + ' Chr' + link.sourceNode.chr + ' ' + link.sourceNode.start +
         '-' + link.sourceNode.end + ' ' +link.sourceNode.label_mod;};
 
-    link_tooltip_items[re.ui.feature2.label] = function(link) { return link.targetNode.label+ ' ' + link.targetNode.source + ' Chr' + link.targetNode.chr + ' ' + link.targetNode.start +
+    link_tooltip_items[re.ui.feature2.label] = function(link) { return link.targetNode.pretty_label+ ' ' + link.targetNode.source + ' Chr' + link.targetNode.chr + ' ' + link.targetNode.start +
         '-' + link.targetNode.end + ' ' + link.targetNode.label_mod;};
 
     var karyotype_tooltip_items = {
@@ -855,12 +855,12 @@ function wedge_plot(parsed_data,div) {
         Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
     },
         unlocated_tooltip_items = {};
-    unlocated_tooltip_items[re.ui.feature1.label] =  function(feature) { return feature.sourceNode.source + ' ' + feature.sourceNode.label +
+    unlocated_tooltip_items[re.ui.feature1.label] =  function(feature) { return feature.sourceNode.source + ' ' + feature.sourceNode.pretty_label +
         (feature.sourceNode.chr ? ' Chr'+ feature.sourceNode.chr : '') +
         (feature.sourceNode.start > -1 ? ' '+ feature.sourceNode.start : '') +
         (!isNaN(feature.sourceNode.end) ? '-'+ feature.sourceNode.end : '')  + ' '+
         feature.sourceNode.label_mod;};
-    unlocated_tooltip_items[re.ui.feature2.label] = function(feature) { return feature.targetNode.source + ' ' + feature.targetNode.label +
+    unlocated_tooltip_items[re.ui.feature2.label] = function(feature) { return feature.targetNode.source + ' ' + feature.targetNode.pretty_label +
         (feature.targetNode.chr ? ' Chr'+ feature.targetNode.chr : '') +
         (feature.targetNode.start > -1 ? ' '+ feature.targetNode.start : '') +
         (!isNaN(feature.targetNode.end) ? '-'+ feature.targetNode.end : '')  + ' ' +
@@ -1049,9 +1049,9 @@ function linear_plot(obj) {
 
     var unlocated_tooltip_items = { };
     unlocated_tooltip_items[re.ui.feature1.label] = function(tie) {
-        return tie.sourceNode.label + ' ' + tie.sourceNode.source};
+        return tie.sourceNode.pretty_label + ' ' + tie.sourceNode.source};
     unlocated_tooltip_items[re.ui.feature2.label] = function(tie) {
-        return tie.targetNode.label + ' ' + tie.targetNode.source };
+        return tie.targetNode.pretty_label + ' ' + tie.targetNode.source };
 
     var located_tooltip_items = {
         Feature : function(tie) {
@@ -1060,10 +1060,10 @@ function linear_plot(obj) {
     };
     var   inter_tooltip_items = { };
     inter_tooltip_items[re.ui.feature1.label] = function(tie) {
-        return tie.sourceNode.label + ' ' + tie.sourceNode.source + ' Chr' +tie.sourceNode.chr + ' ' +tie.sourceNode.start +'-'+
+        return tie.sourceNode.pretty_label + ' ' + tie.sourceNode.source + ' Chr' +tie.sourceNode.chr + ' ' +tie.sourceNode.start +'-'+
             tie.sourceNode.end + ' ' + tie.sourceNode.label_mod;};
     inter_tooltip_items[re.ui.feature2.label] = function(tie) {
-        return tie.targetNode.label + ' ' + tie.targetNode.source +
+        return tie.targetNode.pretty_label + ' ' + tie.targetNode.source +
             ' Chr' + tie.targetNode.chr+ ' ' +tie.targetNode.start +'-'+tie.targetNode.end + ' ' + tie.targetNode.label_mod};
 
     re.model.association.types.forEach( function(assoc) {
@@ -1311,7 +1311,8 @@ function scatterplot_draw(params) {
     var dataset_labels=re.ui.getDatasetLabels();
     var patient_labels = dataset_labels['patients'];
     var f1 = data.f1alias, f2 = data.f2alias;
-    var f1label = data.f1alias, f2label = data.f2alias;
+    var f1id = data.f1alias, f2id=data.f2alias;
+    var f1label = re.functions.lookupFFN(data.f1alias), f2label = re.functions.lookupFFN(data.f2alias);
     var f1values, f2values;
     var category_labels = new Array(2);
     var categories = re.plot.scatterplot_category ? re.plot.scatterplot_category.values : undefined;
@@ -1324,10 +1325,10 @@ function scatterplot_draw(params) {
         };
     }
 
-    if (isNonLinear(f1label[0])) {
+    if (isNonLinear(f1id[0])) {
         f1values = data.f1values.split(':');
         //calculate human readable tick labels:
-         label_fn= re.functions.getValueToLabelFunction(f1label);
+         label_fn= re.functions.getValueToLabelFunction(f1id);
         //labels to display for category values;
         uniq_cat = pv.uniq(f1values);
          category_labels[0] = makeLabelMap(label_fn);
@@ -1335,10 +1336,10 @@ function scatterplot_draw(params) {
         f1values = data.f1values.split(':').map(function(val) {return parseFloat(val);});
     }
     
-    if (isNonLinear(f2label[0])) {
+    if (isNonLinear(f2id[0])) {
         f2values = data.f2values.split(':');
          //calculate human readable tick labels:
-         label_fn= re.functions.getValueToLabelFunction(f2label);
+         label_fn= re.functions.getValueToLabelFunction(f2id);
         //labels to display for category values;
         uniq_cat = pv.uniq(f2values);
         category_labels[1] = makeLabelMap(label_fn);
@@ -1387,7 +1388,7 @@ function scatterplot_draw(params) {
     }
     var data_array = [];
     for (var i=0; i< f1values.length; i++) {
-        if (!isNAValue(f1label[0],f1values[i]) && !isNAValue(f2label[0],f2values[i]) ) {
+        if (!isNAValue(f1id[0],f1values[i]) && !isNAValue(f2id[0],f2values[i]) ) {
             var obj = {};
             obj[f1] = f1values[i], obj[f2]=f2values[i], obj['patient_id'] = patient_labels[i];
             if (categories !== undefined) {
@@ -1407,7 +1408,7 @@ function scatterplot_draw(params) {
     var tooltip = {};
     tooltip[data.f1alias] = f1,tooltip[data.f2alias] = f2,tooltip['Sample'] = 'patient_id';
 
-    if(discretize_x && !isNonLinear(f1label[0])) {
+    if(discretize_x && !isNonLinear(f1id[0])) {
         var values1 = data_array.map(function(obj){return obj[f1];});
         var binFunc1 = binData(values1);
         var cat1 = new Array();
@@ -1437,10 +1438,10 @@ function scatterplot_draw(params) {
         category_labels[1] = makeLabelMap(label_fn);
     }
 
-    f1label = (discretize_x ? 'C' : f1label[0]) + f1label.slice(1);
-    f2label = (discretize_y ? 'C' : f2label[0]) + f2label.slice(1);
-    var violin = (isNonLinear(f1label[0]) ^ isNonLinear(f2label[0])); //one is nonlinear, one is not
-    var cubbyhole = isNonLinear(f1label[0]) && isNonLinear(f2label[0]);
+    f1id = (discretize_x ? 'C' : f1id[0]) + f1id.slice(1);
+    f2id = (discretize_y ? 'C' : f2id[0]) + f2id.slice(1);
+    var violin = (isNonLinear(f1id[0]) ^ isNonLinear(f2id[0])); //one is nonlinear, one is not
+    var cubbyhole = isNonLinear(f1id[0]) && isNonLinear(f2id[0]);
 
     var sp,config;
     if (violin)     {

@@ -12,7 +12,9 @@ function registerModelListeners() {
         parseSFValues(data);
     });
     d.addListener('query_complete','dataset_labels',function(data) {
+        loadFFN(data.ffn_map);
         parseDatasetLabels(data);
+        
     });
     d.addListener('query_complete','annotations',function(data) {
         parseAnnotations(data);
@@ -28,6 +30,15 @@ function registerModelListeners() {
 function parseDatasetLabels(data) {
     re.ui.setDatasetLabels(data);
     vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready','dataset_labels', data));
+}
+
+function loadFFN(data) {
+    var ffn_map = {};
+    
+    data.forEach(function(val,index) {
+        ffn_map[val.id] = val.label;
+    });
+    re.functions.ingestFFNMap(ffn_map);
 }
 
 
@@ -142,54 +153,12 @@ function parseNetwork(response) {
     }
 
     var parsed_data = {network : null,unlocated : null, features : null,unlocated_features:null,located_features:null};
-    var null_node = {
-                id : '',
-                source : '',
-                label : '',
-                chr : '',
-                label_mod : '',
-                start: -1,
-                end:-1,
-                qtinfo: ''
-    };
-
     var sorted_sliced_responses = cleanResults(response);
 
     var whole_net = sorted_sliced_responses.map(function(row) {
-            var node1 = row.alias1.split(':');
-            var node2 = row.alias2.split(':');
-
-            if (node1.length < 7 || node2.length < 7) {
-                console.error('Feature data is malformed. RE features consist of 7 required properties.');
-            }
-
-            var label_mod1 = node1.length >=8 ? node1[7] : '';
-            var label_mod2 = node2.length >=8 ? node2[7] : '';
-            var new_node1 = vq.utils.VisUtils.clone(null_node),
-                new_node2 = vq.utils.VisUtils.clone(null_node);
             var obj =  {
-                node1: 
-                    vq.utils.VisUtils.extend(new_node1, {
-                        id : row.alias1, 
-                        source : node1[1],
-                        label : node1[2],
-                        chr : node1[3].slice(3),
-                        label_mod : label_mod1,
-                        start: node1[4] != '' ? parseInt(node1[4]) : -1,
-                        end:node1[5] != '' ? parseInt(node1[5]) : parseInt(node1[4]),
-                        qtinfo: row.f1qtinfo
-                    }),
-                node2: 
-                    vq.utils.VisUtils.extend(new_node2, {
-                        id : row.alias2,
-                        source : node2[1],
-                        label : node2[2],
-                        chr : node2[3].slice(3),
-                        label_mod : label_mod2,
-                        start: node2[4] != '' ? parseInt(node2[4]) : -1,
-                        end:node2[5] != '' ? parseInt(node2[5]) : parseInt(node2[4]),
-                        qtinfo: row.f2qtinfo
-                    })
+                node1: parseFeatureAlias(row.alias1),
+                node2: parseFeatureAlias(row.alias2)
             };
 
         if (re.ui.filters.link_distance) {
@@ -206,10 +175,10 @@ function parseNetwork(response) {
         }
     );
     var located_responses = whole_net.filter(function(feature) {
-        return feature.node1.chr != '' && feature.node2.chr != '';});
+        return feature.node1.chr !== '' && feature.node2.chr !== '';});
 
     var unlocated_responses =  whole_net.filter(function(feature) {
-        return feature.node1.chr == '' || feature.node2.chr == '' || feature.node1.chr == 'NA' || feature.node2.chr == 'NA';});
+        return feature.node1.chr === '' || feature.node2.chr === '' || feature.node1.chr === 'NA' || feature.node2.chr === 'NA';});
 
     var feature_ids = {};
     var features = [];
@@ -222,10 +191,10 @@ function parseNetwork(response) {
     parsed_data['network'] = located_responses;
     parsed_data['unlocated'] = unlocated_responses;
     parsed_data['unlocated_features'] = vq.utils.VisUtils.clone(features).filter(function(feature) {
-        return feature.chr =='';
+        return feature.chr === '';
     });
     parsed_data['located_features'] = vq.utils.VisUtils.clone(features).filter(function(feature) {
-        return feature.chr !='';
+        return feature.chr !== '';
     });
 
     loadComplete();
@@ -273,7 +242,7 @@ function parseSFValues(response) {
         obj.alias = (row.alias1 == alias ? row.alias2 : row.alias1);
         return obj;
     })
-        .map(parseFeatureAlias);
+        .map(parseFeatureObject);
     if (data.length < 1)loadFailed();
 
     parsed_data.features = data.filter(function(feature) { return feature.chr != '' && feature.start != '';});
@@ -282,13 +251,25 @@ function parseSFValues(response) {
     else loadFailed();
 }
 
-function parseFeatureAlias(row) {
+function parseFeatureObject(sf_obj) {
+    var return_obj = parseFeatureAlias(sf_obj.alias);
+      if (re.ui.filters.link_distance) {
+            return_obj.link_distance = sf_obj.link_distance;
+        }
+    re.model.association.types.forEach(function(assoc) {
+        return_obj[assoc.ui.grid.store_index] = sf_obj[assoc.query.id];
+    });
+}
 
-    var node = row.alias.split(':');
+function parseFeatureAlias(alias) {
+
+    var node = alias.split(':');
     var label_mod = node.length >=8 ? node[7] : '';
     var chr = '';
+    
     var start=parseInt(node[4]);
     start = isNaN(start) ? '' : start;
+    
     var end=parseInt(node[5]);
     end = isNaN(end) ? '' : end;
 
@@ -298,16 +279,17 @@ function parseFeatureAlias(row) {
     catch(e) {
         chr = '';
     }
-    var obj =  {id : row.alias, source : node[1], label : node[2], chr : chr,
+
+    if (node.length < 7) {
+            console.error('Feature data is malformed. RF-ACE features consist of 7 required properties: ' + node);
+        }
+
+    var obj =  {id : alias, source : node[1], label : node[2], chr : chr,
         label_mod : label_mod,
         start: start,
-        end:end
+        end:end,
+        pretty_label: re.functions.lookupFFN(alias)
     };
-    if (re.ui.filters.link_distance) {
-            obj.link_distance = row.link_distance;
-        }
-    re.model.association.types.forEach(function(assoc) {
-        obj[assoc.ui.grid.store_index] = row[assoc.query.id];
-    });
+
     return obj;
 }

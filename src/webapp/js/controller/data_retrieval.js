@@ -1,8 +1,8 @@
 function registerDataRetrievalListeners() {
     var d = vq.events.Dispatcher;
     d.addListener('dataset_selected', function(obj) {
-        selectDataset(obj);
-        loadDatasetLabels();
+        selectDataset(obj.label);
+        loadDatasetLabels(obj.disease);
     });
     d.addListener('data_request', 'associations', function(obj) {
         loadNetworkData(obj);
@@ -31,12 +31,13 @@ function selectDataset(set_label) {
     re.tables.features_uri = '/' + set_label + '_features';
 }
 
-function loadDatasetLabels() {
+function loadDatasetLabels(disease) {
     var dataset_labels = {
         feature_sources: null,
         categorical_feature_labels: null,
         patients: null,
-	    pathways: null
+        pathways: null,
+        ffn_map: null,
     };
     var clin_label_query_str = '?' + re.params.query + 'select `alias`, `label`, `source` order by `gene_interesting_score`' + re.params.json_out;
     var clin_label_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.clin_uri + re.rest.query + clin_label_query_str;
@@ -118,6 +119,35 @@ function loadDatasetLabels() {
         success: synchronizer.add(handlePathwayQuery, this),
         failure: function(response) {
             queryFailed('pathways', response);
+        }
+    });
+
+    var collection_label = disease.toUpperCase();
+    var uri = re.databases.base_uri + re.databases.ffn.uri + "/" + collection_label + re.tables.ffn;
+    var query = "?_include=id&_include=label";
+    var ffns = [];
+    var json = {};
+
+    function ffnQueryHandle(response) {
+        try {
+            json = Ext.decode(response.responseText);
+        } catch (err) {
+            throwQueryError('disease_ffn', response);
+        }
+        if ( json.items ) {
+            dataset_labels['ffn_map'] = json.items;
+        } else {
+            dataset_labels['ffn_map'] = [];
+        }
+    }
+
+    var url = uri + query;
+
+    Ext.Ajax.request({
+        url: url,
+        success: synchronizer.add(ffnQueryHandle, this),
+        failure: function(response) {
+            queryFailed('disease_ffn', response);
         }
     });
 

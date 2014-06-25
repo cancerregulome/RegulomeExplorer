@@ -118,7 +118,7 @@ vq.utils.VisUtils.extend(re, {
                    if (and_tokens.length) {
                        clause +='-' + column_name + ':(';
                        var u;
-                       while ((u=and_tokens.pop()) != null) {
+                       while ((u=and_tokens.pop()) !== null) {
                           clause +=  re.functions.parseSolrLabel(u); //don't add quotes for wildcard
                        }
                        clause += ')';
@@ -126,13 +126,23 @@ vq.utils.VisUtils.extend(re, {
                        if (or_tokens.length){
                            var t;
                            clause += '+' + column_name + ':(';
-                           while ((t = or_tokens.pop()) != null) {
+                           while ((t = or_tokens.pop()) !== null) {
                                  clause +=  re.functions.parseSolrLabel(t);
                            }
                            clause += ')';
                    }
                    return clause;
-               }
+        },
+
+        lookupFFN : function(feature_id) {
+            return re.data.lookups.friendlyFeatureNames[feature_id] || re.functions.parseFeatureLabel(feature_id).label;
+        },
+
+        ingestFFNMap : function( obj ) {
+            if (re.data === undefined) re.data = {};
+            if (re.data.lookups === undefined) re.data.lookups = {};
+            re.data.lookups.friendlyFeatureNames = obj;
+        }
     }
 });
 

@@ -583,7 +583,7 @@ function loadListStores(dataset_labels) {
         cat_feature_list.push({
             source: row.source,
             value: escapeComma(row.label),
-            label: row.label,
+            label: re.functions.lookupFFN(row.alias),
             alias: row.alias
         });
     });
@@ -612,7 +612,7 @@ function loadListStores(dataset_labels) {
     });
     Ext.StoreMgr.get('f1_pathway_list_store').loadData(pathway_list);
 
-    var scatterplot_categorical_features = dataset_labels['categorical_feature_labels'].filter( function(feature) {
+    var scatterplot_categorical_features = cat_feature_list.filter( function(feature) {
         var type = feature.alias[0];
         return type === 'C' || type === 'B';
     });
@@ -628,7 +628,7 @@ function loadListStores(dataset_labels) {
 }
 
 function loadDataTableStore(data) {
-    var columns = ['datatype_b', 'label_b', 'chr_b', 'start_b'];
+    var columns = ['datatype_b', 'pretty_label_b', 'label_b', 'chr_b', 'start_b'];
     var colModel = Ext.getCmp('data_grid').getColumnModel();
     var load_data = [];
     if (data['unlocated'] === undefined) {
@@ -636,6 +636,7 @@ function loadDataTableStore(data) {
             var obj = {
                 id_a: node.id,
                 datatype_a: node.source,
+                pretty_label_a: node.pretty_label,
                 label_a: node.label,
                 chr_a: node.chr,
                 start_a: node.start,
@@ -658,12 +659,14 @@ function loadDataTableStore(data) {
             var obj = {
                 id_a: row.node1.id,
                 datatype_a: row.node1.source,
+                pretty_label_a: row.node1.pretty_label,
                 label_a: row.node1.label,
                 chr_a: row.node1.chr,
                 start_a: row.node1.start,
                 end_a: row.node1.end,
                 id_b: row.node2.id,
                 datatype_b: row.node2.source,
+                pretty_label_b: row.node2.pretty_label,
                 label_b: row.node2.label,
                 chr_b: row.node2.chr,
                 start_b: row.node2.start,
@@ -722,13 +725,14 @@ function loadDataset() {
 }
 
 function insertDatasetToStore(label) {
-    var obj =  { 
+    var disease = label.slice(0, label.indexOf('_')).toUpperCase();
+    var obj =  {
                 description : "Hidden dataset",
                 dataset_date : 'Now',
                 label : label,
                 method: 'hidden',
                 source : 'Unknown source',
-                disease : 'disease',
+                disease : disease,
                 contact : '',
                 comments : ''
             };
@@ -762,6 +766,15 @@ function getSelectedDataset() {
     return  Ext.getCmp('dataset-grid').getSelectionModel().getSelected();
 }
 
+function getSelectedDatasetDisease() {
+    var selected_record = getSelectedDataset();
+    var selected_dataset = null;
+    if (selected_record != null) {
+        selected_dataset = selected_record.json.disease;
+    }
+    return selected_dataset;
+}
+
 function getSelectedDatasetLabel() {
     var selected_record = getSelectedDataset();
     var selected_dataset = null;
@@ -788,10 +801,11 @@ function manualLoadSelectedDataset() {
 }
 
 function loadSelectedDataset() {
-    var selected_dataset = getSelectedDatasetLabel();
+    var selected_dataset_label = getSelectedDatasetLabel();
+    var selected_dataset_disease = getSelectedDatasetDisease();
     var selected_description = getSelectedDatasetDescription();
-    if (selected_dataset != '') {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('dataset_selected', 'dataset-grid', selected_dataset));
+    if (selected_dataset_label != '') {
+        vq.events.Dispatcher.dispatch(new vq.events.Event('dataset_selected', 'dataset-grid', {label: selected_dataset_label, disease: selected_dataset_disease}));
         hideDatasetWindow();
         Ext.getCmp('filter_parent').setTitle('Filtering \'' + selected_description + '\'');
     } else {
@@ -941,7 +955,7 @@ function exposeLinearPlot(feature_obj) {
 
 function openRFPanel() {
     loadDataLabelLists(function() {
-        if (Ext.get('circle-panel').dom.firstChild.id != "") {
+        if (Ext.get('circle-panel').dom.firstChild.id !== "") {
             getFilterSelections();
         }
     });
@@ -956,6 +970,7 @@ function registerAllListeners() {
 
 Ext.onReady(function() {
     Ext.QuickTips.init();
+    Ext.Ajax.disableCaching = false;
 
     registerAllListeners();
 
@@ -1130,6 +1145,12 @@ Ext.onReady(function() {
                                         hovercard.show(t, data);
                             }
                         },{
+                            header: "Label",
+                            width: 40,
+                            id: 'pretty_label_a',
+                            dataIndex: 'pretty_label_a',
+                            groupName: 'Target'
+                        }, {
                             header: "Type",
                             width: 40,
                             id: 'datatype_a',
@@ -1139,6 +1160,7 @@ Ext.onReady(function() {
                             header: "Label",
                             width: 70,
                             id: 'label_a',
+                            hidden: true,
                             dataIndex: 'label_a',
                             groupName: 'Target',
                         }, {
@@ -1186,6 +1208,12 @@ Ext.onReady(function() {
                                         hovercard.show(t, data);
                             }
                         },{
+                            header: "Label",
+                            width: 40,
+                            id: 'pretty_label_b',
+                            dataIndex: 'pretty_label_b',
+                            groupName: 'Target'
+                        }, {
                             header: "Type",
                             width: 40,
                             id: 'datatype_b',
@@ -1195,6 +1223,7 @@ Ext.onReady(function() {
                             header: "Label",
                             width: 70,
                             id: 'label_b',
+                            hidden: true,
                             dataIndex: 'label_b',
                             groupName: 'Target',
                         }, {
@@ -1241,8 +1270,8 @@ Ext.onReady(function() {
                     store: new Ext.data.JsonStore({
                         autoLoad: false,
                         storeId: 'data_grid_store',
-                        fields: ['id_a', 'datatype_a', 'label_a', 'chr_a', 'start_a', 'end_a',
-                        'id_b', 'datatype_b', 'label_b', 'chr_b', 'start_b', 'end_b']
+                        fields: ['id_a', 'datatype_a', 'pretty_label_a', 'label_a', 'chr_a', 'start_a', 'end_a',
+                        'id_b', 'datatype_b', 'pretty_label_b', 'label_b', 'chr_b', 'start_b', 'end_b']
                         .concat( re.ui.filters.link_distance ? 'link_distance': [])
                         .concat(re.model.association.types.map(function(obj) {
                             return obj.ui.grid.store_index;
@@ -1261,8 +1290,8 @@ Ext.onReady(function() {
                             link.targetNode = {};
                             link.sourceNode.id = record.get('id_a');
                             link.targetNode.id = record.get('id_b');
-                            link.sourceNode.label = record.get('label_a');
-                            link.targetNode.label = record.get('label_b');
+                            link.sourceNode.label = record.get('pretty_label_a');
+                            link.targetNode.label = record.get('pretty_label_b');
                             //initiateDetailsPopup(link);
                             vq.events.Dispatcher.dispatch(new vq.events.Event('click_association', 'associations_table', link));
                         }
