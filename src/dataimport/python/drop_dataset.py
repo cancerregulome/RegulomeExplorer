@@ -33,6 +33,9 @@ def prepDropLabel(label):
     templatefile.close()
     return ds_file.name
 
+def removeDropFile(filename):
+    os.remove(filename)
+
 def loadConfig(env):
     configFile = ""
     if (env == "internal"):
@@ -68,7 +71,9 @@ if __name__=="__main__":
             for label in drop_list:
                 dropFile = prepDropLabel(label)
                 executeDrop(dropFile, config)
+                removeDropFile(dropFile)
                 deleteSolrDataset(label, config)
+
         else:           
             print "Exiting"
             sys.exit(-1)

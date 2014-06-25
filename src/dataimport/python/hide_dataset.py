@@ -27,6 +27,9 @@ def prepHideLabel(label, method):
     templatefile.close()
     return ds_file.name
 
+def removeHideFile(filename):
+    os.remove(filename)
+
 def loadConfig(env):
     configFile = ""
     if (env == "internal"):
@@ -69,8 +72,9 @@ if __name__=="__main__":
                     print "\n" + label + " is currently set to visible."
                     method = "hidden"
                     print "\nChanging " + label + " to be hidden\n"
-                dropFile = prepHideLabel(label, method)
-                executeHide(dropFile, config)
+                hideFile = prepHideLabel(label, method)
+                executeHide(hideFile, config)
+                removeHideFile(hideFile)
         else:           
             print "Exiting"
             sys.exit(-1)
