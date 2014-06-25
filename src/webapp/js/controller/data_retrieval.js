@@ -124,7 +124,7 @@ function loadDatasetLabels(disease) {
 
     var collection_label = disease.toUpperCase();
     var uri = re.databases.base_uri + re.databases.ffn.uri + "/" + collection_label + re.tables.ffn;
-    var query = "?_include=id&_include=label";
+    var query = "?_include=id&_include=label&source=CLIN&source=SAMP";
     var ffns = [];
     var json = {};
 

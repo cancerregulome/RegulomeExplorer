@@ -568,16 +568,16 @@ function loadListStores(dataset_labels) {
     Ext.getCmp('p_type').setValue("*");
     var label_map = {};
     var cat_feature_list = [
-            { 
+            {
                 source: '*',
                 value: '*',
                 label: 'All',
                 alias: '*'
             }
-                ];
+        ];
 
     dataset_labels['categorical_feature_labels'].forEach(function(row) {
-        if (label_map[row.source] === undefined) { 
+        if (label_map[row.source] === undefined) {
             label_map[row.source] = 1;
         }
         cat_feature_list.push({
@@ -592,7 +592,7 @@ function loadListStores(dataset_labels) {
     
     var label_source_list = Object.keys(label_map);
     var feature_filter = (label_map['CLIN'])  ? 'CLIN' : label_source_list[0];
-    if (cat_feature_list.length > 0) {       
+    if ( cat_feature_list.length > 0 ) {
         var list = re.ui.categorical_feature_list.filter(function(l) { return l.source === feature_filter || l.source ==='*';});
         Ext.StoreMgr.get('f1_clin_list_store').loadData(list,false);
         Ext.StoreMgr.get('f2_clin_list_store').loadData(list,false);
@@ -607,7 +607,7 @@ function loadListStores(dataset_labels) {
         return {
             value: row.pname + ":" + row.psource,
             label: row.pmembers,
-	    url:   row.purl	
+            url:   row.purl
         };
     });
     Ext.StoreMgr.get('f1_pathway_list_store').loadData(pathway_list);

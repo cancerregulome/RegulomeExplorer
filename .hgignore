@@ -8,4 +8,4 @@ syntax: glob
 *.gif
 *.pom
 .idea*
-
+.DS_Store

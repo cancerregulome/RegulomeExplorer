@@ -14,7 +14,6 @@ function registerModelListeners() {
     d.addListener('query_complete','dataset_labels',function(data) {
         loadFFN(data.ffn_map);
         parseDatasetLabels(data);
-        
     });
     d.addListener('query_complete','annotations',function(data) {
         parseAnnotations(data);
@@ -35,7 +34,7 @@ function parseDatasetLabels(data) {
 function loadFFN(data) {
     var ffn_map = {};
     
-    data.forEach(function(val,index) {
+    data.forEach(function(val, index) {
         ffn_map[val.id] = val.label;
     });
     re.functions.ingestFFNMap(ffn_map);
