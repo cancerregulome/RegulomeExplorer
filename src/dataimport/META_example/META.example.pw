@@ -7,8 +7,7 @@ afm=/titan/cancerregulome3/TCGA/outputs/kirc/kirc.bigMerge.25jun.tsv
 annotations=na
 quantile_features=CNVR,GEXP,METH
 associations=/titan/cancerregulome3/TCGA/outputs/kirc/keep.pwpvD.short.sort
-#/home/csbgroup/re_data/tcga/coadread.nov10/coadread.nov10.trimmed.rface
-#/home/csbgroup/re_data/tcga/crc/coadread.nov10.associations.filtered.rface
+interesting_scores=/titan/cancerregulome3/TCGA/outputs/kirc/featScores.pwpvD.short.txt
 afm_description=Kidney Renal AllPairs 
 comment=
 dataset_label=kirc_31july_pw
@@ -32,8 +31,6 @@ collapse_edge_directions=1
 reverse_directions=1
 keep_unmapped_associations=1
 
-[postetl]
-process_genehub=1
 
 #ISB specific - requires smtp python module
 [pubcrawl]
