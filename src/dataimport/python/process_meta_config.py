@@ -72,14 +72,20 @@ def getDoPubcrawl(config):
         return config.get("pubcrawl", "dopubcrawl")
 
 def getInterestingScore(config):
-        return config.get("build","interesting_scores")
+    try:
+        scoreFile = config.get("build","interesting_scores")
+    except ConfigParser.NoOptionError:
+        return ""
+    else:
+        return scoreFile
+
 
 #use Notify
 #def getPubcrawlContact(config):
 #        return config.get("pubcrawl", "pubcrawl_contact").split(',')
 
 def main(metafile):
-	meta_config = loadMetaConfig(metafile)	
+	meta_config = loadMetaConfig(metafile)
 
 if __name__ == "__main__":
         errmsg = "Parameter Error: Data import requires a directory containing a META file"
