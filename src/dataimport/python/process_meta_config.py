@@ -19,6 +19,9 @@ def getAssociations(config):
 def getAfm(config):
         return config.get("build", "afm")
 
+def getMiningMethod(config):
+    return config.get("build", "datamining_method")
+
 def getAfmDescription(config):
         return config.get("build", "afm_description")
 
