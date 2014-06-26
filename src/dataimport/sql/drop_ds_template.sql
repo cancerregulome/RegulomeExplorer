@@ -5,6 +5,7 @@ DROP VIEW IF EXISTS v_#REPLACE#_feature_sources;
 DROP TABLE IF EXISTS #REPLACE#_feature_pathways;
 DROP TABLE IF EXISTS #REPLACE#_association_index;
 DROP TABLE IF EXISTS #REPLACE#_patients;
+DROP TABLE IF EXISTS #REPLACE#_clinical_features;
 DROP VIEW IF EXISTS v_#REPLACE#_patients;
 DROP TABLE IF EXISTS #REPLACE#_networks;
 DROP VIEW IF EXISTS v_#REPLACE#_patient_values;
