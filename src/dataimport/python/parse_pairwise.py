@@ -137,7 +137,7 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 				pvf2_str = tokens[10]
 				try:
 					pv = str(pvlambda(float(pv_str)))
-					pv_bonf = pv_bonf = str(pvlambda(float(pv_bonf_str)))
+					pv_bonf = str(pvlambda(float(pv_bonf_str)))
 					pvf1 = str(pvlambda(float(pvf1_str)))
 					pvf2 = str(pvlambda(float(pvf2_str)))
 				except ValueError:
@@ -150,11 +150,11 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 				if (float(pv_bonf) > max_pv_corr):
 					max_pv_corr = float(pv_bonf)
 
-				rho = str(db_util.sign(float(correlation))*abs(float(pv)))
+				rho = str(db_util.sign(correlation)*abs(float(pv)))
 				link_distance = 500000000 
 				if (len(dataA) >=5 and len(dataB)>=5 and db_util.is_numeric(dataA[4]) >= 1 and db_util.is_numeric(dataB[4]) >= 1 and dataA[3] == dataB[3]):
 					link_distance = abs(int(dataB[4]) - int(dataA[4]))
-				edges_out_re.write(feature1id + "\t" + feature2id + "\t" + nodeA + "\t" + "\t".join(dataA) + "\t" + nodeB + "\t" + "\t".join(dataB) + "\t" + correlation + "\t" + numna + "\t" + pv + "\t" + bonf + "\t" + pv_bonf + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\t" + rho + "\t" + str(link_distance) + "\t" + str(f1genescore) + "\t" + str(f2genescore) + "\n")
+				edges_out_re.write(feature1id + "\t" + feature2id + "\t" + nodeA + "\t" + "\t".join(dataA) + "\t" + nodeB + "\t" + "\t".join(dataB) + "\t" + correlation_str + "\t" + numna + "\t" + pv + "\t" + bonf + "\t" + pv_bonf + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\t" + rho + "\t" + str(link_distance) + "\t" + str(f1genescore) + "\t" + str(f2genescore) + "\n")
 				if (do_pubcrawl == "yes"):
 					#call andrea code
 					getPairwiseInfo.processLine(line, edges_out_pc)
