@@ -27,7 +27,6 @@ function selectDataset(set_label) {
     re.tables.feature_uri = '/v_' + set_label + '_feature_sources';
     re.tables.clin_uri = '/v_' + set_label + '_feature_categorical_labels';
     re.tables.patient_uri = '/v_' + set_label + '_patients';
-    re.tables.pathway_uri = '/' + set_label + '_feature_pathways';
     re.tables.features_uri = '/' + set_label + '_features';
 }
 

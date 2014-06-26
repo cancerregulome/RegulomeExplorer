@@ -58,7 +58,7 @@ function parseFeatures(data) {
 }
 
 function rectifyChrPosition(str_val) {
-    return  isNaN(parseInt(str_val)) ? -1 : parseInt(str_val);
+    return  isNaN(parseInt(str_val, 10)) ? -1 : parseInt(str_val, 10);
 }
 
 function generateNetworkDefinition(responses) {
@@ -72,7 +72,7 @@ function generateNetworkDefinition(responses) {
         var f2id =    row.alias2 + '';
 
         if (node1.length < 7 || node2.length < 7) {
-            console.error('Feature data is malformed. RF-ACE features consist of 7 required properties.');
+            console.error('Feature data is malformed. Association Data features consist of 7 required properties.');
         }
         var source_id = (source_map[f1id] === undefined ? (source_array.push({
                 id : f1id, type : node1[1], label : node1[2], chr : node1[3].slice(3),
@@ -99,8 +99,9 @@ function generateNetworkDefinition(responses) {
         }
 
         re.model.association.types.forEach(function(assoc) {
-            if (row[assoc.query.id] === undefined) {
-                console.error('Association attribute is malformed. Expected attribute with label \'' + assoc.query.id + '\'');
+            if ( row[assoc.query.id] === undefined) {
+                console.log('Data parsing notice: Association attribute is malformed. Expected attribute with label \'' + assoc.query.id + '\'');
+                row[assoc.query.id] = NaN;
             }
             obj[assoc.ui.grid.store_index] = row[assoc.query.id];
         });
@@ -165,7 +166,8 @@ function parseNetwork(response) {
         }
         re.model.association.types.forEach(function(assoc) {
             if (row[assoc.query.id] === undefined) {
-                console.error('Association attribute is malformed. Expected attribute with label \'' + assoc.query.id + '\'');
+                console.log('Data parsing notice: Association attribute is malformed. Expected attribute with label \'' + assoc.query.id + '\'');
+                row[assoc.query.id] = NaN;
             }
             obj[assoc.ui.grid.store_index] = row[assoc.query.id];
         });
@@ -222,13 +224,13 @@ function parseSFValues(response) {
             aliases[row.alias2] = aliases[row.alias2] + 1 || 1;
         });
         var keys = Object.keys(aliases);
-        for (i in keys) {
+        for (var i in keys) {
             if (aliases[keys[i]] == 2) { alias = keys[i];}
         }
     } else {
         if (row1.alias2.indexOf('chr') >=0 ) {
             alias = row1.alias1;
-        } 
+        }
         else if (row1.alias1.indexOf('chr') >=0 ) {
             alias = row1.alias2;
         }
@@ -236,15 +238,15 @@ function parseSFValues(response) {
     if (alias === '') { loadFailed();}
 
     var data = [];
-    data = sorted_sliced_responses.map(function(row) { 
-        var obj = row; 
+    data = sorted_sliced_responses.map(function(row) {
+        var obj = row;
         obj.alias = (row.alias1 == alias ? row.alias2 : row.alias1);
         return obj;
     })
         .map(parseFeatureObject);
     if (data.length < 1)loadFailed();
 
-    parsed_data.features = data.filter(function(feature) { return feature.chr != '' && feature.start != '';});
+    parsed_data.features = data.filter(function(feature) { return feature.chr !== '' && feature.start !== ''; } );
     parsed_data['isolated_feature'] = alias;
     if (parsed_data.features.length > 0) loadComplete();
     else loadFailed();
@@ -266,10 +268,10 @@ function parseFeatureAlias(alias) {
     var label_mod = node.length >=8 ? node[7] : '';
     var chr = '';
     
-    var start=parseInt(node[4]);
+    var start = parseInt(node[4], 10);
     start = isNaN(start) ? '' : start;
     
-    var end=parseInt(node[5]);
+    var end = parseInt(node[5], 10);
     end = isNaN(end) ? '' : end;
 
     try{
@@ -280,7 +282,7 @@ function parseFeatureAlias(alias) {
     }
 
     if (node.length < 7) {
-            console.error('Feature data is malformed. RF-ACE features consist of 7 required properties: ' + node);
+            console.error('Feature data is malformed. Features consist of 7 required properties: ' + node);
         }
 
     var obj =  {id : alias, source : node[1], label : node[2], chr : chr,
