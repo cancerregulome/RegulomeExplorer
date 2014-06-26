@@ -50,7 +50,7 @@ def buildMeta(meta_file, config_file):
 	os.system(reschema_cmd)
 
 	lg = "unlogged"	
-	#doGenehub = process_meta_config.getDoGenehub(config)
+	
 	method_schema = "../sql/create_schema_rface_template.sql";
 	if (dm_method == "pairwise"):
 		method_schema = "../sql/create_schema_pairwise_template.sql";		

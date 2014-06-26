@@ -178,26 +178,8 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 		else:
 			print "duplicated feature in feature set:" + tokens[0]
 		featureId += 1
-	quantiles_out = {} 
-	for ftype in sub_afm_out.keys():
-                        sub_afm_out[ftype].close()
-			q_out = resultsPath + dataset_label + "_" + ftype + "_qo.tsv"
-			#get quantile from timo and add back to alias string and then write
-			compute_quantiles.compute_quantiles(sub_afm_out[ftype].name, q_out)
-			quantiles_out[ftype] = open(q_out, "r")
-			#featureId\tval\tQX
-			qdic = {}
-			for ql in quantiles_out[ftype].readlines():
-				qtk = ql.strip().split("\t")
-				afmkey = qtk[0]
-				fv = qtk[1]
-				fq = qtk[2]
-				qdic[afmkey] = fv + "\t" + fq  
-				fline = out_hash.get(afmkey)
-				if (fline != None):
-					out_hash[afmkey] = fline + "\t" + fv + "\t" + fq
-	for val in out_hash.values():
-		outfile.write(val + "\n")
+
+
 	summary_out = open(resultsPath + "feature_summary_" + dataset_label + ".json", "w")
 	summary_json = "{"
 

@@ -8,7 +8,7 @@ def getDatasets(config):
 
 def dropviews(label):
 
-    tlines="DROP VIEW IF EXISTS v_#REPLACE#_features"
+    tlines="DROP TABLE IF EXISTS #REPLACE#_feature_pathways"
     ds_lines = tlines.replace("#REPLACE#", label)
     print ds_lines
     cmd = "mysql -h %s --port %s -u%s -p%s -e \"%s\" %s" %(db_util.getDBHost(config), db_util.getDBPort(config), db_util.getDBUser(config), db_util.getDBPassword(config), ds_lines, db_util.getDBSchema(config))
