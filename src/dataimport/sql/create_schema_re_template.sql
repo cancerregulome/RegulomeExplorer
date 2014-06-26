@@ -63,21 +63,6 @@ DROP VIEW IF EXISTS v_#REPLACE#_feature_sources;
 CREATE VIEW v_#REPLACE#_feature_sources as 
 SELECT distinct source from #REPLACE#_features;
 
-DROP TABLE IF EXISTS #REPLACE#_feature_pathways;
-CREATE TABLE #REPLACE#_feature_pathways
-(
-   featureid int not null,   
-   alias varchar(255) not null,
-   pathway_name varchar(50) not null,
-   pathway_type varchar(30),
-   pvalue double,
-   id int PRIMARY KEY NOT NULL auto_increment
-);
-
-CREATE INDEX pathway_featureid ON #REPLACE#_feature_pathways(featureid);
-CREATE INDEX pathway_alias ON #REPLACE#_feature_pathways(alias);
-CREATE INDEX pathway_name ON #REPLACE#_feature_pathways(pathway_name);
-
 DROP TABLE IF EXISTS #REPLACE#_association_index;
 CREATE TABLE #REPLACE#_association_index
 (

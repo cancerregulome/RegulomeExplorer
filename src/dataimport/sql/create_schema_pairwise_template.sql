@@ -44,16 +44,6 @@ CREATE INDEX #REPLACE#_loggedpv ON mv_#REPLACE#_feature_networks(logged_pvalue);
 CREATE INDEX #REPLACE#_rhoscore ON mv_#REPLACE#_feature_networks(rho_score);
 CREATE INDEX #REPLACE#_composite1 ON mv_#REPLACE#_feature_networks(f2source, logged_pvalue);
 
-DROP VIEW IF EXISTS #REPLACE#_clinical_features;
-CREATE VIEW #REPLACE#_clinical_features
-as
-SELECT 
-distinct label
-FROM 
-#REPLACE#_features
-where 
-(source = "CLIN" or source = "SAMP");
-
 DROP VIEW IF EXISTS v_#REPLACE#_patient_values;
 
 create view v_#REPLACE#_patient_values as
