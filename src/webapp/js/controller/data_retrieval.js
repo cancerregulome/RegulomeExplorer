@@ -39,7 +39,7 @@ function loadDatasetLabels(disease) {
         pathways: null,
         ffn_map: null,
     };
-    var clin_label_query_str = '?' + re.params.query + 'select `alias`, `label`, `source` order by `gene_interesting_score`' + re.params.json_out;
+    var clin_label_query_str = '?' + re.params.query + 'select `alias`, `label`, `source`, `interesting_score`' + re.params.json_out;
     var clin_label_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.clin_uri + re.rest.query + clin_label_query_str;
     var synchronizer = new vq.utils.SyncCallbacks(loadComplete, this);
     function clinicalLabelQueryHandler(response) {

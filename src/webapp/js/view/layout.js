@@ -572,7 +572,8 @@ function loadListStores(dataset_labels) {
                 source: '*',
                 value: '*',
                 label: 'All',
-                alias: '*'
+                alias: '*',
+                interesting_score: 999999999
             }
         ];
 
@@ -584,7 +585,8 @@ function loadListStores(dataset_labels) {
             source: row.source,
             value: escapeComma(row.label),
             label: re.functions.lookupFFN(row.alias),
-            alias: row.alias
+            alias: row.alias,
+            interesting_score: row.interesting_score
         });
     });
     re.ui.categorical_sources_map = label_map;
@@ -2126,8 +2128,12 @@ re.windows.details_window = new Ext.Window({
                             triggerAction : 'all',
                             store: new Ext.data.JsonStore({
                                 id: 'categorical_feature_store',
-                                fields: ['alias', 'label'],
-                                data: []
+                                fields: ['alias', 'label', 'interesting_score'],
+                                data: [],
+                                sortInfo: {
+                                    field: 'interesting_score',
+                                    direction: 'DESC'
+                                }
                             }),
                             listeners: {
                                 select: {

@@ -214,9 +214,13 @@ re.ui.panels = {
                         store: new Ext.data.JsonStore({
                             autoLoad : false,
                             data: [],
-                            fields : ['value','label','source'],
+                            fields : ['value','label','source', 'interesting_score'],
                             idProperty:'value',
-                            storeId:'f1_clin_list_store'
+                            storeId:'f1_clin_list_store',
+                            sortInfo: {
+                                field: 'interesting_score',
+                                direction: 'DESC'
+                            }
                         }),
                         listWidth:200,
                         fieldLabel:'Features',
@@ -417,9 +421,13 @@ re.ui.panels = {
                         store: new Ext.data.JsonStore({
                             autoLoad : false,
                             data: [],
-                            fields : ['value','label','source'],
+                            fields : ['value','label','source', 'interesting_score'],
                             idProperty:'value',
-                            storeId:'f2_clin_list_store'
+                            storeId:'f2_clin_list_store',
+                            sortInfo: {
+                                field: 'interesting_score',
+                                direction: 'DESC'
+                            }
                         }),
                         listWidth:200,
                         fieldLabel:'Features',
