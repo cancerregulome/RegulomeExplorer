@@ -48,11 +48,6 @@ CREATE INDEX END ON #REPLACE#_features(end);
 CREATE INDEX START ON #REPLACE#_features(start);
 CREATE INDEX LABEL_DESC ON #REPLACE#_features(label_desc);
 
-DROP VIEW IF EXISTS v_#REPLACE#_features;
-CREATE VIEW v_#REPLACE#_features as
-SELECT id, chr,start,end,strand,type,source,label,alias, interesting_score,label_desc 
-FROM #REPLACE#_features;
-
 -- DROP VIEW IF EXISTS v_#REPLACE#_feature_clinlabel;
 -- CREATE VIEW v_#REPLACE#_feature_clinlabel as
 -- SELECT DISTINCT label from #REPLACE#_features where source = 'CLIN';
