@@ -3,13 +3,12 @@ import sys
 import time
 import ConfigParser
 import process_meta_config
-import parse_features_rfex
 
 def buildMeta(meta_file, config_file):
 	if (config_file == ""):
 		config_file = "../config/rfex_sql.config"       
 	config = ConfigParser.RawConfigParser()
-        config.read(meta_file)
+	config.read(meta_file)
 	meta_config = process_meta_config.loadMetaConfig(meta_file)
 	python_bin = process_meta_config.getPythonBin(meta_config)	
 	dm_method = process_meta_config.getMiningMethod(meta_config)
