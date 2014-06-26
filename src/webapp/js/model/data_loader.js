@@ -2,39 +2,39 @@
 function registerModelListeners() {
 
     var d = vq.events.Dispatcher;
-    d.addListener('query_complete','associations',function(data) {
-        if (re.state.query_cancel) { return;}
+    d.addListener('query_complete', 'associations', function(data) {
+        if (re.state.query_cancel) { return; }
         parseNetwork(data);
         // generateNetworkDefinition(data);
     });
-    d.addListener('query_complete','sf_associations',function(data) {
-        if (re.state.query_cancel) { return;}
+    d.addListener('query_complete', 'sf_associations', function(data) {
+        if (re.state.query_cancel) { return; }
         parseSFValues(data);
     });
-    d.addListener('query_complete','dataset_labels',function(data) {
+    d.addListener('query_complete', 'dataset_labels', function(data) {
         loadFFN(data.ffn_map);
         parseDatasetLabels(data);
     });
-    d.addListener('query_complete','annotations',function(data) {
+    d.addListener('query_complete', 'annotations', function(data) {
         parseAnnotations(data);
     });
-    d.addListener('query_complete','features',function(data) {
+    d.addListener('query_complete', 'features', function(data) {
         parseFeatures(data);
     });
-     d.addListener('query_complete','patient_categories',function(data) {
+     d.addListener('query_complete', 'patient_categories', function(data) {
         parsePatientCategories(data);
     });
 }
 
 function parseDatasetLabels(data) {
     re.ui.setDatasetLabels(data);
-    vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready','dataset_labels', data));
+    vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready', 'dataset_labels', data));
 }
 
 function loadFFN(data) {
     var ffn_map = {};
     
-    data.forEach(function(val, index) {
+    data.forEach(function(val) {
         ffn_map[val.id] = val.label;
     });
     re.functions.ingestFFNMap(ffn_map);
@@ -42,23 +42,23 @@ function loadFFN(data) {
 
 
 function parseAnnotations(data) {
-    vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready','annotations', data));
+    vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready', 'annotations', data));
 }
 
 function parsePatientCategories(data) {
-    vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready','patient_categories', data));
+    vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready', 'patient_categories', data));
 }
 
 function parseFeatures(data) {
     //data is only in the first and second row of this array
-    var feature1 = data['data'][0];
-    var feature2 = data['data'][1];
-    var features = {f1alias : feature1.alias, f1values: feature1.patient_values, f2alias: feature2.alias, f2values:feature2.patient_values};
-    vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready','features', features));
+    var feature1 = data['data'][0],
+    feature2 = data['data'][1],
+    features = {f1alias : feature1.alias, f1values: feature1.patient_values, f2alias: feature2.alias, f2values: feature2.patient_values};
+    vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready', 'features', features));
 }
 
 function rectifyChrPosition(str_val) {
-    return  isNaN(parseInt(str_val, 10)) ? -1 : parseInt(str_val, 10);
+    return isNaN(parseInt(str_val, 10)) ? -1 : parseInt(str_val, 10);
 }
 
 function generateNetworkDefinition(responses) {
@@ -66,29 +66,29 @@ function generateNetworkDefinition(responses) {
     var network = {nodes: [], edges: []};
     var source_array = [], source_map = {};
     network.edges = responses.map(function(row) {
-        var node1 = row.alias1.split(':');
-        var node2 = row.alias2.split(':');
-        var f1id =    row.alias1 + '';
-        var f2id =    row.alias2 + '';
+        var node1 = row.alias1.split(':'),
+        node2 = row.alias2.split(':'),
+        f1id =    row.alias1 + '',
+        f2id =    row.alias2 + '';
 
         if (node1.length < 7 || node2.length < 7) {
             console.error('Feature data is malformed. Association Data features consist of 7 required properties.');
         }
         var source_id = (source_map[f1id] === undefined ? (source_array.push({
                 id : f1id, type : node1[1], label : node1[2], chr : node1[3].slice(3),
-                start: rectifyChrPosition(node1[4]) ,
-                end:rectifyChrPosition(node1[5]) != -1 ? rectifyChrPosition(node1[5]) : rectifyChrPosition(node1[4])}
-        )-1) :
-            source_map[f1id]);
+                start: rectifyChrPosition(node1[4]),
+                end:rectifyChrPosition(node1[5]) !== -1 ? rectifyChrPosition(node1[5]) : rectifyChrPosition(node1[4])}
+                ) - 1) :
+                    source_map[f1id]);
 
         source_map[f1id] = source_id;
-        
+
         var target_id = (source_map[f2id] === undefined ? (source_array.push({id : f2id,
                 type : node2[1], label : node2[2], chr : node2[3].slice(3),
-                start: rectifyChrPosition(node2[4]) ,
-                end:rectifyChrPosition(node2[5]) != -1 ? rectifyChrPosition(node2[5]) : rectifyChrPosition(node2[4])}
-        ) -1) :
-            source_map[f2id]);
+                start: rectifyChrPosition(node2[4]),
+                end:rectifyChrPosition(node2[5]) !== -1 ? rectifyChrPosition(node2[5]) : rectifyChrPosition(node2[4])}
+                ) - 1) :
+                    source_map[f2id]);
 
         source_map[f2id] = target_id;
         
@@ -285,11 +285,15 @@ function parseFeatureAlias(alias) {
             console.error('Feature data is malformed. Features consist of 7 required properties: ' + node);
         }
 
-    var obj =  {id : alias, source : node[1], label : node[2], chr : chr,
+    var obj =  {
+        id : alias, 
+        source : node[1], 
+        label : node[2], 
+        chr : chr,
         label_mod : label_mod,
-        start: start,
-        end:end,
-        pretty_label: re.functions.lookupFFN(alias)
+        start : start,
+        end : end,
+        pretty_label : re.functions.lookupFFN(alias)
     };
 
     return obj;
