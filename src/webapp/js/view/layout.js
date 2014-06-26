@@ -76,7 +76,9 @@ function registerLayoutListeners() {
 
 
 window.onpopstate = function(event) {
-    if (re.state.once_loaded) loadDataset();
+    if (re.state.once_loaded) {
+        loadDataset();
+    }
 };
 
 function extractURL() {
@@ -596,8 +598,8 @@ function loadListStores(dataset_labels) {
     var feature_filter = (label_map['CLIN'])  ? 'CLIN' : label_source_list[0];
     if ( cat_feature_list.length > 0 ) {
         var list = re.ui.categorical_feature_list.filter(function(l) { return l.source === feature_filter || l.source ==='*';});
-        Ext.StoreMgr.get('f1_clin_list_store').loadData(list,false);
-        Ext.StoreMgr.get('f2_clin_list_store').loadData(list,false);
+        Ext.StoreMgr.get('f1_clin_list_store').loadData(list, false);
+        Ext.StoreMgr.get('f2_clin_list_store').loadData(list, false);
     }
 
     Ext.getCmp('t_clin').setValue('*');
@@ -973,6 +975,10 @@ function registerAllListeners() {
 Ext.onReady(function() {
     Ext.QuickTips.init();
     Ext.Ajax.disableCaching = false;
+    Ext.Ajax.defaultHeaders = {
+        'Accept'         : 'application/json,application/xml',
+        'Content-Type'   : 'application/json'
+    };
 
     registerAllListeners();
 
