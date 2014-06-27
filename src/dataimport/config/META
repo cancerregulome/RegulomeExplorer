@@ -1,0 +1,10 @@
+#” sh /home/csbgroup/public_html/RE/dataimport/python/load_rface_associations.sh tcga_coadread_nov10 /home/csbgroup/tcga/rf-ace/coadread/coadread.nov10.tsv /home/csbgroup/tcga/rf-ace/coadread/coadread.nov10.associations.filtered.tsv "TCGA Colorectal" "466 patients" public ”
+#
+[build]
+afm=/path/matrix.afm.tsv
+annotations=/path/matrix.feature.annotation.tsv
+associations=/path/rface.associations
+afm_description=TUT Prostate AFM 20K features 100 samples
+comment=your build comment
+dataset_label=gbm_dataset_01May
+intermediate_results_dir=./results
