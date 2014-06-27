@@ -125,8 +125,9 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 				try:
 					correlation = float(correlation_str)
 				except ValueError:
+					#Align correlation value to NaN
 					cnan += 1
-					continue
+					correlation = float('nan')
 				numna = tokens[3]
 				pv_str = tokens[4]
 				bonf = tokens[5]
