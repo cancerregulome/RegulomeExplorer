@@ -23,8 +23,8 @@ def updateFromTemplate(label, template, configfile, resultsPath):
 	schema_out_name = schema_out_name.replace('sql', "sql_processing", 1)
 	sql_processing_dir = resultsPath + "/sql_processing"
 	if (not os.path.exists(sql_processing_dir)):
-	        os.system("mkdir " + sql_processing_dir)
-		os.system("chmod 777 " + sql_processing_dir)		
+		os.system("mkdir " + sql_processing_dir)
+		os.system("chmod 777 " + sql_processing_dir)
 	schema_out_name = sql_processing_dir + "/" + schema_out_name.split("/")[-1]
 	schema_file = open(schema_out_name,'w')
 	config = db_util.getConfig(configfile)

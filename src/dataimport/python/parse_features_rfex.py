@@ -7,7 +7,6 @@ import db_util
 import sys
 import os
 import time
-import compute_quantiles
 
 features_hash = {}
 interesting_hash = {}

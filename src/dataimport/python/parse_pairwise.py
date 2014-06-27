@@ -128,6 +128,7 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 					#Align correlation value to NaN
 					cnan += 1
 					correlation = float('nan')
+					correlation_str = ''
 				numna = tokens[3]
 				pv_str = tokens[4]
 				bonf = tokens[5]
