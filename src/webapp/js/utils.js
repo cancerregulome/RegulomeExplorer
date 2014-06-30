@@ -1,12 +1,71 @@
 
 vq.utils.VisUtils.extend(re, {
     functions: {
+        prettyLabel: function(alias) {
+            var feature = re.functions.parseFeatureLabel(alias);
+            var label = feature.label;
+            var newlabel = '';
+            var modifiers;
+
+            if ( feature.source === 'METH' ) {
+                modifiers = feature.modifier.split('_');
+                var probe = modifiers[0];
+                
+                newlabel = label;
+
+                if (modifiers.length > 1) {
+                    var annotations = modifiers.slice(1);
+                    newlabel += ' (' + annotations.join(", ") + ')';
+                }
+                
+                newlabel += ' ' + probe;
+            }
+
+            else if ( feature.source === 'CNVR' ) {
+                modifiers = feature.modifier.split('_');
+                newlabel = feature.chr + ': ' + feature.start + '-' + feature.stop + ' (' + label + ')';
+            }
+
+            else if ( feature.source ==='GNAB' ) {
+                newlabel = label  + ' ' + feature.modifier;
+            }
+            else if ( feature.source ==='RPPA') {
+                modifiers = feature.modifier;
+                var phospho = /[_-](p[STY]\d*)/g;
+                var match = phospho.exec(modifiers);
+
+                newlabel = label;
+
+                if ( match !== null && match.length > 1) {
+                    newlabel += ' (' + match[1] +')';
+                }
+                
+            }
+            else {
+                newlabel = label;
+            }
+    
+            var suffix = re.label_map[feature.source] || '';
+            if ( suffix !== undefined ) { newlabel = newlabel + ' (' + suffix + ')'; }
+
+            return newlabel;
+        },
 
         parseFeatureLabel : function(alias) {
             var feature = alias.split(':');
-            return {type:feature[0],source:feature[1],label:feature[2],chr:feature[3],
-                start:feature[4],stop:feature[5],strand:feature[6],modifier:feature[7]};
+            if (feature.length < 8) { feature[7] = ''; }
+            return {
+                type : feature[0],
+                source : feature[1],
+                label : feature[2],
+                chr : feature[3],
+                start : feature[4],
+                stop : feature[5],
+                strand : feature[6],
+                modifier : feature[7]
+            };
         },
+
         getValueToLabelFunction: function(alias) {
             var feature = re.functions.parseFeatureLabel(alias);
             var value_map = {'NA' : 'NA'};
@@ -27,7 +86,7 @@ vq.utils.VisUtils.extend(re, {
                 value_map['0'] = 'Non-mutated';
                 value_map['1'] = 'Mutated';
             }
-            if (Object.keys(value_map).length > 1) {
+            if (Object.keys(value_map).length >= 1) {
                 return function(value) {
                         return value_map[value] ? value_map[value] : value;
                 };
@@ -135,7 +194,13 @@ vq.utils.VisUtils.extend(re, {
         },
 
         lookupFFN : function(feature_id) {
-            return re.data.lookups.friendlyFeatureNames[feature_id] || re.functions.parseFeatureLabel(feature_id).label;
+            var type = re.functions.parseFeatureLabel.type;
+            
+            if (type === 'CLIN' || type === 'SAMP' || type === 'RPPA' ){
+                if ( re.data.lookups.friendlyFeatureNames[feature_id] !== undefined )
+                    return re.data.lookups.friendlyFeatureNames[feature_id];
+            }
+            return re.functions.prettyLabel(feature_id);
         },
 
         ingestFFNMap : function( obj ) {

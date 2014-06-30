@@ -589,7 +589,7 @@ function legend_draw(div,anchor) {
 	    break;
 	case('below-top-right'):
 	    Ext.getCmp('pathway-legend-panel').setPosition(880,legend_height + 20);
-            Ext.getCmp('pathway-legend-panel').doLayout();	
+            Ext.getCmp('pathway-legend-panel').doLayout();
         default:
             break;
     }
@@ -1287,7 +1287,6 @@ function isNAValue(data_type,value) {
 
 re.MILLION = 1000000;
 
-
 function scatterplot_draw(params) {
     var data = params.data || re.plot.scatterplot_data || {data:[]},
         div = params.div || null,
@@ -1313,7 +1312,6 @@ function scatterplot_draw(params) {
             return fn ? fn(cat) : cat;
         };
     }
-
     if (isNonLinear(f1id[0])) {
         f1values = data.f1values.split(':');
         //calculate human readable tick labels:
@@ -1463,7 +1461,7 @@ function scatterplot_draw(params) {
                 return parseFloat(d).toPrecision(3);
             }
         }};
-        if (isNonLinear(f2label[0])) {
+        if (isNonLinear(f2id[0])) {
             reverseAxes();
         }
         sp.draw(config);

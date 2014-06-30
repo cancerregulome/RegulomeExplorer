@@ -434,7 +434,7 @@ vq.utils.VisUtils.extend(re, {
      Label map
      Hash maps feature type id to feature type label
      */
-     re.label_map = {
+    re.label_map = {
         '*': 'All',
         'GEXP': 'Gene Expression',
         'METH': 'DNA Methylation ',
