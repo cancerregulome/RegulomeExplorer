@@ -850,7 +850,7 @@ function wedge_plot(parsed_data,div) {
         '-' + link.targetNode.end + ' ' + link.targetNode.label_mod;};
 
     var karyotype_tooltip_items = {
-        'Cytogenetic Band' : function(feature) { 
+        'Cytogenetic Band' : function(feature) {
 		return  vq.utils.VisUtils.options_map(feature)['label'];},
         Location :  function(feature) { return 'Chr' + feature.chr + ' ' + feature.start + '-' + feature.end;}
     },
@@ -1300,7 +1300,8 @@ function scatterplot_draw(params) {
     var patient_labels = dataset_labels['patients'];
     var f1 = data.f1alias, f2 = data.f2alias;
     var f1id = data.f1alias, f2id=data.f2alias;
-    var f1label = re.functions.lookupFFN(data.f1alias), f2label = re.functions.lookupFFN(data.f2alias);
+    var f1label = re.functions.lookupFFN(data.f1alias) + re.functions.prettyFeatureLabelSuffix(data.f1alias),
+        f2label = re.functions.lookupFFN(data.f2alias)  + re.functions.prettyFeatureLabelSuffix(data.f2alias);
     var f1values, f2values;
     var category_labels = new Array(2);
     var categories = re.plot.scatterplot_category ? re.plot.scatterplot_category.values : undefined;

@@ -44,11 +44,14 @@ vq.utils.VisUtils.extend(re, {
             else {
                 newlabel = label;
             }
-    
-            var suffix = re.label_map[feature.source] || '';
-            if ( suffix !== undefined ) { newlabel = newlabel + ' (' + suffix + ')'; }
-
             return newlabel;
+        },
+
+        prettyFeatureLabelSuffix: function(alias) {
+            var feature = re.functions.parseFeatureLabel(alias);
+            var suffix = re.label_map[feature.source] || '';
+            if ( suffix !== undefined ) { return ' (' + suffix + ')'; }
+            return '';
         },
 
         parseFeatureLabel : function(alias) {
@@ -194,9 +197,9 @@ vq.utils.VisUtils.extend(re, {
         },
 
         lookupFFN : function(feature_id) {
-            var type = re.functions.parseFeatureLabel.type;
+            var source = re.functions.parseFeatureLabel(feature_id).source;
             
-            if (type === 'CLIN' || type === 'SAMP' || type === 'RPPA' ){
+            if (source === 'CLIN' || source === 'SAMP' || source === 'RPPA' ){
                 if ( re.data.lookups.friendlyFeatureNames[feature_id] !== undefined )
                     return re.data.lookups.friendlyFeatureNames[feature_id];
             }
