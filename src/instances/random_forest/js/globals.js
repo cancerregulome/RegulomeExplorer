@@ -437,7 +437,7 @@ vq.utils.VisUtils.extend(re, {
     re.label_map = {
         '*': 'All',
         'GEXP': 'Gene Expression',
-        'METH': 'DNA Methylation ',
+        'METH': 'DNA Methylation',
         'CNVR': 'Somatic Copy Number',
         'CLIN': 'Clinical',
         'MIRN': 'MicroRNA Expression',
