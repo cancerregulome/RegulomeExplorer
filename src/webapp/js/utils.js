@@ -1,6 +1,32 @@
 
 vq.utils.VisUtils.extend(re, {
     functions: {
+        numberWithCommas: function(x) {
+        var parts = x.toString().split(".");
+        return parts[0].replace(/\B(?=(\d{3})+(?=$))/g, ",") + (parts[1] ? "." + parts[1] : "");
+        },
+        
+        numberWithSuffix: function(x) {
+            var formatted = re.functions.numberWithCommas(x),
+                firstComma = formatted.indexOf(','),
+                numberOfCommas = formatted.split(',').length,
+                prefix = formatted.slice(0,firstComma),
+                number = parseInt(prefix, 10);
+
+            var suffix = 'bp';
+
+            if (numberOfCommas == 1) {
+                suffix =  'kb';
+            } else if (numberOfCommas == 2) {
+                suffix = 'Mb';
+            }
+
+            var nextNumber =  parseInt(formatted.slice(firstComma+1, firstComma+2), 10);
+            if (nextNumber >=5 ) { number++; }
+
+            return number + suffix;
+        },
+
         prettyLabel: function(alias) {
             var feature = re.functions.parseFeatureLabel(alias);
             var label = feature.label;
@@ -22,8 +48,35 @@ vq.utils.VisUtils.extend(re, {
             }
 
             else if ( feature.source === 'CNVR' ) {
-                modifiers = feature.modifier.split('_');
-                newlabel = feature.chr + ': ' + feature.start + '-' + feature.stop + ' (' + label + ')';
+                if (feature.modifier.length > 1) {
+                    modifiers = feature.modifier.split('_');
+                    var parentheses = '(';
+                    //parse Gistic features.
+                    if (modifiers.indexOf('Gistic') >= 0 && modifiers.indexOf('ROI') >= 0) {
+                        parentheses += 'Gistic';
+                        if (modifiers.indexOf('d') >= 0) { parentheses += ', discrete'; }
+                        if (modifiers.indexOf('r') >= 0) { parentheses += ', continuous'; }
+                    } else if (modifiers.indexOf('GisticArm') >=0 ) {
+                        parentheses += 'Gistic Arm';
+                    }
+                    parentheses+=')';
+                    newlabel += label + ' ';
+                    // look for deletion or amplification
+                    if (modifiers.indexOf('del') >= 0) {
+                        newlabel += 'Deletion';
+                    } else if (modifiers.indexOf('amp') >= 0) {
+                        newlabel += 'Amplification';
+                    }
+                    //append paretheses
+                    if (parentheses.length > 2) {
+                        newlabel += ' ' + parentheses;
+                    }
+                } else {
+                    var differenceWithSuffix = re.functions.numberWithSuffix(parseInt(feature.stop, 10) - parseInt(feature.start, 10));
+                    newlabel = feature.chr + ':' + re.functions.numberWithCommas(feature.start) + '-' +
+                    re.functions.numberWithCommas(feature.stop) + ' (' +
+                        differenceWithSuffix + ', ' + label + ')';
+                }
             }
 
             else if ( feature.source ==='GNAB' ) {
