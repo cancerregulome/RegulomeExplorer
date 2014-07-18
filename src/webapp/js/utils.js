@@ -122,7 +122,7 @@ vq.utils.VisUtils.extend(re, {
             };
         },
 
-        getValueToLabelFunction: function(alias) {
+        getValueToLabelFunction: function(alias, prettyLabel) {
             var feature = re.functions.parseFeatureLabel(alias);
             var value_map = {'NA' : 'NA'};
             if (!!~feature.label.indexOf('I(')) {
@@ -131,9 +131,9 @@ vq.utils.VisUtils.extend(re, {
                 if (conditions.length > 1) {
                     var alternatives = conditions[0].split(',');
                     if (alternatives.length > 1) {
-                        value_map['0'] = 'Yes for ' + alternatives[1]; value_map['1'] = 'Yes for ' + alternatives[0];
+                        value_map['0'] = alternatives[1]; value_map['1'] = alternatives[0];
                     } else {
-                        value_map['0'] = 'Not ' + alternatives[0]; value_map['1'] = 'Yes ' + alternatives[0];
+                        value_map['0'] = 'Not ' + prettyLabel; value_map['1'] = prettyLabel;
                     }
                 } else{
                     value_map['0'] = 'False'; value_map['1'] = 'True';
