@@ -84,7 +84,6 @@ org.cancerregulome.explorer.view.DatasetTree = Ext.extend(Ext.tree.TreeNode, {
 
     addNodes: function(records, keys) {
         var that = this;
-//  keys = keys || ['source','method','disease','dataset_date'];
         keys = keys || ['source','disease','dataset_date'];
         var sets = records.map(function(record){return record.json;}).filter(function(json_r){return json_r;});
         var nested_sets = pv.nest(sets);
@@ -158,7 +157,6 @@ org.cancerregulome.explorer.view.DatasetMenu = Ext.extend(Ext.menu.Menu, {
 
     addPathedItems: function(records, keys) {
         var that = this;
-//  keys = keys || ['source','method','disease','dataset_date'];
         keys = keys || ['source','disease','dataset_date'];
         var sets = records.map(function(record){return record.json;}).filter(function(json_r){return json_r;});
         var nested_sets = pv.nest(sets);
