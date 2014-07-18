@@ -49,11 +49,52 @@ function parsePatientCategories(data) {
     vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready', 'patient_categories', data));
 }
 
+function getValueMap(ffv_array, id) {
+    if (ffv_array && ffv_array.length) {
+        var i = ffv_array.length;
+        while (--i) {
+            if (ffv_array[i] && ffv_array[i].id && ffv_array[i].id === id) {
+                break;
+            }
+        }
+        return ffv_array[i]['ffv_precedence'];
+    }
+    return {};
+
+}
+
 function parseFeatures(data) {
     //data is only in the first and second row of this array
     var feature1 = data['data'][0],
     feature2 = data['data'][1],
-    features = {f1alias : feature1.alias, f1values: feature1.patient_values, f2alias: feature2.alias, f2values: feature2.patient_values};
+    features = {f1alias : feature1.alias, f2alias: feature2.alias };
+
+    var ffv_map = getValueMap(data['ffv'], feature1.alias);
+    if (Object.keys(ffv_map).length) {
+        features.f1values = feature1.patient_values.split(':').map(function(value) {
+            if (ffv_map[value] !== undefined) {
+                return ffv_map[value].ffv;
+            } else {
+                return value;
+            }
+        });
+    } else {
+        features.f1values = feature1.patient_values.split(':');
+    }
+
+    ffv_map = getValueMap(data['ffv'], feature2.alias);
+    if (Object.keys(ffv_map).length) {
+        features.f2values = feature2.patient_values.split(':').map(function(value) {
+            if (ffv_map[value] !== undefined) {
+                return ffv_map[value].ffv;
+            } else {
+                return value;
+            }
+        });
+    } else {
+        features.f2values = feature2.patient_values.split(':');
+    }
+
     vq.events.Dispatcher.dispatch(new vq.events.Event('data_ready', 'features', features));
 }
 
