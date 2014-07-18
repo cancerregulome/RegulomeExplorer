@@ -1314,25 +1314,25 @@ function scatterplot_draw(params) {
         };
     }
     if (isNonLinear(f1id[0])) {
-        f1values = data.f1values.split(':');
+        f1values = data.f1values;
         //calculate human readable tick labels:
-         label_fn= re.functions.getValueToLabelFunction(f1id);
+         label_fn= re.functions.getValueToLabelFunction(f1id, f1label);
         //labels to display for category values;
         uniq_cat = pv.uniq(f1values);
          category_labels[0] = makeLabelMap(label_fn);
     } else {
-        f1values = data.f1values.split(':').map(function(val) {return parseFloat(val);});
+        f1values = data.f1values.map(function(val) {return parseFloat(val);});
     }
     
     if (isNonLinear(f2id[0])) {
-        f2values = data.f2values.split(':');
+        f2values = data.f2values;
          //calculate human readable tick labels:
-         label_fn= re.functions.getValueToLabelFunction(f2id);
+         label_fn= re.functions.getValueToLabelFunction(f2id, f2label);
         //labels to display for category values;
         uniq_cat = pv.uniq(f2values);
         category_labels[1] = makeLabelMap(label_fn);
     } else {
-        f2values = data.f2values.split(':').map(function(val) {return parseFloat(val);});
+        f2values = data.f2values.map(function(val) {return parseFloat(val);});
     }
 
     var dot_colors;
@@ -1405,7 +1405,7 @@ function scatterplot_draw(params) {
             cat1.push(val[f1]);
         });
         //calculate human readable tick labels:
-         label_fn= re.functions.getValueToLabelFunction(f2label);
+         label_fn= re.functions.getValueToLabelFunction(f1id, f1label);
         //labels to display for category values;
         uniq_cat = pv.uniq(cat1);
         category_labels[0] = makeLabelMap(label_fn);
@@ -1420,7 +1420,7 @@ function scatterplot_draw(params) {
             cat2.push(val[f2]);
         });
           //calculate human readable tick labels:
-         label_fn= re.functions.getValueToLabelFunction(f2label);
+         label_fn= re.functions.getValueToLabelFunction(f2id, f2label);
         //labels to display for category values;
         uniq_cat = pv.uniq(cat2);
         category_labels[1] = makeLabelMap(label_fn);

@@ -2,6 +2,7 @@ function registerDataRetrievalListeners() {
     var d = vq.events.Dispatcher;
     d.addListener('dataset_selected', function(obj) {
         selectDataset(obj.label);
+        setGlobalDiseaseVariable(obj.disease);
         loadDatasetLabels(obj.disease);
     });
     d.addListener('data_request', 'associations', function(obj) {
@@ -21,6 +22,15 @@ function registerDataRetrievalListeners() {
     });
 }
 
+function setGlobalDiseaseVariable(disease) {
+    if (disease) {
+        re.disease = disease.toUpperCase();
+    } else {
+        re.disease = 'GLOBAL';
+    }
+
+}
+
 function selectDataset(set_label) {
     re.tables.current_data = set_label;
     re.tables.network_uri = '/mv_' + set_label + '_feature_networks';
@@ -38,9 +48,10 @@ function loadDatasetLabels(disease) {
         pathways: null,
         ffn_map: null,
     };
-    var clin_label_query_str = '?' + re.params.query + 'select `alias`, `label`, `source`, `interesting_score`' + re.params.json_out;
+    var clin_label_query_str = '?' + re.params.query + 'select `alias`, `label`, `source`, `interesting_score`' + 'order by `interesting_score` desc' + re.params.json_out;
     var clin_label_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.clin_uri + re.rest.query + clin_label_query_str;
     var synchronizer = new vq.utils.SyncCallbacks(loadComplete, this);
+
     function clinicalLabelQueryHandler(response) {
         try {
             if (errorInQuery(response.responseText)) {
@@ -51,9 +62,11 @@ function loadDatasetLabels(disease) {
             throwQueryError('categorical_feature_labels', response);
         }
     }
+
     function loadComplete() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'dataset_labels', dataset_labels));
     }
+
     function loadFailed() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail', 'dataset_labels', {
             msg: 'Failed to load dataset labels.'
@@ -61,13 +74,14 @@ function loadDatasetLabels(disease) {
     }
     Ext.Ajax.request({
         url: clin_label_query,
-        success: synchronizer.add(clinicalLabelQueryHandler,this),
+        success: synchronizer.add(clinicalLabelQueryHandler, this),
         failure: function(response) {
             queryFailed('dataset_labels', response);
         }
     });
     var sources_query_str = '?' + re.params.query + 'select source' + re.params.json_out;
     var sources_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.feature_uri + re.rest.query + sources_query_str;
+
     function featureSourceQueryHandler(response) {
         try {
             if (errorInQuery(response.responseText)) {
@@ -80,13 +94,14 @@ function loadDatasetLabels(disease) {
     }
     Ext.Ajax.request({
         url: sources_query,
-        success: synchronizer.add(featureSourceQueryHandler,this),
+        success: synchronizer.add(featureSourceQueryHandler, this),
         failure: function(response) {
             queryFailed('feature_source', response);
         }
     });
     var patient_query_str = '?' + re.params.query + 'limit 1' + re.params.json_out;
     var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.patient_uri + re.rest.query + patient_query_str;
+
     function patientQueryHandle(response) {
         try {
             if (errorInQuery(response.responseText)) {
@@ -99,13 +114,14 @@ function loadDatasetLabels(disease) {
     }
     Ext.Ajax.request({
         url: patient_query,
-        success: synchronizer.add(patientQueryHandle,this),
+        success: synchronizer.add(patientQueryHandle, this),
         failure: function(response) {
             queryFailed('patient_labels', response);
         }
     });
     var pw_query_str = '?' + re.params.query + ('select pname, pmembers, purl, psource order by pname') + re.params.json_out;
-    var pw_query = re.databases.base_uri  + re.databases.metadata.uri + re.tables.pathways + re.rest.query + pw_query_str;
+    var pw_query = re.databases.base_uri + re.databases.metadata.uri + re.tables.pathways + re.rest.query + pw_query_str;
+
     function handlePathwayQuery(response) {
         try {
             dataset_labels['pathways'] = Ext.decode(response.responseText);
@@ -121,10 +137,10 @@ function loadDatasetLabels(disease) {
         }
     });
 
-    var collection_label = disease.toUpperCase();
+    var collection_label = re.disease.toUpperCase();
+    
     var uri = re.databases.base_uri + re.databases.ffn.uri + "/" + collection_label + re.tables.ffn;
     var query = "?_include=id&_include=label&source=CLIN&source=SAMP&source=RPPA";
-    var ffns = [];
     var json = {};
 
     function ffnQueryHandle(response) {
@@ -133,7 +149,7 @@ function loadDatasetLabels(disease) {
         } catch (err) {
             throwQueryError('disease_ffn', response);
         }
-        if ( json.items ) {
+        if (json.items) {
             dataset_labels['ffn_map'] = json.items;
         } else {
             dataset_labels['ffn_map'] = [];
@@ -209,7 +225,9 @@ function loadPatientCategories(alias) {
 
     function categoryQueryHandle(response) {
         try {
-            if(errorInQuery(response.responseText)){throwQueryError('patient_categories', response);}
+            if (errorInQuery(response.responseText)) {
+                throwQueryError('patient_categories', response);
+            }
             var data = Ext.decode(response.responseText);
             if (data.length == 1) {
                 loadComplete(data[0]);
@@ -236,8 +254,10 @@ function loadPatientCategories(alias) {
 
 function loadFeatureData(link) {
 
+    var synchronizer = new vq.utils.SyncCallbacks(loadComplete, this);
     var patients = {
-        data: null
+        data: null,
+        ffv: null
     };
     var query_str = 'select alias, patient_values ' + 'where alias  = \'' + link.sourceNode.id + '\' or alias = \'' + link.targetNode.id + '\' limit 2';
     var query_json = {
@@ -252,15 +272,15 @@ function loadFeatureData(link) {
             if (errorInQuery(response.responseText)) {
                 throwQueryError('features', response);
             }
-            patients['data'] = Ext.decode(response.responseText);
+            var testResponse = Ext.decode(response.responseText);
+            if (testResponse.length == 2) {
+            patients['data'] = testResponse;
+         }   else {
+            patients['data'] = [];
+            noResults('features');
+        }
         } catch (err) {
             throwQueryError('features', response);
-        }
-
-        if (patients['data'].length == 2) {
-            loadComplete();
-        } else {
-            noResults('features');
         }
     }
 
@@ -273,40 +293,69 @@ function loadFeatureData(link) {
             msg: 'Retrieval Timeout'
         }));
     }
+
     Ext.Ajax.request({
         url: patient_query,
-        success: patientQueryHandle,
+        success: synchronizer.add(patientQueryHandle, this),
         failure: function(response) {
             queryFailed('features', response);
+        }
+    });
+
+    var collection_label = re.disease.toUpperCase();
+    var ffv_uri = re.databases.base_uri + re.databases.ffn.uri + "/" + collection_label + re.tables.ffn;
+    var ffv_query = "?_include=id&_include=ffv_precedence&id=" + encodeURIComponent(link.sourceNode.id) + "&id=" + encodeURIComponent(link.targetNode.id);
+    var json = {};
+    var friendly_feature_value_uri = ffv_uri + ffv_query;
+
+    function ffvQueryHandle(response) {
+        try {
+            json = Ext.decode(response.responseText);
+        } catch (err) {
+            throwQueryError('friendly_feature_values', response);
+        }
+        if (json.items) {
+            patients['ffv'] = json.items;
+        } else {
+            patients['ffv'] = [];
+        }
+    }
+
+    Ext.Ajax.request({
+        url: friendly_feature_value_uri,
+        success: synchronizer.add(ffvQueryHandle, this),
+        failure: function(response) {
+            queryFailed('friendly feature values', response);
         }
     });
 }
 
 function loadFeaturesInAFM(label) {
     function loadComplete(ct) {
-     	re.ui.setPathwayMembersQueryCounts(label,ct);
+        re.ui.setPathwayMembersQueryCounts(label, ct);
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'features', features));
     }
     var features = {
         data: null
     };
 
-    var query_str = "select alias where `label` ='"  + label + "' limit 1";
+    var query_str = "select alias where `label` ='" + label + "' limit 1";
     var query_json = {
         tq: query_str,
         tqx: 'out:json_array'
     };
     var patient_query_str = '?' + Ext.urlEncode(query_json);
     var patient_query = re.databases.base_uri + re.databases.rf_ace.uri + re.tables.features_uri + re.rest.query + patient_query_str;
+
     function mQueryHandle(response) {
         try {
             var r = Ext.decode(response.responseText);
 
-            re.ui.setPathwayMembersQueryCounts(label,r.length);
+            re.ui.setPathwayMembersQueryCounts(label, r.length);
         } catch (err) {
             throwQueryError('features', response);
         }
-	}
+    }
 
     Ext.Ajax.request({
         url: patient_query,
@@ -315,6 +364,7 @@ function loadFeaturesInAFM(label) {
             queryFailed('features', response);
         }
     });
+
     function loadFailed() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail', 'features', {
             msg: 'Retrieval Timeout'
@@ -328,6 +378,7 @@ function loadAnnotations() {
     };
     var chrom_query_str = '?' + re.params.query + ('select chr_name, chr_length') + re.params.json_out;
     var chrom_query = re.databases.base_uri + re.databases.metadata.uri + re.tables.chrom_info + re.rest.query + chrom_query_str;
+
     function handleChromInfoQuery(response) {
         try {
             if (errorInQuery(response.responseText)) {
@@ -344,9 +395,11 @@ function loadAnnotations() {
             noResults('annotations');
         }
     }
+
     function loadComplete() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'annotations', annotations));
     }
+
     function loadFailed() {
         vq.events.Dispatcher.dispatch(new vq.events.Event('query_fail', 'annotations', {
             msg: 'Retrieval Timeout'
@@ -373,7 +426,7 @@ function loadNetworkData(response) {
     case (re.ui.feature2.id):
     case (re.ui.feature1.label):
     case (re.ui.feature2.label):
-        loadNetworkDataByFeature(response)
+        loadNetworkDataByFeature(response);
         break;
     case ('association'):
     default:
@@ -386,7 +439,11 @@ function loadNetworkDataSingleFeature(params) {
     var feature_types = ['t', 'p'];
 
     function loadComplete() {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'sf_associations', {results: responses, isolated_feature:params['t_label'], query: params}));
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'sf_associations', {
+            results: responses,
+            isolated_feature: params['t_label'],
+            query: params
+        }));
     }
 
     function loadFailed() {
@@ -411,7 +468,7 @@ function loadNetworkDataSingleFeature(params) {
                 loadComplete();
                 return;
             } else { //no matching results
-                noResults('associations')
+                noResults('associations');
             }
         } else { // haven't gathered all of the responses yet
             return;
@@ -422,19 +479,19 @@ function loadNetworkDataSingleFeature(params) {
     var query_obj = {
         order: params['order'],
         // limit: Math.ceil((parseInt(params['limit']) / feature_types.length)) + ''
-         limit: params['limit']
+        limit: params['limit']
     };
 
-      re.model.association.types.forEach(function(obj) {
+    re.model.association.types.forEach(function(obj) {
         if (Ext.getCmp(obj.id) === undefined) {
             return;
         }
         if (obj.ui.filter.component instanceof re.multirangeField) {
-            query_obj[obj.id + '_value']  = Ext.getCmp(obj.id + '_value').getValue();
+            query_obj[obj.id + '_value'] = Ext.getCmp(obj.id + '_value').getValue();
             query_obj[obj.id + '_fn'] = Ext.getCmp(obj.id + '_fn').getValue();
-        } else{
-        query_obj[obj.id] = Ext.getCmp(obj.id).getValue();
-    }
+        } else {
+            query_obj[obj.id] = Ext.getCmp(obj.id).getValue();
+        }
     });
 
     feature_types.forEach(function(f) {
@@ -449,20 +506,22 @@ function loadNetworkDataSingleFeature(params) {
         obj[of + '_stop'] = params['p_stop'];
         var network_query = buildSingleFeatureGQLQuery(obj, f == 't' ? re.ui.feature1.id : re.ui.feature2.id);
         var association_query_str = '?' + re.params.network_query + network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data;
-        var association_query = re.databases.networks.uri + re.rest.select +'/' + association_query_str;
-        requestWithRetry(association_query,handleNetworkQuery,'associations',1);
+        var association_query = re.databases.networks.uri + re.rest.select + '/' + association_query_str;
+        requestWithRetry(association_query, handleNetworkQuery, 'associations', 1);
     });
 }
 
 
 function loadNetworkDataByFeature(params) {
     var feature = params['filter_type'] == re.ui.feature1.id ? 't' : 'p';
-    if (params[feature + '_type'] && params[feature + '_type'] == 'Pathway')
-		params[feature + '_type'] = '';
+    if (params[feature + '_type'] && params[feature + '_type'] == 'Pathway') params[feature + '_type'] = '';
     var labels = re.functions.parseLabelList(params[feature + '_label']);
 
     function loadComplete() {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', {results: responses, query: params}));
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', {
+            results: responses,
+            query: params
+        }));
     }
 
     function loadFailed() {
@@ -489,21 +548,23 @@ function loadNetworkDataByFeature(params) {
                 loadComplete();
                 return;
             } else { //no matching results
-                noResults('associations')
+                noResults('associations');
             }
         } else { // haven't gathered all of the responses yet
             return;
         }
     }
     //some lists have empty labels.
-    labels =  labels.filter(function(l) { return l!= null && l!='';})
+    labels = labels.filter(function(l) {
+        return l != null && l != '';
+    });
     labels.forEach(function(label) {
         params[feature + '_label'] = label;
         var network_query = buildGQLQuery(params);
         var association_query_str = '?' + re.params.network_query + network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data;
         var association_query = re.databases.networks.uri + re.rest.select + '/' + association_query_str;
-        
-        requestWithRetry(association_query,handleNetworkQuery,'associations',1);
+
+        requestWithRetry(association_query, handleNetworkQuery, 'associations', 1);
     });
 
 }
@@ -525,14 +586,14 @@ function loadDirectedNetworkDataByAssociation(params) {
 
     re.state.network_query = buildGQLQuery(params);
     var association_query_str = '?' + re.params.network_query + re.state.network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data;
-    var association_query = re.databases.networks.uri + re.rest.select +  association_query_str;
+    var association_query = re.databases.networks.uri + re.rest.select + association_query_str;
 
     function handleNetworkQuery(response) {
         try {
             if (errorInQuery(response.responseText)) {
                 throwQueryError('associations', response);
             }
-           responses = Ext.decode(response.responseText).response.docs;
+            responses = Ext.decode(response.responseText).response.docs;
             // responses = Ext.decode(response.responseText);
         } catch (err) {
             throwQueryError('associations', response);
@@ -546,7 +607,10 @@ function loadDirectedNetworkDataByAssociation(params) {
     }
 
     function loadComplete() {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', {results: responses, query: params}));
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', {
+            results: responses,
+            query: params
+        }));
     }
 
     function loadFailed() {
@@ -555,7 +619,7 @@ function loadDirectedNetworkDataByAssociation(params) {
         }));
     }
 
-    requestWithRetry(association_query,handleNetworkQuery,'associations',1);
+    requestWithRetry(association_query, handleNetworkQuery, 'associations', 1);
 }
 
 function loadUndirectedNetworkDataByAssociation(params) {
@@ -572,15 +636,14 @@ function loadUndirectedNetworkDataByAssociation(params) {
             throwQueryError('associations', response);
         }
 
-        if (responses.length == 1) { 
-            if ( isEqual(params, flipParams(params)) ) {
+        if (responses.length == 1) {
+            if (isEqual(params, flipParams(params))) {
                 responses = pv.blend(responses);
                 loadComplete();
             } else {
                 flipQuery();
             }
-        }
-        else if (responses.length == 2) {
+        } else if (responses.length == 2) {
             responses = pv.blend(responses);
             if (responses.length < 1) {
                 noResults('associations');
@@ -593,7 +656,10 @@ function loadUndirectedNetworkDataByAssociation(params) {
     }
 
     function loadComplete() {
-        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', {results: responses, query: params}));
+        vq.events.Dispatcher.dispatch(new vq.events.Event('query_complete', 'associations', {
+            results: responses,
+            query: params
+        }));
     }
 
     function loadFailed() {
@@ -606,7 +672,7 @@ function loadUndirectedNetworkDataByAssociation(params) {
     var association_query_str = '?' + re.params.network_query + re.state.network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data;
     var association_query = re.databases.networks.uri + re.rest.select + '/' + association_query_str;
 
-    requestWithRetry(association_query,handleNetworkQuery,'associations',1);
+    requestWithRetry(association_query, handleNetworkQuery, 'associations', 1);
 
     function flipQuery() {
         var flip_params = flipParams(params);
@@ -614,7 +680,7 @@ function loadUndirectedNetworkDataByAssociation(params) {
         association_query_str = '?' + re.params.network_query + re.state.network_query + re.params.network_json_out + re.params.network_dataset_select + re.tables.current_data;
         association_query = re.databases.networks.uri + re.rest.select + '/' + association_query_str;
 
-    requestWithRetry(association_query,handleNetworkQuery,'associations',1);
+        requestWithRetry(association_query, handleNetworkQuery, 'associations', 1);
     }
 }
 
@@ -629,17 +695,20 @@ function queryFailed(data_type, response) {
 function requestWithRetry(query, handler, failed_type, times) {
     var that = this;
     var repeat = times > -1 ? times : 1;
-    var requestRetry = function() { 
-        var q = query, h=handler, f=failed_type, r = repeat;
-        requestWithRetry.call(that,q, h, f, r);
-    }
+    var requestRetry = function() {
+            var q = query,
+                h = handler,
+                f = failed_type,
+                r = repeat;
+            requestWithRetry.call(that, q, h, f, r);
+        };
 
     Ext.Ajax.request({
         //timeout:8000, //decrease timeout
         url: query,
         success: handler,
         failure: function(response) {
-            if (--repeat == 0) {
+            if (--repeat === 0) {
                 queryFailed(failed_type, response);
             } else if (response.isTimeout) {
                 requestRetry();
@@ -682,7 +751,7 @@ function flipParams(params) {
 
         t_label_desc: params['p_label_desc'],
         p_label_desc: params['t_label_desc'],
-        
+
         t_chr: params['p_chr'],
         p_chr: params['t_chr'],
 
@@ -693,115 +762,110 @@ function flipParams(params) {
         p_stop: params['t_stop']
 
     });
-};
+}
 
 function buildGQLQuery(args) {
     var flparam = 'alias1,alias2,';
     if (re.ui.filters.link_distance) {
-        flparam+= ',link_distance';
+        flparam += ',link_distance';
     }
     //try out solr query
-
     re.model.association.types.forEach(function(obj) {
-            flparam += ',' + obj.query.id;
-        });
-    var qparam='';
+        flparam += ',' + obj.query.id;
+    });
+    var qparam = '';
     if (args['t_type'] != '' && args['t_type'] != '*') {
-        qparam += '+f1source:"'+ args['t_type'] + '"';
+        qparam += '+f1source:"' + args['t_type'] + '"';
     }
     if (args['p_type'] != '' && args['p_type'] != '*') {
-               qparam += '+f2source:"'+ args['p_type'] + '"';
+        qparam += '+f2source:"' + args['p_type'] + '"';
     }
     if (args['t_label'] != '' && args['t_label'] != '*') {
-               qparam += re.functions.convertListToSolrQueryClause(args['t_label'],'f1label');
+        qparam += re.functions.convertListToSolrQueryClause(args['t_label'], 'f1label');
     }
     if (args['p_label'] != '' && args['p_label'] != '*') {
-               qparam += re.functions.convertListToSolrQueryClause(args['p_label'],'f2label');
+        qparam += re.functions.convertListToSolrQueryClause(args['p_label'], 'f2label');
     }
     if (args['t_label_desc'] != '') {
-        qparam += '+f1label_desc:"'+ args['t_label_desc'] + '"';
+        qparam += '+f1label_desc:"' + args['t_label_desc'] + '"';
     }
     if (args['p_label_desc'] != '') {
-        qparam += '+f2label_desc:"'+ args['p_label_desc'] + '"';
+        qparam += '+f2label_desc:"' + args['p_label_desc'] + '"';
     }
     if (args['t_chr'] != '' && args['t_chr'] != '*') {
-        qparam += re.functions.convertListToSolrQueryClause(args['t_chr'],'f1chr');
+        qparam += re.functions.convertListToSolrQueryClause(args['t_chr'], 'f1chr');
 
     }
     if (args['p_chr'] != '' && args['p_chr'] != '*') {
-        qparam += re.functions.convertListToSolrQueryClause(args['p_chr'],'f2chr');
+        qparam += re.functions.convertListToSolrQueryClause(args['p_chr'], 'f2chr');
 
     }
     if ((args['p_start'] != '') && (args['p_stop'] != '')) {
-        qparam += '+f2start:['+ args['p_start'] + ' TO ' + args['p_stop'] + '] '
-                     '+f2end:['+ args['p_start'] + ' TO ' + args['p_stop'] + ']';
-    }
-    else if (args['p_start'] != '') {
-        qparam += '+f2start:['+ args['p_start'] + ' TO *]';
-    }
-    else if (args['p_stop'] != '') {
-        qparam += '+f2end:[* TO '+ args['p_stop'] + ']';
+        qparam += '+f2start:[' + args['p_start'] + ' TO ' + args['p_stop'] + '] ' +
+        '+f2end:[' + args['p_start'] + ' TO ' + args['p_stop'] + ']';
+    } else if (args['p_start'] != '') {
+        qparam += '+f2start:[' + args['p_start'] + ' TO *]';
+    } else if (args['p_stop'] != '') {
+        qparam += '+f2end:[* TO ' + args['p_stop'] + ']';
     }
 
     if ((args['t_start'] != '') && (args['t_stop'] != '')) {
-        qparam += '+f1start:['+ args['t_start'] + ' TO ' + args['t_stop'] + '] '
-                  '+f1end:['+ args['t_start'] + ' TO ' + args['t_stop'] + ']';
-        }
-    else if (args['t_start'] != '') {
-               qparam += '+f1start:['+ args['t_start'] + ' TO *]';
+        qparam += '+f1start:[' + args['t_start'] + ' TO ' + args['t_stop'] + '] ' +
+        '+f1end:[' + args['t_start'] + ' TO ' + args['t_stop'] + ']';
+    } else if (args['t_start'] != '') {
+        qparam += '+f1start:[' + args['t_start'] + ' TO *]';
+    } else if (args['t_stop'] != '') {
+        qparam += '+f1end:[* TO ' + args['t_stop'] + ']';
     }
-    else if (args['t_stop'] != '') {
-        qparam += '+f1end:[* TO '+ args['t_stop'] + ']';
-    }
-  
+
     if (args['cis']) {
         qparam += '-link_distance:"500000000"';
 
     }
-    if(args['cis'] && args['cis_distance_value'] != '') {
-        var clause1 = solr_flex_field_query('link_distance',args['cis_distance_value'], args['cis_distance_fn']);
-       qparam += ((clause1.length < 1) ? '' : clause1);
+    if (args['cis'] && args['cis_distance_value'] != '') {
+        var clause1 = solr_flex_field_query('link_distance', args['cis_distance_value'], args['cis_distance_fn']);
+        qparam += ((clause1.length < 1) ? '' : clause1);
     }
 
-    if(args['trans']) {
+    if (args['trans']) {
         qparam += '+link_distance:"500000000"';
     }
 
-    var fqparam='';
+    var fqparam = '';
     re.model.association.types.forEach(function(obj) {
         if (typeof obj.query.clause == 'function') {
-            var clause = solr_flex_field_query(obj.query.id, args[obj.query.id+'_value'], args[obj.query.id + '_fn']);
-                   fqparam += ((clause.length < 1) ? '' : clause);
+            var clause = solr_flex_field_query(obj.query.id, args[obj.query.id + '_value'], args[obj.query.id + '_fn']);
+            fqparam += ((clause.length < 1) ? '' : clause);
             return;
         }
         if (args[obj.query.id] != '') {
-            var clause_array=trim(obj.query.clause).split(" ");
-            if(clause_array.length > 1){
-            var clause = solr_flex_field_query(obj.query.id, args[obj.query.id],clause_array[clause_array.length-1] );
-             fqparam += ((clause.length < 1) ? '' : clause);
+            var clause_array = trim(obj.query.clause).split(" ");
+            if (clause_array.length > 1) {
+                var clause = solr_flex_field_query(obj.query.id, args[obj.query.id], clause_array[clause_array.length - 1]);
+                fqparam += ((clause.length < 1) ? '' : clause);
             }
         }
     });
 
     var order_id = (re.model.association.types[re.model.association_map[args['order']]].query.order_id === undefined) ? args['order'] : re.model.association.types[re.model.association_map[args['order']]].query.order_id;
     var fn;
-        if(fn = args[order_id+'_fn'] =='Abs'){
-            order_id = 'abs(' + order_id +')';
-        }
-        var sort =  order_id + ' ' + ((re.model.association.types[re.model.association_map[args['order']]].query.order_direction).toLowerCase() || 'desc');
-        var limit = args['limit'];
-
-    if(qparam == ''){
-        qparam='*:*';
+    if (fn = args[order_id + '_fn'] == 'Abs') {
+        order_id = 'abs(' + order_id + ')';
     }
-     return encodeURIComponent(qparam) + '&fq=' + encodeURIComponent(fqparam) + '&sort=' + encodeURIComponent(sort) + '&rows=' + encodeURIComponent(limit) + '&fl=' + encodeURIComponent(flparam);
+    var sort = order_id + ' ' + ((re.model.association.types[re.model.association_map[args['order']]].query.order_direction).toLowerCase() || 'desc');
+    var limit = args['limit'];
+
+    if (qparam == '') {
+        qparam = '*:*';
+    }
+    return encodeURIComponent(qparam) + '&fq=' + encodeURIComponent(fqparam) + '&sort=' + encodeURIComponent(sort) + '&rows=' + encodeURIComponent(limit) + '&fl=' + encodeURIComponent(flparam);
 }
 
 
 function buildSingleFeatureGQLQuery(args, feature) {
     var flparam = 'alias1,alias2';
     if (re.ui.filters.link_distance) {
-        flparam+= ',link_distance';
+        flparam += ',link_distance';
     }
     re.model.association.types.forEach(function(obj) {
         flparam += ',' + obj.query.id;
@@ -811,89 +875,84 @@ function buildSingleFeatureGQLQuery(args, feature) {
 
 
     if (args['t_type'] && args['t_type'] != '' && args['t_type'] != '*') {
-        qparam += '+f1source:"'+ args['t_type'] + '"';
+        qparam += '+f1source:"' + args['t_type'] + '"';
     }
     if (args['p_type'] && args['p_type'] != '' && args['p_type'] != '*') {
-        qparam += '+f2source:"'+ args['p_type'] + '"';
+        qparam += '+f2source:"' + args['p_type'] + '"';
     }
     if (args['t_label'] && args['t_label'] != '' && args['t_label'] != '*') {
-        qparam += '+f1label:'+ re.functions.parseSolrLabel(args['t_label']) + ' ';
+        qparam += '+f1label:' + re.functions.parseSolrLabel(args['t_label']) + ' ';
     }
     if (args['p_label'] && args['p_label'] != '' && args['p_label'] != '*') {
-        qparam += '+f2label:'+ re.functions.parseSolrLabel(args['p_label']) + ' ';
+        qparam += '+f2label:' + re.functions.parseSolrLabel(args['p_label']) + ' ';
     }
     if (args['t_label_desc'] && args['t_label_desc'] != '') {
-        qparam += '+f1label_desc:"'+ args['t_label_desc'] + '"';
+        qparam += '+f1label_desc:"' + args['t_label_desc'] + '"';
     }
     if (args['p_label_desc'] && args['p_label_desc'] != '') {
-        qparam += '+f2label_desc:"'+ args['p_label_desc'] + '"';
+        qparam += '+f2label_desc:"' + args['p_label_desc'] + '"';
     }
     if (args['t_chr'] && args['t_chr'] != '' && args['t_chr'] != '*') {
-        qparam += '+f1chr:"'+ args['t_chr'] + '"';
+        qparam += '+f1chr:"' + args['t_chr'] + '"';
     }
     if (args['p_chr'] && args['p_chr'] != '' && args['p_chr'] != '*') {
-        qparam += '+f2chr:"'+ args['p_chr'] + '"';
+        qparam += '+f2chr:"' + args['p_chr'] + '"';
     }
     if (args['t_start'] && args['t_start'] != '') {
-        qparam += '+f1start:['+ args['t_start'] + ' TO *]';
+        qparam += '+f1start:[' + args['t_start'] + ' TO *]';
     }
     if (args['p_start'] && args['p_start'] != '') {
-        qparam += '+f2start:['+ args['p_start'] + ' TO *]';
+        qparam += '+f2start:[' + args['p_start'] + ' TO *]';
     }
     if (args['t_stop'] && args['t_stop'] != '') {
         if (args['t_start'] != '') {
-            qparam += '+f1end:[' + args['t_start'] + ' TO '+ args['t_stop'] + ']';
-        }
-        else
-               qparam += '+f1end:[* TO '+ args['t_stop'] + ']';
+            qparam += '+f1end:[' + args['t_start'] + ' TO ' + args['t_stop'] + ']';
+        } else qparam += '+f1end:[* TO ' + args['t_stop'] + ']';
 
     }
     if (args['p_stop'] && args['p_stop'] != '') {
-               if (args['p_start'] != '') {
-                   qparam += '%2Bf2end:[' + args['p_start'] + ' TO '+ args['p_stop'] + ']';
-               }
-               else
-                      qparam += '%2Bf2end:[* TO '+ args['p_stop'] + ']';
+        if (args['p_start'] != '') {
+            qparam += '%2Bf2end:[' + args['p_start'] + ' TO ' + args['p_stop'] + ']';
+        } else qparam += '%2Bf2end:[* TO ' + args['p_stop'] + ']';
     }
 
-    if(args['cis'] && args['cis_distance_value'] != '') {
-        var clause1 = solr_flex_field_query('link_distance',args['cis_distance_value'], args['cis_distance_fn']);
-             qparam += ((clause1.length < 1) ? '' : clause1);
+    if (args['cis'] && args['cis_distance_value'] != '') {
+        var clause1 = solr_flex_field_query('link_distance', args['cis_distance_value'], args['cis_distance_fn']);
+        qparam += ((clause1.length < 1) ? '' : clause1);
+    } else if (args['cis']) {
+        qparam += '-link_distance:"500000000"';
     }
-    else if (args['cis']) {
-               qparam += '-link_distance:"500000000"';
-    }
-    if(args['trans']) {
-               qparam += '+link_distance:"500000000"';
+    if (args['trans']) {
+        qparam += '+link_distance:"500000000"';
     }
 
-    var fqparam='';
+    var fqparam = '';
     re.model.association.types.forEach(function(obj) {
         if (typeof obj.query.clause == 'function') {
-            var clause = solr_flex_field_query(obj.query.id, args[obj.query.id+'_value'], args[obj.query.id + '_fn']);
-                      fqparam += ((clause.length < 1) ? '' :  clause);
+            var clause = solr_flex_field_query(obj.query.id, args[obj.query.id + '_value'], args[obj.query.id + '_fn']);
+            fqparam += ((clause.length < 1) ? '' : clause);
             return;
         }
         if (args[obj.query.id] != '') {
-            var clause_array=trim(obj.query.clause).split(" ");
-                       if(clause_array.length > 1){
-                       var clause = solr_flex_field_query(obj.query.id, args[obj.query.id],clause_array[clause_array.length-1] );
-                        fqparam += ((clause.length < 1) ? '' : clause);
-                       }
+            var clause_array = trim(obj.query.clause).split(" ");
+            if (clause_array.length > 1) {
+                var clause = solr_flex_field_query(obj.query.id, args[obj.query.id], clause_array[clause_array.length - 1]);
+                fqparam += ((clause.length < 1) ? '' : clause);
+            }
         }
     });
 
     var order_id = (re.model.association.types[re.model.association_map[args['order']]].query.order_id === undefined) ? args['order'] : re.model.association.types[re.model.association_map[args['order']]].query.order_id;
     var fn;
-        if ((fn = args[order_id+'_fn'] =='Abs') || (fn === '<=' && parseFloat(arg[order_id+'_value']) <= 0)){
-            order_id = 'abs(' + order_id +')';
-        }
+    if ((fn = args[order_id + '_fn'] == 'Abs') || (fn === '<=' && parseFloat(arg[order_id + '_value']) <= 0)) {
+        order_id = 'abs(' + order_id + ')';
+    }
 
-    var sort =  order_id + ' ' + ((re.model.association.types[re.model.association_map[args['order']]].query.order_direction).toLowerCase() || 'desc');
+    var sort = order_id + ' ' + ((re.model.association.types[re.model.association_map[args['order']]].query.order_direction).toLowerCase() || 'desc');
     var limit = args['limit'];
-    
-     if(qparam == ''){
-         qparam='*:*';
-     }
-     return encodeURIComponent(qparam) + '&fq=' + encodeURIComponent(fqparam) + '&sort=' + encodeURIComponent(sort) + '&rows=' + encodeURIComponent(limit) + '&fl=' + encodeURIComponent(flparam);
+
+    if (qparam == '') {
+        qparam = '*:*';
+    }
+    return encodeURIComponent(qparam) + '&fq=' + encodeURIComponent(fqparam) + '&sort=' + encodeURIComponent(sort) + '&rows=' + encodeURIComponent(limit) + '&fl=' + encodeURIComponent(flparam);
 }
