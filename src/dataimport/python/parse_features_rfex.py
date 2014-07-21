@@ -178,6 +178,8 @@ def process_feature_matrix(dataset_label, matrix_file, persist_sample_meta, conf
 		else:
 			print "duplicated feature in feature set:" + tokens[0]
 		featureId += 1
+	for val in out_hash.values():		
+		outfile.write(val + "\n")
 
 
 	summary_out = open(resultsPath + "feature_summary_" + dataset_label + ".json", "w")
