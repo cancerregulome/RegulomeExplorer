@@ -57,10 +57,9 @@ function getValueMap(ffv_array, id) {
                 break;
             }
         }
-        return ffv_array[i]['ffv_precedence'];
+        return ffv_array[i]['ffv_precedence'] || {};
     }
     return {};
-
 }
 
 function parseFeatures(data) {
