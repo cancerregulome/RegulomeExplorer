@@ -1300,8 +1300,10 @@ function scatterplot_draw(params) {
     var patient_labels = dataset_labels['patients'];
     var f1 = data.f1alias, f2 = data.f2alias;
     var f1id = data.f1alias, f2id=data.f2alias;
-    var f1label = re.functions.lookupFFN(data.f1alias) + re.functions.prettyFeatureLabelSuffix(data.f1alias),
-        f2label = re.functions.lookupFFN(data.f2alias)  + re.functions.prettyFeatureLabelSuffix(data.f2alias);
+    var f1label = re.functions.lookupFFN(data.f1alias),
+        f2label = re.functions.lookupFFN(data.f2alias);
+    var f1AxisLabel = f1label + re.functions.prettyFeatureLabelSuffix(data.f1alias),
+        f2AxisLabel = f2label  + re.functions.prettyFeatureLabelSuffix(data.f2alias);
     var f1values, f2values;
     var category_labels = new Array(2);
     var categories = re.plot.scatterplot_category ? re.plot.scatterplot_category.values : undefined;
@@ -1340,7 +1342,7 @@ function scatterplot_draw(params) {
     var stroke_style_fn = undefined;
     if (categories !== undefined) {
         var category_feature_alias = re.plot.scatterplot_category.alias;
-        var labelFunction = re.functions.getValueToLabelFunction(category_feature_alias);
+        var labelFunction = re.functions.getValueToLabelFunction(category_feature_alias, re.functions.lookupFFN(category_feature_alias));
         //labels to display for category values;
         var uniq_categories = pv.uniq(categories);
         var mappedValues = labelFunction ? uniq_categories.map(labelFunction) : uniq_categories;
@@ -1387,7 +1389,7 @@ function scatterplot_draw(params) {
         }
     }
     function reverseAxes() {
-        config.CONTENTS.xcolumnid = f2;config.CONTENTS.ycolumnid=f1;config.CONTENTS.xcolumnlabel=f2label;config.CONTENTS.ycolumnlabel=f1label;
+        config.CONTENTS.xcolumnid = f2;config.CONTENTS.ycolumnid=f1;config.CONTENTS.xcolumnlabel=f2AxisLabel;config.CONTENTS.ycolumnlabel=f1AxisLabel;
         tooltip[data.f1alias]=f2;tooltip[data.f2alias]=f1;
         config.CONTENTS.tooltip_items=tooltip;
             //swap label maps        
@@ -1411,7 +1413,7 @@ function scatterplot_draw(params) {
         category_labels[0] = makeLabelMap(label_fn);
     }
 
-    if(discretize_y && !isNonLinear(f2label[0])) {
+    if(discretize_y && !isNonLinear(f2id[0])) {
         var values2 = data_array.map(function(obj){return obj[f2];});
         var binFunc2 = binData(values2);
         var cat2 = new Array();
@@ -1439,14 +1441,14 @@ function scatterplot_draw(params) {
                 width : 540,
                 height: 300,
                 vertical_padding : 40,
-                horizontal_padding: 60,
+                horizontal_padding: 100,
                 font :"14px sans"},
             data_array: data_array,
             xcolumnid: f1,
             ycolumnid: f2,
             valuecolumnid: 'patient_id',
-            xcolumnlabel : f1label,
-            ycolumnlabel : f2label,
+            xcolumnlabel : f1AxisLabel,
+            ycolumnlabel : f2AxisLabel,
             valuecolumnlabel : '',
             tooltip_items : tooltip,
             show_points : true,
@@ -1473,13 +1475,13 @@ function scatterplot_draw(params) {
             PLOT : {container: div,
                 width : 540,
                 height: 300,
-                vertical_padding : 40, horizontal_padding: 60, font :"14px sans"},
+                vertical_padding : 40, horizontal_padding: 100, font :"14px sans"},
             data_array: data_array,
             xcolumnid: f1,
             ycolumnid: f2,
             valuecolumnid: 'patient_id',
-            xcolumnlabel : f1label,
-            ycolumnlabel : f2label,
+            xcolumnlabel : f1AxisLabel,
+            ycolumnlabel : f2AxisLabel,
             valuecolumnlabel : '',
             tooltip_items : tooltip,
             show_points : true,
@@ -1509,13 +1511,13 @@ function scatterplot_draw(params) {
             PLOT : {container: div,
                 width : 540,
                 height: 300,
-                vertical_padding : 40, horizontal_padding: 60, font :"14px sans"},
+                vertical_padding : 40, horizontal_padding: 100, font :"14px sans"},
             data_array: data_array,
             xcolumnid: f1,
             ycolumnid: f2,
             valuecolumnid: 'patient_id',
-            xcolumnlabel : f1label,
-            ycolumnlabel : f2label,
+            xcolumnlabel : f1AxisLabel,
+            ycolumnlabel : f2AxisLabel,
             valuecolumnlabel : '',
             tooltip_items : tooltip,
             radial_interval : 7,

@@ -93,8 +93,25 @@ vq.utils.VisUtils.extend(re, {
                     newlabel += ' (' + match[1] +')';
                 }
                 
-            }
-            else {
+            } else if ( feature.source ==='SAMP' || feature.source ==='CLIN') {
+                if (!!~label.indexOf('I(')) {
+                    //strip first two characters and last one.
+                    var cleanLabel = label.slice(2,-1);
+                    var conditions = cleanLabel.split('|');
+                    if (conditions.length > 1) {
+                        var alternatives = conditions[0].split(',');
+                        if (alternatives.length > 1) {
+                            newlabel = conditions[1] + ' ' + alternatives[0] + ' vs ' + alternatives[1];
+                        } else {
+                            newlabel = conditions[1] + ' ' + conditions[0];
+                        }
+                    } else {
+                        newlabel = 'In ' + cleanLabel;
+                    }
+                } else {
+                    newlabel = label;
+                }
+            } else {
                 newlabel = label;
             }
             return newlabel;
@@ -133,7 +150,7 @@ vq.utils.VisUtils.extend(re, {
                     if (alternatives.length > 1) {
                         value_map['0'] = alternatives[1]; value_map['1'] = alternatives[0];
                     } else {
-                        value_map['0'] = 'Not ' + prettyLabel; value_map['1'] = prettyLabel;
+                        value_map['0'] = 'Not ' + conditions[0]; value_map['1'] = conditions[0];
                     }
                 } else{
                     value_map['0'] = 'False'; value_map['1'] = 'True';
@@ -157,10 +174,10 @@ vq.utils.VisUtils.extend(re, {
             var plot_obj = re.plot;
             var color_obj = plot_obj.colors;
             var color_map = {'NA':color_obj.categorical_values['NA']};
-            var num_colors = color_obj.category_colors.length
+            var num_colors = color_obj.category_colors.length;
             if (uniq_values.length > num_colors +1) { return pv.Colors.category10(uniq_values); }
             var index = 0;
-            uniq_values.forEach(function(val) { 
+            uniq_values.forEach(function(val) {
                 if (color_obj.categorical_values[val]){
                     color_map[val] = color_obj.categorical_values[val];
                 }else if (plot_obj.category_equivalents[val]){
@@ -175,7 +192,7 @@ vq.utils.VisUtils.extend(re, {
         },
 
         convertChrListToQueryClause: function(list_str, column_name) {
-            var tokens = list_str.split(',').map(trim).map(unescapeComma);            
+            var tokens = list_str.split(',').map(trim).map(unescapeComma);
             var and_tokens = new Array();
             var or_tokens = new Array();
             //split the list into inclusions/or's and exclusions/!(and)'s
@@ -185,13 +202,13 @@ vq.utils.VisUtils.extend(re, {
                 }
                 else  //take all characters after the !
                     or_tokens.push(a);
-            }); 
+            });
             var clause = '';
             if (and_tokens.length) {
                 clause = '(';
                 var u;
                 while ((u=and_tokens.pop()) != null) {
-                   clause += column_name + '!=\'' + u + '\' and '; 
+                   clause += column_name + '!=\'' + u + '\' and ';
                 }
                 clause = clause.slice(0,-5) + ')';
             }
@@ -217,7 +234,7 @@ vq.utils.VisUtils.extend(re, {
         },
 
       convertListToSolrQueryClause: function(list_str, column_name) {
-                   var tokens = re.functions.parseLabelList(list_str);     
+                   var tokens = re.functions.parseLabelList(list_str);
                    var and_tokens = new Array();
                    var or_tokens = new Array();
                    //split the list into inclusions/or's and exclusions/!(and)'s
