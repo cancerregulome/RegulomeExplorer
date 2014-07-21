@@ -128,6 +128,7 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 					#Align correlation value to NaN
 					cnan += 1
 					correlation = float('nan')
+					correlation_str = ''
 				numna = tokens[3]
 				pv_str = tokens[4]
 				bonf = tokens[5]
@@ -152,9 +153,13 @@ def process_pairwise_edges(dataset_label, matrixfile, pairwised_file, pvlambda, 
 					max_pv_corr = float(pv_bonf)
 
 				rho = str(db_util.sign(correlation)*abs(float(pv)))
-				link_distance = 500000000 
-				if (len(dataA) >=5 and len(dataB)>=5 and db_util.is_numeric(dataA[4]) >= 1 and db_util.is_numeric(dataB[4]) >= 1 and dataA[3] == dataB[3]):
-					link_distance = abs(int(dataB[4]) - int(dataA[4]))
+				
+				link_distance = 500000000
+				if ( len(tokens) >= 12 ):
+  					link_distance = int(tokens[11])
+				else:
+					if (len(dataA) >=5 and len(dataB)>=5 and db_util.is_numeric(dataA[4]) >= 1 and db_util.is_numeric(dataB[4]) >= 1 and dataA[3] == dataB[3]):
+						link_distance = abs(int(dataB[4]) - int(dataA[4]))
 				edges_out_re.write(feature1id + "\t" + feature2id + "\t" + nodeA + "\t" + "\t".join(dataA) + "\t" + nodeB + "\t" + "\t".join(dataB) + "\t" + correlation_str + "\t" + numna + "\t" + pv + "\t" + bonf + "\t" + pv_bonf + "\t" + numnaf1 + "\t" + pvf1 + "\t" + numnaf2 + "\t" + pvf2 + "\t" + rho + "\t" + str(link_distance) + "\t" + str(f1genescore) + "\t" + str(f2genescore) + "\n")
 				if (do_pubcrawl == "yes"):
 					#call andrea code
