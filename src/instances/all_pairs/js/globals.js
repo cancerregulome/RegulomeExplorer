@@ -303,9 +303,17 @@ vq.utils.VisUtils.extend(re, {
         chromosomes: [],
         dataset_labels: [],
         categorical_sources_map : {},
+        mutation_ffn : {
+            'nonsilent_somatic' : 'Excluding Silent Mutations',
+            'code_potential_somatic' : 'Protein Coding',
+            'missense_somatic' : 'Missense',
+            'mnf_somatic' : 'Missense-Nonsense-Frameshift',
+            'mni_somatic' : 'Missense-Nonsense-Inframe-Frameshift',
+            'y_n_somatic' : 'All Mutations'
+        },
 
         // Removes heading and trailing whitespaces from a string
-    getDatasetLabels: function() {
+        getDatasetLabels: function() {
             return re.ui.dataset_labels;
         },
         setDatasetLabels: function(obj) {

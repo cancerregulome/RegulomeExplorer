@@ -147,7 +147,7 @@ vq.utils.VisUtils.extend(re, {
                         return label;
                     },
                     Source: function(node) {
-                        return re.label_map[node.source]
+                        return re.label_map[node.source];
                     },
                     'Location': function(node) {
                         return 'Chr' + node.chr + ' ' + node.start + (node.end == '' ? '' : '-' + node.end) + ' ';
@@ -195,7 +195,7 @@ vq.utils.VisUtils.extend(re, {
                       uri: '',
                       selector : Ext.DomQuery.compile('a[href*=zzzZZZzzz]'),
                       config_object: function(feature) {
-                          return 'http://www.ncbi.nlm.nih.gov/gene?term='+feature.label;                      
+                          return 'http://www.ncbi.nlm.nih.gov/gene?term='+feature.label;
                       }
                     }, {
                         label: 'miRBase',
@@ -263,18 +263,18 @@ vq.utils.VisUtils.extend(re, {
                         '1': '#ff7f0e',  //orange
            },
            category_colors : [
-              '#2ca02c',        
+              '#2ca02c',
                 '#9467bd',
                 '#d62728',
                 '#8c564b',
                 '#e377c2',
                 '#7f7f7f',
                 '#bcbd22',
-                "#c2c4ff", 
-                "#e7cb94", 
-                "#cedb9c", 
-                "#e7969c", 
-                "#e1daf9", 
+                "#c2c4ff",
+                "#e7cb94",
+                "#cedb9c",
+                "#e7969c",
+                "#e1daf9",
                 "#b8e2ef"
             ]
         },
@@ -286,11 +286,11 @@ vq.utils.VisUtils.extend(re, {
 
            category_equivalents :{
                 'NEG': '0' ,
-                'NEGATIVE' : '0', 
+                'NEGATIVE' : '0',
                 'TUMOR_FREE' : '0',
                 'NO': '0',
-                'POS': '1', 
-                'POSITIVE' : '1', 
+                'POS': '1',
+                'POSITIVE' : '1',
                 'WITH_TUMOR' : '1',
                 'YES': '1'
             }
@@ -303,18 +303,26 @@ vq.utils.VisUtils.extend(re, {
         chromosomes: [],
         dataset_labels: [],
         categorical_sources_map : {},
+        mutation_ffn : {
+            'nonsilent_somatic' : 'Excluding Silent Mutations',
+            'code_potential_somatic' : 'Protein Coding',
+            'missense_somatic' : 'Missense',
+            'mnf_somatic' : 'Missense-Nonsense-Frameshift',
+            'mni_somatic' : 'Missense-Nonsense-Inframe-Frameshift',
+            'y_n_somatic' : 'All Mutations'
+        },
         
       // Removes heading and trailing whitespaces from a string
     getDatasetLabels: function() {
             return re.ui.dataset_labels;
         },
-        setDatasetLabels: function(obj) {   
+        setDatasetLabels: function(obj) {
             re.ui.dataset_labels = obj;
         },
         current_pathway_members: [],
     getCurrentPathwayMembers: function() {
             return re.ui.current_pathway_members;
-        },     
+        },
         setCurrentPathwayMembers: function(obj) {
             re.ui.current_pathway_members = obj;
     },
