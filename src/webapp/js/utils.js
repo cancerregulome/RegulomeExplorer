@@ -5,7 +5,7 @@ vq.utils.VisUtils.extend(re, {
         var parts = x.toString().split(".");
         return parts[0].replace(/\B(?=(\d{3})+(?=$))/g, ",") + (parts[1] ? "." + parts[1] : "");
         },
-        
+
         numberWithSuffix: function(x) {
             var formatted = re.functions.numberWithCommas(x),
                 firstComma = formatted.indexOf(','),
@@ -25,6 +25,14 @@ vq.utils.VisUtils.extend(re, {
             if (nextNumber >=5 ) { number++; }
 
             return number + suffix;
+        },
+
+        getMutationLabel : function(modifier) {
+            if (re.ui.mutation_ffn === undefined || !(modifier in re.ui.mutation_ffn)) {
+                return modifier.replace('_',' ');
+            }
+            
+            return re.ui.mutation_ffn[modifier];
         },
 
         prettyLabel: function(alias) {
@@ -78,9 +86,8 @@ vq.utils.VisUtils.extend(re, {
                         differenceWithSuffix + ', ' + label + ')';
                 }
             }
-
             else if ( feature.source ==='GNAB' ) {
-                newlabel = label  + ' ' + feature.modifier;
+                newlabel = label  + ' - ' + re.functions.getMutationLabel(feature.modifier);
             }
             else if ( feature.source ==='RPPA') {
                 modifiers = feature.modifier;
