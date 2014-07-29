@@ -1,0 +1,11 @@
+#glob syntax
+
+syntax: glob
+
+*.png
+*.jpg
+*.ico
+*.gif
+*.pom
+.idea*
+.DS_Store
