@@ -1,34 +1,32 @@
 import sys
 import db_util
 import os
+from tempfile import NamedTemporaryFile
 
 def getDatasets(config):
     rows = db_util.executeSelect(config, "select label, method, dataset_date, comments from regulome_explorer_dataset")
     return rows
 
-def executeHide(schemafile_path, config):
+def executeHide(schemafile, config):
+    schemafile_path = schemafile.name
     cmd = "mysql -h %s --port %s -u%s -p%s < %s" %(db_util.getDBHost(config), db_util.getDBPort(config), db_util.getDBUser(config), db_util.getDBPassword(config), schemafile_path)
-    #print "Changing label %s" %(cmd)
     os.system(cmd)
-    print "Changed label %s" %schemafile_path
 
 def prepHideLabel(label, method):
-    
-    templatefile = open("../sql/hide_ds_template.sql", "r")
+    hide_template = "hide_ds_template.sql"    
+    templatefile = open("../sql/" + hide_template, "r")
     tlines = templatefile.read()
     ds_lines = tlines.replace("#REPLACE#", label)
     ds_lines = ds_lines.replace("#METHOD#", method)
-    ds_name = templatefile.name.replace("template", label)
-    ds_name = ds_name.replace("sql", "sql_processing", 1)
-    ds_file = open(ds_name, "w")
+    ds_file  = NamedTemporaryFile(delete=False)
     ds_file.write("use %s;\n" %(db_util.getDBSchema(config)))
     ds_file.write(ds_lines)
     ds_file.close()
     templatefile.close()
-    return ds_file.name
+    return ds_file
 
-def removeHideFile(filename):
-    os.remove(filename)
+def removeHideFile(fileHandle):
+    os.unlink(fileHandle.name)
 
 def loadConfig(env):
     configFile = ""
@@ -75,6 +73,7 @@ if __name__=="__main__":
                 hideFile = prepHideLabel(label, method)
                 executeHide(hideFile, config)
                 removeHideFile(hideFile)
+                print "Changed label %s" %label
         else:           
             print "Exiting"
             sys.exit(-1)

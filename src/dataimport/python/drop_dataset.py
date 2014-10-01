@@ -1,16 +1,16 @@
 import sys
 import db_util
 import os
+from tempfile import NamedTemporaryFile
 
 def getDatasets(config):
     rows = db_util.executeSelect(config, "select label, method, dataset_date, comments from regulome_explorer_dataset")
     return rows
 
-def executeDrop(schemafile_path, config):
+def executeDrop(schemafile, config):
+    schemafile_path = schemafile.name
     cmd = "mysql -h %s --port %s -u%s -p%s < %s" %(db_util.getDBHost(config), db_util.getDBPort(config), db_util.getDBUser(config), db_util.getDBPassword(config), schemafile_path)
-    #print "Dropping label %s" %(cmd)
     os.system(cmd)
-    print "Dropped label %s" %schemafile_path
 
 def deleteSolrDataset(label, config):
     for i in range(0,8):
@@ -20,21 +20,19 @@ def deleteSolrDataset(label, config):
       print "Deleted solr dataset {:s} from core {:d}".format(label,i)
 
 def prepDropLabel(label):
-    
-    templatefile = open("../sql/drop_ds_template.sql", "r")
+    templatefileName = "drop_ds_template.sql"
+    templatefile = open("../sql/" + templatefileName, "r")
     tlines = templatefile.read()
     ds_lines = tlines.replace("#REPLACE#", label)
-    ds_name = templatefile.name.replace("template", label)
-    ds_name = ds_name.replace("sql", "sql_processing", 1)
-    ds_file = open(ds_name, "w")
+    ds_file = NamedTemporaryFile(delete=False)
     ds_file.write("use %s;\n" %(db_util.getDBSchema(config)))
     ds_file.write(ds_lines)
     ds_file.close()
     templatefile.close()
-    return ds_file.name
+    return ds_file
 
-def removeDropFile(filename):
-    os.remove(filename)
+def removeDropFile(fileHandle):
+    os.unlink(fileHandle.name)
 
 def loadConfig(env):
     configFile = ""
@@ -73,6 +71,7 @@ if __name__=="__main__":
                 executeDrop(dropFile, config)
                 removeDropFile(dropFile)
                 deleteSolrDataset(label, config)
+                print "Dropped label %s" %label
 
         else:           
             print "Exiting"
