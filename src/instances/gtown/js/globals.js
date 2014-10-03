@@ -224,8 +224,8 @@ vq.utils.VisUtils.extend(re, {
     cytoscape: {
         obj: {},
         data: [],
-        swfPath: "/js/cytoscape_web/1.0/swf/CytoscapeWeb",
-        flashInstallerPath: "/js/cytoscape_web/1.0/swf/playerProductInstall"
+        swfPath: "/cytoscape_web/1.0/swf/CytoscapeWeb",
+        flashInstallerPath: "/cytoscape_web/1.0/swf/playerProductInstall"
     },
     plot: {
         locatable_source_list: ['GEXP', 'CNVR', 'MIRN' ],
