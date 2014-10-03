@@ -3,56 +3,58 @@
      <meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <title>Random Forest Associations Explorer</title>
-    <link rel="stylesheet" type="text/css" href="http://cdn.cancerregulome.org/js/extjs/3.4.0/resources/css/ext-all.css" />
-    <link rel="stylesheet" type="text/css" href="http://cdn.cancerregulome.org/js/extjs/3.4.0/resources/css/xtheme-slate.css" />
-    <link rel="stylesheet" type="text/css" href="http://cdn.cancerregulome.org/css/re/1.0.3/icons.css" />
+    <link rel="stylesheet" type="text/css" href="/extjs/3.4.1.1/resources/css/ext-all.css" />
+    <link rel="stylesheet" type="text/css" href="/extjs/3.4.1.1/resources/css/xtheme-slate.css" />
+    <link rel="stylesheet" type="text/css" href="/css/re/icons.css" />
 
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/extjs/3.4.0/adapter/ext/ext-base.js"></script>
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/extjs/3.4.0/ext-all.js"></script>
+    <script type="text/javascript" src="/extjs/3.4.1.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/extjs/3.4.1.1/ext-all.js"></script>
 
     <!-- Ext JS Extensions -->
-        <link rel="stylesheet" type="text/css" href="http://cdn.cancerregulome.org/js/extjs/3.4.0/resources/css/colorpicker.css" />
-        <script type="text/javascript" src="http://cdn.cancerregulome.org/js/extjs/3.4.0/ux/ColorPicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="/extjs/3.4.1.1/resources/css/colorpicker.css" />
+    <script type="text/javascript" src="/extjs/3.4.1.1/ux/ColorPicker.js"></script>
 
      <!-- JSON support for IE (needed to use JS API) -->
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/cytoscape_web/1.0/js/min/json2.min.js"></script>
+    <script type="text/javascript" src="/cytoscape_web/1.0/js/min/json2.min.js"></script>
 
-        <!-- Flash embedding utility (needed to embed Cytoscape Web) -->
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/cytoscape_web/1.0/js/min/AC_OETags.min.js"></script>
+    <!-- Flash embedding utility (needed to embed Cytoscape Web) -->
+    <script type="text/javascript" src="/cytoscape_web/1.0/js/min/AC_OETags.min.js"></script>
 
     <!-- Cytoscape Web JS API (needed to reference org.cytoscapeweb.Visualization) -->
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/cytoscape_web/1.0/js/min/cytoscapeweb.min.js"></script>
+    <script type="text/javascript" src="/cytoscape_web/1.0/js/min/cytoscapeweb.min.js"></script>
     
-    <!-- intial setup -->
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/re/1.0.8/namespace.js"></script>
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/re/1.0.8/overrides.js"></script>
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/re/1.0.8/utils.js"></script>
-
     <!-- Karyotype data -->
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/visquick/1.0.3/data/cytoband.hg18.json"></script>
+    <script type="text/javascript" src="/js/visquick/1.1.9/data/cytoband.hg19.json"></script>
 
     <!-- Protovis library -->
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/protovis/3.3.1/protovis-d3.3.1.js"></script>
+    <script type="text/javascript" src="/js/protovis/3.3.1/protovis-r3.3.1.js"></script>
     <!-- Visquick core library -->
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/visquick/1.0.3/vq.js"></script>
+    <script type="text/javascript" src="/js/visquick/1.1.9/vq.js"></script>
     <!-- Visquick linear browser  -->
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/visquick/1.0.3/vq.linear_browser.js"></script>
+    <script type="text/javascript" src="/js/visquick/1.1.9/vq.linear_browser.js"></script>
     <!-- Visquick scatterplot  -->
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/visquick/1.0.3/vq.scatterplot.js"></script>
+    <script type="text/javascript" src="/js/visquick/1.1.9/vq.scatterplot.js"></script>
     <!-- Visquick violinplot  -->
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/visquick/1.0.3/vq.violinplot.js"></script>
+    <script type="text/javascript" src="/js/visquick/1.1.9/vq.violinplot.js"></script>
     <!-- Visquick circvis -->
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/visquick/1.0.3/vq.circvis.js"></script>
+    <script type="text/javascript" src="/js/visquick/1.1.9/vq.circvis.js"></script>
     <!-- Visquick cubbyhole   -->
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/visquick/1.0.3/vq.cubbyhole.js"></script>
+    <script type="text/javascript" src="/js/visquick/1.1.9/vq.cubbyhole.js"></script>
+
+    <!-- intial setup -->
+    <script type="text/javascript" src="/js/regulome_explorer/1.6.6/namespace.js"></script>
+    <script type="text/javascript" src="/js/regulome_explorer/1.6.6/overrides.js"></script>
+    <script type="text/javascript" src="/js/regulome_explorer/1.6.6/utils.js"></script>
     
     <script type="text/javascript" src="js/association.js"></script>
     <script type="text/javascript" src="js/globals.js"></script>
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/re/1.0.8/controller/data_retrieval.js"></script>
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/re/1.0.8/controller/data_plot.js"></script>
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/re/1.0.8/model/data_loader.js"></script>
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/re/1.0.8/view/panels.js"></script>
-    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/re/1.0.8/view/layout.js"></script>
+    <script type="text/javascript" src="/js/regulome_explorer/1.6.6/view/google_drive.js"></script>
+    <script type="text/javascript" src="/js/regulome_explorer/1.6.6/controller/data_retrieval.js"></script>
+    <script type="text/javascript" src="/js/regulome_explorer/1.6.6/controller/data_plot.js"></script>
+    <script type="text/javascript" src="/js/regulome_explorer/1.6.6/model/data_loader.js"></script>
+    <script type="text/javascript" src="/js/regulome_explorer/1.6.6/view/panels.js"></script>
+
+    <script type="text/javascript" src="/js/regulome_explorer/1.6.6/view/layout.js"></script>
 
     <style type="text/css">
 #scatterplot_panel { background-color : #fff	!important}
